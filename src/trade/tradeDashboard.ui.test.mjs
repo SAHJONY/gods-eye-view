@@ -632,3 +632,28 @@ test('dashboard: drawer body is readable at a glance — bilingual headings', ()
   );
   dd.destroy();
 });
+
+test('openDeepLink opens /import-export/index.html#<view>', () => {
+  // The trade ui test mock sets globalThis.window = globalThis, so
+  // window.open resolves to globalThis.open; stub it just for this test.
+  const prev = globalThis.open;
+  let openedUrl = null;
+  globalThis.open = (url) => {
+    openedUrl = url;
+    return null;
+  };
+  try {
+    const dd = initTradeDashboard({
+      rfqStore: fakeStore(),
+      rfqEngine: fakeEngine(),
+    });
+    dd.openDeepLink('rfqs');
+    assert.equal(openedUrl, '/import-export/index.html#rfqs');
+    dd.openDeepLink('suppliers');
+    assert.equal(openedUrl, '/import-export/index.html#suppliers');
+    dd.destroy();
+  } finally {
+    if (prev === undefined) delete globalThis.open;
+    else globalThis.open = prev;
+  }
+});

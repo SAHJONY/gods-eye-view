@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MY CUBA CASH</title>
+<style>
+:root{--bg:#0b1220;--card:#16233a;--card2:#1e293b;--txt:#f3f4f6;--mut:#9ca3af;--acc:#38bdf8;--grn:#86efac;--yel:#fde68a;--red:#fca5a5;--brd:#374151}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:40px}
+header{position:sticky;top:0;z-index:10;background:#0b1220;border-bottom:1px solid var(--brd);padding:12px 14px}
+h1{margin:0;font-size:20px}
+h2{font-size:18px;margin:14px 0 6px}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.langrow{display:flex;gap:8px;margin-top:10px}
+.langbtn{flex:1;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:17px;font-weight:700}
+.langbtn.on{border-color:var(--acc);background:#0c2a3d}
+.mccbtn{display:block;width:100%;min-height:56px;margin-top:10px;border-radius:14px;border:2px solid var(--acc);background:#0c2a3d;color:var(--txt);font-size:18px;font-weight:800;text-decoration:none;text-align:center;padding:14px 10px}
+.biztabs{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 4px;scrollbar-width:none}
+.biztab{flex:0 0 auto;min-height:52px;padding:10px 16px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:15px;font-weight:700;white-space:nowrap;text-decoration:none;line-height:28px}
+.viewtabs{display:flex;gap:8px;padding:10px 14px}
+.viewtab{flex:1;min-height:52px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700}
+.viewtab.on{border-color:var(--grn);background:#0d2b1a}
+main{padding:6px 14px;max-width:720px;margin:0 auto}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.kpi{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:10px 12px}
+.kpi .k{font-size:11px;font-weight:700;color:var(--mut);letter-spacing:.08em}
+.kpi .v{font-size:24px;font-weight:800;margin-top:4px}
+.banner{background:#3b2f0b;border:1px solid #d97706;color:#fef3c7;border-radius:10px;padding:10px 12px;font-size:13px;margin:12px 0}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:16px;margin:12px 0;cursor:pointer}
+.card h3{margin:0 0 6px;font-size:18px}
+.pill{display:inline-block;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:800;margin:4px 6px 4px 0}
+.green{background:#052e16;color:var(--grn);border:1px solid var(--grn)}
+.yellow{background:#3b2f0b;color:var(--yel);border:1px solid var(--yel)}
+.gray{background:#1f2937;color:#d1d5db;border:1px solid #6b7280}
+.mut{color:var(--mut);font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.btn{flex:1;min-height:52px;border-radius:14px;border:none;font-size:16px;font-weight:800;color:#0b1220;background:var(--acc)}
+.btn.sec{background:var(--card2);color:var(--txt);border:2px solid var(--brd)}
+.btn.dgr{background:#3b1114;color:var(--red);border:1px solid var(--red)}
+input:not([type=checkbox]),select,textarea{width:100%;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:#0b1220;color:var(--txt);font-size:16px;padding:10px 12px;margin:6px 0}
+textarea{min-height:110px;resize:vertical}
+label{font-size:14px;color:var(--mut);font-weight:700}
+.checks{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.checks label{display:flex;align-items:center;gap:10px;background:var(--card);border:2px solid var(--brd);border-radius:12px;padding:12px 14px;min-height:52px;font-size:16px;color:var(--txt);font-weight:600;cursor:pointer}
+.checks input{width:24px;height:24px;margin:0;flex:0 0 auto}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--brd);font-size:15px}
+.kv b{text-align:right}
+.note{font-size:13px;color:var(--txt);border-left:3px solid var(--acc);padding:6px 10px;margin:8px 0}
+.note .who{color:var(--acc);font-weight:700}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;z-index:20;overflow-y:auto;padding:16px}
+.modal.open{display:block}
+.sheet{background:var(--card);border-radius:18px;padding:18px;max-width:640px;margin:20px auto}
+.sheet h2{margin-top:0}
+.disc{font-size:12px;color:var(--mut);padding:14px;text-align:center;max-width:720px;margin:0 auto}
+</style>
+</head>
+<body>
+<header>
+<h1>💸 MY CUBA CASH</h1>
+<div class="sub" id="appsub"></div>
+<div class="langrow">
+<button class="langbtn" id="btnES" onclick="setLang('es')">ES</button>
+<button class="langbtn" id="btnEN" onclick="setLang('en')">EN</button>
+</div>
+<a class="mccbtn" id="mccsite" href="https://www.mycubacash.com" target="_blank" rel="noopener"></a>
+</header>
+<nav class="biztabs" id="biztabs" aria-label="cross"></nav>
+<div class="viewtabs" id="viewtabs"></div>
+<main id="main"></main>
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="disc" id="disclaimer"></div>
+<script>
+"use strict";
+/* ============ i18n ============ */
+const T={
+en:{appsub:"Remittance corridors + providers · Zero custody — creating a request moves no money",
+open:"🌐 Open mycubacash.com",
+tocorridors:"Corridors",toproviders:"Providers",toadd:"Add",
+kProviders:"PROVIDERS",kLive:"LIVE",kCorridors:"CORRIDORS",
+beta1:"Beta v0.9 — 0 verified customers · 0 transactions · 0 reviews",
+beta2:"No invented data: counts only change with real data.",
+nocorridors:"No corridors yet — add your first one",
+noprovider:"No providers yet — add your first one",
+seednote:"Seeded providers carry names only — fees appear only after Juan enters them.",
+provider:"Provider",amount:"Amount",rate:"Rate",norate:"no rate",
+noname:"(no name)",noprovider2:"No provider",providerremoved:"Provider removed",
+from:"From (country)",to:"To (country)",amountUSD:"Amount (USD)",fx:"FX rate (manual)",
+fxasof:"Rate as of (date)",fromlat:"From lat",fromlng:"From lng",tolat:"To lat",tolng:"To lng",
+notes:"Notes",save:"Save",cancel:"Cancel",edit:"Edit",del:"Delete",
+newcorr:"New corridor",newprov:"New provider",editcorr:"Edit corridor",editprov:"Edit provider",
+tabCorr:"Corridor",tabProv:"Provider",
+name:"Name",channels:"Channels",coverage:"Coverage (countries, comma-separated)",
+feetype:"Fee type",undisclosed:"Undisclosed",pctt:"Percentage",flatt:"Flat",mixedt:"Mixed",
+feepct:"Fee %",feeflat:"Flat fee ($)",feemin:"Min ($)",feemax:"Max ($)",
+status:"Status",website:"Website",lat:"Latitude",lng:"Longitude",
+feeUndisclosed:"Fee undisclosed",feeIncomplete:"Fee incomplete — figures missing",
+fee:"Fee",confirmdel:"Delete this record?",
+needfrom:"From and To countries are required.",
+needfxdate:"The rate needs its as-of date. Nothing is saved without a date.",
+needname:"The provider name is required.",
+export:"Export data",import:"Import data",badfile:"That file could not be read.",
+wfnotes:"Workforce notes",nonotes:"No notes",
+disclaimer:"Zero custody: creating a request or corridor moves no money. Data only changes with real information — nothing is invented.",
+st_candidate:"Candidate",st_verifying:"Verifying",st_live:"Live",st_paused:"Paused",
+nav_home:"⌂ GEV",nav_ins:"🛡️ Insurance",nav_who:"🏠 Wholesale",nav_cru:"🛢️ Crude",nav_imp:"🌐 Imp/Exp"},
+es:{appsub:"Corredores + proveedores de remesas · Custodia cero — crear una solicitud no mueve dinero",
+open:"🌐 Abrir mycubacash.com",
+tocorridors:"Corredores",toproviders:"Proveedores",toadd:"Agregar",
+kProviders:"PROVEEDORES",kLive:"EN VIVO",kCorridors:"CORREDORES",
+beta1:"Beta v0.9 — 0 clientes verificados · 0 transacciones · 0 reseñas",
+beta2:"Sin datos inventados: los conteos solo cambian con datos reales.",
+nocorridors:"Aún no hay corredores — agrega el primero",
+noprovider:"Aún no hay proveedores — agrega el primero",
+seednote:"Los proveedores iniciales traen solo el nombre — las tarifas aparecen solo cuando Juan las ingresa.",
+provider:"Proveedor",amount:"Monto",rate:"Tasa",norate:"sin tasa",
+noname:"(sin nombre)",noprovider2:"Sin proveedor",providerremoved:"Proveedor eliminado",
+from:"Origen (país)",to:"Destino (país)",amountUSD:"Monto (USD)",fx:"Tasa (manual)",
+fxasof:"Tasa al (fecha)",fromlat:"Lat. origen",fromlng:"Lng. origen",tolat:"Lat. destino",tolng:"Lng. destino",
+notes:"Notas",save:"Guardar",cancel:"Cancelar",edit:"Editar",del:"Eliminar",
+newcorr:"Nuevo corredor",newprov:"Nuevo proveedor",editcorr:"Editar corredor",editprov:"Editar proveedor",
+tabCorr:"Corredor",tabProv:"Proveedor",
+name:"Nombre",channels:"Canales",coverage:"Cobertura (países, separados por comas)",
+feetype:"Tipo de tarifa",undisclosed:"Sin declarar",pctt:"Porcentaje",flatt:"Fija",mixedt:"Mixta",
+feepct:"Tarifa %",feeflat:"Tarifa fija ($)",feemin:"Mínimo ($)",feemax:"Máximo ($)",
+status:"Estado",website:"Sitio web",lat:"Latitud",lng:"Longitud",
+feeUndisclosed:"Tarifa sin declarar",feeIncomplete:"Tarifa incompleta — faltan cifras",
+fee:"Tarifa",confirmdel:"¿Eliminar este registro?",
+needfrom:"Origen y destino son obligatorios.",
+needfxdate:"La tasa necesita su fecha («tasa al»). Nada se guarda sin fecha.",
+needname:"El nombre del proveedor es obligatorio.",
+export:"Exportar datos",import:"Importar datos",badfile:"No se pudo leer el archivo.",
+wfnotes:"Notas de la fuerza",nonotes:"Sin notas",
+disclaimer:"Custodia cero: crear una solicitud o corredor no mueve dinero. Los datos solo cambian con información real — nada se inventa.",
+st_candidate:"Candidato",st_verifying:"Verificando",st_live:"Activo",st_paused:"Pausado",
+nav_home:"⌂ GEV",nav_ins:"🛡️ Seguro",nav_who:"🏠 Mayoreo",nav_cru:"🛢️ Crudo",nav_imp:"🌐 Imp/Exp"}};
+let lang="es"; const t=k=>T[lang][k]||k;
+/* ============ store (mirrors src/cubacash/providerStore.js) ============ */
+const KEY="sahjony.cubacash.v1";
+const LANG_KEY="sahjony.gev.lang";
+/* The only providers that ever get seeded. Names only — no fees, no FX, no coords. */
+const SEED_PROVIDERS=["Western Union","Cubamax","Sendvalu","Fonmoney","Correos España","Íkualo Rem"];
+const STATUSES=["candidate","verifying","live","paused"];
+const CHANNELS=["app","web","whatsapp","agent","retail"];
+const FEE_TYPES=["undisclosed","percentage","flat","mixed"];
+let S;
+function chicagoIso(d){
+ d=d instanceof Date?d:new Date(d||Date.now());
+ const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Chicago",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).formatToParts(d);
+ const get=ty=>{const p=parts.find(x=>x.type===ty);return p?p.value:"00"};
+ const local=get("year")+"-"+get("month")+"-"+get("day")+"T"+get("hour")+":"+get("minute")+":"+get("second");
+ const utcMs=d.getTime();
+ const wall=Date.UTC(+get("year"),+get("month")-1,+get("day"),+get("hour"),+get("minute"),+get("second"));
+ const offMin=Math.round((wall-utcMs)/60000),sign=offMin<=0?"-":"+";
+ const abs=Math.abs(offMin),hh=String(Math.floor(abs/60)).padStart(2,"0"),mm=String(abs%60).padStart(2,"0");
+ return local+sign+hh+":"+mm;
+}
+function makeId(){
+ if(typeof crypto!=="undefined"&&crypto.randomUUID)return crypto.randomUUID();
+ return Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,10);
+}
+function seedProvider(name,now){
+ return{id:makeId(),name:name,channels:[],coverageCountries:[],
+  feeModel:{type:"undisclosed",pct:null,flat:null,min:null,max:null},
+  status:"live",website:"",notes:"",lat:null,lng:null,agentNotes:[],
+  createdAt:now,updatedAt:now};
+}
+function load(){
+ try{S=JSON.parse(localStorage.getItem(KEY))||null}catch(e){S=null}
+ if(!S||!Array.isArray(S.providers)||!Array.isArray(S.corridors))S={providers:[],corridors:[],seeded:false};
+ S.seeded=S.seeded===true;
+ seedIfEmpty();
+}
+function seedIfEmpty(){
+ if(S.seeded)return;
+ if(S.providers.length>0||S.corridors.length>0)return;
+ const now=chicagoIso();
+ S.providers=SEED_PROVIDERS.map(n=>seedProvider(n,now));
+ S.seeded=true;
+ save();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+/* ============ hash deep-linking: #corridors #providers #add ============ */
+let view="corridors";
+const VIEWHASH={corridors:"corridors",providers:"providers",add:"add"};
+function applyHash(){
+ try{const h=String(location.hash||"").replace("#","").toLowerCase();
+  const v=VIEWHASH[h];if(v){view=v;render();return true}}catch(e){}
+ return false;
+}
+if(typeof window!=="undefined"&&window.addEventListener)window.addEventListener("hashchange",applyHash);
+function go(h){if(location.hash===h){applyHash()}else{location.hash=h}}
+/* ============ helpers ============ */
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function money(n){const v=Number(n);return "$"+(Number.isFinite(v)?v:0).toLocaleString("en-US",{maximumFractionDigits:2})}
+function numOrNull(v){if(v===""||v==null)return null;const n=Number(v);return Number.isFinite(n)?n:null}
+function numOrNullPos(v){const n=numOrNull(v);return(n!==null&&n>0)?n:null}
+function feeNum(v){const n=numOrNull(v);return(n!==null&&n>=0)?n:null}
+function pill(st){
+ const cls=st==="live"?"green":st==="verifying"?"yellow":"gray";
+ return '<span class="pill '+cls+'">'+esc(t("st_"+st)||st)+"</span>";
+}
+function provById(id){return S.providers.find(p=>p.id===id)||null}
+/* Fee text: undisclosed/incomplete is reported, never shown as 0 or invented. */
+function feeDesc(fm){
+ fm=fm||{};
+ const type=FEE_TYPES.indexOf(fm.type)>=0?fm.type:"undisclosed";
+ if(type==="percentage")return fm.pct!==null&&fm.pct!==undefined?t("pctt")+": "+fm.pct+"%":t("feeIncomplete");
+ if(type==="flat")return fm.flat!==null&&fm.flat!==undefined?money(fm.flat):t("feeIncomplete");
+ if(type==="mixed"){
+  const parts=[];
+  if(fm.flat!==null&&fm.flat!==undefined)parts.push(money(fm.flat));
+  if(fm.pct!==null&&fm.pct!==undefined)parts.push(fm.pct+"%");
+  return parts.length?parts.join(" + "):t("feeIncomplete");
+ }
+ return t("feeUndisclosed");
+}
+function openSheet(h){document.getElementById("sheet").innerHTML=h;document.getElementById("modal").classList.add("open")}
+function closeSheet(){document.getElementById("modal").classList.remove("open")}
+function stats(){
+ const by={candidate:0,verifying:0,live:0,paused:0};
+ S.providers.forEach(p=>{if(by[p.status]!==undefined)by[p.status]++});
+ return{totalProviders:S.providers.length,liveProviders:by.live,
+  totalCorridors:S.corridors.length,
+  corridorsWithRates:S.corridors.filter(c=>c.fxRate!==null&&c.fxRate>0).length};
+}
+/* ============ render ============ */
+const NAVLINKS=[["nav_home","/"],["nav_ins","/insurance/index.html"],["nav_who","/wholesale/index.html"],["nav_cru","/crude/index.html"],["nav_imp","/import-export/index.html"]];
+let addTab="corridor";
+function render(){
+ document.getElementById("btnES").classList.toggle("on",lang==="es");
+ document.getElementById("btnEN").classList.toggle("on",lang==="en");
+ document.documentElement.lang=lang;
+ document.getElementById("appsub").textContent=t("appsub");
+ document.getElementById("mccsite").textContent=t("open");
+ document.getElementById("disclaimer").textContent=t("disclaimer");
+ const nb=document.getElementById("biztabs");nb.innerHTML="";
+ NAVLINKS.forEach(([k,href])=>{
+  const a=document.createElement("a");a.className="biztab";a.href=href;a.textContent=t(k);nb.appendChild(a);
+ });
+ const vt=document.getElementById("viewtabs");vt.innerHTML="";
+ [["corridors",t("tocorridors")],["providers",t("toproviders")],["add",t("toadd")]].forEach(([v,l])=>{
+  const b=document.createElement("button");b.className="viewtab"+(view===v?" on":"");b.textContent=l;
+  b.onclick=()=>go("#"+v);vt.appendChild(b);
+ });
+ const m=document.getElementById("main");
+ if(view==="providers")renderProviders(m);else if(view==="add")renderAdd(m);else renderCorridors(m);
+}
+function kpiRow(){
+ const st=stats();
+ return '<div class="kpis">'
+ +'<div class="kpi"><div class="k">'+t("kProviders")+'</div><div class="v">'+st.totalProviders+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("kLive")+'</div><div class="v">'+st.liveProviders+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("kCorridors")+'</div><div class="v">'+st.totalCorridors+"</div></div></div>"
+ +'<div class="banner">'+esc(t("beta1"))+"<br>"+esc(t("beta2"))+"</div>";
+}
+function renderCorridors(m){
+ let h=kpiRow();
+ if(!S.corridors.length)h+='<div class="card mut">'+esc(t("nocorridors"))+"</div>";
+ S.corridors.forEach(c=>{
+  const p=c.providerId?provById(c.providerId):null;
+  const pname=p?p.name:(c.providerId?t("providerremoved"):t("noprovider2"));
+  const amt=c.sendAmount?money(c.sendAmount):"—";
+  const rate=c.fxRate?c.fxRate+(c.fxRateAsOf?" ("+esc(c.fxRateAsOf)+")":""):t("norate");
+  h+='<div class="card" onclick="openCorridor(\''+c.id+'\')"><h3>'+esc(c.fromCountry||"?")+" → "+esc(c.toCountry||"?")+"</h3>"
+  +'<div class="kv"><span>'+esc(t("provider"))+"</span><b>"+esc(pname)+"</b></div>"
+  +'<div class="kv"><span>'+esc(t("amount"))+"</span><b>"+amt+"</b></div>"
+  +'<div class="kv"><span>'+esc(t("rate"))+"</span><b>"+esc(rate)+"</b></div></div>";
+ });
+ h+='<div class="row"><button class="btn" onclick="go(\'#add\')">'+esc(t("add")+" · "+t("tabCorr"))+"</button></div>";
+ h+='<div class="row"><button class="btn sec" onclick="exportData()">'+esc(t("export"))+'</button><button class="btn sec" onclick="importData()">'+esc(t("import"))+"</button></div>";
+ m.innerHTML=h;
+}
+function renderProviders(m){
+ let h=kpiRow();
+ h+='<div class="mut" style="margin:4px 0 0">'+esc(t("seednote"))+"</div>";
+ if(!S.providers.length)h+='<div class="card mut">'+esc(t("noprovider"))+"</div>";
+ S.providers.forEach(p=>{
+  h+='<div class="card" onclick="openProvider(\''+p.id+'\')"><h3>'+esc(p.name||t("noname"))+"</h3>"
+  +pill(p.status)
+  +'<div class="mut">'+esc(t("fee"))+": "+esc(feeDesc(p.feeModel))+"</div>"
+  +((p.coverageCountries||[]).length?'<div class="mut">'+esc(p.coverageCountries.join(", "))+"</div>":"")
+  +"</div>";
+ });
+ h+='<div class="row"><button class="btn" onclick="addTab=\'provider\';go(\'#add\')">'+esc(t("add")+" · "+t("tabProv"))+"</button></div>";
+ m.innerHTML=h;
+}
+function setAddTab(v){addTab=v;render()}
+function renderAdd(m){
+ let h='<div class="viewtabs" style="padding:10px 0">'
+ +'<button class="viewtab'+(addTab==="corridor"?" on":"")+'" onclick="setAddTab(\'corridor\')">'+esc(t("tabCorr"))+"</button>"
+ +'<button class="viewtab'+(addTab==="provider"?" on":"")+'" onclick="setAddTab(\'provider\')">'+esc(t("tabProv"))+"</button></div>";
+ h+=addTab==="corridor"?corrFormHTML(""):provFormHTML("");
+ m.innerHTML=h;
+}
+function val(v){return v==null?"":String(v)}
+/* ============ corridor forms ============ */
+function corrFormHTML(id){
+ const c=id?S.corridors.find(x=>x.id===id):{fromCountry:"",toCountry:"",providerId:"",sendAmount:"",fxRate:"",fxRateAsOf:"",fromLat:"",fromLng:"",toLat:"",toLng:"",notes:""};
+ const popts='<option value="">—</option>'+S.providers.map(p=>'<option value="'+p.id+'"'+(c.providerId===p.id?" selected":"")+">"+esc(p.name)+"</option>").join("");
+ let h=id?"":"<h2>"+esc(t("newcorr"))+"</h2>";
+ h+='<label>'+esc(t("from"))+'</label><input id="c_from" value="'+esc(val(c.fromCountry))+'">'
+ +'<label>'+esc(t("to"))+'</label><input id="c_to" value="'+esc(val(c.toCountry))+'">'
+ +'<label>'+esc(t("provider"))+'</label><select id="c_prov">'+popts+"</select>"
+ +'<label>'+esc(t("amountUSD"))+'</label><input id="c_amt" type="number" min="0" step="1" value="'+esc(val(c.sendAmount))+'">'
+ +'<label>'+esc(t("fx"))+'</label><input id="c_fx" type="number" min="0" step="0.01" value="'+esc(val(c.fxRate))+'">'
+ +'<label>'+esc(t("fxasof"))+'</label><input id="c_fxasof" placeholder="2026-09-17" value="'+esc(val(c.fxRateAsOf))+'">'
+ +'<label>'+esc(t("fromlat"))+'</label><input id="c_flat" type="number" step="0.0001" value="'+esc(val(c.fromLat))+'">'
+ +'<label>'+esc(t("fromlng"))+'</label><input id="c_flng" type="number" step="0.0001" value="'+esc(val(c.fromLng))+'">'
+ +'<label>'+esc(t("tolat"))+'</label><input id="c_tlat" type="number" step="0.0001" value="'+esc(val(c.toLat))+'">'
+ +'<label>'+esc(t("tolng"))+'</label><input id="c_tlng" type="number" step="0.0001" value="'+esc(val(c.toLng))+'">'
+ +'<label>'+esc(t("notes"))+'</label><textarea id="c_notes">'+esc(val(c.notes))+"</textarea>"
+ +'<div class="row"><button class="btn" onclick="saveCorridor(\''+id+"')\">"+esc(t("save"))+"</button>"
+ +(id?'<button class="btn sec" onclick="closeSheet()">'+esc(t("cancel"))+"</button>":"")+"</div>";
+ return h;
+}
+function saveCorridor(id){
+ const g=i=>{const el=document.getElementById(i);return el?el.value.trim():""};
+ const from=g("c_from"),to=g("c_to");
+ if(!from||!to){alert(t("needfrom"));return}
+ const fx=g("c_fx"),fxasof=g("c_fxasof");
+ if(fx&&!fxasof){alert(t("needfxdate"));return}
+ const rec={fromCountry:from,toCountry:to,providerId:g("c_prov"),
+  sendAmount:(()=>{const n=Number(g("c_amt"));return Number.isFinite(n)&&n>=0?n:0})(),
+  fxRate:numOrNullPos(fx),fxRateAsOf:fxasof,
+  fromLat:numOrNull(g("c_flat")),fromLng:numOrNull(g("c_flng")),
+  toLat:numOrNull(g("c_tlat")),toLng:numOrNull(g("c_tlng")),notes:g("c_notes")};
+ const now=chicagoIso();
+ if(id){
+  const c=S.corridors.find(x=>x.id===id);if(!c)return;
+  Object.assign(c,rec);c.updatedAt=now;closeSheet();
+ }else{
+  S.corridors.push(Object.assign({id:makeId(),agentNotes:[],createdAt:now,updatedAt:now},rec));
+ }
+ save();render();
+}
+function delCorridor(id){if(!confirm(t("confirmdel")))return;S.corridors=S.corridors.filter(x=>x.id!==id);save();closeSheet();render()}
+function notesHTML(agentNotes){
+ const list=Array.isArray(agentNotes)?agentNotes:[];
+ if(!list.length)return '<div class="mut">'+esc(t("nonotes"))+"</div>";
+ return list.map(n=>'<div class="note"><span class="who">'+esc(n.agent||"")+"</span>"+(n.at?" · "+esc(n.at):"")+"<br>"+esc(lang==="es"?(n.es||n.en||""):(n.en||n.es||""))+"</div>").join("");
+}
+function openCorridor(id){
+ const c=S.corridors.find(x=>x.id===id);if(!c)return;
+ const p=c.providerId?provById(c.providerId):null;
+ const pname=p?p.name:(c.providerId?t("providerremoved"):t("noprovider2"));
+ const kv=(k,v)=>'<div class="kv"><span>'+esc(k)+"</span><b>"+esc(v)+"</b></div>";
+ let h="<h2>"+esc(c.fromCountry||"?")+" → "+esc(c.toCountry||"?")+"</h2>"
+ +kv(t("provider"),pname)
+ +kv(t("amountUSD"),c.sendAmount?money(c.sendAmount):"—")
+ +kv(t("fx"),c.fxRate?c.fxRate+(c.fxRateAsOf?" ("+c.fxRateAsOf+")":""):t("norate"))
+ +kv(t("fromlat")+" / "+t("fromlng"),(c.fromLat==null&&c.fromLng==null)?"—":(c.fromLat==null?"?":c.fromLat)+" / "+(c.fromLng==null?"?":c.fromLng))
+ +kv(t("tolat")+" / "+t("tolng"),(c.toLat==null&&c.toLng==null)?"—":(c.toLat==null?"?":c.toLat)+" / "+(c.toLng==null?"?":c.toLng));
+ if(c.notes)h+='<div class="mut" style="margin-top:8px;white-space:pre-wrap">'+esc(c.notes)+"</div>";
+ h+="<h2>"+esc(t("wfnotes"))+"</h2>"+notesHTML(c.agentNotes);
+ h+='<div class="row"><button class="btn sec" onclick="editCorridor(\''+c.id+"')\">"+esc(t("edit"))+'</button><button class="btn dgr" onclick="delCorridor(\''+c.id+"')\">"+esc(t("del"))+"</button></div>";
+ h+='<div class="row"><button class="btn sec" onclick="closeSheet()">'+esc(t("cancel"))+"</button></div>";
+ openSheet(h);
+}
+function editCorridor(id){
+ openSheet("<h2>"+esc(t("editcorr"))+"</h2>"+corrFormHTML(id));
+}
+/* ============ provider forms ============ */
+function chanChecks(sel){
+ sel=sel||[];
+ return '<div class="checks">'+CHANNELS.map(ch=>{
+  const on=sel.indexOf(ch)>=0;
+  return '<label><input type="checkbox" id="p_ch_'+ch+'"'+(on?" checked":"")+">"+esc(ch)+"</label>";
+ }).join("")+"</div>";
+}
+function feeTypeOpts(sel){
+ return FEE_TYPES.map(ft=>'<option value="'+ft+'"'+(sel===ft?" selected":"")+">"+esc(t(ft==="undisclosed"?"undisclosed":ft==="percentage"?"pctt":ft==="flat"?"flatt":"mixedt"))+"</option>").join("");
+}
+function statusOpts(sel){
+ return STATUSES.map(st=>'<option value="'+st+'"'+(sel===st?" selected":"")+">"+esc(t("st_"+st))+"</option>").join("");
+}
+function provFormHTML(id){
+ const p=id?S.providers.find(x=>x.id===id):{name:"",channels:[],coverageCountries:[],feeModel:{type:"undisclosed",pct:null,flat:null,min:null,max:null},status:"candidate",website:"",lat:null,lng:null,notes:""};
+ const fm=p.feeModel||{type:"undisclosed"};
+ let h=id?"":"<h2>"+esc(t("newprov"))+"</h2>";
+ h+='<label>'+esc(t("name"))+'</label><input id="p_name" value="'+esc(val(p.name))+'">'
+ +'<label>'+esc(t("channels"))+'</label>'+chanChecks(p.channels)
+ +'<label>'+esc(t("coverage"))+'</label><input id="p_cov" value="'+esc((p.coverageCountries||[]).join(", "))+'">'
+ +'<label>'+esc(t("feetype"))+'</label><select id="p_ftype">'+feeTypeOpts(fm.type)+"</select>"
+ +'<label>'+esc(t("feepct"))+'</label><input id="p_pct" type="number" min="0" step="0.01" value="'+esc(val(fm.pct))+'">'
+ +'<label>'+esc(t("feeflat"))+'</label><input id="p_flat" type="number" min="0" step="0.01" value="'+esc(val(fm.flat))+'">'
+ +'<label>'+esc(t("feemin"))+'</label><input id="p_min" type="number" min="0" step="0.01" value="'+esc(val(fm.min))+'">'
+ +'<label>'+esc(t("feemax"))+'</label><input id="p_max" type="number" min="0" step="0.01" value="'+esc(val(fm.max))+'">'
+ +'<label>'+esc(t("status"))+'</label><select id="p_status">'+statusOpts(p.status)+"</select>"
+ +'<label>'+esc(t("website"))+'</label><input id="p_web" value="'+esc(val(p.website))+'">'
+ +'<label>'+esc(t("lat"))+'</label><input id="p_lat" type="number" step="0.0001" value="'+esc(val(p.lat))+'">'
+ +'<label>'+esc(t("lng"))+'</label><input id="p_lng" type="number" step="0.0001" value="'+esc(val(p.lng))+'">'
+ +'<label>'+esc(t("notes"))+'</label><textarea id="p_notes">'+esc(val(p.notes))+"</textarea>"
+ +'<div class="row"><button class="btn" onclick="saveProvider(\''+id+"')\">"+esc(t("save"))+"</button>"
+ +(id?'<button class="btn sec" onclick="closeSheet()">'+esc(t("cancel"))+"</button>":"")+"</div>";
+ return h;
+}
+function saveProvider(id){
+ const g=i=>{const el=document.getElementById(i);return el?el.value.trim():""};
+ const name=g("p_name");
+ if(!name){alert(t("needname"));return}
+ const channels=CHANNELS.filter(ch=>{const el=document.getElementById("p_ch_"+ch);return el&&el.checked});
+ const coverage=[...new Set(g("p_cov").split(",").map(s=>s.trim()).filter(Boolean))];
+ const ftype=FEE_TYPES.indexOf(g("p_ftype"))>=0?g("p_ftype"):"undisclosed";
+ const status=STATUSES.indexOf(g("p_status"))>=0?g("p_status"):"candidate";
+ const rec={name:name,channels:channels,coverageCountries:coverage,
+  feeModel:{type:ftype,pct:feeNum(g("p_pct")),flat:feeNum(g("p_flat")),min:feeNum(g("p_min")),max:feeNum(g("p_max"))},
+  status:status,website:g("p_web"),lat:numOrNull(g("p_lat")),lng:numOrNull(g("p_lng")),notes:g("p_notes")};
+ const now=chicagoIso();
+ if(id){
+  const p=S.providers.find(x=>x.id===id);if(!p)return;
+  Object.assign(p,rec);p.updatedAt=now;closeSheet();
+ }else{
+  S.providers.push(Object.assign({id:makeId(),agentNotes:[],createdAt:now,updatedAt:now},rec));
+ }
+ save();render();
+}
+function delProvider(id){if(!confirm(t("confirmdel")))return;S.providers=S.providers.filter(x=>x.id!==id);save();closeSheet();render()}
+function openProvider(id){
+ const p=S.providers.find(x=>x.id===id);if(!p)return;
+ const kv=(k,v)=>'<div class="kv"><span>'+esc(k)+"</span><b>"+esc(v)+"</b></div>";
+ let h="<h2>"+esc(p.name||t("noname"))+"</h2>"+pill(p.status)
+ +kv(t("channels"),(p.channels||[]).join(", ")||"—")
+ +kv(t("coverage"),(p.coverageCountries||[]).join(", ")||"—")
+ +kv(t("fee"),feeDesc(p.feeModel));
+ if(p.website)h+=kv(t("website"),p.website);
+ if(p.lat!==null||p.lng!==null)h+=kv(t("lat")+" / "+t("lng"),(p.lat==null?"?":p.lat)+" / "+(p.lng==null?"?":p.lng));
+ if(p.notes)h+='<div class="mut" style="margin-top:8px;white-space:pre-wrap">'+esc(p.notes)+"</div>";
+ h+="<h2>"+esc(t("wfnotes"))+"</h2>"+notesHTML(p.agentNotes);
+ h+='<div class="row"><button class="btn sec" onclick="editProvider(\''+p.id+"')\">"+esc(t("edit"))+'</button><button class="btn dgr" onclick="delProvider(\''+p.id+"')\">"+esc(t("del"))+"</button></div>";
+ h+='<div class="row"><button class="btn sec" onclick="closeSheet()">'+esc(t("cancel"))+"</button></div>";
+ openSheet(h);
+}
+function editProvider(id){
+ openSheet("<h2>"+esc(t("editprov"))+"</h2>"+provFormHTML(id));
+}
+/* ============ JSON backup export/import ============ */
+function exportData(){
+ const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);a.download="mycubacash-backup.json";
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>{try{URL.revokeObjectURL(a.href)}catch(e){}},4000);
+}
+function importData(){
+ const i=document.createElement("input");i.type="file";i.accept=".json,application/json";
+ i.onchange=()=>{
+  const f=i.files&&i.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+   const d=JSON.parse(r.result);
+   if(!d||!Array.isArray(d.providers)||!Array.isArray(d.corridors))throw new Error("bad");
+   S={providers:d.providers,corridors:d.corridors,seeded:d.seeded===true};
+   seedIfEmpty();save();render();
+  }catch(e){alert(t("badfile"))}};
+  r.readAsText(f);
+ };
+ i.click();
+}
+/* ============ boot ============ */
+function setLang(l){
+ lang=(l==="en")?"en":"es";
+ try{localStorage.setItem(LANG_KEY,lang)}catch(e){}
+ render();
+}
+function initLang(){try{const v=localStorage.getItem(LANG_KEY);lang=(v==="en"||v==="es")?v:"es"}catch(e){lang="es"}}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeSheet()});
+initLang();load();if(!applyHash())render();
+</script>
+</body>
+</html>

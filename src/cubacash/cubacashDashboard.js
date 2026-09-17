@@ -629,6 +629,27 @@ export function initCubacashDashboard({
     importStatus: null,
   };
 
+  /**
+   * Deep-link to the standalone full-screen MY CUBA CASH screen
+   * (/cubacash/index.html#<view>) — same pattern as the insurance panel.
+   */
+  function openDeepLink(view) {
+    const url = `/cubacash/index.html#${view}`;
+    try {
+      if (typeof window !== 'undefined' && typeof window.open === 'function') {
+        window.open(url, '_blank', 'noopener');
+        return;
+      }
+    } catch {
+      /* fall through */
+    }
+    try {
+      if (typeof window !== 'undefined') window.location.href = url;
+    } catch {
+      /* noop */
+    }
+  }
+
   function statusLabel(id) {
     const s = STATUSES.find((x) => x.id === id);
     return s ? t(s.es, s.en) : id;
@@ -1341,6 +1362,7 @@ export function initCubacashDashboard({
     toggle,
     destroy,
     openDrawer,
+    openDeepLink,
     refresh,
     setLang,
     getLang: () => lang,

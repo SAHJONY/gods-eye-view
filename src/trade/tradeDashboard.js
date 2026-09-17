@@ -914,6 +914,24 @@ export function initTradeDashboard({
     return 0;
   }
 
+  /** Deep link to the standalone full-screen trade app: /import-export/index.html#<view>. */
+  function openDeepLink(view) {
+    const url = `/import-export/index.html#${view}`;
+    try {
+      if (typeof window !== 'undefined' && typeof window.open === 'function') {
+        window.open(url, '_blank', 'noopener');
+        return;
+      }
+    } catch {
+      /* fall through */
+    }
+    try {
+      if (typeof window !== 'undefined') window.location.href = url;
+    } catch {
+      /* noop */
+    }
+  }
+
   function renderKpis() {
     if (!refs.kpis) return;
     let stats = {
@@ -1770,6 +1788,7 @@ export function initTradeDashboard({
     refresh,
     setLang,
     getLang: () => lang,
+    openDeepLink,
     importCsvText,
     downloadTemplate: () => csvTemplate(),
     exportCsvText: () => rfqsToCsv(listAll()),

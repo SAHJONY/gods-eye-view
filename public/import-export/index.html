@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Import/Export Trade — SAHJONY</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--txt:#f1f5f9;--mut:#94a3b8;--acc:#38bdf8;--grn:#4ade80;--yel:#facc15;--red:#f87171;--brd:#334155}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:110px}
+header{position:sticky;top:0;z-index:10;background:#0b1220;border-bottom:1px solid var(--brd);padding:12px 14px}
+h1{margin:0;font-size:20px}
+.sub{color:var(--mut);font-size:13px;margin-top:4px}
+.langrow{display:flex;gap:8px;margin-top:10px}
+.langbtn{flex:1;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700}
+.langbtn.on{border-color:var(--acc);background:#0c2a3d}
+.sitebtn{display:block;width:100%;min-height:64px;margin-top:10px;border-radius:14px;border:none;font-size:18px;font-weight:800;color:#0b1220;background:var(--grn);text-align:center;text-decoration:none;line-height:64px}
+.xlinks{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.xlink{flex:1 0 auto;min-height:52px;display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:12px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap}
+.viewtabs{display:flex;gap:8px;padding:10px 14px}
+.viewtab{flex:1;min-height:52px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700}
+.viewtab.on{border-color:var(--grn);background:#0d2b1a}
+main{padding:6px 14px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.kpi{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:14px}
+.kpi .k{font-size:12px;font-weight:700;color:var(--mut);letter-spacing:.05em}
+.kpi .v{font-size:24px;font-weight:800;margin-top:4px}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:16px;margin:12px 0}
+.card h3{margin:0 0 6px;font-size:18px}
+.sthead{font-size:14px;font-weight:800;color:var(--acc);letter-spacing:.08em;margin:18px 0 4px;text-transform:uppercase}
+.pill{display:inline-block;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:800;margin:4px 6px 4px 0}
+.green{background:#0d2b1a;color:var(--grn);border:1px solid var(--grn)}
+.yellow{background:#33270a;color:var(--yel);border:1px solid var(--yel)}
+.red{background:#3b1114;color:var(--red);border:1px solid var(--red)}
+.gray{background:#1a2233;color:var(--mut);border:1px solid var(--brd)}
+.mut{color:var(--mut);font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.btn{flex:1;min-height:52px;border-radius:14px;border:none;font-size:16px;font-weight:800;color:#0b1220;background:var(--acc)}
+.btn.sec{background:var(--card2);color:var(--txt);border:2px solid var(--brd)}
+.btn.dgr{background:#3b1114;color:var(--red);border:1px solid var(--red)}
+.btn.grn{background:#0d2b1a;color:var(--grn);border:1px solid var(--grn)}
+input,select,textarea{width:100%;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:#0b1220;color:var(--txt);font-size:16px;padding:10px 12px;margin:6px 0}
+textarea{min-height:110px;resize:vertical}
+label{font-size:14px;color:var(--mut);font-weight:700}
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--brd);font-size:15px}
+.kv b{text-align:right}
+.math{background:#0b1220;border:1px solid var(--brd);border-radius:12px;padding:12px;margin-top:12px}
+.math .mrow{display:flex;justify-content:space-between;margin:5px 0;font-size:14px;color:var(--mut)}
+.math .mrow b{color:var(--txt);font-size:15px}
+.fab{position:fixed;bottom:18px;right:18px;width:72px;height:72px;border-radius:50%;background:var(--grn);color:#0b1220;font-size:34px;font-weight:900;border:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;z-index:20;overflow-y:auto;padding:16px}
+.modal.open{display:block}
+.sheet{background:var(--card);border-radius:18px;padding:18px;max-width:640px;margin:20px auto}
+.sheet h2{margin-top:0;font-size:20px}
+.disc{font-size:12px;color:var(--mut);padding:14px}
+.tap{cursor:pointer}
+.empty{padding:24px;text-align:center;border:1px dashed var(--brd);border-radius:16px;color:var(--mut);margin:12px 0}
+.scorebar{height:10px;border-radius:6px;background:var(--brd);margin-top:8px}
+.scorebar i{display:block;height:100%;border-radius:6px;background:var(--acc)}
+</style>
+</head>
+<body>
+<header>
+<h1 id="apptitle">🚢 Import/Export Trade</h1>
+<div class="sub" id="appsub"></div>
+<div class="langrow">
+<button class="langbtn" id="btnEN" onclick="setLang('en')">EN</button>
+<button class="langbtn" id="btnES" onclick="setLang('es')">ES</button>
+</div>
+<a class="sitebtn" id="sitebtn" href="https://www.sahjony.com" target="_blank" rel="noopener">🌐 Open sahjony.com</a>
+<div class="xlinks" id="xlinks"></div>
+</header>
+<div class="viewtabs" id="viewtabs"></div>
+<main id="main"></main>
+<button class="fab" onclick="newRfq()" title="+">+</button>
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="disc" id="disclaimer"></div>
+<script>
+"use strict";
+/* ============ i18n ============ */
+const T={
+en:{appsub:"RFQ pipeline + suppliers for the import/export business. SAHJONY acts as broker for a fee — never the end buyer.",
+broker:"SAHJONY is a business broker for a fee. It never buys goods, never puts capital at risk — it connects sellers and buyers and earns on closed deals.",
+site:"🌐 Open sahjony.com",
+nav_home:"🏠 Home",nav_ins:"🛡️ Insurance",nav_who:"🏠 Wholesale",nav_cru:"🛢️ Crude",nav_cc:"💸 Cuba Cash",
+trfqs:"RFQs",tsup:"Suppliers",tadd:"Add RFQ",
+k_total:"TOTAL RFQS",k_open:"OPEN RFQS",k_comm:"POTENTIAL COMMISSION",k_sup:"SUPPLIERS",
+norfs:"No RFQs yet — add your first one",nosup:"No suppliers yet — add your first one",
+norfqs_status:"No RFQs in this status yet.",
+status_prospect:"Prospect",status_contacted:"Contacted",status_quoting:"Quoting",
+status_negotiating:"Negotiating",status_won:"Won",status_lost:"Lost",
+units:"units",score:"Score",verdict:"Verdict",
+v_green:"Viable",v_yellow:"Marginal",v_red:"No deal",v_gray:"Missing data",
+newrfq:"New RFQ",editrfq:"Edit RFQ",save:"Save",cancel:"Cancel",del:"Delete",edit:"Edit",close:"Close",
+confirmdel:"Delete this record?",
+ref:"Reference",product:"Product",quantity:"Quantity",unitcost:"Unit cost ($)",sellunitprice:"Sell price ($/unit)",
+freight:"Freight ($)",duties:"Duties ($)",othercosts:"Other costs ($)",commissionpct:"Commission (%)",
+incoterms:"Incoterms",originport:"Origin port",destport:"Destination port",
+originlat:"Origin lat.",originlng:"Origin lng.",destlat:"Dest lat.",destlng:"Dest lng.",
+supplier:"Supplier",buyer:"Buyer",status:"Status",notes:"Notes",none:"—",
+econ:"DEAL ECONOMICS",landed:"Landed cost / unit",netmargin:"Net margin",netpct:"Net margin (%)",comm:"Est. commission",
+agentnotes:"AGENT NOTES",created:"Created",
+newsup:"New supplier",editsup:"Edit supplier",addsup:"Add supplier",
+s_name:"Name *",s_type:"Type",s_role:"Role",s_country:"Country",s_ver:"Verification",
+s_cname:"Contact name",s_cphone:"Contact phone",s_cemail:"Contact email",
+t_manufacturer:"Manufacturer",t_distributor:"Distributor",t_trader:"Trader",t_logistics:"Logistics",
+r_supplier:"Supplier",r_buyer:"Buyer",r_both:"Both",
+ver_unverified:"Unverified",ver_in_review:"In review",ver_verified:"Verified",ver_flagged:"Flagged",
+export:"Export backup",import:"Import backup",badfile:"Bad file — import cancelled.",
+impreplace:"Importing replaces all RFQs and suppliers on this device. Continue?",
+missing:"Missing",
+disclaimer:"Broker-for-a-fee tool: SAHJONY never takes custody of goods or funds. Verify every counterparty, contract term, and price independently before committing. Nothing here is legal or financial advice."},
+es:{appsub:"Pipeline de RFQs + proveedores del negocio de importación/exportación. SAHJONY actúa como bróker por comisión — nunca es el comprador final.",
+broker:"SAHJONY es un bróker de negocios por comisión. Nunca compra mercancías ni arriesga capital — conecta vendedores y compradores y gana en los tratos cerrados.",
+site:"🌐 Abrir sahjony.com",
+nav_home:"🏠 Inicio",nav_ins:"🛡️ Seguros",nav_who:"🏠 Mayoreo",nav_cru:"🛢️ Crudo",nav_cc:"💸 Cuba Cash",
+trfqs:"RFQs",tsup:"Proveedores",tadd:"Agregar RFQ",
+k_total:"RFQS TOTALES",k_open:"RFQS ABIERTOS",k_comm:"COMISIÓN POTENCIAL",k_sup:"PROVEEDORES",
+norfs:"Aún no hay RFQs — agrega el primero",nosup:"Sin proveedores — agrega el primero",
+norfqs_status:"Sin RFQs en este estado.",
+status_prospect:"Prospecto",status_contacted:"Contactado",status_quoting:"Cotizando",
+status_negotiating:"Negociando",status_won:"Ganado",status_lost:"Perdido",
+units:"unidades",score:"Puntaje",verdict:"Veredicto",
+v_green:"Viable",v_yellow:"Marginal",v_red:"No viable",v_gray:"Faltan datos",
+newrfq:"Nuevo RFQ",editrfq:"Editar RFQ",save:"Guardar",cancel:"Cancelar",del:"Eliminar",edit:"Editar",close:"Cerrar",
+confirmdel:"¿Eliminar este registro?",
+ref:"Referencia",product:"Producto",quantity:"Cantidad",unitcost:"Costo unitario ($)",sellunitprice:"Precio de venta ($/u)",
+freight:"Flete ($)",duties:"Aranceles ($)",othercosts:"Otros costos ($)",commissionpct:"Comisión (%)",
+incoterms:"Incoterms",originport:"Puerto de origen",destport:"Puerto de destino",
+originlat:"Origen lat.",originlng:"Origen lng.",destlat:"Destino lat.",destlng:"Destino lng.",
+supplier:"Proveedor",buyer:"Comprador",status:"Estado",notes:"Notas",none:"—",
+econ:"ECONOMÍA DEL TRATO",landed:"Costo landed / unidad",netmargin:"Margen neto",netpct:"Margen neto (%)",comm:"Comisión estimada",
+agentnotes:"NOTAS DEL AGENTE",created:"Creado",
+newsup:"Nuevo proveedor",editsup:"Editar proveedor",addsup:"Agregar proveedor",
+s_name:"Nombre *",s_type:"Tipo",s_role:"Rol",s_country:"País",s_ver:"Verificación",
+s_cname:"Contacto (nombre)",s_cphone:"Contacto (teléfono)",s_cemail:"Contacto (email)",
+t_manufacturer:"Fabricante",t_distributor:"Distribuidor",t_trader:"Comercializadora",t_logistics:"Logística",
+r_supplier:"Proveedor",r_buyer:"Comprador",r_both:"Ambos",
+ver_unverified:"Sin verificar",ver_in_review:"En revisión",ver_verified:"Verificado",ver_flagged:"Marcado",
+export:"Exportar respaldo",import:"Importar respaldo",badfile:"Archivo inválido — importación cancelada.",
+impreplace:"Importar reemplaza todos los RFQs y proveedores en este dispositivo. ¿Continuar?",
+missing:"Faltan",
+disclaimer:"Herramienta de bróker por comisión: SAHJONY nunca toma custodia de mercancías ni fondos. Verifique cada contraparte, término contractual y precio de forma independiente antes de comprometerse. Nada aquí es asesoría legal o financiera."}};
+let lang="en"; const t=k=>T[lang][k]||k;
+/* ============ store ============ */
+const KEY="sahjony.trade.v1";
+const LANGKEY="sahjony.gev.lang";
+const STATUSES=["prospect","contacted","quoting","negotiating","won","lost"];
+const OPEN=["prospect","contacted","quoting","negotiating"];
+let S;
+function uid(){try{if(typeof crypto!=="undefined"&&crypto.randomUUID)return crypto.randomUUID()}catch(e){}return "id"+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function nowIso(){try{return new Date(new Date().toLocaleString("en-US",{timeZone:"America/Chicago"})).toISOString()}catch(e){return new Date().toISOString()}}
+function load(){try{S=JSON.parse(localStorage.getItem(KEY))||null}catch(e){S=null}
+ if(!S||!Array.isArray(S.rfqs)||!Array.isArray(S.suppliers))S={rfqs:[],suppliers:[]};
+ if(!Array.isArray(S.rfqs))S.rfqs=[];if(!Array.isArray(S.suppliers))S.suppliers=[]}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function setLang(l){lang=l==="es"?"es":"en";try{localStorage.setItem(LANGKEY,lang)}catch(e){}render()}
+function supName(id){if(!id)return t("none");const s=S.suppliers.find(x=>x.id===id);return s&&s.name?s.name:t("none")}
+function statusPillClass(st){if(st==="won")return "green";if(["contacted","quoting","negotiating"].includes(st))return "yellow";if(st==="lost")return "red";return "gray"}
+/* ============ deal economics (same formulas as the trade rfq engine) ============ */
+const num=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
+function landedTotal(r){return num(r.unitCost)*num(r.quantity)+num(r.freight)+num(r.duties)+num(r.otherCosts)}
+function landedUnit(r){const q=num(r.quantity);return q>0?landedTotal(r)/q:0}
+function revenue(r){return num(r.sellUnitPrice)*num(r.quantity)}
+function netMargin(r){return revenue(r)-landedTotal(r)}
+function netMarginPct(r){const rev=revenue(r);return rev>0?netMargin(r)/rev:0}
+function commission(r){return revenue(r)*num(r.commissionPct)/100}
+function econScore(r){
+ let s=0;
+ if(num(r.unitCost)>0&&num(r.sellUnitPrice)>0)s+=30;
+ if(num(r.quantity)>0)s+=15;
+ if(r.supplierId||r.buyerId)s+=10;
+ if(String(r.incoterms||"").trim())s+=5;
+ if(num(r.freight)>0||num(r.duties)>0||num(r.otherCosts)>0)s+=15;
+ if(String(r.product||"").trim())s+=5;
+ if(String(r.originPort||"").trim()&&String(r.destinationPort||"").trim())s+=10;
+ const oc=r.originLat!=null&&r.originLat!==""&&r.originLng!=null&&r.originLng!=="";
+ const dc=r.destLat!=null&&r.destLat!==""&&r.destLng!=null&&r.destLng!=="";
+ if(oc&&dc)s+=10;
+ return Math.min(100,Math.max(0,Math.round(s)));
+}
+function scoreOf(r){const s=Number(r.score);return Number.isFinite(s)?s: econScore(r)}
+function verdict(r){
+ if(!(num(r.unitCost)>0&&num(r.sellUnitPrice)>0&&num(r.quantity)>0))return "gray";
+ const p=netMarginPct(r);
+ if(p>=0.10)return "green";if(p>=0.03)return "yellow";return "red";
+}
+function money(n){const v=Number(n)||0;return "$"+v.toLocaleString("en-US",{maximumFractionDigits:2})}
+/* ============ hash routing ============ */
+const VIEWS={rfqs:"rfqs",suppliers:"suppliers",add:"add"};
+let view="rfqs";
+function applyHash(){const h=String(location.hash||"").replace("#","").toLowerCase();view=VIEWS[h]||"rfqs";render();return true}
+if(typeof window!=="undefined")window.addEventListener("hashchange",applyHash);
+/* ============ render ============ */
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function render(){
+ document.getElementById("btnEN").classList.toggle("on",lang==="en");
+ document.getElementById("btnES").classList.toggle("on",lang==="es");
+ document.getElementById("appsub").textContent=t("appsub");
+ document.getElementById("sitebtn").textContent=t("site");
+ document.getElementById("disclaimer").textContent=t("disclaimer");
+ const xl=document.getElementById("xlinks");xl.innerHTML="";
+ [["/",t("nav_home")],["/insurance/index.html",t("nav_ins")],["/wholesale/index.html",t("nav_who")],["/crude/index.html",t("nav_cru")],["/cubacash/index.html",t("nav_cc")]].forEach(([u,l])=>{
+  const a=document.createElement("a");a.className="xlink";a.href=u;a.textContent=l;xl.appendChild(a)});
+ const vt=document.getElementById("viewtabs");vt.innerHTML="";
+ [["rfqs",t("trfqs")],["suppliers",t("tsup")],["add",t("tadd")]].forEach(([v,l])=>{
+  const b=document.createElement("button");b.className="viewtab"+(view===v?" on":"");b.textContent=l;
+  b.onclick=()=>{location.hash=v};vt.appendChild(b)});
+ const m=document.getElementById("main");
+ if(view==="suppliers")renderSuppliers(m);else if(view==="add")renderAddRfq(m);else renderRfqs(m);
+}
+function kpiCards(){
+ const open=S.rfqs.filter(r=>OPEN.includes(r.status));
+ const comm=open.reduce((a,r)=>a+commission(r),0);
+ return '<div class="kpis">'
+ +'<div class="kpi"><div class="k">'+t("k_total")+'</div><div class="v">'+S.rfqs.length+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("k_open")+'</div><div class="v">'+open.length+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("k_comm")+'</div><div class="v">'+money(comm)+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("k_sup")+'</div><div class="v">'+S.suppliers.length+"</div></div></div>";
+}
+function statusLabel(s){return t("status_"+s)}
+function rfqCard(r){
+ const v=verdict(r),sc=scoreOf(r);
+ return '<div class="card tap" onclick="openRfq(\''+r.id+'\')">'
+ +'<h3>'+esc(r.ref||t("none"))+'</h3>'
+ +'<span class="pill '+statusPillClass(r.status)+'">'+statusLabel(r.status)+"</span>"
+ +'<span class="pill '+v+'">'+t("v_"+v)+"</span>"
+ +'<div class="mut">'+esc(r.product||t("none"))+" · "+num(r.quantity).toLocaleString("en-US")+" "+t("units")+"</div>"
+ +'<div class="mut">'+esc(supName(r.supplierId))+"</div>"
+ +'<div class="mut">'+t("comm")+": <b style=\"color:var(--txt)\">"+money(commission(r))+"</b></div>"
+ +'<div class="mut">'+t("score")+": "+sc+"</div><div class=\"scorebar\"><i style=\"width:"+sc+"%\"></i></div></div>";
+}
+function renderRfqs(m){
+ let h=kpiCards();
+ if(!S.rfqs.length)h+='<div class="empty">'+t("norfs")+"</div>";
+ STATUSES.forEach(st=>{
+  const list=S.rfqs.filter(r=>r.status===st);
+  h+='<div class="sthead">'+statusLabel(st)+" ("+list.length+")</div>";
+  if(!list.length)h+='<div class="mut" style="padding:0 0 6px">'+t("norfqs_status")+"</div>";
+  list.forEach(r=>{h+=rfqCard(r)});
+ });
+ h+='<div class="row"><button class="btn sec" onclick="exportData()">'+t("export")+'</button><button class="btn sec" onclick="importData()">'+t("import")+"</button></div>";
+ m.innerHTML=h;
+}
+/* ============ RFQ detail ============ */
+function openRfq(id){
+ const r=S.rfqs.find(x=>x.id===id);if(!r)return;
+ const v=verdict(r),sc=scoreOf(r);
+ let h='<h2>'+esc(r.ref||t("none"))+'</h2>'
+ +'<span class="pill '+statusPillClass(r.status)+'">'+statusLabel(r.status)+"</span>"
+ +'<span class="pill '+v+'">'+t("v_"+v)+"</span>"
+ +'<div class="kv"><span>'+t("product")+"</span><b>"+esc(r.product||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("quantity")+"</span><b>"+num(r.quantity).toLocaleString("en-US")+"</b></div>"
+ +'<div class="kv"><span>'+t("unitcost")+"</span><b>"+money(r.unitCost)+"</b></div>"
+ +'<div class="kv"><span>'+t("sellunitprice")+"</span><b>"+money(r.sellUnitPrice)+"</b></div>"
+ +'<div class="kv"><span>'+t("incoterms")+"</span><b>"+esc(r.incoterms||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("originport")+"</span><b>"+esc(r.originPort||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("destport")+"</span><b>"+esc(r.destinationPort||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("supplier")+"</span><b>"+esc(supName(r.supplierId))+"</b></div>"
+ +'<div class="kv"><span>'+t("buyer")+"</span><b>"+esc(supName(r.buyerId))+"</b></div>"
+ +(r.notes?'<div class="mut" style="margin-top:8px;white-space:pre-wrap">'+esc(r.notes)+"</div>":"")
+ +'<div class="math"><div class="mrow"><span style="font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--acc)">'+t("econ")+'</span></div>'
+ +'<div class="mrow"><span>'+t("landed")+"</span><b>"+money(landedUnit(r))+"</b></div>"
+ +'<div class="mrow"><span>'+t("netmargin")+"</span><b>"+money(netMargin(r))+"</b></div>"
+ +'<div class="mrow"><span>'+t("netpct")+"</span><b>"+(netMarginPct(r)*100).toFixed(1)+"%</b></div>"
+ +'<div class="mrow"><span>'+t("comm")+"</span><b>"+money(commission(r))+"</b></div>"
+ +'<div class="mrow"><span>'+t("score")+"</span><b>"+sc+"/100</b></div></div>"
+ +'<div class="mut" style="margin-top:8px">'+t("created")+": "+esc(String(r.createdAt||"").slice(0,10))+"</div>";
+ if(Array.isArray(r.agentNotes)&&r.agentNotes.length){
+  h+='<div class="mut" style="margin:12px 0 4px;font-weight:800;color:var(--acc)">'+t("agentnotes")+"</div>";
+  r.agentNotes.slice().reverse().forEach(n=>{
+   h+='<div class="kv"><span>'+esc(String(n.at||n.t||"").slice(0,10))+" · "+esc(n.agent||"")+"</span><b>"+esc(lang==="es"?(n.es||n.textEs||""):(n.en||n.textEn||""))+"</b></div>";
+  });
+ }
+ h+='<div class="row"><button class="btn" onclick="editRfq(\''+r.id+"')\">"+t("edit")+'</button>'
+ +'<button class="btn dgr" onclick="delRfq(\''+r.id+"')\">"+t("del")+"</button></div>"
+ +'<div class="row"><button class="btn sec" onclick="closeSheet()">'+t("close")+"</button></div>"
+ +'<div class="mut" style="margin-top:10px">'+t("broker")+"</div>";
+ openSheet(h);
+}
+function delRfq(id){if(!confirm(t("confirmdel")))return;S.rfqs=S.rfqs.filter(x=>x.id!==id);save();closeSheet();render()}
+function statusOpts(sel){return STATUSES.map(s=>'<option value="'+s+'"'+(s===sel?" selected":"")+">"+statusLabel(s)+"</option>").join("")}
+function supOpts(sel){return '<option value="">'+t("none")+"</option>"+S.suppliers.map(s=>'<option value="'+s.id+'"'+(s.id===sel?" selected":"")+">"+esc(s.name||"—")+"</option>").join("")}
+/* ============ RFQ add / edit ============ */
+function rfqFormHTML(r){
+ const numv=k=>r[k]!=null?r[k]:"";
+ return '<label>'+t("ref")+'</label><input id="f_ref" value="'+esc(r.ref||'')+'">'
+ +'<label>'+t("product")+'</label><input id="f_product" value="'+esc(r.product||'')+'">'
+ +'<label>'+t("quantity")+'</label><input id="f_quantity" type="number" min="0" value="'+numv("quantity")+'">'
+ +'<label>'+t("unitcost")+'</label><input id="f_unitCost" type="number" min="0" step="any" value="'+numv("unitCost")+'">'
+ +'<label>'+t("sellunitprice")+'</label><input id="f_sellUnitPrice" type="number" min="0" step="any" value="'+numv("sellUnitPrice")+'">'
+ +'<label>'+t("freight")+'</label><input id="f_freight" type="number" min="0" step="any" value="'+numv("freight")+'">'
+ +'<label>'+t("duties")+'</label><input id="f_duties" type="number" min="0" step="any" value="'+numv("duties")+'">'
+ +'<label>'+t("othercosts")+'</label><input id="f_otherCosts" type="number" min="0" step="any" value="'+numv("otherCosts")+'">'
+ +'<label>'+t("commissionpct")+'</label><input id="f_commissionPct" type="number" min="0" step="any" value="'+numv("commissionPct")+'">'
+ +'<label>'+t("incoterms")+'</label><input id="f_incoterms" value="'+esc(r.incoterms||'')+'" placeholder="FOB / CIF / EXW / DAP">'
+ +'<label>'+t("originport")+'</label><input id="f_originPort" value="'+esc(r.originPort||'')+'">'
+ +'<label>'+t("destport")+'</label><input id="f_destinationPort" value="'+esc(r.destinationPort||'')+'">'
+ +'<label>'+t("originlat")+'</label><input id="f_originLat" type="number" step="any" value="'+numv("originLat")+'">'
+ +'<label>'+t("originlng")+'</label><input id="f_originLng" type="number" step="any" value="'+numv("originLng")+'">'
+ +'<label>'+t("destlat")+'</label><input id="f_destLat" type="number" step="any" value="'+numv("destLat")+'">'
+ +'<label>'+t("destlng")+'</label><input id="f_destLng" type="number" step="any" value="'+numv("destLng")+'">'
+ +'<label>'+t("supplier")+'</label><select id="f_supplierId">'+supOpts(r.supplierId)+"</select>"
+ +'<label>'+t("buyer")+'</label><select id="f_buyerId">'+supOpts(r.buyerId)+"</select>"
+ +'<label>'+t("status")+'</label><select id="f_status">'+statusOpts(r.status||"prospect")+"</select>"
+ +'<label>'+t("notes")+'</label><textarea id="f_notes">'+esc(r.notes||"")+"</textarea>";
+}
+function renderAddRfq(m){
+ m.innerHTML='<div class="card"><h3>'+t("newrfq")+"</h3>"+rfqFormHTML({})
+ +'<div class="row"><button class="btn" onclick="saveRfq(\'\')">'+t("save")+'</button></div></div>';
+}
+function newRfq(){openSheet("<h2>"+t("newrfq")+"</h2>"+rfqFormHTML({})
+ +'<div class="row"><button class="btn" onclick="saveRfq(\'\')">'+t("save")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>")}
+function editRfq(id){const r=S.rfqs.find(x=>x.id===id);if(!r)return;
+ openSheet("<h2>"+t("editrfq")+"</h2>"+rfqFormHTML(r)
+ +'<div class="row"><button class="btn" onclick="saveRfq(\''+id+"')\">"+t("save")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>")}
+function saveRfq(id){
+ const g=i=>document.getElementById(i)?document.getElementById(i).value.trim():"";
+ const n=i=>{const v=Number(g(i));return Number.isFinite(v)?v:0};
+ const lat=i=>{const s=g(i);if(s==="")return null;const v=Number(s);return Number.isFinite(v)?v:null};
+ const rec={ref:g("f_ref"),product:g("f_product"),quantity:n("f_quantity"),
+  unitCost:n("f_unitCost"),sellUnitPrice:n("f_sellUnitPrice"),freight:n("f_freight"),
+  duties:n("f_duties"),otherCosts:n("f_otherCosts"),commissionPct:n("f_commissionPct"),
+  incoterms:g("f_incoterms"),originPort:g("f_originPort"),destinationPort:g("f_destinationPort"),
+  originLat:lat("f_originLat"),originLng:lat("f_originLng"),destLat:lat("f_destLat"),destLng:lat("f_destLng"),
+  supplierId:g("f_supplierId"),buyerId:g("f_buyerId"),status:g("f_status")||"prospect",notes:g("f_notes")};
+ if(!STATUSES.includes(rec.status))rec.status="prospect";
+ let r=S.rfqs.find(x=>x.id===id);
+ if(r){Object.assign(r,rec);r.updatedAt=nowIso()}
+ else{r=Object.assign({id:uid(),agentNotes:[],createdAt:nowIso(),updatedAt:nowIso()},rec);S.rfqs.push(r)}
+ r.score=econScore(r);
+ save();closeSheet();if(!location.hash||location.hash==="#add")location.hash="rfqs";render();
+}
+/* ============ suppliers ============ */
+const SUP_TYPES=["manufacturer","distributor","trader","logistics"];
+const SUP_ROLES=["supplier","buyer","both"];
+const SUP_VERS=["unverified","in-review","verified","flagged"];
+function verPillClass(v){if(v==="verified")return "green";if(v==="in-review")return "yellow";if(v==="flagged")return "red";return "gray"}
+function renderSuppliers(m){
+ let h="";
+ if(!S.suppliers.length)h+='<div class="empty">'+t("nosup")+"</div>";
+ S.suppliers.forEach(s=>{
+  h+='<div class="card tap" onclick="editSupplier(\''+s.id+'\')">'
+  +'<h3>'+esc(s.name||t("none"))+'</h3>'
+  +'<span class="pill '+verPillClass(s.verification)+'">'+t("ver_"+String(s.verification).replace("-","_"))+"</span>"
+  +'<div class="mut">'+t("t_"+s.type)+" · "+t("r_"+s.role)+(s.country?" · "+esc(s.country):"")+"</div>"
+  +(s.contact&&s.contact.name?'<div class="mut">'+esc(s.contact.name)+"</div>":"")
+  +(s.contact&&s.contact.phone?'<div class="mut">'+esc(s.contact.phone)+"</div>":"")
+  +(s.contact&&s.contact.email?'<div class="mut">'+esc(s.contact.email)+"</div>":"")
+  +(s.notes?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(s.notes)+"</div>":"")
+  +'<div class="row"><button class="btn sec" onclick="event.stopPropagation();editSupplier(\''+s.id+"')\">"+t("edit")+'</button><button class="btn dgr" onclick="event.stopPropagation();delSupplier(\''+s.id+"')\">"+t("del")+"</button></div></div>";
+ });
+ h+='<div class="row"><button class="btn" onclick="editSupplier(\'\')">'+t("addsup")+"</button></div>";
+ m.innerHTML=h;
+}
+function editSupplier(id){
+ const s=id?S.suppliers.find(x=>x.id===id):null;
+ const f=s||{name:"",type:"manufacturer",role:"supplier",country:"",verification:"unverified",contact:{},notes:""};
+ const c=f.contact||{};
+ const typeOpts=SUP_TYPES.map(v=>'<option value="'+v+'"'+(f.type===v?" selected":"")+">"+t("t_"+v)+"</option>").join("");
+ const roleOpts=SUP_ROLES.map(v=>'<option value="'+v+'"'+(f.role===v?" selected":"")+">"+t("r_"+v)+"</option>").join("");
+ const verOpts=SUP_VERS.map(v=>'<option value="'+v+'"'+(f.verification===v?" selected":"")+">"+t("ver_"+v.replace("-","_"))+"</option>").join("");
+ openSheet('<h2>'+(s?t("editsup"):t("newsup"))+"</h2>"
+ +'<label>'+t("s_name")+'</label><input id="s_name" value="'+esc(f.name||'')+'">'
+ +'<label>'+t("s_type")+'</label><select id="s_type">'+typeOpts+"</select>"
+ +'<label>'+t("s_role")+'</label><select id="s_role">'+roleOpts+"</select>"
+ +'<label>'+t("s_country")+'</label><input id="s_country" value="'+esc(f.country||'')+'">'
+ +'<label>'+t("s_ver")+'</label><select id="s_verification">'+verOpts+"</select>"
+ +'<label>'+t("s_cname")+'</label><input id="s_cname" value="'+esc(c.name||'')+'">'
+ +'<label>'+t("s_cphone")+'</label><input id="s_cphone" value="'+esc(c.phone||'')+'">'
+ +'<label>'+t("s_cemail")+'</label><input id="s_cemail" value="'+esc(c.email||'')+'">'
+ +'<label>'+t("notes")+'</label><textarea id="s_notes">'+esc(f.notes||"")+"</textarea>"
+ +'<div class="row"><button class="btn" onclick="saveSupplier(\''+(s?s.id:"")+"')\">"+t("save")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>");
+}
+function saveSupplier(id){
+ const g=i=>document.getElementById(i)?document.getElementById(i).value.trim():"";
+ const rec={name:g("s_name"),type:g("s_type")||"manufacturer",role:g("s_role")||"supplier",
+  country:g("s_country"),verification:g("s_verification")||"unverified",
+  contact:{name:g("s_cname"),phone:g("s_cphone"),email:g("s_cemail")},notes:g("s_notes")};
+ if(!SUP_TYPES.includes(rec.type))rec.type="manufacturer";
+ if(!SUP_ROLES.includes(rec.role))rec.role="supplier";
+ if(!SUP_VERS.includes(rec.verification))rec.verification="unverified";
+ let s=S.suppliers.find(x=>x.id===id);
+ if(s){Object.assign(s,rec);s.updatedAt=nowIso()}
+ else{s=Object.assign({id:uid(),agentNotes:[],createdAt:nowIso(),updatedAt:nowIso()},rec);S.suppliers.push(s)}
+ save();closeSheet();render();
+}
+function delSupplier(id){if(!confirm(t("confirmdel")))return;S.suppliers=S.suppliers.filter(x=>x.id!==id);save();render()}
+/* ============ JSON backup ============ */
+function exportData(){
+ const blob=new Blob([JSON.stringify(S)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="trade-backup.json";a.click();
+}
+function importData(){
+ if(!confirm(t("impreplace")))return;
+ const i=document.createElement("input");i.type="file";i.accept=".json";
+ i.onchange=()=>{const r=new FileReader();r.onload=()=>{try{
+  const d=JSON.parse(r.result);
+  if(!d||!Array.isArray(d.rfqs)||!Array.isArray(d.suppliers)){alert(t("badfile"));return}
+  S=d;save();render();
+ }catch(e){alert(t("badfile"))}};r.readAsText(i.files[0])};
+ i.click();
+}
+/* ============ helpers ============ */
+function openSheet(h){document.getElementById("sheet").innerHTML=h;document.getElementById("modal").classList.add("open")}
+function closeSheet(){document.getElementById("modal").classList.remove("open")}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeSheet()});
+/* ============ init ============ */
+load();
+try{const l=localStorage.getItem(LANGKEY);if(l==="es"||l==="en")lang=l}catch(e){}
+if(!location.hash)location.hash="rfqs";else applyHash();
+if(!location.hash||location.hash==="#rfqs")render();
+</script>
+</body>
+</html>

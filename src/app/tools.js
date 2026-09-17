@@ -84,6 +84,11 @@ import { initShippingMapLayer } from '../trade/shippingLayer.js';
 import { initTradeDashboard } from '../trade/tradeDashboard.js';
 import { createWorkforce as createTradeWorkforce } from '../agents/tradeWorkforce.js';
 import { initTradeWorkforcePanel } from '../agents/tradeWorkforcePanel.js';
+import { initCubacashWorkforcePanel } from '../agents/cubacashWorkforcePanel.js';
+// Business launcher: one floating button opening the full-screen,
+// phone-first standalone screen for each business (wholesale, crude,
+// insurance, import/export, MY CUBA CASH).
+import { initBusinessLauncher } from '../businessLauncher.js';
 // MY CUBA CASH: verified-provider store, corridor math, 3D corridor map,
 // mission-control dashboard, AI workforce + panel. Six seeded providers only;
 // provider fees stay undisclosed until Juan enters them. Nothing invented.
@@ -892,6 +897,7 @@ export function createApplicationTools({
     }
     if (window.__gevTradeWorkforceUI) delete window.__gevTradeWorkforceUI;
   });
+  debug.tradeWorkforcePanel = tradeWorkforcePanel;
   // --- MY CUBA CASH ---------------------------------------------------------
   // One store (localStorage `sahjony.cubacash.v1`) spoken in the three shapes
   // its consumers expect: the dashboard/map-layer shape, and the AI workforce
@@ -1058,6 +1064,19 @@ export function createApplicationTools({
     }
     if (window.__gevCubacashWorkforceUI) delete window.__gevCubacashWorkforceUI;
   });
+  debug.cubacashWorkforcePanel = cubacashWorkforcePanel;
+  // Business launcher: floating 🏢 button + full-screen bilingual menu with
+  // one-tap buttons opening each business's standalone screen. The screens
+  // share each module's localStorage key, so data is seamless both ways.
+  const businessLauncher = initBusinessLauncher({ signal });
+  defer(() => {
+    try {
+      businessLauncher.destroy();
+    } catch {
+      /* noop */
+    }
+  });
+  debug.businessLauncher = businessLauncher;
   // SAHJONY VOZ — free bilingual (ES/EN) voice commander. Dedicated action
   // runner driving the same GEV actions; no API keys, no cost.
   const sahjonyVoice = initSahjonyVoice({

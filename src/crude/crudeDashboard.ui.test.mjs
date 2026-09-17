@@ -458,3 +458,48 @@ test('dashboard: adapts the real crude store shape', () => {
     'null store falls back to memory',
   );
 });
+
+test('dashboard: openDeepLink opens /crude/index.html#<view>', () => {
+  const prevOpen = globalThis.window.open;
+  let openedUrl = null;
+  globalThis.window.open = (url) => {
+    openedUrl = url;
+    return null;
+  };
+  try {
+    const dd = initCrudeDashboard({ cargoStore: fakeStore() });
+    dd.openDeepLink('deals');
+    assert.equal(openedUrl, '/crude/index.html#deals');
+    dd.openDeepLink('counterparties');
+    assert.equal(openedUrl, '/crude/index.html#counterparties');
+    dd.openDeepLink('add');
+    assert.equal(openedUrl, '/crude/index.html#add');
+    dd.destroy();
+  } finally {
+    if (prevOpen === undefined) delete globalThis.window.open;
+    else globalThis.window.open = prevOpen;
+  }
+});
+
+test('dashboard: openDeepLink falls back to location.href without window.open', () => {
+  const prevOpen = globalThis.window.open;
+  const prevLoc = globalThis.window.location;
+  delete globalThis.window.open;
+  const fakeLoc = { href: 'http://localhost/' };
+  globalThis.window.location = fakeLoc;
+  const dd = initCrudeDashboard({ cargoStore: fakeStore() });
+  try {
+    dd.openDeepLink('counterparties');
+    assert.equal(
+      fakeLoc.href,
+      '/crude/index.html#counterparties',
+      'location.href used when window.open is missing',
+    );
+  } finally {
+    dd.destroy();
+    if (prevOpen === undefined) delete globalThis.window.open;
+    else globalThis.window.open = prevOpen;
+    if (prevLoc === undefined) delete globalThis.window.location;
+    else globalThis.window.location = prevLoc;
+  }
+});

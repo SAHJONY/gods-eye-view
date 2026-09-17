@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Wholesale Command Center</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--txt:#f1f5f9;--mut:#94a3b8;--acc:#7dd3fc;--grn:#4ade80;--yel:#facc15;--red:#f87171;--brd:#334155}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{max-width:100%;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:110px}
+header{position:sticky;top:0;z-index:10;background:#0b1220;border-bottom:1px solid var(--brd);padding:12px 14px}
+h1{margin:0;font-size:20px}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.langrow{display:flex;gap:8px;margin-top:10px}
+.langbtn{flex:1;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700}
+.langbtn.on{border-color:var(--acc);background:#0c2a3d}
+.bizlinks{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 4px;scrollbar-width:none}
+.bizlink{flex:0 0 auto;min-height:52px;padding:10px 16px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:15px;font-weight:700;white-space:nowrap;text-decoration:none;display:flex;align-items:center}
+.bizlink.on{border-color:var(--acc);background:#0c2a3d}
+.viewtabs{display:flex;gap:8px;padding:10px 14px}
+.viewtab{flex:1;min-height:52px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;text-align:center}
+.viewtab.on{border-color:var(--grn);background:#0d2b1a}
+main{padding:6px 14px;max-width:760px;margin:0 auto}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}
+.kpi{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:12px}
+.kpi .k{font-size:12px;color:var(--mut);letter-spacing:.04em;font-weight:700}
+.kpi .v{font-size:22px;font-weight:800}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:16px;margin:12px 0}
+.card h3{margin:0 0 6px;font-size:18px;word-break:break-word}
+.pill{display:inline-block;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:800;margin:4px 6px 4px 0}
+.green{background:#0d2b1a;color:var(--grn);border:1px solid var(--grn)}
+.yellow{background:#33270a;color:var(--yel);border:1px solid var(--yel)}
+.red{background:#3b1114;color:var(--red);border:1px solid var(--red)}
+.gray{background:#1b2434;color:var(--mut);border:1px solid var(--mut)}
+.stbadge{background:#0b1220;color:var(--acc);border:1px solid var(--acc)}
+.mut{color:var(--mut);font-size:14px}
+.big{font-size:26px;font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.btn{flex:1;min-height:52px;border-radius:14px;border:none;font-size:16px;font-weight:800;color:#0b1220;background:var(--acc);padding:10px 14px}
+.btn.sec{background:var(--card2);color:var(--txt);border:2px solid var(--brd)}
+.btn.dgr{background:#3b1114;color:var(--red);border:1px solid var(--red)}
+.btn.grn{background:#0d2b1a;color:var(--grn);border:1px solid var(--grn)}
+a.btn{text-decoration:none;display:flex;align-items:center;justify-content:center}
+input,select,textarea{width:100%;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:#0b1220;color:var(--txt);font-size:16px;padding:10px 12px;margin:6px 0;max-width:100%}
+textarea{min-height:110px;resize:vertical}
+label{font-size:14px;color:var(--mut);font-weight:700}
+.check{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--brd);border-radius:12px;margin:8px 0;min-height:52px}
+.check input{width:28px;height:28px;min-height:28px;min-width:28px;margin:0;flex:0 0 auto}
+.stagehead{display:flex;justify-content:space-between;align-items:center;margin:18px 0 4px;padding:0 2px}
+.stagehead h2{margin:0;font-size:17px;color:var(--acc);letter-spacing:.04em}
+.stagehead .n{color:var(--mut);font-size:14px;font-weight:700}
+.leadcard{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:14px;margin:10px 0;width:100%;text-align:left;color:var(--txt);font-size:17px;min-height:52px}
+.fab{position:fixed;bottom:18px;right:18px;width:72px;height:72px;border-radius:50%;background:var(--acc);color:#0b1220;font-size:34px;font-weight:900;border:none;box-shadow:0 4px 18px rgba(0,0,0,.5);min-height:72px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;z-index:20;overflow-y:auto;padding:16px}
+.modal.open{display:block}
+.sheet{background:var(--card);border-radius:18px;padding:18px;max-width:640px;margin:20px auto}
+.sheet h2{margin-top:0;word-break:break-word}
+.disc{font-size:12px;color:var(--mut);padding:14px;max-width:760px;margin:0 auto}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--brd);font-size:15px}
+.kv span{color:var(--mut)}
+.kv b{text-align:right;word-break:break-word}
+.feerow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:15px}
+.empty{color:var(--mut);text-align:center;padding:28px 16px;font-size:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.grid2{grid-template-columns:1fr}}
+@media print{.fab,.viewtabs,.bizlinks,.langrow,.btn,.noprint{display:none!important}body{background:#fff;color:#000;padding:0}.card{background:#fff;border:1px solid #999;color:#000}}
+</style>
+</head>
+<body>
+<header>
+<h1 id="apptitle">🏠 Wholesale Command Center</h1>
+<div class="sub" id="appsub"></div>
+<div class="langrow noprint">
+<button class="langbtn" id="btnEN" onclick="setLang('en')">EN</button>
+<button class="langbtn" id="btnES" onclick="setLang('es')">ES</button>
+</div>
+</header>
+<nav class="bizlinks noprint" id="bizlinks" aria-label="businesses"></nav>
+<nav class="viewtabs noprint" id="viewtabs" aria-label="views"></nav>
+<main id="main"></main>
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="disc" id="disclaimer"></div>
+<script>
+"use strict";
+/* ============ i18n ============ */
+const T={
+en:{appsub:"Seller-lead pipeline + cash buyers — full screen, phone-first",
+pipeline:"Pipeline",buyers:"Buyers",add:"Add lead",
+total:"LEADS",avgscore:"AVG SCORE",pipeval:"PIPELINE VALUE",potfees:"POTENTIAL FEES",
+noleads:"No leads yet — add your first one.",noleadsstage:"No leads in this stage.",
+nobuys:"No buyers yet — add your first one below.",
+addlead:"Add lead",editlead:"Edit lead",save:"Save",cancel:"Cancel",edit:"Edit",del:"Delete",
+dellead:"Delete lead",confirmdel:"Delete this record? This cannot be undone.",
+address:"Street address",city:"City",state:"State",zip:"ZIP",lat:"Latitude",lng:"Longitude",
+owner:"Owner name",ownertype:"Owner type",ind:"Individual",ent:"Entity",unk:"Unknown",
+source:"Lead source",condition:"Property condition",distress:"Distress flags",notes:"Notes",
+status:"Status",arv:"ARV ($)",repairs:"Repairs ($)",targetfee:"Target fee ($)",contractprice:"Contract price ($)",
+dealecon:"Deal economics",mao:"Max offer (MAO)",perbuyer:"Per-buyer assignment fee",
+bestbuyer:"Best buyer",maxoffer:"Max offer",fee:"Fee",contractp:"Contract price",
+bname:"Buyer name",contact:"Contact (phone/email)",bmaxprice:"Max offer ($)",areas:"Buy areas (comma separated)",
+mindisc:"Min discount %",bnotes:"Notes",addbuyer:"Add buyer",editbuyer:"Edit buyer",delbuyer:"Delete buyer",
+export:"Export data",import:"Import data",badfile:"Could not read that file — is it a wholesale backup JSON?",
+dup:"A lead at this address already exists — opening it instead.",needaddr:"Enter at least a street address.",
+disclaimer:"Educational tool — not legal advice. A licensed attorney must review any contract before signing.",
+agentnotes:"Agent notes",score:"Score",created:"Created",cond_other:"Other condition",
+st_new:"New",st_researching:"Researching",st_analyzed:"Analyzed",st_offer:"Offer",st_contract:"Contract",
+st_assigned:"Assigned",st_closed:"Closed",st_dead:"Dead",
+c_vacant:"Vacant",c_boarded:"Boarded",c_fire:"Fire damage",c_roof:"Roof damage",c_overgrown:"Overgrown",c_fsbo:"FSBO",c_other:"Other",
+d_tax:"Tax delinquent",d_absentee:"Absentee owner",d_vacantland:"Vacant land",
+condfreetext:"Other condition (free text)",distfreetext:"Other distress (free text)",
+viewdetails:"View details",close:"Close",home:"GEV home",ins:"Insurance",cru:"Crude",imp:"Import/Export",cub:"MY CUBA CASH",wsl:"Wholesale"},
+es:{appsub:"Pipeline de leads + compradores en efectivo — pantalla completa, primero el teléfono",
+pipeline:"Pipeline",buyers:"Compradores",add:"Agregar lead",
+total:"LEADS",avgscore:"PUNTAJE PROM.",pipeval:"VALOR PIPELINE",potfees:"HONORARIOS POT.",
+noleads:"Sin leads todavía — agrega el primero.",noleadsstage:"Sin leads en esta etapa.",
+nobuys:"Sin compradores — agrega el primero abajo.",
+addlead:"Agregar lead",editlead:"Editar lead",save:"Guardar",cancel:"Cancelar",edit:"Editar",del:"Eliminar",
+dellead:"Eliminar lead",confirmdel:"¿Eliminar este registro? No se puede deshacer.",
+address:"Dirección",city:"Ciudad",state:"Estado",zip:"Código postal",lat:"Latitud",lng:"Longitud",
+owner:"Nombre del dueño",ownertype:"Tipo de dueño",ind:"Individual",ent:"Empresa",unk:"Desconocido",
+source:"Fuente del lead",condition:"Condición de la propiedad",distress:"Señales de distress",notes:"Notas",
+status:"Estado",arv:"ARV ($)",repairs:"Reparaciones ($)",targetfee:"Honorario objetivo ($)",contractprice:"Precio de contrato ($)",
+dealecon:"Números del negocio",mao:"Oferta máxima (MAO)",perbuyer:"Honorario por comprador",
+bestbuyer:"Mejor comprador",maxoffer:"Oferta máx.",fee:"Honorario",contractp:"Precio de contrato",
+bname:"Nombre del comprador",contact:"Contacto (teléfono/email)",bmaxprice:"Oferta máxima ($)",areas:"Zonas de compra (separadas por comas)",
+mindisc:"Descuento mín. %",bnotes:"Notas",addbuyer:"Agregar comprador",editbuyer:"Editar comprador",delbuyer:"Eliminar comprador",
+export:"Exportar datos",import:"Importar datos",badfile:"No se pudo leer el archivo — ¿es un respaldo JSON de wholesale?",
+dup:"Ya existe un lead en esta dirección — abriéndolo.",needaddr:"Ingresa al menos la dirección.",
+disclaimer:"Herramienta educativa — no es asesoría legal. Un abogado con licencia debe revisar cualquier contrato antes de firmar.",
+agentnotes:"Notas del agente",score:"Puntaje",created:"Creado",cond_other:"Otra condición",
+st_new:"Nueva",st_researching:"En investigación",st_analyzed:"Analizada",st_offer:"Oferta",st_contract:"Contrato",
+st_assigned:"Asignada",st_closed:"Cerrada",st_dead:"Descartada",
+c_vacant:"Vacante",c_boarded:"Tapiada",c_fire:"Daño por fuego",c_roof:"Daño de techo",c_overgrown:"Descuidada",c_fsbo:"FSBO",c_other:"Otra",
+d_tax:"Impuestos morosos",d_absentee:"Dueño ausente",d_vacantland:"Terreno vacante",
+condfreetext:"Otra condición (texto libre)",distfreetext:"Otro distress (texto libre)",
+viewdetails:"Ver detalles",close:"Cerrar",home:"Inicio GEV",ins:"Seguros",cru:"Crudo",imp:"Import/Export",cub:"MY CUBA CASH",wsl:"Wholesale"}};
+let lang="es"; const t=k=>T[lang][k]||k;
+/* ============ constants ============ */
+const KEY="sahjony.wholesale.v1";
+const LANGKEY="sahjony.gev.lang";
+const STATUSES=["new","researching","analyzed","offer","contract","assigned","closed","dead"];
+const COND_KEYS=[["vacant","c_vacant"],["boarded","c_boarded"],["fire","c_fire"],["roof","c_roof"],["overgrown","c_overgrown"],["fsbo","c_fsbo"],["other","c_other"]];
+const DIST_KEYS=[["tax_delinquent","d_tax"],["absentee_owner","d_absentee"],["vacant_land","d_vacantland"]];
+/* ============ storage — SAME key + SAME shape as src/wholesale/leadStore.js ============ */
+let DB={leads:[],buyers:[]};
+function load(){
+ try{const raw=localStorage.getItem(KEY);const p=raw?JSON.parse(raw):null;
+  DB={leads:Array.isArray(p&&p.leads)?p.leads:[],buyers:Array.isArray(p&&p.buyers)?p.buyers:[]};}
+ catch(e){DB={leads:[],buyers:[]}}
+ try{const l=localStorage.getItem(LANGKEY);if(l==="en"||l==="es")lang=l;}catch(e){}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}}
+/* ============ helpers (mirrors of dealEngine.js / leadStore.js — self-contained) ============ */
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function money(n){const v=Number(n)||0;return "$"+Math.round(v).toLocaleString("en-US")}
+function uid(){try{if(crypto&&crypto.randomUUID)return crypto.randomUUID()}catch(e){}
+ return Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,10)}
+function chicagoIso(d){d=d||new Date();
+ try{const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Chicago",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).formatToParts(d);
+ const g=x=>(p.find(y=>y.type===x)||{}).value||"00";
+ const local=g("year")+"-"+g("month")+"-"+g("day")+"T"+g("hour")+":"+g("minute")+":"+g("second");
+ const wall=Date.UTC(+g("year"),+g("month")-1,+g("day"),+g("hour"),+g("minute"),+g("second"));
+ const off=Math.round((wall-d.getTime())/60000);const s=off<=0?"-":"+";const a=Math.abs(off);
+ return local+s+String(Math.floor(a/60)).padStart(2,"0")+":"+String(a%60).padStart(2,"0");}catch(e){return d.toISOString()}}
+function num(v){const n=Number(v);return Number.isFinite(n)&&n>=0?n:0}
+function normAddr(v){return String(v||"").trim().toLowerCase().replace(/[.,#]/g,"").replace(/\s+/g," ")}
+function nkey(v){return String(v||"").trim().toLowerCase().replace(/[\s_-]+/g,"")}
+const COND_PTS={vacant:25,boarded:20,fire:20,roof:15,overgrown:10,fsbo:5,other:5};
+const DIST_PTS={taxdelinquent:20,tax_delinquent:20,absenteeowner:10,absentee_owner:10,vacantland:5,vacant_land:5};
+function scoreLead(l){ // same algorithm as dealEngine.js scoreLead
+ if(!l||typeof l!=="object")return 0;let s=0;
+ const cl=Array.isArray(l.condition)?l.condition:[l.condition];let best=0;
+ cl.forEach(r=>{const p=COND_PTS[nkey(r)]??(r?COND_PTS.other:0);if(p>best)best=p});
+ s+=best;const seen={};
+ (Array.isArray(l.distress)?l.distress:[]).forEach(r=>{const k=nkey(r);if(seen[k])return;seen[k]=1;s+=DIST_PTS[k]||0});
+ if(l.owner&&String(l.owner).trim())s+=15;
+ const la=Number(l.lat),ln=Number(l.lng);
+ if(Number.isFinite(la)&&Number.isFinite(ln))s+=10;
+ return Math.min(100,Math.max(0,Math.round(s)))}
+function buyerMaxOffer(b){const v=(b||{}).maxOffer??(b||{}).buyBox?.maxPrice;return Number(v)||0}
+function dealMath(lead,buyers){ // same as dealDashboard.js dealMath
+ const arv=num(lead.arv),rep=num(lead.repairs),tf=num(lead.targetFee),cp=num(lead.contractPrice);
+ const mao=Math.round(arv*0.7-rep-tf);
+ const fees=(buyers||[]).map(b=>{const mo=buyerMaxOffer(b);const fee=mo-cp;
+  const status=fee>=tf&&tf>0?"green":fee>0?"yellow":"red";
+  return{buyer:b.name||"—",maxOffer:mo,fee:fee,status:status}}).sort((a,b)=>b.fee-a.fee);
+ return{mao:mao,fees:fees}}
+function stats(){ // same as leadStore stats()
+ const by={};STATUSES.forEach(s=>by[s]=0);let sum=0,pv=0,pf=0;
+ DB.leads.forEach(l=>{const st=STATUSES.indexOf(l.status)>=0?l.status:"new";by[st]++;
+  sum+=Number.isFinite(Number(l.score))?Number(l.score):0;
+  if(st!=="dead")pv+=num(l.arv);
+  if(["offer","contract","assigned"].indexOf(st)>=0)pf+=num(l.targetFee)});
+ const n=DB.leads.length;
+ return{total:n,byStatus:by,avgScore:n?Math.round(sum/n*10)/10:0,pipelineValue:Math.round(pv),potentialFees:Math.round(pf)}}
+function pillClass(s){const v=Number(s);if(!Number.isFinite(v))return"gray";if(v>=70)return"green";if(v>=40)return"yellow";return"red"}
+function findDup(addr){const a=normAddr(addr);if(!a)return null;
+ return DB.leads.find(l=>normAddr(l.address)===a)||null}
+/* ============ shell render ============ */
+let VIEW="pipeline";
+const VIEWHASH={pipeline:"pipeline",buyers:"buyers",add:"add"};
+function applyHash(){try{const h=String(location.hash||"").replace("#","").toLowerCase();
+ if(VIEWHASH[h]){VIEW=VIEWHASH[h];render();return true}}catch(e){}return false}
+if(typeof window!=="undefined")window.addEventListener("hashchange",applyHash);
+function setLang(l){lang=l;try{localStorage.setItem(LANGKEY,l)}catch(e){}render()}
+function render(){
+ document.getElementById("btnEN").classList.toggle("on",lang==="en");
+ document.getElementById("btnES").classList.toggle("on",lang==="es");
+ document.getElementById("appsub").textContent=t("appsub");
+ document.getElementById("disclaimer").textContent=t("disclaimer");
+ document.documentElement.lang=lang;
+ const bl=document.getElementById("bizlinks");bl.innerHTML="";
+ [["/",t("home"),false],["/wholesale/index.html",t("wsl"),true],["/insurance/index.html",t("ins"),false],
+  ["/crude/index.html",t("cru"),false],["/import-export/index.html",t("imp"),false],["/cubacash/index.html",t("cub"),false]]
+ .forEach(([u,l,on])=>{const a=document.createElement("a");a.className="bizlink"+(on?" on":"");
+  a.href=u;a.textContent=l;bl.appendChild(a)});
+ const vt=document.getElementById("viewtabs");vt.innerHTML="";
+ [["#pipeline",t("pipeline")],["#buyers",t("buyers")],["#add","➕ "+t("add")]].forEach(([h,l])=>{
+  const a=document.createElement("a");a.className="viewtab"+(VIEW===h.slice(1)?" on":"");
+  a.href=h;a.textContent=l;vt.appendChild(a)});
+ const m=document.getElementById("main");
+ if(VIEW==="buyers")renderBuyers(m);else if(VIEW==="add")renderAdd(m);else renderPipeline(m);
+}
+function kpiRow(){const s=stats();
+ return '<div class="kpis">'
+ +'<div class="kpi"><div class="k">'+t("total")+'</div><div class="v">'+s.total+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("avgscore")+'</div><div class="v">'+s.avgScore+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("pipeval")+'</div><div class="v">'+money(s.pipelineValue)+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("potfees")+'</div><div class="v">'+money(s.potentialFees)+"</div></div></div>"}
+function leadCard(l){
+ return '<button class="leadcard" onclick="openLead(\''+l.id+"')\">"
+ +'<div style="font-weight:800;font-size:18px">'+esc(l.address||"—")+"</div>"
+ +'<div style="margin:6px 0"><span class="pill '+pillClass(l.score)+'">'+esc(l.score)+'</span>'
+ +'<span class="pill stbadge">'+t("st_"+l.status)+"</span></div>"
+ +'<div class="mut">'+[l.city,l.state,l.zip].filter(Boolean).map(esc).join(", ")
+ +(num(l.arv)?' · ARV '+money(l.arv):"")+(num(l.targetFee)?' · '+t("fee")+" "+money(l.targetFee):"")+"</div></button>"}
+/* ============ pipeline view ============ */
+function renderPipeline(m){
+ let h=kpiRow();
+ if(!DB.leads.length)h+='<div class="empty">'+t("noleads")+"</div>";
+ STATUSES.forEach(st=>{
+  const list=DB.leads.filter(l=>(l.status||"new")===st);
+  h+='<div class="stagehead"><h2>'+t("st_"+st)+'</h2><span class="n">'+list.length+"</span></div>";
+  if(!list.length)h+='<div class="mut" style="padding:0 2px 8px">'+t("noleadsstage")+"</div>";
+  list.forEach(l=>{h+=leadCard(l)});
+ });
+ h+='<div class="row noprint"><button class="btn" onclick="location.hash=\'#add\'">➕ '+t("addlead")+'</button></div>';
+ h+='<div class="row noprint"><button class="btn sec" onclick="exportData()">'+t("export")+'</button><button class="btn sec" onclick="importData()">'+t("import")+"</button></div>";
+ m.innerHTML=h;
+}
+/* ============ buyers view ============ */
+function renderBuyers(m){
+ let h=kpiRow();
+ if(!DB.buyers.length)h+='<div class="empty">'+t("nobuys")+"</div>";
+ DB.buyers.forEach(b=>{
+  const bb=b.buyBox||{};
+  h+='<div class="card"><h3>'+esc(b.name||"—")+"</h3>"
+  +'<div class="big">'+money(buyerMaxOffer(b))+'</div><div class="mut">'+t("bmaxprice")+"</div>"
+  +(b.contact?'<div class="kv"><span>'+t("contact")+"</span><b>"+esc(b.contact)+"</b></div>":"")
+  +(bb.areas&&bb.areas.length?'<div class="kv"><span>'+t("areas")+"</span><b>"+esc(bb.areas.join(", "))+"</b></div>":"")
+  +(num(bb.minDiscountPct)?'<div class="kv"><span>'+t("mindisc")+"</span><b>"+esc(bb.minDiscountPct)+"%</b></div>":"")
+  +(b.notes?'<div class="mut" style="margin-top:8px;white-space:pre-wrap">'+esc(b.notes)+"</div>":"")
+  +'<div class="row"><button class="btn sec" onclick="editBuyer(\''+b.id+"')\">"+t("edit")+'</button><button class="btn dgr" onclick="delBuyer(\''+b.id+"')\">"+t("del")+"</button></div></div>"});
+ h+='<div class="row"><button class="btn" onclick="editBuyer(\'\')">➕ '+t("addbuyer")+"</button></div>";
+ m.innerHTML=h;
+}
+/* ============ add-lead view ============ */
+function renderAdd(m){leadForm(m,"")}
+function leadForm(m,id){
+ const l=id?DB.leads.find(x=>x.id===id):null;
+ const cArr=Array.isArray(l&&l.condition)?l.condition:(l&&l.condition?[l.condition]:[]);
+ const cFree=cArr.filter(x=>!COND_KEYS.some(k=>k[0]===nkey(x))).join(", ");
+ const dArr=Array.isArray(l&&l.distress)?l.distress:[];
+ const dFree=dArr.filter(x=>!DIST_KEYS.some(k=>k[0]===nkey(x))).join(", ");
+ const v=(k,d)=>esc(l?(l[k]??""):(d??""));
+ const chk=(keys,arr)=>keys.map(([k,tk])=>'<div class="check"><input type="checkbox" id="f_'+k+'"'+(arr.some(x=>nkey(x)===k)?" checked":"")+'><div>'+t(tk)+"</div></div>").join("");
+ let h='<div class="card"><h2 style="margin-top:0">'+(id?t("editlead"):t("addlead"))+"</h2>"
+ +'<label>'+t("address")+'</label><input id="f_address" value="'+v("address")+'">'
+ +'<div class="grid2"><div><label>'+t("city")+'</label><input id="f_city" value="'+v("city")+'"></div>'
+ +'<div><label>'+t("state")+'</label><input id="f_state" value="'+v("state")+'"></div></div>'
+ +'<div class="grid2"><div><label>'+t("zip")+'</label><input id="f_zip" value="'+v("zip")+'"></div>'
+ +'<div><label>'+t("source")+'</label><input id="f_source" value="'+v("source")+'"></div></div>'
+ +'<div class="grid2"><div><label>'+t("lat")+'</label><input id="f_lat" type="number" step="any" value="'+v("lat")+'"></div>'
+ +'<div><label>'+t("lng")+'</label><input id="f_lng" type="number" step="any" value="'+v("lng")+'"></div></div>'
+ +'<label>'+t("owner")+'</label><input id="f_owner" value="'+v("owner")+'">'
+ +'<label>'+t("ownertype")+'</label><select id="f_ownertype">'
+ +["individual","entity","unknown"].map(k=>'<option value="'+k+'"'+((l&&l.ownerType||"unknown")===k?" selected":"")+">"+t(k==="individual"?"ind":k==="entity"?"ent":"unk")+"</option>").join("")+"</select>"
+ +'<label>'+t("condition")+'</label>'+chk(COND_KEYS,cArr)
+ +'<label>'+t("condfreetext")+'</label><input id="f_condfree" value="'+esc(cFree)+'">'
+ +'<label>'+t("distress")+'</label>'+chk(DIST_KEYS,dArr)
+ +'<label>'+t("distfreetext")+'</label><input id="f_distfree" value="'+esc(dFree)+'">'
+ +'<div class="grid2"><div><label>'+t("arv")+'</label><input id="f_arv" type="number" min="0" value="'+v("arv")+'"></div>'
+ +'<div><label>'+t("repairs")+'</label><input id="f_repairs" type="number" min="0" value="'+v("repairs")+'"></div></div>'
+ +'<div class="grid2"><div><label>'+t("targetfee")+'</label><input id="f_targetfee" type="number" min="0" value="'+v("targetFee")+'"></div>'
+ +'<div><label>'+t("contractprice")+'</label><input id="f_contractprice" type="number" min="0" value="'+v("contractPrice")+'"></div></div>'
+ +'<label>'+t("status")+'</label><select id="f_status">'
+ +STATUSES.map(s=>'<option value="'+s+'"'+((l&&l.status||"new")===s?" selected":"")+">"+t("st_"+s)+"</option>").join("")+"</select>"
+ +'<label>'+t("notes")+'</label><textarea id="f_notes">'+v("notes")+"</textarea>"
+ +'<div class="row"><button class="btn" onclick="saveLead(\''+(id||"")+"')\">"+t("save")+'</button><button class="btn sec" onclick="'+(id?"closeSheet()":"location.hash='#pipeline'")+'">'+t("cancel")+"</button></div></div>";
+ m.innerHTML=h;
+}
+/* ============ lead detail sheet ============ */
+function openSheet(h){document.getElementById("sheet").innerHTML=h;document.getElementById("modal").classList.add("open")}
+function closeSheet(){document.getElementById("modal").classList.remove("open")}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeSheet()});
+function openLead(id){
+ const l=DB.leads.find(x=>x.id===id);if(!l)return;
+ const dm=dealMath(l,DB.buyers);
+ const cond=Array.isArray(l.condition)?l.condition.filter(Boolean):(l.condition?[l.condition]:[]);
+ const dist=Array.isArray(l.distress)?l.distress.filter(Boolean):[];
+ let h='<h2>'+esc(l.address||"—")+"</h2>"
+ +'<div class="mut">'+[l.city,l.state,l.zip].filter(Boolean).map(esc).join(", ")+"</div>"
+ +'<div style="margin:8px 0"><span class="pill '+pillClass(l.score)+'">'+t("score")+": "+esc(l.score)+'</span>'
+ +'<span class="pill stbadge">'+t("st_"+l.status)+"</span></div>"
+ +'<div class="kv"><span>'+t("owner")+"</span><b>"+esc(l.owner||"—")+"</b></div>"
+ +(l.source?'<div class="kv"><span>'+t("source")+"</span><b>"+esc(l.source)+"</b></div>":"")
+ +(cond.length?'<div class="kv"><span>'+t("condition")+"</span><b>"+esc(cond.join(", "))+"</b></div>":"")
+ +(dist.length?'<div class="kv"><span>'+t("distress")+"</span><b>"+esc(dist.join(", "))+"</b></div>":"")
+ +(l.notes?'<div class="mut" style="margin:8px 0;white-space:pre-wrap">'+esc(l.notes)+"</div>":"")
+ +"<h3>"+t("dealecon")+"</h3>"
+ +'<div class="kv"><span>'+t("arv")+"</span><b>"+money(l.arv)+"</b></div>"
+ +'<div class="kv"><span>'+t("repairs")+"</span><b>"+money(l.repairs)+"</b></div>"
+ +'<div class="kv"><span>'+t("targetfee")+"</span><b>"+money(l.targetFee)+"</b></div>"
+ +'<div class="kv"><span>'+t("contractp")+"</span><b>"+money(l.contractPrice)+"</b></div>"
+ +'<div class="kv"><span><b>'+t("mao")+"</b></span><b>"+money(dm.mao)+"</b></div>"
+ +"<h3>"+t("perbuyer")+"</h3>";
+ if(!dm.fees.length)h+='<div class="mut">'+t("nobuys")+"</div>";
+ dm.fees.forEach(f=>{h+='<div class="feerow"><span>'+esc(f.buyer)+' <span class="mut">('+t("maxoffer")+" "+money(f.maxOffer)+")</span></span>"
+  +'<span class="pill '+f.status+'">'+money(f.fee)+"</span></div>"});
+ if(l.agentNotes&&l.agentNotes.length){h+="<h3>"+t("agentnotes")+"</h3>";
+  l.agentNotes.slice().reverse().forEach(n=>{h+='<div class="kv"><span>'+esc(n.at||"")+" · "+esc(n.agent||"")+"</span><b>"+esc(lang==="es"?n.es:n.en)+"</b></div>"});}
+ h+='<div class="mut" style="margin-top:8px">'+t("created")+": "+esc(l.createdAt||"")+"</div>"
+ +'<div class="row"><button class="btn" onclick="openEditLead(\''+l.id+"')\">"+t("edit")+'</button><button class="btn sec" onclick="closeSheet()">'+t("close")+"</button></div>"
+ +'<div class="row"><button class="btn dgr" onclick="delLead(\''+l.id+"')\">"+t("dellead")+"</button></div>";
+ openSheet(h);
+}
+function openEditLead(id){
+ const l=DB.leads.find(x=>x.id===id);if(!l)return;
+ openSheet('<div id="editslot"></div>');
+ leadForm(document.getElementById("editslot"),id);
+}
+function collectLead(id){
+ const g=i=>document.getElementById(i);
+ const val=i=>g(i)?g(i).value.trim():"";
+ const cond=COND_KEYS.filter(([k])=>g("f_"+k)&&g("f_"+k).checked).map(([k])=>k)
+  .concat(val("f_condfree").split(",").map(s=>s.trim()).filter(Boolean));
+ const dist=DIST_KEYS.filter(([k])=>g("f_"+k)&&g("f_"+k).checked).map(([k])=>k)
+  .concat(val("f_distfree").split(",").map(s=>s.trim()).filter(Boolean));
+ const la=val("f_lat"),ln=val("f_lng");
+ const rec={address:val("f_address"),city:val("f_city"),state:val("f_state"),zip:val("f_zip"),
+  lat:la===""?null:Number(la),lng:ln===""?null:Number(ln),
+  owner:val("f_owner"),ownerType:val("f_ownertype")||"unknown",source:val("f_source"),
+  condition:cond,distress:dist,notes:val("f_notes"),
+  status:val("f_status")||"new",arv:num(val("f_arv")),repairs:num(val("f_repairs")),
+  targetFee:num(val("f_targetfee")),contractPrice:num(val("f_contractprice"))};
+ if(!["individual","entity"].includes(rec.ownerType))rec.ownerType="unknown";
+ if(STATUSES.indexOf(rec.status)<0)rec.status="new";
+ if(!Number.isFinite(rec.lat))rec.lat=null;if(!Number.isFinite(rec.lng))rec.lng=null;
+ return rec;
+}
+function saveLead(id){
+ const rec=collectLead(id);
+ if(!rec.address){alert(t("needaddr"));return}
+ const now=chicagoIso();
+ if(id){
+  const l=DB.leads.find(x=>x.id===id);if(!l)return;
+  Object.assign(l,rec);l.updatedAt=now;l.score=scoreLead(l); // rescore like store.updateLead
+  save();closeSheet();render();
+ }else{
+  const dup=findDup(rec.address);
+  if(dup){save();closeSheet();alert(t("dup"));openLead(dup.id);return}
+  rec.id=uid();rec.agentNotes=[];rec.createdAt=now;rec.updatedAt=now;rec.score=scoreLead(rec);
+  DB.leads.push(rec);save();closeSheet();
+  location.hash="#pipeline";
+ }
+}
+function delLead(id){if(!confirm(t("confirmdel")))return;
+ DB.leads=DB.leads.filter(x=>x.id!==id);save();closeSheet();render()}
+/* ============ buyers ============ */
+function editBuyer(id){
+ const b=id?DB.buyers.find(x=>x.id===id):{name:"",contact:"",buyBox:{maxPrice:0,areas:[],minDiscountPct:0},notes:""};
+ const bb=b.buyBox||{};
+ openSheet("<h2>"+(id?t("editbuyer"):t("addbuyer"))+"</h2>"
+ +'<label>'+t("bname")+'</label><input id="b_name" value="'+esc(b.name)+'">'
+ +'<label>'+t("contact")+'</label><input id="b_contact" value="'+esc(b.contact)+'">'
+ +'<label>'+t("bmaxprice")+'</label><input id="b_max" type="number" min="0" value="'+esc(bb.maxPrice||"")+'">'
+ +'<label>'+t("areas")+'</label><input id="b_areas" value="'+esc((bb.areas||[]).join(", "))+'">'
+ +'<label>'+t("mindisc")+'</label><input id="b_disc" type="number" min="0" value="'+esc(bb.minDiscountPct||"")+'">'
+ +'<label>'+t("bnotes")+'</label><textarea id="b_notes">'+esc(b.notes)+"</textarea>"
+ +'<div class="row"><button class="btn" onclick="saveBuyer(\''+(id||"")+"')\">"+t("save")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>");
+}
+function saveBuyer(id){
+ const g=i=>document.getElementById(i).value.trim();
+ const now=chicagoIso();
+ const rec={name:g("b_name"),contact:g("b_contact"),
+  buyBox:{maxPrice:num(g("b_max")),areas:g("b_areas").split(",").map(s=>s.trim()).filter(Boolean),minDiscountPct:num(g("b_disc"))},
+  notes:g("b_notes")};
+ if(id){const b=DB.buyers.find(x=>x.id===id);if(!b)return;
+  Object.assign(b,rec);b.updatedAt=now;}
+ else{rec.id=uid();rec.createdAt=now;rec.updatedAt=now;DB.buyers.push(rec)}
+ save();closeSheet();render();
+}
+function delBuyer(id){if(!confirm(t("confirmdel")))return;
+ DB.buyers=DB.buyers.filter(x=>x.id!==id);save();render()}
+/* ============ JSON backup export/import (same key, same shape) ============ */
+function exportData(){
+ const blob=new Blob([JSON.stringify(DB)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download="wholesale-backup.json";a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function importData(){
+ const i=document.createElement("input");i.type="file";i.accept=".json,application/json";
+ i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const p=JSON.parse(r.result);
+   if(!p||!Array.isArray(p.leads)||!Array.isArray(p.buyers))throw new Error("shape");
+   DB={leads:p.leads,buyers:p.buyers};save();render();
+  }catch(e){alert(t("badfile"))}};
+  r.readAsText(f)};
+ i.click();
+}
+/* ============ boot ============ */
+load();if(!applyHash())render();
+</script>
+</body>
+</html>

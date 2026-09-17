@@ -45,8 +45,13 @@ function makeEl() {
 }
 
 const bodyEl = makeEl();
+let openedUrl = null;
 
 globalThis.window = globalThis;
+globalThis.window.open = (url) => {
+  openedUrl = url;
+  return null;
+};
 globalThis.document = {
   location: { href: 'http://localhost/' },
   getElementById: () => null,
@@ -246,5 +251,15 @@ test('dashboard: adapts the real wholesale store shape', () => {
   // Draft offer uses the real buyer's max offer.
   const draft = dd.draftOffer('l1');
   assert.ok(draft.includes('Real Cash LLC'));
+  dd.destroy();
+});
+
+test('openDeepLink opens /wholesale/index.html#<view>', () => {
+  openedUrl = null;
+  const dd = initDealDashboard({ leadStore: fakeStore() });
+  dd.openDeepLink('pipeline');
+  assert.equal(openedUrl, '/wholesale/index.html#pipeline');
+  dd.openDeepLink('buyers');
+  assert.equal(openedUrl, '/wholesale/index.html#buyers');
   dd.destroy();
 });

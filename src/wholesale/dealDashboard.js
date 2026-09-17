@@ -1008,6 +1008,23 @@ export function initDealDashboard({
     refs.leadCards = [];
   }
 
+  function openDeepLink(view) {
+    const url = `/wholesale/index.html#${view}`;
+    try {
+      if (typeof window !== 'undefined' && typeof window.open === 'function') {
+        window.open(url, '_blank', 'noopener');
+        return;
+      }
+    } catch {
+      /* fall through */
+    }
+    try {
+      if (typeof window !== 'undefined') window.location.href = url;
+    } catch {
+      /* noop */
+    }
+  }
+
   function setLang(next) {
     lang = next === 'en' ? 'en' : 'es';
     if (!panelEl) return lang;
@@ -1037,6 +1054,7 @@ export function initDealDashboard({
     open,
     close,
     toggle: () => (panelEl ? close() : open()),
+    openDeepLink,
     refresh,
     setLang,
     getLang: () => lang,

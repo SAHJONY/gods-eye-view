@@ -346,3 +346,27 @@ test('setLang switches ES/EN and rebuilds the panel', () => {
   assert.equal(dd.setLang('es'), 'es');
   dd.destroy();
 });
+
+test('openDeepLink opens /cubacash/index.html#<view>', () => {
+  let openedUrl = null;
+  const prevOpen = globalThis.window.open;
+  globalThis.window.open = (url) => {
+    openedUrl = url;
+    return null;
+  };
+  try {
+    const dd = initCubacashDashboard({
+      providerStore: createMemoryProviderStore(),
+    });
+    assert.equal(typeof dd.openDeepLink, 'function');
+    dd.openDeepLink('corridors');
+    assert.equal(openedUrl, '/cubacash/index.html#corridors');
+    dd.openDeepLink('providers');
+    assert.equal(openedUrl, '/cubacash/index.html#providers');
+    dd.openDeepLink('add');
+    assert.equal(openedUrl, '/cubacash/index.html#add');
+    dd.destroy();
+  } finally {
+    globalThis.window.open = prevOpen;
+  }
+});

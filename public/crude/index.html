@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Crude Brokerage Command Center</title>
+<style>
+:root{--bg:#12100a;--card:#1d1a12;--card2:#282417;--txt:#f5f0e1;--mut:#a89f83;--acc:#fbbf24;--grn:#4ade80;--yel:#facc15;--red:#f87171;--brd:#3d3626}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:60px}
+header{position:sticky;top:0;z-index:10;background:#0c0b07;border-bottom:1px solid var(--brd);padding:12px 14px}
+h1{margin:0;font-size:20px}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.langrow{display:flex;gap:8px;margin-top:10px}
+.langbtn{flex:1;min-height:48px;border-radius:12px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:800}
+.langbtn.on{border-color:var(--acc);background:#2b2210}
+.xlinks{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
+.xlinks a{flex:0 0 auto;display:inline-flex;align-items:center;min-height:52px;padding:10px 14px;border-radius:12px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap}
+.viewtabs{display:flex;gap:8px;padding:10px 0 0}
+.viewtab{flex:1;min-height:52px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:800}
+.viewtab.on{border-color:var(--acc);background:#2b2210}
+main{padding:6px 14px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+.kpi{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:14px}
+.kpi .k{font-size:12px;color:var(--mut);letter-spacing:.05em;font-weight:700}
+.kpi .v{font-size:22px;font-weight:800;color:#fff;margin-top:4px}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:16px;margin:12px 0}
+.card h3{margin:0 0 6px;font-size:18px}
+.card.tappable{cursor:pointer}
+.pill{display:inline-block;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:800;margin:4px 6px 4px 0}
+.st-prospect{background:#20242e;color:#94a3b8;border:1px solid #94a3b8}
+.st-diligence,.st-negotiating{background:#33270a;color:var(--yel);border:1px solid var(--yel)}
+.st-contracted,.st-loading,.st-in-transit{background:#1a2b3d;color:#38bdf8;border:1px solid #38bdf8}
+.st-delivered,.st-closed{background:#0d2b1a;color:var(--grn);border:1px solid var(--grn)}
+.st-dead{background:#3b1114;color:var(--red);border:1px solid var(--red)}
+.vd-green{background:#0d2b1a;color:var(--grn);border:1px solid var(--grn)}
+.vd-yellow{background:#33270a;color:var(--yel);border:1px solid var(--yel)}
+.vd-red{background:#3b1114;color:var(--red);border:1px solid var(--red)}
+.vd-gray{background:#20242e;color:#94a3b8;border:1px solid #94a3b8}
+.mut{color:var(--mut);font-size:14px}
+.big{font-size:24px;font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.btn{flex:1;min-height:52px;border-radius:14px;border:none;font-size:16px;font-weight:800;color:#0c0b07;background:var(--acc)}
+.btn.sec{background:var(--card2);color:var(--txt);border:2px solid var(--brd)}
+.btn.dgr{background:#3b1114;color:var(--red);border:1px solid var(--red)}
+.btn.grn{background:#0d2b1a;color:var(--grn);border:1px solid var(--grn)}
+input,select,textarea{width:100%;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:#0c0b07;color:var(--txt);font-size:16px;padding:10px 12px;margin:6px 0}
+textarea{min-height:110px;resize:vertical;font-family:inherit}
+label{font-size:14px;color:var(--mut);font-weight:700}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.chip{flex:0 0 auto;min-height:52px;padding:10px 16px;border-radius:999px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:14px;font-weight:700;white-space:nowrap}
+.chip.on{border-color:var(--acc);background:#2b2210}
+.fab{position:fixed;bottom:18px;right:18px;width:72px;height:72px;border-radius:50%;background:var(--acc);color:#0c0b07;font-size:34px;font-weight:900;border:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;z-index:20;overflow-y:auto;padding:16px}
+.modal.open{display:block}
+.sheet{background:var(--card);border-radius:18px;padding:18px;max-width:640px;margin:20px auto}
+.sheet h2{margin-top:0;font-size:20px}
+.disc{font-size:12px;color:var(--mut);padding:14px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--brd);font-size:15px}
+.kv span{color:var(--mut)}
+.kv b{text-align:right}
+.note{border-left:3px solid var(--acc);padding:6px 10px;margin:8px 0;font-size:14px}
+.note .nts{font-size:12px;color:var(--mut)}
+.scorebar{height:10px;border-radius:6px;background:var(--brd);margin-top:6px;overflow:hidden}
+.scorebar i{display:block;height:100%;background:var(--acc)}
+</style>
+</head>
+<body>
+<header>
+<h1>🛢️ <span id="apptitle">Crude Brokerage</span></h1>
+<div class="sub" id="appsub"></div>
+<div class="langrow noprint">
+<button class="langbtn" id="btnES" onclick="setLang('es')">ES</button>
+<button class="langbtn" id="btnEN" onclick="setLang('en')">EN</button>
+</div>
+<nav class="xlinks noprint" id="xlinks" aria-label="GEV modules"></nav>
+<div class="viewtabs noprint" id="viewtabs"></div>
+</header>
+<main id="main"></main>
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="disc" id="disclaimer"></div>
+<script>
+"use strict";
+/* ============ i18n ============ */
+const T={
+en:{apptitle:"Crude Brokerage",appsub:"Broker for a fee — never the principal buyer or seller.",
+deals:"Deals",counterparties:"Counterparties",adddeal:"Add deal",
+opencargoes:"OPEN CARGOES",totvol:"OPEN VOLUME (BBL)",potcomm:"POTENTIAL COMMISSION",cpcount:"COUNTERPARTIES",
+all:"All",addfirstdeal:"No deals yet — add your first one.",addfirstcp:"No counterparties yet — add your first one.",
+save:"Save",cancel:"Cancel",edit:"Edit",del:"Delete",close:"Close",confirmdel:"Delete this record?",
+export:"Export data",import:"Import data",badfile:"That file is not a valid crude backup.",
+disclaimer:"Broker tool — you act as a fee-only intermediary, never as principal buyer or seller. Verify every counterparty manually (sanctions, KYC) before committing. This app stores your data only on this device and never sends it anywhere.",
+ref:"Reference",grade:"Grade",volume:"Volume (bbl)",buy:"Buy price ($/bbl)",sell:"Sell price ($/bbl)",
+comm:"Commission ($/bbl)",incoterms:"Incoterms",laycanstart:"Laycan start",laycanend:"Laycan end",
+loadport:"Load port",dischargeport:"Discharge port",supplier:"Supplier",buyer:"Buyer",status:"Status",
+notes:"Notes",costs:"Estimated costs ($)",freight:"Freight",insurancec:"Insurance",inspection:"Inspection",other:"Other",
+spread:"Spread ($/bbl)",gross:"Gross margin",totalcosts:"Total costs",net:"Net margin",netbbl:"Net ($/bbl)",
+commissions:"Total commission",score:"Data completeness",missing:"Missing data",missingline:"Missing:",
+deal:"Cargo deal",verdict:"Verdict",addnote:"Add a note",savenote:"Save note",noteph:"Type a note…",
+agentnotes:"Notes",moveto:"Move to status",none:"—",name:"Name",type:"Type",role:"Role",country:"Country",
+verification:"Verification",contact:"Contact",phone:"Phone",email:"Email",contactname:"Contact name",
+addcp:"Add counterparty",editcp:"Edit counterparty",newdeal:"New cargo deal",
+producer:"Producer",noc:"National oil company",trader:"Trader",refinery:"Refinery",enduser:"End user",
+rolesupplier:"Supplier",rolebuyer:"Buyer",roleboth:"Both",
+ver_unverified:"Unverified",ver_inreview:"In review",ver_verified:"Verified",ver_flagged:"Flagged",
+vd_green:"Viable",vd_yellow:"Marginal",vd_red:"No deal",vd_gray:"Missing data",
+st_prospect:"Prospect",st_diligence:"Diligence",st_negotiating:"Negotiating",st_contracted:"Contracted",
+st_loading:"Loading",st_intransit:"In transit",st_delivered:"Delivered",st_closed:"Closed",st_dead:"Dead",
+detailfor:"Cargo",updated:"Updated",created:"Created"},
+es:{apptitle:"Corretaje de crudo",appsub:"Corredor por comisión — nunca comprador ni vendedor principal.",
+deals:"Negocios",counterparties:"Contrapartes",adddeal:"Agregar",
+opencargoes:"CARGAMENTOS ABIERTOS",totvol:"VOLUMEN ABIERTO (BBL)",potcomm:"COMISIÓN POTENCIAL",cpcount:"CONTRAPARTES",
+all:"Todos",addfirstdeal:"Aún no hay negocios — agrega el primero.",addfirstcp:"Aún no hay contrapartes — agrega la primera.",
+save:"Guardar",cancel:"Cancelar",edit:"Editar",del:"Eliminar",close:"Cerrar",confirmdel:"¿Eliminar este registro?",
+export:"Exportar datos",import:"Importar datos",badfile:"Ese archivo no es un respaldo válido.",
+disclaimer:"Herramienta de corretaje — actúas como intermediario por comisión, nunca como comprador o vendedor principal. Verifica cada contraparte manualmente (sanciones, KYC) antes de comprometerte. Esta app guarda tus datos solo en este dispositivo y nunca los envía a ningún lado.",
+ref:"Referencia",grade:"Grado",volume:"Volumen (bbl)",buy:"Precio de compra ($/bbl)",sell:"Precio de venta ($/bbl)",
+comm:"Comisión ($/bbl)",incoterms:"Incoterms",laycanstart:"Inicio laycan",laycanend:"Fin laycan",
+loadport:"Puerto de carga",dischargeport:"Puerto de descarga",supplier:"Proveedor",buyer:"Comprador",status:"Estado",
+notes:"Notas",costs:"Costos estimados ($)",freight:"Flete",insurancec:"Seguro",inspection:"Inspección",other:"Otros",
+spread:"Diferencial ($/bbl)",gross:"Margen bruto",totalcosts:"Costos totales",net:"Margen neto",netbbl:"Neto ($/bbl)",
+commissions:"Comisión total",score:"Datos completos",missing:"Faltan datos",missingline:"Falta:",
+deal:"Negocio de crudo",verdict:"Veredicto",addnote:"Agregar nota",savenote:"Guardar nota",noteph:"Escribe una nota…",
+agentnotes:"Notas",moveto:"Mover a estado",none:"—",name:"Nombre",type:"Tipo",role:"Rol",country:"País",
+verification:"Verificación",contact:"Contacto",phone:"Teléfono",email:"Correo",contactname:"Nombre del contacto",
+addcp:"Agregar contraparte",editcp:"Editar contraparte",newdeal:"Nuevo negocio de crudo",
+producer:"Productor",noc:"Petrolera nacional",trader:"Trader",refinery:"Refinería",enduser:"Usuario final",
+rolesupplier:"Proveedor",rolebuyer:"Comprador",roleboth:"Ambos",
+ver_unverified:"Sin verificar",ver_inreview:"En revisión",ver_verified:"Verificado",ver_flagged:"Marcado",
+vd_green:"Viable",vd_yellow:"Marginal",vd_red:"No viable",vd_gray:"Faltan datos",
+st_prospect:"Prospecto",st_diligence:"Diligencia",st_negotiating:"Negociando",st_contracted:"Contratado",
+st_loading:"Cargando",st_intransit:"En tránsito",st_delivered:"Entregado",st_closed:"Cerrado",st_dead:"Descartado",
+detailfor:"Cargamento",updated:"Actualizado",created:"Creado"}};
+let lang="es"; const t=k=>T[lang][k]||k;
+/* ============ constants ============ */
+const KEY="sahjony.crude.v1";
+const LANG_KEY="sahjony.gev.lang";
+const STATUSES=["prospect","diligence","negotiating","contracted","loading","in-transit","delivered","closed","dead"];
+const OPEN_SET=new Set(["prospect","diligence","negotiating","contracted","loading","in-transit"]);
+const CP_TYPES=["producer","noc","trader","refinery","end-user"];
+const CP_ROLES=["supplier","buyer","both"];
+const VERIFICATIONS=["unverified","in-review","verified","flagged"];
+const GRADES=["WTI","Brent","Maya","Urals","Dubai","Bonny Light","Arab Light"];
+const INCOTERMS=["","FOB","CIF","DAP"];
+const ST_LABEL={prospect:"st_prospect",diligence:"st_diligence",negotiating:"st_negotiating",contracted:"st_contracted",loading:"st_loading","in-transit":"st_intransit",delivered:"st_delivered",closed:"st_closed",dead:"st_dead"};
+const TYPE_LABEL={producer:"producer",noc:"noc",trader:"trader",refinery:"refinery","end-user":"enduser"};
+const ROLE_LABEL={supplier:"rolesupplier",buyer:"rolebuyer",both:"roleboth"};
+const VER_LABEL={unverified:"ver_unverified","in-review":"ver_inreview",verified:"ver_verified",flagged:"ver_flagged"};
+/* ============ state ============ */
+let S, VIEW="deals", FILTER="all";
+function load(){try{S=JSON.parse(localStorage.getItem(KEY))||null}catch(e){S=null}
+ if(!S||!Array.isArray(S.cargoes)||!Array.isArray(S.counterparties)){S={cargoes:[],counterparties:[]};save()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+/* ============ helpers ============ */
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function makeId(){try{if(window.crypto&&crypto.randomUUID)return crypto.randomUUID()}catch(e){}
+ return "c"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,10)}
+function chicagoIso(d){d=d||new Date();
+ try{const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Chicago",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).formatToParts(d);
+ const g=ty=>p.find(x=>x.type===ty)?.value??"00";
+ const loc=g("year")+"-"+g("month")+"-"+g("day")+"T"+g("hour")+":"+g("minute")+":"+g("second");
+ const wall=Date.UTC(+g("year"),+g("month")-1,+g("day"),+g("hour"),+g("minute"),+g("second"));
+ const off=Math.round((wall-d.getTime())/60000),sg=off<=0?"-":"+";
+ return loc+sg+String(Math.floor(Math.abs(off)/60)).padStart(2,"0")+String(Math.abs(off)%60).padStart(2,"0")}catch(e){return d.toISOString()}}
+const num=v=>{const n=Number(v);return Number.isFinite(n)&&n>=0?n:0};
+const money=n=>{const v=num(n);return "$"+Math.round(v).toLocaleString("en-US")};
+const bbl=n=>Math.round(num(n)).toLocaleString("en-US")+" bbl";
+const perbbl=n=>{const v=Number(n);const s=Number.isFinite(v)?v:0;return (s<0?"-":"")+"$"+Math.abs(s).toFixed(2)};
+/* ============ store-shape normalize (same shape as sahjony.crude.v1) ============ */
+function coerceStatus(s){return STATUSES.includes(s)?s:"prospect"}
+function normalizeCargo(d){
+ d=d||{};
+ const c={id:typeof d.id==="string"&&d.id?d.id:makeId(),
+ ref:String(d.ref||"").trim(),grade:String(d.grade||"").trim(),
+ volumeBbl:num(d.volumeBbl),buyPrice:num(d.buyPrice),sellPrice:num(d.sellPrice),
+ commissionPerBbl:num(d.commissionPerBbl),incoterms:String(d.incoterms||"").trim(),
+ laycanStart:String(d.laycanStart||"").trim(),laycanEnd:String(d.laycanEnd||"").trim(),
+ loadPort:String(d.loadPort||"").trim(),dischargePort:String(d.dischargePort||"").trim(),
+ loadLat:null,loadLng:null,dischargeLat:null,dischargeLng:null,
+ supplierId:String(d.supplierId||"").trim(),buyerId:String(d.buyerId||"").trim(),
+ status:coerceStatus(d.status),notes:typeof d.notes==="string"?d.notes:"",
+ costs:{freight:num(d.costs&&d.costs.freight),insurance:num(d.costs&&d.costs.insurance),inspection:num(d.costs&&d.costs.inspection),other:num(d.costs&&d.costs.other)},
+ agentNotes:Array.isArray(d.agentNotes)?d.agentNotes.map(n=>({agent:String(n.agent||""),es:String(n.es||""),en:String(n.en||""),at:String(n.at||"")})):[],
+ createdAt:d.createdAt||chicagoIso(),updatedAt:d.updatedAt||chicagoIso()};
+ c.score=scoreCargo(c);
+ return c}
+function normalizeCounterparty(d){
+ d=d||{};
+ return {id:typeof d.id==="string"&&d.id?d.id:makeId(),
+ name:String(d.name||"").trim(),
+ type:CP_TYPES.includes(d.type)?d.type:"trader",
+ role:CP_ROLES.includes(d.role)?d.role:"both",
+ country:String(d.country||"").trim(),
+ contact:{name:String(d.contact&&d.contact.name||"").trim(),phone:String(d.contact&&d.contact.phone||"").trim(),email:String(d.contact&&d.contact.email||"").trim()},
+ verification:VERIFICATIONS.includes(d.verification)?d.verification:"unverified",
+ notes:typeof d.notes==="string"?d.notes:"",
+ agentNotes:Array.isArray(d.agentNotes)?d.agentNotes.map(n=>({agent:String(n.agent||""),es:String(n.es||""),en:String(n.en||""),at:String(n.at||"")})):[],
+ createdAt:d.createdAt||chicagoIso(),updatedAt:d.updatedAt||chicagoIso()}}
+/* ============ deal math (mirrors cargoEngine.js) ============ */
+function spreadPerBbl(c){return num(c.sellPrice)-num(c.buyPrice)}
+function grossMargin(c){return num(c.volumeBbl)*spreadPerBbl(c)}
+function totalCosts(c){const k=c.costs||{};return num(k.freight)+num(k.insurance)+num(k.inspection)+num(k.other)}
+function netMargin(c){return grossMargin(c)-totalCosts(c)}
+function brokerCommission(c){return num(c.volumeBbl)*num(c.commissionPerBbl)}
+function netPerBbl(c){const v=num(c.volumeBbl);return v>0?netMargin(c)/v:0}
+function scoreCargo(c){
+ const hasM=v=>Number.isFinite(Number(v))&&Number(v)>0, hasT=v=>typeof v==="string"&&v.trim().length>0;
+ let s=0;
+ if(hasM(c.buyPrice)&&hasM(c.sellPrice))s+=30;
+ if(hasM(c.volumeBbl))s+=20;
+ if(hasT(c.supplierId)||hasT(c.buyerId))s+=15;
+ if(hasT(c.incoterms))s+=5;
+ if(hasT(c.laycanStart)&&hasT(c.laycanEnd))s+=5;
+ if(["freight","insurance","inspection","other"].every(k=>c.costs&&String(c.costs[k]??"").trim()!==""))s+=15;
+ if(hasT(c.grade))s+=5;
+ if(hasT(c.loadPort)&&hasT(c.dischargePort))s+=5;
+ return Math.min(100,Math.max(0,Math.round(s)))}
+function verdictOf(c){
+ if(!(Number(c.buyPrice)>0)||!(Number(c.sellPrice)>0)||!(Number(c.volumeBbl)>0))return "gray";
+ const n=netPerBbl(c);
+ if(n>=2)return "green";
+ if(n>=0.5)return "yellow";
+ return "red"}
+function missingFields(c){
+ const out=[],hasM=v=>Number.isFinite(Number(v))&&Number(v)>0,hasT=v=>typeof v==="string"&&v.trim().length>0;
+ if(!hasM(c.buyPrice))out.push(t("buy"));if(!hasM(c.sellPrice))out.push(t("sell"));
+ if(!hasM(c.volumeBbl))out.push(t("volume"));if(!hasT(c.grade))out.push(t("grade"));
+ if(!hasT(c.loadPort))out.push(t("loadport"));if(!hasT(c.dischargePort))out.push(t("dischargeport"));
+ return out}
+function stats(){
+ const byStatus={};STATUSES.forEach(s=>byStatus[s]=0);
+ let openCargoes=0,totalVolumeBbl=0,potentialCommission=0;
+ for(const c of S.cargoes){
+  const st=STATUSES.includes(c.status)?c.status:"prospect";
+  byStatus[st]++;
+  if(OPEN_SET.has(st)){openCargoes++;totalVolumeBbl+=num(c.volumeBbl);potentialCommission+=brokerCommission(c)}}
+ return {totalCargoes:S.cargoes.length,openCargoes,byStatus,totalVolumeBbl,
+  potentialCommission:Math.round(potentialCommission),
+  totalCounterparties:S.counterparties.length,
+  verifiedCounterparties:S.counterparties.filter(x=>x.verification==="verified").length}}
+function cpName(id){if(!id)return t("none");const c=S.counterparties.find(x=>x.id===id);return c?c.name:t("none")}
+function getCargo(id){return S.cargoes.find(x=>x.id===id)||null}
+function getCp(id){return S.counterparties.find(x=>x.id===id)||null}
+/* ============ render: header ============ */
+function renderHead(){
+ document.getElementById("apptitle").textContent=t("apptitle");
+ document.getElementById("appsub").textContent=t("appsub");
+ document.getElementById("disclaimer").textContent=t("disclaimer");
+ document.getElementById("btnES").classList.toggle("on",lang==="es");
+ document.getElementById("btnEN").classList.toggle("on",lang==="en");
+ const xl=document.getElementById("xlinks");xl.innerHTML="";
+ const xlNames={en:["🌐 GEV","🛡️ Insurance","🏠 Wholesale","🚢 Import/Export","💸 MY CUBA CASH"],
+  es:["🌐 GEV","🛡️ Seguros","🏠 Mayoreo","🚢 Import/Export","💸 MY CUBA CASH"]};
+ [["/"],["/insurance/index.html"],["/wholesale/index.html"],["/import-export/index.html"],["/cubacash/index.html"]]
+  .forEach((u,i)=>{const a=document.createElement("a");a.href=u[0];a.textContent=xlNames[lang][i];xl.appendChild(a)});
+ const vt=document.getElementById("viewtabs");vt.innerHTML="";
+ const VHREF={deals:"#deals",counterparties:"#counterparties",add:"#add"};
+ [["deals",t("deals")],["counterparties",t("counterparties")],["add",t("adddeal")]].forEach(([v,l])=>{
+  const b=document.createElement("button");b.className="viewtab"+(VIEW===v?" on":"");b.textContent=l;
+  b.onclick=()=>{location.hash=VHREF[v]};vt.appendChild(b)})}
+function pill(st){return '<span class="pill st-'+st+'">'+t(ST_LABEL[st]||st)+"</span>"}
+function vpill(v){return '<span class="pill vd-'+v+'">'+t("vd_"+v)+"</span>"}
+function cpTypePill(cp){return '<span class="pill st-prospect">'+t(TYPE_LABEL[cp.type]||cp.type)+" · "+t(ROLE_LABEL[cp.role]||cp.role)+"</span>"}
+function verPill(v){return '<span class="pill '+(v==="verified"?"vd-green":v==="flagged"?"vd-red":"vd-yellow")+'">'+t(VER_LABEL[v]||v)+"</span>"}
+function renderKpis(m){
+ const s=stats();
+ m.innerHTML+='<div class="kpis">'
+ +'<div class="kpi"><div class="k">'+t("opencargoes")+'</div><div class="v">'+s.openCargoes+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("totvol")+'</div><div class="v">'+bbl(s.totalVolumeBbl)+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("potcomm")+'</div><div class="v">'+money(s.potentialCommission)+"</div></div>"
+ +'<div class="kpi"><div class="k">'+t("cpcount")+'</div><div class="v">'+s.totalCounterparties+"</div></div>"
+ +"</div>"}
+/* ============ render: deals ============ */
+function renderDeals(m){
+ renderKpis(m);
+ let h='<div class="chips"><button class="chip'+(FILTER==="all"?" on":"")+'" data-f="all">'+t("all")+"</button>";
+ STATUSES.forEach(s=>{h+='<button class="chip'+(FILTER===s?" on":"")+'" data-f="'+s+'">'+t(ST_LABEL[s])+"</button>"});
+ h+="</div>";
+ m.innerHTML+=h;
+ m.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{FILTER=c.dataset.f;render()});
+ const list=S.cargoes.slice().sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)))
+  .filter(c=>FILTER==="all"||c.status===FILTER);
+ if(!list.length){m.innerHTML+='<div class="card mut">'+t("addfirstdeal")+"</div>"}
+ for(const c of list){
+  const v=verdictOf(c);
+  m.innerHTML+='<div class="card tappable" data-id="'+c.id+'"><h3>'+esc(c.ref||t("deal"))+"</h3>"
+  +pill(c.status)+vpill(v)
+  +'<div class="mut">'+esc(c.grade||t("none"))+" · "+bbl(c.volumeBbl)+"</div>"
+  +'<div class="kv"><span>'+t("spread")+"</span><b>"+perbbl(spreadPerBbl(c))+"</b></div>"
+  +'<div class="kv"><span>'+t("commissions")+"</span><b>"+money(brokerCommission(c))+"</b></div>"
+  +'<div class="mut">'+esc(c.loadPort||"")+(c.loadPort&&c.dischargePort?" → ":"")+esc(c.dischargePort||"")+"</div></div>"}
+ m.querySelectorAll(".tappable").forEach(el=>el.onclick=()=>openDeal(el.dataset.id));
+ m.innerHTML+='<div class="row"><button class="btn sec" onclick="exportData()">'+t("export")+'</button><button class="btn sec" onclick="importData()">'+t("import")+"</button></div>"}
+/* ============ render: deals ============ */
+function renderDeals(m){
+ renderKpis(m);
+ let h='<div class="chips"><button class="chip'+(FILTER==="all"?" on":"")+'" data-f="all">'+t("all")+"</button>";
+ STATUSES.forEach(s=>{h+='<button class="chip'+(FILTER===s?" on":"")+'" data-f="'+s+'">'+t(ST_LABEL[s])+"</button>"});
+ h+="</div>";
+ const list=S.cargoes.slice().sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)))
+  .filter(c=>FILTER==="all"||c.status===FILTER);
+ if(!list.length){h+='<div class="card mut">'+t("addfirstdeal")+"</div>"}
+ for(const c of list){
+  const v=verdictOf(c);
+  h+='<div class="card tappable" data-id="'+c.id+'"><h3>'+esc(c.ref||t("deal"))+"</h3>"
+  +pill(c.status)+vpill(v)
+  +'<div class="mut">'+esc(c.grade||t("none"))+" · "+bbl(c.volumeBbl)+"</div>"
+  +'<div class="kv"><span>'+t("spread")+"</span><b>"+perbbl(spreadPerBbl(c))+"</b></div>"
+  +'<div class="kv"><span>'+t("commissions")+"</span><b>"+money(brokerCommission(c))+"</b></div>"
+  +'<div class="mut">'+esc(c.loadPort||"")+(c.loadPort&&c.dischargePort?" → ":"")+esc(c.dischargePort||"")+"</div></div>"}
+ h+='<div class="row"><button class="btn sec" onclick="exportData()">'+t("export")+'</button><button class="btn sec" onclick="importData()">'+t("import")+"</button></div>";
+ m.innerHTML+=h;
+ m.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{FILTER=c.dataset.f;render()});
+ m.querySelectorAll(".tappable").forEach(el=>el.onclick=()=>openDeal(el.dataset.id))}
+/* ============ render: deal detail modal ============ */
+function openDeal(id){
+ const c=getCargo(id);if(!c)return;
+ const v=verdictOf(c),miss=missingFields(c);
+ let h="<h2>🛢️ "+esc(c.ref||t("deal"))+"</h2>"+pill(c.status)+vpill(v);
+ h+='<div class="mut">'+t(ST_LABEL[c.status]||c.status)+" · "+t("verdict")+": "+t("vd_"+v)+"</div>";
+ h+='<div class="kv"><span>'+t("grade")+"</span><b>"+esc(c.grade||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("volume")+"</span><b>"+bbl(c.volumeBbl)+"</b></div>"
+ +'<div class="kv"><span>'+t("buy")+"</span><b>"+perbbl(c.buyPrice)+"</b></div>"
+ +'<div class="kv"><span>'+t("sell")+"</span><b>"+perbbl(c.sellPrice)+"</b></div>"
+ +'<div class="kv"><span>'+t("spread")+"</span><b>"+perbbl(spreadPerBbl(c))+"</b></div>"
+ +'<div class="kv"><span>'+t("gross")+"</span><b>"+money(grossMargin(c))+"</b></div>"
+ +'<div class="kv"><span>'+t("totalcosts")+"</span><b>"+money(totalCosts(c))+"</b></div>"
+ +'<div class="kv"><span>'+t("net")+"</span><b>"+money(netMargin(c))+"</b></div>"
+ +'<div class="kv"><span>'+t("netbbl")+"</span><b>"+perbbl(netPerBbl(c))+"</b></div>"
+ +'<div class="kv"><span>'+t("commissions")+"</span><b>"+money(brokerCommission(c))+"</b></div>"
+ +'<div class="kv"><span>'+t("incoterms")+"</span><b>"+esc(c.incoterms||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("laycanstart")+"</span><b>"+esc(c.laycanStart||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("laycanend")+"</span><b>"+esc(c.laycanEnd||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("loadport")+"</span><b>"+esc(c.loadPort||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("dischargeport")+"</span><b>"+esc(c.dischargePort||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("supplier")+"</span><b>"+esc(cpName(c.supplierId))+"</b></div>"
+ +'<div class="kv"><span>'+t("buyer")+"</span><b>"+esc(cpName(c.buyerId))+"</b></div>"
+ +'<div class="kv"><span>'+t("score")+"</span><b>"+(c.score??0)+"%</b></div>"
+ +'<div class="scorebar"><i style="width:'+(c.score??0)+'%"></i></div>';
+ if(miss.length)h+='<div class="mut" style="margin-top:8px">⚠️ '+t("missingline")+" "+miss.map(esc).join(", ")+"</div>";
+ if(c.notes)h+='<div class="mut" style="margin-top:8px;white-space:pre-wrap">'+esc(c.notes)+"</div>";
+ h+="<h3>"+t("agentnotes")+"</h3>";
+ const notes=c.agentNotes||[];
+ if(!notes.length)h+='<div class="mut">'+t("none")+"</div>";
+ notes.slice().reverse().forEach(n=>{
+  h+='<div class="note"><div>'+esc(lang==="es"?n.es:n.en)+'</div><div class="nts">'+esc(n.agent)+(n.at?" · "+esc(n.at):"")+"</div></div>"});
+ h+='<label>'+t("addnote")+'</label><textarea id="nn_note" placeholder="'+esc(t("noteph"))+'"></textarea>'
+ +'<div class="row"><button class="btn sec" onclick="addNote(\''+c.id+"')\">"+t("savenote")+"</button></div>"
+ +'<label>'+t("moveto")+'</label><select id="mv_status">'+STATUSES.map(s=>'<option value="'+s+'"'+(s===c.status?" selected":"")+">"+t(ST_LABEL[s])+"</option>").join("")+"</select>"
+ +'<div class="row"><button class="btn sec" onclick="moveDeal(\''+c.id+"')\">"+t("moveto")+"</button></div>"
+ +'<div class="row"><button class="btn sec" onclick="editDeal(\''+c.id+"')\">"+t("edit")+'</button><button class="btn dgr" onclick="delDeal(\''+c.id+"')\">"+t("del")+'</button><button class="btn sec" onclick="closeSheet()">'+t("close")+"</button></div>"
+ +'<div class="mut">'+t("created")+": "+esc(c.createdAt||"")+" · "+t("updated")+": "+esc(c.updatedAt||"")+"</div>";
+ openSheet(h)}
+function moveDeal(id){const c=getCargo(id);if(!c)return;
+ const s=document.getElementById("mv_status").value;
+ c.status=coerceStatus(s);c.updatedAt=chicagoIso();save();openDeal(id);render()}
+function delDeal(id){if(!confirm(t("confirmdel")))return;
+ S.cargoes=S.cargoes.filter(x=>x.id!==id);save();closeSheet();render()}
+function addNote(id){const c=getCargo(id);if(!c)return;
+ const v=document.getElementById("nn_note").value.trim();if(!v)return;
+ c.agentNotes.push({agent:"Juan Gonzalez",es:v,en:v,at:chicagoIso()});
+ c.updatedAt=chicagoIso();save();openDeal(id)}
+function openSheet(h){document.getElementById("sheet").innerHTML=h;document.getElementById("modal").classList.add("open")}
+function closeSheet(){document.getElementById("modal").classList.remove("open")}
+/* ============ deal add/edit form (all store fields) ============ */
+function gradeOpts(sel){let h='<option value="">'+t("none")+"</option>";
+ GRADES.forEach(g=>{h+='<option value="'+g+'"'+(g===sel?" selected":"")+">"+g+"</option>"});
+ return h}
+function statusOpts(sel){return STATUSES.map(s=>'<option value="'+s+'"'+(s===sel?" selected":"")+">"+t(ST_LABEL[s])+"</option>").join("")}
+function cpOpts(role,sel){let h='<option value="">'+t("none")+"</option>";
+ S.counterparties.forEach(c=>{if(role!=="any"&&c.role!==role&&c.role!=="both")return;
+  h+='<option value="'+c.id+'"'+(c.id===sel?" selected":"")+">"+esc(c.name||c.id)+"</option>"});
+ return h}
+function dealFormHtml(c){
+ c=c||{};
+ return '<label>'+t("ref")+'</label><input id="d_ref" value="'+esc(c.ref||"")+'">'
+ +'<label>'+t("grade")+'</label><select id="d_grade">'+gradeOpts(c.grade||"")+"</select>"
+ +'<label>'+t("volume")+'</label><input id="d_volumeBbl" type="number" min="0" step="1" value="'+esc(c.volumeBbl||"")+'">'
+ +'<label>'+t("buy")+'</label><input id="d_buyPrice" type="number" min="0" step="0.01" value="'+esc(c.buyPrice||"")+'">'
+ +'<label>'+t("sell")+'</label><input id="d_sellPrice" type="number" min="0" step="0.01" value="'+esc(c.sellPrice||"")+'">'
+ +'<label>'+t("comm")+'</label><input id="d_commissionPerBbl" type="number" min="0" step="0.01" value="'+esc(c.commissionPerBbl||"")+'">'
+ +'<label>'+t("incoterms")+'</label><select id="d_incoterms">'+INCOTERMS.map(i=>'<option value="'+i+'"'+(i===(c.incoterms||"")?" selected":"")+">"+(i||t("none"))+"</option>").join("")+"</select>"
+ +'<label>'+t("laycanstart")+'</label><input id="d_laycanStart" type="date" value="'+esc(c.laycanStart||"")+'">'
+ +'<label>'+t("laycanend")+'</label><input id="d_laycanEnd" type="date" value="'+esc(c.laycanEnd||"")+'">'
+ +'<label>'+t("loadport")+'</label><input id="d_loadPort" value="'+esc(c.loadPort||"")+'">'
+ +'<label>'+t("dischargeport")+'</label><input id="d_dischargePort" value="'+esc(c.dischargePort||"")+'">'
+ +'<label>'+t("supplier")+'</label><select id="d_supplierId">'+cpOpts("supplier",c.supplierId||"")+"</select>"
+ +'<label>'+t("buyer")+'</label><select id="d_buyerId">'+cpOpts("buyer",c.buyerId||"")+"</select>"
+ +'<label>'+t("status")+'</label><select id="d_status">'+statusOpts(c.status||"prospect")+"</select>"
+ +'<label>'+t("costs")+'</label>'
+ +'<label>'+t("freight")+'</label><input id="d_freight" type="number" min="0" step="0.01" value="'+esc(c.costs&&c.costs.freight||"")+'">'
+ +'<label>'+t("insurancec")+'</label><input id="d_insurance" type="number" min="0" step="0.01" value="'+esc(c.costs&&c.costs.insurance||"")+'">'
+ +'<label>'+t("inspection")+'</label><input id="d_inspection" type="number" min="0" step="0.01" value="'+esc(c.costs&&c.costs.inspection||"")+'">'
+ +'<label>'+t("other")+'</label><input id="d_other" type="number" min="0" step="0.01" value="'+esc(c.costs&&c.costs.other||"")+'">'
+ +'<label>'+t("notes")+'</label><textarea id="d_notes">'+esc(c.notes||"")+"</textarea>"}
+function readDealForm(){
+ const g=i=>document.getElementById(i).value;
+ return {ref:g("d_ref"),grade:g("d_grade"),volumeBbl:g("d_volumeBbl"),buyPrice:g("d_buyPrice"),sellPrice:g("d_sellPrice"),
+ commissionPerBbl:g("d_commissionPerBbl"),incoterms:g("d_incoterms"),laycanStart:g("d_laycanStart"),laycanEnd:g("d_laycanEnd"),
+ loadPort:g("d_loadPort"),dischargePort:g("d_dischargePort"),supplierId:g("d_supplierId"),buyerId:g("d_buyerId"),
+ status:g("d_status"),notes:g("d_notes"),
+ costs:{freight:g("d_freight"),insurance:g("d_insurance"),inspection:g("d_inspection"),other:g("d_other")}}}
+function renderAdd(m){
+ m.innerHTML='<div class="card"><h3>➕ '+t("newdeal")+"</h3>"
+ +dealFormHtml()
+ +'<div class="row"><button class="btn" onclick="saveNewDeal()">'+t("save")+'</button><button class="btn sec" onclick="location.hash=\'#deals\'">'+t("cancel")+"</button></div></div>"}
+function saveNewDeal(){
+ const c=normalizeCargo(readDealForm());
+ S.cargoes.push(c);save();location.hash="#deals";render()}
+function editDeal(id){
+ const c=getCargo(id);if(!c)return;
+ openSheet("<h2>✏️ "+esc(c.ref||t("deal"))+"</h2>"
+ +dealFormHtml(c)
+ +'<div class="row"><button class="btn" onclick="saveEditDeal(\''+c.id+"')\">"+t("save")+'</button><button class="btn sec" onclick="openDeal(\''+c.id+"')\">"+t("cancel")+"</button></div>")}
+function saveEditDeal(id){
+ const c=getCargo(id);if(!c)return;
+ const prev=c.agentNotes;
+ Object.assign(c,normalizeCargo(Object.assign(readDealForm(),{id:c.id,createdAt:c.createdAt,agentNotes:prev})));
+ c.updatedAt=chicagoIso();save();openDeal(id);render()}
+/* ============ render: counterparties ============ */
+function renderCounterparties(m){
+ const list=S.counterparties.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+ if(!list.length)m.innerHTML+='<div class="card mut">'+t("addfirstcp")+"</div>";
+ for(const c of list){
+  m.innerHTML+='<div class="card tappable" data-cp="'+c.id+'"><h3>'+esc(c.name||t("none"))+"</h3>"
+  +cpTypePill(c)+verPill(c.verification)
+  +(c.country?'<div class="mut">'+esc(c.country)+"</div>":"")
+  +(c.contact&&(c.contact.name||c.contact.phone||c.contact.email)?'<div class="mut">📞 '+esc([c.contact.name,c.contact.phone,c.contact.email].filter(Boolean).join(" · "))+"</div>":"")
+  +(c.notes?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(c.notes)+"</div>":"")
+  +"</div>"}
+ m.innerHTML+='<div class="row"><button class="btn" onclick="editCp(\'\')">'+t("addcp")+"</button></div>";
+ m.querySelectorAll(".tappable").forEach(el=>el.onclick=()=>openCp(el.dataset.cp))}
+function openCp(id){
+ const c=getCp(id);if(!c)return;
+ let h="<h2>"+esc(c.name||t("none"))+"</h2>"+cpTypePill(c)+verPill(c.verification);
+ h+='<div class="kv"><span>'+t("country")+"</span><b>"+esc(c.country||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("contactname")+"</span><b>"+esc(c.contact.name||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("phone")+"</span><b>"+esc(c.contact.phone||t("none"))+"</b></div>"
+ +'<div class="kv"><span>'+t("email")+"</span><b>"+esc(c.contact.email||t("none"))+"</b></div>";
+ if(c.notes)h+='<div class="mut" style="white-space:pre-wrap">'+esc(c.notes)+"</div>";
+ h+="<h3>"+t("agentnotes")+"</h3>";
+ (c.agentNotes||[]).slice().reverse().forEach(n=>{
+  h+='<div class="note"><div>'+esc(lang==="es"?n.es:n.en)+'</div><div class="nts">'+esc(n.agent)+(n.at?" · "+esc(n.at):"")+"</div></div>"});
+ h+='<div class="row"><button class="btn sec" onclick="editCp(\''+c.id+"')\">"+t("edit")+'</button><button class="btn dgr" onclick="delCp(\''+c.id+"')\">"+t("del")+'</button><button class="btn sec" onclick="closeSheet()">'+t("close")+"</button></div>";
+ openSheet(h)}
+function cpFormHtml(c){
+ c=c||{};
+ return '<label>'+t("name")+'</label><input id="p_name" value="'+esc(c.name||"")+'">'
+ +'<label>'+t("type")+'</label><select id="p_type">'+CP_TYPES.map(v=>'<option value="'+v+'"'+(v===(c.type||"trader")?" selected":"")+">"+t(TYPE_LABEL[v])+"</option>").join("")+"</select>"
+ +'<label>'+t("role")+'</label><select id="p_role">'+CP_ROLES.map(v=>'<option value="'+v+'"'+(v===(c.role||"both")?" selected":"")+">"+t(ROLE_LABEL[v])+"</option>").join("")+"</select>"
+ +'<label>'+t("country")+'</label><input id="p_country" value="'+esc(c.country||"")+'">'
+ +'<label>'+t("verification")+'</label><select id="p_verification">'+VERIFICATIONS.map(v=>'<option value="'+v+'"'+(v===(c.verification||"unverified")?" selected":"")+">"+t(VER_LABEL[v])+"</option>").join("")+"</select>"
+ +'<label>'+t("contactname")+'</label><input id="p_cname" value="'+esc(c.contact&&c.contact.name||"")+'">'
+ +'<label>'+t("phone")+'</label><input id="p_cphone" value="'+esc(c.contact&&c.contact.phone||"")+'">'
+ +'<label>'+t("email")+'</label><input id="p_cemail" value="'+esc(c.contact&&c.contact.email||"")+'">'
+ +'<label>'+t("notes")+'</label><textarea id="p_notes">'+esc(c.notes||"")+"</textarea>"}
+function editCp(id){
+ const c=id?getCp(id):null;
+ openSheet("<h2>"+(c?"✏️ "+esc(c.name||""):("➕ "+t("addcp")))+"</h2>"
+ +cpFormHtml(c||{})
+ +'<div class="row"><button class="btn" onclick="saveCp(\''+(id||"")+"')\">"+t("save")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>")}
+function saveCp(id){
+ const g=i=>document.getElementById(i).value.trim();
+ const data={name:g("p_name"),type:g("p_type"),role:g("p_role"),country:g("p_country"),verification:g("p_verification"),
+  contact:{name:g("p_cname"),phone:g("p_cphone"),email:g("p_cemail")},notes:g("p_notes")};
+ if(!data.name)return;
+ if(id){const c=getCp(id);if(c){const prev=c.agentNotes;
+   Object.assign(c,normalizeCounterparty(Object.assign(data,{id:c.id,createdAt:c.createdAt,agentNotes:prev})));
+   c.updatedAt=chicagoIso()}}
+ else S.counterparties.push(normalizeCounterparty(data));
+ save();closeSheet();render()}
+function delCp(id){if(!confirm(t("confirmdel")))return;
+ S.counterparties=S.counterparties.filter(x=>x.id!==id);
+ S.cargoes.forEach(c=>{if(c.supplierId===id)c.supplierId="";if(c.buyerId===id)c.buyerId=""});
+ save();closeSheet();render()}
+/* ============ JSON backup export/import ============ */
+function exportData(){
+ const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download="crude-backup.json";document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500)}
+function importData(){
+ const i=document.createElement("input");i.type="file";i.accept=".json,application/json";
+ i.onchange=()=>{const f=i.files&&i.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);
+    if(!d||!Array.isArray(d.cargoes)||!Array.isArray(d.counterparties))throw 0;
+    S={cargoes:d.cargoes.map(normalizeCargo),counterparties:d.counterparties.map(normalizeCounterparty)};
+    save();render()}catch(e){alert(t("badfile"))}};
+  r.readAsText(f)};
+ i.click()}
+/* ============ view routing ============ */
+const VIEWHASH={deals:"deals",counterparties:"counterparties",add:"add"};
+function applyHash(){try{const h=String(location.hash||"").replace("#","").toLowerCase();
+ if(VIEWHASH[h]){VIEW=VIEWHASH[h];render();return true}}catch(e){}return false}
+if(typeof window!=="undefined")window.addEventListener("hashchange",applyHash);
+function render(){
+ renderHead();
+ const m=document.getElementById("main");m.innerHTML="";
+ if(VIEW==="deals")renderDeals(m);
+ else if(VIEW==="counterparties")renderCounterparties(m);
+ else renderAdd(m)}
+function setLang(l){lang=(l==="en")?"en":"es";
+ try{localStorage.setItem(LANG_KEY,lang)}catch(e){}render()}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeSheet()});
+try{const sl=localStorage.getItem(LANG_KEY);if(sl==="en"||sl==="es")lang=sl}catch(e){}
+load();
+if(!applyHash())render();
+</script>
+</body>
+</html>
