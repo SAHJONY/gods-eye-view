@@ -162,5 +162,19 @@ export function createApplicationTools({
     sahjonyVoice.destroy();
   });
   debug.sahjonyVoice = sahjonyVoice;
+  // If the paid realtime backend is unreachable (no API key configured),
+  // retire the legacy voice control — SAHJONY VOZ (free, bilingual) is the
+  // voice interface. The control reappears automatically if a backend is
+  // ever configured, since this probe runs on every startup.
+  try {
+    fetch('/api/realtime/token?tier=standard', { cache: 'no-store' }).then(
+      (response) => {
+        if (!response.ok) document.getElementById('gev-voice-control')?.remove();
+      },
+      () => document.getElementById('gev-voice-control')?.remove(),
+    );
+  } catch {
+    document.getElementById('gev-voice-control')?.remove();
+  }
   return { sceneDirector, annotations, voiceCommands, sahjonyVoice };
 }
