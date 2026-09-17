@@ -6,6 +6,50 @@ import { createGevActionRunner } from '../voice/gevActions.js';
 import { initSahjonyVoice } from '../voice/sahjonyVoice.js';
 import { initStreetView } from '../streetview/streetView.js';
 import { initDriveForDollars } from '../drive/driveForDollars.js';
+// Wholesale real-estate intelligence: deal engine, persistent lead pipeline,
+// CSV importer, 3D lead map, AI workforce, mission-control dashboard.
+import * as wholesaleEngine from '../wholesale/dealEngine.js';
+import {
+  createLead as wsCreateLead,
+  getLead as wsGetLead,
+  updateLead as wsUpdateLead,
+  listLeads as wsListLeads,
+  moveLead as wsMoveLead,
+  deleteLead as wsDeleteLead,
+  addAgentNote as wsAddAgentNote,
+  listBuyers as wsListBuyers,
+} from '../wholesale/leadStore.js';
+import { parseLeadsCsv as parseWholesaleCsv } from '../wholesale/leadImporter.js';
+import { initLeadMapLayer } from '../wholesale/leadMapLayer.js';
+import { initDealDashboard } from '../wholesale/dealDashboard.js';
+import { createWorkforce } from '../agents/workforce.js';
+import { initWorkforcePanel } from '../agents/workforcePanel.js';
+// Crude oil brokerage: cargo deal economics, persistent cargo/counterparty
+// pipeline, CSV importer, 3D tanker map, AI workforce, mission-control
+// dashboard.
+import * as crudeEngine from '../crude/cargoEngine.js';
+import {
+  createCargo as coCreateCargo,
+  getCargo as coGetCargo,
+  updateCargo as coUpdateCargo,
+  moveCargo as coMoveCargo,
+  deleteCargo as coDeleteCargo,
+  listCargoes as coListCargoes,
+  addCargoNote as coAddCargoNote,
+  createCounterparty as coCreateCounterparty,
+  getCounterparty as coGetCounterparty,
+  updateCounterparty as coUpdateCounterparty,
+  deleteCounterparty as coDeleteCounterparty,
+  listCounterparties as coListCounterparties,
+  addCounterpartyNote as coAddCounterpartyNote,
+  asWorkforceStore as coAsWorkforceStore,
+  stats as coStats,
+} from '../crude/counterpartyStore.js';
+import { parseCargoCsv as parseCrudeCsv } from '../crude/cargoImporter.js';
+import { initTankerMapLayer } from '../crude/tankerMapLayer.js';
+import { initCrudeDashboard } from '../crude/crudeDashboard.js';
+import { createWorkforce as createCrudeWorkforce } from '../agents/crudeWorkforce.js';
+import { initCrudeWorkforcePanel } from '../agents/crudeWorkforcePanel.js';
 import { installScopeMask, destroyScopeMask } from '../scopeMask.js';
 import {
   installRenderGovernor,
@@ -148,8 +192,114 @@ export function createApplicationTools({
     if (window.__gevStreetView) delete window.__gevStreetView;
   });
   debug.streetView = streetView;
+  // --- Wholesale: shared persistent lead store --------------------------------
+  // One store (localStorage) spoken in the three shapes its consumers expect:
+  // the dashboard/map-layer shape, and the AI workforce engine shape.
+  // Mutations notify listeners (the 3D lead map refreshes, debounced).
+  const wholesaleMutations = new Set();
+  const notifyWholesaleMutations = () => {
+    for (const fn of wholesaleMutations) {
+      try {
+        fn();
+      } catch {
+        /* map refresh is best-effort */
+      }
+    }
+  };
+  const toWorkforceNotes = (lead) =>
+    (lead?.agentNotes || []).map((n) => ({
+      t: n.at,
+      agent: n.agent,
+      es: n.es,
+      en: n.en,
+    }));
+  const wholesaleStore = {
+    listLeads: (filter) => wsListLeads(filter),
+    getLead: (id) => wsGetLead(id),
+    createLead: (data) => {
+      const lead = wsCreateLead(data);
+      if (lead) notifyWholesaleMutations();
+      return lead;
+    },
+    updateLead: (id, patch) => {
+      const lead = wsUpdateLead(id, patch);
+      if (lead) notifyWholesaleMutations();
+      return lead;
+    },
+    moveLead: (id, status) => {
+      const lead = wsMoveLead(id, status);
+      if (lead) notifyWholesaleMutations();
+      return lead;
+    },
+    deleteLead: (id) => {
+      const ok = wsDeleteLead(id);
+      if (ok) notifyWholesaleMutations();
+      return ok;
+    },
+    notes: (id) => toWorkforceNotes(wsGetLead(id)),
+    listBuyers: (filter) => wsListBuyers(filter),
+    // AI workforce engine shape.
+    getAll: () =>
+      wsListLeads().map((l) => ({ ...l, notes: toWorkforceNotes(l) })),
+    get: (id) => {
+      const l = wsGetLead(id);
+      return l ? { ...l, notes: toWorkforceNotes(l) } : null;
+    },
+    update: (id, patch) => {
+      const p = { ...(patch || {}) };
+      if (Array.isArray(p.notes)) {
+        const cur = wsGetLead(id);
+        const seen = new Set(
+          (cur?.agentNotes || []).map((n) => `${n.at}|${n.agent}|${n.es}`),
+        );
+        for (const n of p.notes) {
+          const key = `${n.t || n.at}|${n.agent}|${n.es}`;
+          if (!seen.has(key)) {
+            wsAddAgentNote(id, n.agent || 'agent', n.es || '', n.en || '');
+            seen.add(key);
+          }
+        }
+        delete p.notes;
+      }
+      const lead = wsUpdateLead(id, p);
+      if (lead) notifyWholesaleMutations();
+      return lead;
+    },
+    onMutate: (fn) => {
+      if (typeof fn === 'function') wholesaleMutations.add(fn);
+      return () => wholesaleMutations.delete(fn);
+    },
+  };
+  // Driver-for-Dollars condition ids -> deal-engine scoring keys.
+  const DRIVE_CONDITION_TO_LEAD = {
+    vacant: 'vacant',
+    boarded: 'boarded',
+    overgrown: 'overgrown',
+    'fire-damaged': 'fire',
+    'roof-damage': 'roof',
+    'for-sale-by-owner': 'fsbo',
+    other: 'other',
+  };
   // Driver for Dollars — wholesaling drive mode (GPS route + property pins).
-  const drive = initDriveForDollars({ viewer, streetView, signal });
+  const drive = initDriveForDollars({
+    viewer,
+    streetView,
+    signal,
+    // Wholesale bridge: every property marked while driving enters the lead
+    // pipeline automatically; the AI workforce picks it up from there.
+    onPropertySaved: (property) => {
+      if (!property) return;
+      wholesaleStore.createLead({
+        address: property.address || '',
+        lat: property.lat,
+        lng: property.lng,
+        condition: DRIVE_CONDITION_TO_LEAD[property.condition] || 'other',
+        notes: property.notes || '',
+        source: 'driver',
+        status: 'new',
+      });
+    },
+  });
   defer(() => {
     drive.destroy();
     if (window.__gevDriveForDollars) delete window.__gevDriveForDollars;
@@ -157,6 +307,281 @@ export function createApplicationTools({
   debug.drive = drive;
   // Voice prefers the drive GPS fix (hands-free while driving), then map center.
   streetView.setFocusProvider(() => drive.currentFix());
+  // --- Wholesale real-estate intelligence -------------------------------------
+  // 3D lead map: pins color-coded by deal score (green/yellow/red).
+  const leadMap = initLeadMapLayer({
+    viewer,
+    leadStore: wholesaleStore,
+    dealEngine: wholesaleEngine,
+    signal,
+  });
+  defer(() => {
+    try {
+      leadMap.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevLeadMap) delete window.__gevLeadMap;
+  });
+  let leadMapRefreshTimer = null;
+  wholesaleStore.onMutate(() => {
+    if (leadMapRefreshTimer) return; // coalesce import bursts
+    leadMapRefreshTimer = setTimeout(() => {
+      leadMapRefreshTimer = null;
+      try {
+        leadMap.refresh();
+      } catch {
+        /* best-effort */
+      }
+    }, 300);
+  });
+  debug.leadMap = leadMap;
+  // AI agentic workforce: scout, researcher, analyst, dispositions.
+  // Runs while the app is open; every output is a draft/note for review —
+  // it never sends, posts, or contacts anyone.
+  const workforce = createWorkforce({
+    leadStore: wholesaleStore,
+    dealEngine: wholesaleEngine,
+    signal,
+  });
+  try {
+    workforce.setBuyers(
+      wholesaleStore.listBuyers().map((b) => ({
+        name: b.name,
+        maxOffer: Number(b?.buyBox?.maxPrice ?? 0) || 0,
+        contact: b.contact || '',
+      })),
+    );
+  } catch {
+    /* no buyers configured yet */
+  }
+  window.__gevWorkforce = workforce;
+  defer(() => {
+    try {
+      workforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevWorkforce === workforce) delete window.__gevWorkforce;
+  });
+  debug.workforce = workforce;
+  // Mission-control dashboard: KPIs, pipeline, lead detail, CSV, buyers.
+  const dashboard = initDealDashboard({
+    leadStore: wholesaleStore,
+    dealEngine: wholesaleEngine,
+    leadMap,
+    workforce,
+    signal,
+    parseCsv: (text) => {
+      try {
+        return parseWholesaleCsv(text).leads;
+      } catch {
+        return [];
+      }
+    },
+  });
+  defer(() => {
+    try {
+      dashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevWholesale) delete window.__gevWholesale;
+  });
+  debug.wholesale = dashboard;
+  // Workforce mission-control panel: agent roster + live activity feed.
+  const workforcePanel = initWorkforcePanel({ workforce, signal });
+  defer(() => {
+    try {
+      workforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevWorkforceUI) delete window.__gevWorkforceUI;
+  });
+  debug.workforcePanel = workforcePanel;
+  // --- Crude oil brokerage --------------------------------------------------
+  // One store (localStorage `sahjony.crude.v1`) spoken in the three shapes its
+  // consumers expect: the dashboard/map-layer shape, and the AI workforce
+  // engine shape. Mutations notify listeners (the 3D tanker map refreshes,
+  // debounced).
+  const crudeMutations = new Set();
+  const notifyCrudeMutations = () => {
+    for (const fn of crudeMutations) {
+      try {
+        fn();
+      } catch {
+        /* map refresh is best-effort */
+      }
+    }
+  };
+  const crudeWorkforceRaw = coAsWorkforceStore();
+  const crudeStore = {
+    // Dashboard/map-layer shape (accepted as-is by the dashboard's adaptStore).
+    listCargoes: (filter) => coListCargoes(filter),
+    getCargo: (id) => coGetCargo(id),
+    createCargo: (data) => {
+      const cargo = coCreateCargo(data);
+      if (cargo) notifyCrudeMutations();
+      return cargo;
+    },
+    updateCargo: (id, patch) => {
+      const cargo = coUpdateCargo(id, patch);
+      if (cargo) notifyCrudeMutations();
+      return cargo;
+    },
+    moveCargo: (id, status) => {
+      const cargo = coMoveCargo(id, status);
+      if (cargo) notifyCrudeMutations();
+      return cargo;
+    },
+    deleteCargo: (id) => {
+      const ok = coDeleteCargo(id);
+      if (ok) notifyCrudeMutations();
+      return ok;
+    },
+    addCargoNote: (id, agent, es, en) => coAddCargoNote(id, agent, es, en),
+    listCounterparties: (filter) => coListCounterparties(filter),
+    getCounterparty: (id) => coGetCounterparty(id),
+    createCounterparty: (data) => {
+      const cp = coCreateCounterparty(data);
+      if (cp) notifyCrudeMutations();
+      return cp;
+    },
+    updateCounterparty: (id, patch) => {
+      const cp = coUpdateCounterparty(id, patch);
+      if (cp) notifyCrudeMutations();
+      return cp;
+    },
+    deleteCounterparty: (id) => {
+      const ok = coDeleteCounterparty(id);
+      if (ok) notifyCrudeMutations();
+      return ok;
+    },
+    addCounterpartyNote: (id, agent, es, en) =>
+      coAddCounterpartyNote(id, agent, es, en),
+    stats: () => coStats(),
+    notes: (id) => crudeWorkforceRaw.notes(id),
+    onMutate: (fn) => {
+      if (typeof fn === 'function') crudeMutations.add(fn);
+      return () => crudeMutations.delete(fn);
+    },
+    // AI workforce engine shape. The engine writes notes under the `notes`
+    // key; the store persists them as `agentNotes` — normalized here so the
+    // dashboard/panel read the same notes the agents write.
+    getAll: () =>
+      crudeWorkforceRaw.getAll().map((c) => ({
+        ...c,
+        notes: crudeWorkforceRaw.notes(c.id),
+      })),
+    get: (id) => {
+      const c = crudeWorkforceRaw.get(id);
+      return c ? { ...c, notes: crudeWorkforceRaw.notes(id) } : null;
+    },
+    update: (id, patch) => {
+      const p = { ...(patch || {}) };
+      if (Array.isArray(p.notes)) {
+        p.agentNotes = p.notes.map((n) => ({
+          at: n.t ?? n.at ?? Date.now(),
+          agent: n.agent || '',
+          es: n.es || '',
+          en: n.en || '',
+        }));
+        delete p.notes;
+      }
+      const cargo = crudeWorkforceRaw.update(id, p);
+      if (cargo) notifyCrudeMutations();
+      return cargo;
+    },
+  };
+  // 3D tanker map: load/discharge pins + great-circle route arcs, colored by
+  // cargo status. Renders only coordinates Juan's data supplies — never (0,0).
+  const tankerMap = initTankerMapLayer({
+    viewer,
+    cargoStore: { listCargoes: crudeStore.listCargoes },
+    cargoEngine: crudeEngine,
+    signal,
+  });
+  defer(() => {
+    try {
+      tankerMap.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevTankerMap) delete window.__gevTankerMap;
+  });
+  let tankerMapRefreshTimer = null;
+  crudeStore.onMutate(() => {
+    if (tankerMapRefreshTimer) return; // coalesce import bursts
+    tankerMapRefreshTimer = setTimeout(() => {
+      tankerMapRefreshTimer = null;
+      try {
+        tankerMap.refresh();
+      } catch {
+        /* best-effort */
+      }
+    }, 300);
+  });
+  debug.tankerMap = tankerMap;
+  // AI agentic workforce (crude): scout, researcher, analyst, dispositions.
+  // Runs while the app is open; every output is a draft/note for review —
+  // it never sends, posts, or contacts anyone.
+  const crudeWorkforce = createCrudeWorkforce({
+    cargoStore: crudeStore,
+    cargoEngine: crudeEngine,
+    signal,
+  });
+  try {
+    crudeWorkforce.setBuyers(
+      crudeStore.listCounterparties().filter((c) => c.role !== 'supplier'),
+    );
+  } catch {
+    /* no counterparties configured yet */
+  }
+  window.__gevCrudeWorkforce = crudeWorkforce;
+  defer(() => {
+    try {
+      crudeWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCrudeWorkforce === crudeWorkforce)
+      delete window.__gevCrudeWorkforce;
+  });
+  debug.crudeWorkforce = crudeWorkforce;
+  // Mission-control dashboard (crude): KPIs, 9-status pipeline, cargo drawer,
+  // counterparty manager, CSV import/export, commission drafts.
+  const crudeDashboard = initCrudeDashboard({
+    cargoStore: crudeStore,
+    cargoEngine: crudeEngine,
+    tankerMap,
+    workforce: crudeWorkforce,
+    signal,
+    parseCsv: parseCrudeCsv,
+  });
+  defer(() => {
+    try {
+      crudeDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCrude) delete window.__gevCrude;
+  });
+  debug.crude = crudeDashboard;
+  // Crude workforce mission-control panel: agent roster + live activity feed.
+  const crudeWorkforcePanel = initCrudeWorkforcePanel({
+    workforce: crudeWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      crudeWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCrudeWorkforceUI) delete window.__gevCrudeWorkforceUI;
+  });
+  debug.crudeWorkforcePanel = crudeWorkforcePanel;
   // SAHJONY VOZ — free bilingual (ES/EN) voice commander. Dedicated action
   // runner driving the same GEV actions; no API keys, no cost.
   const sahjonyVoice = initSahjonyVoice({
@@ -180,6 +605,117 @@ export function createApplicationTools({
       __drive_start: () => drive.start(),
       __drive_stop: () => drive.stop(),
       __drive_mark: () => drive.markProperty(),
+      __wholesale_open: () => dashboard.toggle?.() ?? dashboard.open?.(),
+      __wholesale_status: () => dashboard.toggle?.() ?? dashboard.open?.(),
+      __wholesale_best: () => {
+        const leads = wholesaleStore
+          .listLeads()
+          .filter(
+            (l) =>
+              l.status !== 'dead' &&
+              l.status !== 'closed' &&
+              (l.score ?? 0) > 0,
+          )
+          .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+        const top = leads[0];
+        if (top) {
+          try {
+            leadMap.flyToLead(top.id);
+          } catch {
+            /* noop */
+          }
+          try {
+            dashboard.openDrawer?.(top.id);
+          } catch {
+            /* noop */
+          }
+        } else {
+          dashboard.toggle?.() ?? dashboard.open?.();
+        }
+      },
+      __wholesale_analyze: () => {
+        try {
+          workforce.processOnce();
+        } catch {
+          /* noop */
+        }
+        dashboard.toggle?.() ?? dashboard.open?.();
+      },
+      __workforce_start: () => {
+        try {
+          workforce.start();
+        } catch {
+          /* noop */
+        }
+        try {
+          workforcePanel.open?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __workforce_pause: () => {
+        try {
+          workforce.pause();
+        } catch {
+          /* noop */
+        }
+      },
+      __crude_open: () => crudeDashboard.toggle?.() ?? crudeDashboard.open?.(),
+      __crude_status: () =>
+        crudeDashboard.toggle?.() ?? crudeDashboard.open?.(),
+      __crude_best: () => {
+        const cargoes = crudeStore
+          .listCargoes()
+          .filter(
+            (c) =>
+              c.status !== 'dead' &&
+              c.status !== 'closed' &&
+              crudeEngine.netPerBbl(c) > 0,
+          )
+          .sort((a, b) => crudeEngine.netPerBbl(b) - crudeEngine.netPerBbl(a));
+        const top = cargoes[0];
+        if (top) {
+          try {
+            tankerMap.flyToCargo(top.id);
+          } catch {
+            /* noop */
+          }
+          try {
+            crudeDashboard.openDrawer?.(top.id);
+          } catch {
+            /* noop */
+          }
+        } else {
+          crudeDashboard.toggle?.() ?? crudeDashboard.open?.();
+        }
+      },
+      __crude_analyze: () => {
+        try {
+          crudeWorkforce.processOnce();
+        } catch {
+          /* noop */
+        }
+        crudeDashboard.toggle?.() ?? crudeDashboard.open?.();
+      },
+      __crude_workforce_start: () => {
+        try {
+          crudeWorkforce.start();
+        } catch {
+          /* noop */
+        }
+        try {
+          crudeWorkforcePanel.open?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __crude_workforce_pause: () => {
+        try {
+          crudeWorkforce.pause();
+        } catch {
+          /* noop */
+        }
+      },
     },
   });
   defer(() => {
@@ -193,12 +729,28 @@ export function createApplicationTools({
   try {
     fetch('/api/realtime/token?tier=standard', { cache: 'no-store' }).then(
       (response) => {
-        if (!response.ok) document.getElementById('gev-voice-control')?.remove();
+        if (!response.ok)
+          document.getElementById('gev-voice-control')?.remove();
       },
       () => document.getElementById('gev-voice-control')?.remove(),
     );
   } catch {
     document.getElementById('gev-voice-control')?.remove();
   }
-  return { sceneDirector, annotations, voiceCommands, sahjonyVoice, streetView, drive };
+  return {
+    sceneDirector,
+    annotations,
+    voiceCommands,
+    sahjonyVoice,
+    streetView,
+    drive,
+    leadMap,
+    workforce,
+    wholesale: dashboard,
+    workforcePanel,
+    tankerMap,
+    crudeWorkforce,
+    crude: crudeDashboard,
+    crudeWorkforcePanel,
+  };
 }

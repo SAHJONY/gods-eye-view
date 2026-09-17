@@ -52,20 +52,111 @@ export function normalizeVoiceText(raw) {
 
 /** Bilingual layer vocabulary → canonical data-layer id. */
 const LAYER_WORDS = [
-  ['flights', ['avion', 'aviones', 'vuelo', 'vuelos', 'aereo', 'aereos', 'aircraft', 'airplane', 'airplanes', 'plane', 'planes', 'flight', 'flights']],
-  ['ais-live-vessels', ['barco', 'barcos', 'buque', 'buques', 'embarcacion', 'embarcaciones', 'navio', 'ship', 'ships', 'vessel', 'vessels', 'boat', 'boats']],
+  [
+    'flights',
+    [
+      'avion',
+      'aviones',
+      'vuelo',
+      'vuelos',
+      'aereo',
+      'aereos',
+      'aircraft',
+      'airplane',
+      'airplanes',
+      'plane',
+      'planes',
+      'flight',
+      'flights',
+    ],
+  ],
+  [
+    'ais-live-vessels',
+    [
+      'barco',
+      'barcos',
+      'buque',
+      'buques',
+      'embarcacion',
+      'embarcaciones',
+      'navio',
+      'ship',
+      'ships',
+      'vessel',
+      'vessels',
+      'boat',
+      'boats',
+    ],
+  ],
   ['satellites', ['satelite', 'satelites', 'satellite', 'satellites']],
-  ['earthquakes', ['terremoto', 'terremotos', 'sismo', 'sismos', 'earthquake', 'earthquakes', 'quake', 'quakes']],
+  [
+    'earthquakes',
+    [
+      'terremoto',
+      'terremotos',
+      'sismo',
+      'sismos',
+      'earthquake',
+      'earthquakes',
+      'quake',
+      'quakes',
+    ],
+  ],
   ['cctv', ['camara', 'camaras', 'camera', 'cameras', 'cctv']],
   ['traffic', ['trafico', 'traffic']],
   ['military', ['militar', 'militares', 'military']],
-  ['rocket-launches', ['lanzamiento', 'lanzamientos', 'cohete', 'cohetes', 'launch', 'launches', 'rocket', 'rockets', 'mision espacial', 'misiones espaciales', 'space mission', 'space missions']],
+  [
+    'rocket-launches',
+    [
+      'lanzamiento',
+      'lanzamientos',
+      'cohete',
+      'cohetes',
+      'launch',
+      'launches',
+      'rocket',
+      'rockets',
+      'mision espacial',
+      'misiones espaciales',
+      'space mission',
+      'space missions',
+    ],
+  ],
   ['radio', ['radio']],
-  ['local-firms', ['incendio', 'incendios', 'fuego', 'fire', 'fires', 'wildfire', 'wildfires']],
-  ['telegeography-submarine-cables', ['cable submarino', 'cables submarinos', 'submarine cable', 'submarine cables']],
+  [
+    'local-firms',
+    [
+      'incendio',
+      'incendios',
+      'fuego',
+      'fire',
+      'fires',
+      'wildfire',
+      'wildfires',
+    ],
+  ],
+  [
+    'telegeography-submarine-cables',
+    [
+      'cable submarino',
+      'cables submarinos',
+      'submarine cable',
+      'submarine cables',
+    ],
+  ],
   ['bikeshare', ['bicicleta', 'bicicletas', 'bike', 'bikes', 'bikeshare']],
   ['local-dams', ['represa', 'represas', 'dam', 'dams']],
-  ['local-datacenters', ['centro de datos', 'centros de datos', 'datacenter', 'datacenters', 'data center', 'data centers']],
+  [
+    'local-datacenters',
+    [
+      'centro de datos',
+      'centros de datos',
+      'datacenter',
+      'datacenters',
+      'data center',
+      'data centers',
+    ],
+  ],
 ];
 
 const LAYER_NAMES = {
@@ -79,7 +170,10 @@ const LAYER_NAMES = {
   'rocket-launches': { es: 'lanzamientos', en: 'launches' },
   radio: { es: 'radio', en: 'radio' },
   'local-firms': { es: 'incendios', en: 'fires' },
-  'telegeography-submarine-cables': { es: 'cables submarinos', en: 'submarine cables' },
+  'telegeography-submarine-cables': {
+    es: 'cables submarinos',
+    en: 'submarine cables',
+  },
   bikeshare: { es: 'bicicletas', en: 'bikes' },
   'local-dams': { es: 'represas', en: 'dams' },
   'local-datacenters': { es: 'centros de datos', en: 'data centers' },
@@ -90,17 +184,22 @@ export function findLayerInText(text) {
   const norm = normalizeVoiceText(text);
   for (const [layerId, words] of LAYER_WORDS) {
     for (const word of words) {
-      const pattern = new RegExp(`(^|\\s)${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`);
+      const pattern = new RegExp(
+        `(^|\\s)${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`,
+      );
       if (pattern.test(norm)) return layerId;
     }
   }
   return null;
 }
 
-const SHOW_VERBS = '\\b(?:muestra|muestrame|mostrar|ensen[ae]me|pon|activa|enciende|show|display|turn on|enable)\\b';
-const HIDE_VERBS = '\\b(?:oculta|ocultar|esconde|esconder|quita|quitar|desactiva|apaga|hide|turn off|disable)\\b';
+const SHOW_VERBS =
+  '\\b(?:muestra|muestrame|mostrar|ensen[ae]me|pon|activa|enciende|show|display|turn on|enable)\\b';
+const HIDE_VERBS =
+  '\\b(?:oculta|ocultar|esconde|esconder|quita|quitar|desactiva|apaga|hide|turn off|disable)\\b';
 const TOGGLE_VERBS = '\\b(?:alterna|alternar|cambia|toggle)\\b';
-const FLY_VERBS = '\\b(?:vuela a|ve a|llevame a|ir a|viaja a|fly to|go to|take me to|navigate to)\\b';
+const FLY_VERBS =
+  '\\b(?:vuela a|ve a|llevame a|ir a|viaja a|fly to|go to|take me to|navigate to)\\b';
 
 function layerName(layerId, lang) {
   return (LAYER_NAMES[layerId] || {})[lang] || layerId;
@@ -116,14 +215,26 @@ export function parseSahjonyCommand(rawText) {
 
   // --- language switch (hands-free) ---
   if (/\bcambia (a|al) ingles\b|\bponlo en ingles\b/.test(text)) {
-    return { action: '__set_lang', args: { lang: EN }, say: { es: 'Cambiando a inglés', en: 'Switching to English' } };
+    return {
+      action: '__set_lang',
+      args: { lang: EN },
+      say: { es: 'Cambiando a inglés', en: 'Switching to English' },
+    };
   }
   if (/\bswitch to spanish\b|\bcambia a espanol\b/.test(text)) {
-    return { action: '__set_lang', args: { lang: ES }, say: { es: 'Cambiando a español', en: 'Switching to Spanish' } };
+    return {
+      action: '__set_lang',
+      args: { lang: ES },
+      say: { es: 'Cambiando a español', en: 'Switching to Spanish' },
+    };
   }
 
   // --- help ---
-  if (/^(ayuda|help|que puedes hacer|what can you do|comandos|commands)$/.test(text)) {
+  if (
+    /^(ayuda|help|que puedes hacer|what can you do|comandos|commands)$/.test(
+      text,
+    )
+  ) {
     return {
       action: '__help',
       args: {},
@@ -144,7 +255,11 @@ export function parseSahjonyCommand(rawText) {
   }
 
   // --- globe / zoom out fully ---
-  if (/\b(el globo|globo terraqueo|vista global|planeta completo|whole globe|entire globe|show.*globe|zoom.*all the way out)\b/.test(text)) {
+  if (
+    /\b(el globo|globo terraqueo|vista global|planeta completo|whole globe|entire globe|show.*globe|zoom.*all the way out)\b/.test(
+      text,
+    )
+  ) {
     return {
       action: 'zoom_to_globe',
       args: {},
@@ -169,11 +284,18 @@ export function parseSahjonyCommand(rawText) {
   }
 
   // --- track nearest aircraft ---
-  if (/\b(sigue|seguir|rastra|rastrear|siguiendo|track|follow).*(avion|aircraft|plane|vuelo|flight)|\b(track|follow).*(nearest|closest)/.test(text)) {
+  if (
+    /\b(sigue|seguir|rastra|rastrear|siguiendo|track|follow).*(avion|aircraft|plane|vuelo|flight)|\b(track|follow).*(nearest|closest)/.test(
+      text,
+    )
+  ) {
     return {
       action: 'select_nearest_aircraft',
       args: {},
-      say: { es: 'Buscando el avión más cercano', en: 'Finding the nearest aircraft' },
+      say: {
+        es: 'Buscando el avión más cercano',
+        en: 'Finding the nearest aircraft',
+      },
     };
   }
 
@@ -187,21 +309,36 @@ export function parseSahjonyCommand(rawText) {
   }
 
   // --- driver for dollars ---
-  if (/\b(driver for dollars|modo manejo|modo manejar|empieza( a)? manejar|inicia( el)? recorrido|start driving|begin driving)\b/.test(text)) {
+  if (
+    /\b(driver for dollars|modo manejo|modo manejar|empieza( a)? manejar|inicia( el)? recorrido|start driving|begin driving)\b/.test(
+      text,
+    )
+  ) {
     return {
       action: '__drive_start',
       args: {},
-      say: { es: 'Modo manejo activado. Buena cacería.', en: 'Driving mode on. Happy hunting.' },
+      say: {
+        es: 'Modo manejo activado. Buena cacería.',
+        en: 'Driving mode on. Happy hunting.',
+      },
     };
   }
-  if (/\b(termina( el)? recorrido|finaliza( el)? recorrido|para de manejar|deja de manejar|stop driving|end (the )?drive|finish driving)\b/.test(text)) {
+  if (
+    /\b(termina( el)? recorrido|finaliza( el)? recorrido|para de manejar|deja de manejar|stop driving|end (the )?drive|finish driving)\b/.test(
+      text,
+    )
+  ) {
     return {
       action: '__drive_stop',
       args: {},
       say: { es: 'Recorrido terminado', en: 'Drive finished' },
     };
   }
-  if (/\b(marca esta propiedad|marca esta casa|agrega esta propiedad|anade esta propiedad|mark this property|mark this house)\b/.test(text)) {
+  if (
+    /\b(marca esta propiedad|marca esta casa|agrega esta propiedad|anade esta propiedad|mark this property|mark this house)\b/.test(
+      text,
+    )
+  ) {
     return {
       action: '__drive_mark',
       args: {},
@@ -209,22 +346,192 @@ export function parseSahjonyCommand(rawText) {
     };
   }
 
+  // --- wholesale real estate intelligence ---
+  if (
+    /\b(modo wholesale|wholesale mode|abre wholesale|open wholesale|panel wholesale|wholesale panel)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__wholesale_open',
+      args: {},
+      say: {
+        es: 'Abriendo el panel wholesale',
+        en: 'Opening the wholesale panel',
+      },
+    };
+  }
+  if (
+    /\b(mejores oportunidades|mejores ofertas|mejor oferta|best deals|best opportunities|top deals|muestrame las mejores)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__wholesale_best',
+      args: {},
+      say: {
+        es: 'Estas son tus mejores oportunidades',
+        en: 'Here are your top opportunities',
+      },
+    };
+  }
+  if (
+    /\b(cuantas leads|cuántas leads|how many leads|numero de leads|número de leads|estado del negocio|business status|resumen wholesale|wholesale summary)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__wholesale_status',
+      args: {},
+      say: {
+        es: 'Revisando tu negocio wholesale',
+        en: 'Checking your wholesale business',
+      },
+    };
+  }
+  if (
+    /\b(inicia los agentes|enciende los agentes|start the workforce|start agents|activate agents|pon a trabajar)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__workforce_start',
+      args: {},
+      say: {
+        es: 'Fuerza de trabajo activada. A trabajar.',
+        en: 'Workforce activated. Getting to work.',
+      },
+    };
+  }
+  if (
+    /\b(pausa los agentes|deten los agentes|pause the workforce|pause agents|stop the agents)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__workforce_pause',
+      args: {},
+      say: { es: 'Agentes en pausa', en: 'Agents paused' },
+    };
+  }
+  if (
+    /\b(analiza esta propiedad|analiza este lead|analyze this property|analyze this lead)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__wholesale_analyze',
+      args: {},
+      say: { es: 'Analizando la propiedad', en: 'Analyzing the property' },
+    };
+  }
+
+  // --- crude oil brokerage ---
+  if (
+    /\b(modo crudo|crude mode|abre crudo|open crude|panel crudo|crude panel|petroleo|petróleo|oil broker)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__crude_open',
+      args: {},
+      say: {
+        es: 'Abriendo el panel de crudo',
+        en: 'Opening the crude oil panel',
+      },
+    };
+  }
+  if (
+    /\b(mejores cargamentos|mejor cargamento|best cargoes|best cargos|top cargoes|muestrame los mejores cargamentos)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__crude_best',
+      args: {},
+      say: {
+        es: 'Estos son tus mejores cargamentos',
+        en: 'Here are your best cargoes',
+      },
+    };
+  }
+  if (
+    /\b(cuantos cargamentos|cuántos cargamentos|how many cargoes|estado del crudo|crude status|resumen crudo|crude summary|resumen petroleo|resumen petróleo)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__crude_status',
+      args: {},
+      say: {
+        es: 'Revisando tu negocio de crudo',
+        en: 'Checking your crude oil business',
+      },
+    };
+  }
+  if (
+    /\b(analiza este cargamento|analiza este cargo|analyze this cargo|analyze this cargo deal)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__crude_analyze',
+      args: {},
+      say: { es: 'Analizando el cargamento', en: 'Analyzing the cargo' },
+    };
+  }
+  if (
+    /\b(inicia los agentes de crudo|start the crude workforce|start crude agents|activa los agentes de crudo)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__crude_workforce_start',
+      args: {},
+      say: {
+        es: 'Agentes de crudo activados. A trabajar.',
+        en: 'Crude workforce activated. Getting to work.',
+      },
+    };
+  }
+  if (
+    /\b(pausa los agentes de crudo|pause the crude workforce|pause crude agents|deten los agentes de crudo)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__crude_workforce_pause',
+      args: {},
+      say: { es: 'Agentes de crudo en pausa', en: 'Crude agents paused' },
+    };
+  }
+
   // --- map views ---
-  if (/\b(vista satelite|vista satelital|satellite view|vista aerea)\b/.test(text)) {
+  if (
+    /\b(vista satelite|vista satelital|satellite view|vista aerea)\b/.test(text)
+  ) {
     return {
       action: 'set_map_stack',
       args: { stack: 'esri-imagery' },
       say: { es: 'Vista satélite', en: 'Satellite view' },
     };
   }
-  if (/\b(vista 3d|3d view|vista tridimensional|photorealistic view|vista fotorrealista)\b/.test(text)) {
+  if (
+    /\b(vista 3d|3d view|vista tridimensional|photorealistic view|vista fotorrealista)\b/.test(
+      text,
+    )
+  ) {
     return {
       action: 'set_map_stack',
       args: { stack: 'photoreal' },
       say: { es: 'Vista tres D', en: '3D view' },
     };
   }
-  if (/\b(vista mapa|vista calles|vista calle|map view|street map|road map)\b/.test(text)) {
+  if (
+    /\b(vista mapa|vista calles|vista calle|map view|street map|road map)\b/.test(
+      text,
+    )
+  ) {
     return {
       action: 'set_map_stack',
       args: { stack: 'osm' },
@@ -247,7 +554,11 @@ export function parseSahjonyCommand(rawText) {
       say: { es: 'Escena detenida', en: 'Scene stopped' },
     };
   }
-  if (/\b(reproduce|reproducir|inicia|iniciar|pon).*(escena|scene)|\bplay.*scene/.test(text)) {
+  if (
+    /\b(reproduce|reproducir|inicia|iniciar|pon).*(escena|scene)|\bplay.*scene/.test(
+      text,
+    )
+  ) {
     return {
       action: 'control_scene',
       args: { action: 'play' },
@@ -260,12 +571,19 @@ export function parseSahjonyCommand(rawText) {
     return {
       action: 'next_iss_pass',
       args: {},
-      say: { es: 'Buscando el próximo paso de la estación espacial', en: 'Finding the next space station pass' },
+      say: {
+        es: 'Buscando el próximo paso de la estación espacial',
+        en: 'Finding the next space station pass',
+      },
     };
   }
 
   // --- status: what am I looking at ---
-  if (/\b(que estoy viendo|what am i looking at|donde estoy|where am i|que se ve|what do i see)\b/.test(text)) {
+  if (
+    /\b(que estoy viendo|what am i looking at|donde estoy|where am i|que se ve|what do i see)\b/.test(
+      text,
+    )
+  ) {
     return {
       action: 'get_current_view_state',
       args: {},
@@ -288,7 +606,10 @@ export function parseSahjonyCommand(rawText) {
         return {
           action: 'toggle_layer',
           args: { layerId },
-          say: { es: `Alternando ${layerName(layerId, ES)}`, en: `Toggling ${layerName(layerId, EN)}` },
+          say: {
+            es: `Alternando ${layerName(layerId, ES)}`,
+            en: `Toggling ${layerName(layerId, EN)}`,
+          },
         };
       }
       const enabled = isShow;
@@ -296,8 +617,12 @@ export function parseSahjonyCommand(rawText) {
         action: 'set_layer_visibility',
         args: { layerId, enabled },
         say: {
-          es: enabled ? `Mostrando ${layerName(layerId, ES)}` : `Ocultando ${layerName(layerId, ES)}`,
-          en: enabled ? `Showing ${layerName(layerId, EN)}` : `Hiding ${layerName(layerId, EN)}`,
+          es: enabled
+            ? `Mostrando ${layerName(layerId, ES)}`
+            : `Ocultando ${layerName(layerId, ES)}`,
+          en: enabled
+            ? `Showing ${layerName(layerId, EN)}`
+            : `Hiding ${layerName(layerId, EN)}`,
         },
       };
     }
@@ -311,7 +636,10 @@ export function parseSahjonyCommand(rawText) {
       return {
         action: 'fly_to_location',
         args: { query },
-        say: { es: `Volando a ${flyMatch[1].trim()}`, en: `Flying to ${flyMatch[1].trim()}` },
+        say: {
+          es: `Volando a ${flyMatch[1].trim()}`,
+          en: `Flying to ${flyMatch[1].trim()}`,
+        },
       };
     }
   }
@@ -334,7 +662,9 @@ export function parseSahjonyCommand(rawText) {
 /** Pick a speech-synthesis voice matching the language. */
 function pickVoice(lang) {
   try {
-    const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+    const voices = window.speechSynthesis
+      ? window.speechSynthesis.getVoices()
+      : [];
     if (!voices.length) return null;
     const tag = lang === ES ? /^es([-_]|$)/i : /^en([-_]|$)/i;
     return (
@@ -364,7 +694,9 @@ function speak(text, lang) {
 
 function describeViewState(result, lang) {
   if (!result || typeof result !== 'object') {
-    return lang === ES ? 'No pude leer la vista actual.' : 'I could not read the current view.';
+    return lang === ES
+      ? 'No pude leer la vista actual.'
+      : 'I could not read the current view.';
   }
   const parts = [];
   if (result.locality) parts.push(result.locality);
@@ -388,14 +720,25 @@ function describeViewState(result, lang) {
   if (!parts.length) {
     return lang === ES ? 'Viendo el mapa.' : 'Looking at the map.';
   }
-  return (lang === ES ? 'Estás viendo ' : 'You are looking at ') + parts.join(', ') + '.';
+  return (
+    (lang === ES ? 'Estás viendo ' : 'You are looking at ') +
+    parts.join(', ') +
+    '.'
+  );
 }
 
 /**
  * Live commander: microphone (Web Speech API) + intent engine + TTS + UI.
  */
-export function createSahjonyVoiceCommander({ runner, dataManager = null, signal = null, defaultLang = ES, extensions = {} } = {}) {
-  if (typeof runner !== 'function') throw new Error('sahjonyVoice: runner is required');
+export function createSahjonyVoiceCommander({
+  runner,
+  dataManager = null,
+  signal = null,
+  defaultLang = ES,
+  extensions = {},
+} = {}) {
+  if (typeof runner !== 'function')
+    throw new Error('sahjonyVoice: runner is required');
   const ext = extensions && typeof extensions === 'object' ? extensions : {};
   let lang = defaultLang === EN ? EN : ES;
   let listening = false;
@@ -406,13 +749,18 @@ export function createSahjonyVoiceCommander({ runner, dataManager = null, signal
   let langButton = null;
   let micButton = null;
   const aborted = { current: false };
-  signal?.addEventListener?.('abort', () => {
-    aborted.current = true;
-    stop();
-  }, { once: true });
+  signal?.addEventListener?.(
+    'abort',
+    () => {
+      aborted.current = true;
+      stop();
+    },
+    { once: true },
+  );
 
   const SpeechRecognition =
-    typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
+    typeof window !== 'undefined' &&
+    (window.SpeechRecognition || window.webkitSpeechRecognition);
 
   function render() {
     if (!root) return;
@@ -425,10 +773,16 @@ export function createSahjonyVoiceCommander({ runner, dataManager = null, signal
     if (langButton) langButton.textContent = lang === ES ? 'ES' : 'EN';
     if (statusEl) {
       statusEl.textContent = !SpeechRecognition
-        ? (lang === ES ? 'Voz no disponible en este navegador — usa Chrome o Edge' : 'Voice unavailable in this browser — use Chrome or Edge')
+        ? lang === ES
+          ? 'Voz no disponible en este navegador — usa Chrome o Edge'
+          : 'Voice unavailable in this browser — use Chrome or Edge'
         : listening
-          ? (lang === ES ? 'ESCUCHANDO…' : 'LISTENING…')
-          : (lang === ES ? 'SAHJONY VOZ · toca el micrófono' : 'SAHJONY VOICE · tap the mic');
+          ? lang === ES
+            ? 'ESCUCHANDO…'
+            : 'LISTENING…'
+          : lang === ES
+            ? 'SAHJONY VOZ · toca el micrófono'
+            : 'SAHJONY VOICE · tap the mic';
     }
   }
 
@@ -439,17 +793,24 @@ export function createSahjonyVoiceCommander({ runner, dataManager = null, signal
   function setLang(next) {
     lang = next === EN ? EN : ES;
     if (recognition) {
-      try { recognition.lang = lang === ES ? 'es-US' : 'en-US'; } catch { /* noop */ }
+      try {
+        recognition.lang = lang === ES ? 'es-US' : 'en-US';
+      } catch {
+        /* noop */
+      }
     }
     render();
   }
 
   async function execute(parsed, originalText) {
     if (!parsed) {
-      const msg = lang === ES
-        ? 'No entendí. Prueba: muéstrame los aviones.'
-        : 'I did not catch that. Try: show me aircraft.';
-      setTranscript(`«${originalText}» — ${lang === ES ? 'sin comando' : 'no command'}`);
+      const msg =
+        lang === ES
+          ? 'No entendí. Prueba: muéstrame los aviones.'
+          : 'I did not catch that. Try: show me aircraft.';
+      setTranscript(
+        `«${originalText}» — ${lang === ES ? 'sin comando' : 'no command'}`,
+      );
       speak(msg, lang);
       return;
     }
@@ -466,27 +827,39 @@ export function createSahjonyVoiceCommander({ runner, dataManager = null, signal
     }
     // Extension actions (street view, driver-for-dollars, …) are handled by
     // the host app, not the GEV action runner.
-    if (parsed.action.startsWith('__') && typeof ext[parsed.action] === 'function') {
+    if (
+      parsed.action.startsWith('__') &&
+      typeof ext[parsed.action] === 'function'
+    ) {
       setTranscript(`«${originalText}» ✓`);
       try {
         await ext[parsed.action](parsed.args, { lang });
         if (parsed.say) speak(parsed.say[lang], lang);
       } catch {
-        speak(lang === ES ? 'Ese comando falló.' : 'That command failed.', lang);
+        speak(
+          lang === ES ? 'Ese comando falló.' : 'That command failed.',
+          lang,
+        );
       }
       return;
     }
     let { action, args } = parsed;
     if (action === 'toggle_layer' && dataManager?.layers) {
       const layer = dataManager.layers.get(args.layerId);
-      const enabled = !(layer && typeof layer.enabled === 'boolean' ? layer.enabled : layer?.isEnabled?.());
+      const enabled = !(layer && typeof layer.enabled === 'boolean'
+        ? layer.enabled
+        : layer?.isEnabled?.());
       action = 'set_layer_visibility';
       args = { layerId: args.layerId, enabled };
       parsed = {
         ...parsed,
         say: {
-          es: enabled ? `Mostrando ${layerName(args.layerId, ES)}` : `Ocultando ${layerName(args.layerId, ES)}`,
-          en: enabled ? `Showing ${layerName(args.layerId, EN)}` : `Hiding ${layerName(args.layerId, EN)}`,
+          es: enabled
+            ? `Mostrando ${layerName(args.layerId, ES)}`
+            : `Ocultando ${layerName(args.layerId, ES)}`,
+          en: enabled
+            ? `Showing ${layerName(args.layerId, EN)}`
+            : `Hiding ${layerName(args.layerId, EN)}`,
         },
       };
     }
@@ -498,7 +871,12 @@ export function createSahjonyVoiceCommander({ runner, dataManager = null, signal
         return;
       }
       if (result && result.ok === false && result.error) {
-        speak(lang === ES ? `No se pudo: ${result.error}` : `Could not do that: ${result.error}`, lang);
+        speak(
+          lang === ES
+            ? `No se pudo: ${result.error}`
+            : `Could not do that: ${result.error}`,
+          lang,
+        );
         return;
       }
       if (parsed.say) speak(parsed.say[lang], lang);
@@ -532,15 +910,26 @@ export function createSahjonyVoiceCommander({ runner, dataManager = null, signal
       }
     };
     recognition.onerror = (event) => {
-      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-        setTranscript(lang === ES ? 'Permiso de micrófono denegado' : 'Microphone permission denied');
+      if (
+        event.error === 'not-allowed' ||
+        event.error === 'service-not-allowed'
+      ) {
+        setTranscript(
+          lang === ES
+            ? 'Permiso de micrófono denegado'
+            : 'Microphone permission denied',
+        );
         stop();
       }
     };
     recognition.onend = () => {
       // Auto-restart while the toggle is on (hands-free 24/7 listening).
       if (listening && !aborted.current) {
-        try { recognition.start(); } catch { /* will retry on toggle */ }
+        try {
+          recognition.start();
+        } catch {
+          /* will retry on toggle */
+        }
       }
     };
     try {
@@ -554,7 +943,11 @@ export function createSahjonyVoiceCommander({ runner, dataManager = null, signal
 
   function stop() {
     listening = false;
-    try { recognition?.stop(); } catch { /* noop */ }
+    try {
+      recognition?.stop();
+    } catch {
+      /* noop */
+    }
     recognition = null;
     render();
   }
@@ -596,8 +989,12 @@ export function createSahjonyVoiceCommander({ runner, dataManager = null, signal
   buildUi();
 
   const api = {
-    get lang() { return lang; },
-    get listening() { return listening; },
+    get lang() {
+      return lang;
+    },
+    get listening() {
+      return listening;
+    },
     setLang,
     start: startRecognition,
     stop,
@@ -629,8 +1026,12 @@ export function initSahjonyVoice(options = {}) {
   if (typeof window !== 'undefined') {
     window.__sahjonyVoice = commander;
   }
-  options.signal?.addEventListener?.('abort', () => {
-    if (window.__sahjonyVoice === commander) delete window.__sahjonyVoice;
-  }, { once: true });
+  options.signal?.addEventListener?.(
+    'abort',
+    () => {
+      if (window.__sahjonyVoice === commander) delete window.__sahjonyVoice;
+    },
+    { once: true },
+  );
   return commander;
 }

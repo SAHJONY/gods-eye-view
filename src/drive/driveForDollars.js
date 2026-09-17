@@ -26,8 +26,10 @@ export const PROPERTY_CONDITIONS = [
   { id: 'for-sale-by-owner', es: 'Venta por dueño', en: 'For sale by owner' },
   { id: 'other', es: 'Otra', en: 'Other' },
 ];
+// Default UI language for drive-mode labels (Spanish-first, like the app).
+const UI_LANG = 'es';
 
-export function conditionLabel(id, lang = 'es') {
+export function conditionLabel(id, lang = UI_LANG) {
   const found = PROPERTY_CONDITIONS.find((c) => c.id === id);
   if (!found) return id;
   return lang === 'en' ? found.en : found.es;
@@ -50,8 +52,10 @@ export function routeDistanceM(points) {
   let total = 0;
   for (let i = 1; i < points.length; i += 1) {
     total += haversineM(
-      points[i - 1].lat, points[i - 1].lng,
-      points[i].lat, points[i].lng,
+      points[i - 1].lat,
+      points[i - 1].lng,
+      points[i].lat,
+      points[i].lng,
     );
   }
   return total;
@@ -65,8 +69,7 @@ let lastReverseAt = 0;
  * fetchImpl is injectable for tests.
  */
 export async function reverseGeocode(lat, lng, fetchImpl = null) {
-  const doFetch =
-    fetchImpl || (typeof fetch !== 'undefined' ? fetch : null);
+  const doFetch = fetchImpl || (typeof fetch !== 'undefined' ? fetch : null);
   if (!doFetch) return null;
   try {
     const wait = REVERSE_GEOCODE_MIN_INTERVAL_MS - (Date.now() - lastReverseAt);
@@ -134,7 +137,8 @@ export function encodeStorage({ drives, properties }) {
 export function decodeStorage(raw) {
   try {
     const data = JSON.parse(raw);
-    if (!data || typeof data !== 'object') return { drives: [], properties: [] };
+    if (!data || typeof data !== 'object')
+      return { drives: [], properties: [] };
     return {
       drives: Array.isArray(data.drives) ? data.drives : [],
       properties: Array.isArray(data.properties) ? data.properties : [],
@@ -146,7 +150,8 @@ export function decodeStorage(raw) {
 
 function loadState() {
   try {
-    if (typeof localStorage === 'undefined') return { drives: [], properties: [] };
+    if (typeof localStorage === 'undefined')
+      return { drives: [], properties: [] };
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { drives: [], properties: [] };
     return decodeStorage(raw);
@@ -242,11 +247,22 @@ function downloadFile(name, content, mime) {
  * Live controller: dock button + drive panel + GPS route + property pins.
  * options: { viewer, streetView, signal }
  */
-export function initDriveForDollars({ viewer, streetView = null, signal = null } = {}) {
+export function initDriveForDollars({
+  viewer,
+  streetView = null,
+  signal = null,
+  onPropertySaved = null,
+} = {}) {
   if (!viewer) throw new Error('driveForDollars: viewer is required');
   injectStyles();
   const aborted = { current: false };
-  signal?.addEventListener?.('abort', () => { aborted.current = true; }, { once: true });
+  signal?.addEventListener?.(
+    'abort',
+    () => {
+      aborted.current = true;
+    },
+    { once: true },
+  );
 
   const C = Cesium;
   const state = loadState();
@@ -305,14 +321,19 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
         waiting: ['Buscando GPS…', 'warn'],
         active: ['GPS activo ✓', 'ok'],
         denied: ['GPS denegado — se usará el centro del mapa', 'warn'],
-        unavailable: ['GPS no disponible — se usará el centro del mapa', 'warn'],
+        unavailable: [
+          'GPS no disponible — se usará el centro del mapa',
+          'warn',
+        ],
       };
       const [label, cls] = map[gpsStatus] || map.idle;
       gpsEl.textContent = label;
       gpsEl.className = `d4d-gps ${cls}`;
     }
     if (startStopBtn) {
-      startStopBtn.textContent = driving ? '⏹ Terminar recorrido' : '▶ Empezar recorrido';
+      startStopBtn.textContent = driving
+        ? '⏹ Terminar recorrido'
+        : '▶ Empezar recorrido';
       startStopBtn.classList.toggle('stop', driving);
     }
     if (markBtn) markBtn.disabled = false;
@@ -321,9 +342,7 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
 
   function positionsCallback() {
     if (!C) return [];
-    return drivePoints.map((p) =>
-      C.Cartesian3.fromDegrees(p.lng, p.lat, 2),
-    );
+    return drivePoints.map((p) => C.Cartesian3.fromDegrees(p.lng, p.lat, 2));
   }
 
   function ensureRouteEntity() {
@@ -359,7 +378,9 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
     try {
       if (routeEntity) viewer.entities.remove(routeEntity);
       if (markerEntity) viewer.entities.remove(markerEntity);
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
     routeEntity = null;
     markerEntity = null;
   }
@@ -410,7 +431,9 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
       if (watchId != null && navigator.geolocation) {
         navigator.geolocation.clearWatch(watchId);
       }
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
     watchId = null;
   }
 
@@ -422,7 +445,9 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
     ensureRouteEntity();
     startGps();
     if (!tickTimer) {
-      tickTimer = setInterval(() => { if (driving) renderStats(); }, 1000);
+      tickTimer = setInterval(() => {
+        if (driving) renderStats();
+      }, 1000);
     }
     renderStats();
     return { ok: true };
@@ -459,8 +484,14 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
     if (!C) return null;
     try {
       const canvas = viewer.scene.canvas;
-      const center = new C.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
-      const cartesian = viewer.camera.pickEllipsoid(center, viewer.scene.globe.ellipsoid);
+      const center = new C.Cartesian2(
+        canvas.clientWidth / 2,
+        canvas.clientHeight / 2,
+      );
+      const cartesian = viewer.camera.pickEllipsoid(
+        center,
+        viewer.scene.globe.ellipsoid,
+      );
       if (!cartesian) return null;
       const carto = C.Cartographic.fromCartesian(cartesian);
       return {
@@ -476,8 +507,10 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
     if (!C || typeof document === 'undefined') return;
     try {
       const entity = viewer.entities.add({
-        name: property.address || `${property.lat.toFixed(5)}, ${property.lng.toFixed(5)}`,
-        description: `${conditionLabel(property.condition, 'es')} — ${property.address || ''}`,
+        name:
+          property.address ||
+          `${property.lat.toFixed(5)}, ${property.lng.toFixed(5)}`,
+        description: `${conditionLabel(property.condition, UI_LANG)} — ${property.address || ''}`,
         position: C.Cartesian3.fromDegrees(property.lng, property.lat, 4),
         point: {
           pixelSize: 13,
@@ -488,7 +521,9 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
       });
       entity.__d4dId = property.id;
       pinEntities.push(entity);
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   }
 
   function restorePins() {
@@ -518,7 +553,9 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
       </div>
     `;
     document.body.appendChild(form);
-    form.querySelector('.cancel').addEventListener('click', () => form.remove());
+    form
+      .querySelector('.cancel')
+      .addEventListener('click', () => form.remove());
     form.querySelector('.save').addEventListener('click', () => {
       const condition = form.querySelector('#d4d-cond').value;
       const notes = form.querySelector('#d4d-notes').value.trim();
@@ -541,6 +578,13 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
         renderList();
         renderStats();
         form.remove();
+        // Wholesale bridge: hand the marked property to the host app so it
+        // can enter the lead pipeline (the host owns the store).
+        try {
+          onPropertySaved?.({ ...property });
+        } catch {
+          /* host hook */
+        }
       };
       if (file) {
         const reader = new FileReader();
@@ -548,7 +592,9 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
           try {
             const dataUrl = String(reader.result || '');
             if (dataUrl.length < 2_000_000) photos.set(property.id, dataUrl);
-          } catch { /* skip photo */ }
+          } catch {
+            /* skip photo */
+          }
           finish();
         };
         reader.onerror = finish;
@@ -565,7 +611,9 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
     let address = null;
     try {
       address = await reverseGeocode(ll.lat, ll.lng);
-    } catch { /* best effort */ }
+    } catch {
+      /* best effort */
+    }
     if (aborted.current) return { ok: false, error: 'aborted' };
     showMarkForm(ll.lat, ll.lng, address);
     return { ok: true, lat: ll.lat, lng: ll.lng, address };
@@ -578,7 +626,9 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
         destination: C.Cartesian3.fromDegrees(p.lng, p.lat, 600),
         duration: 2,
       });
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   }
 
   function renderList() {
@@ -587,7 +637,8 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
     if (!properties.length) {
       const empty = document.createElement('div');
       empty.className = 'd4d-note';
-      empty.textContent = 'Sin propiedades marcadas todavía. / No properties marked yet.';
+      empty.textContent =
+        'Sin propiedades marcadas todavía. / No properties marked yet.';
       listEl.appendChild(empty);
       return;
     }
@@ -597,11 +648,12 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
       item.className = 'd4d-item';
       const addr = document.createElement('div');
       addr.className = 'addr';
-      addr.textContent = p.address || `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`;
+      addr.textContent =
+        p.address || `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`;
       addr.title = p.address || '';
       const meta = document.createElement('div');
       meta.className = 'meta';
-      meta.textContent = `${conditionLabel(p.condition, 'es')} · ${new Date(p.timestamp).toLocaleDateString()}`;
+      meta.textContent = `${conditionLabel(p.condition, UI_LANG)} · ${new Date(p.timestamp).toLocaleDateString()}`;
       const row = document.createElement('div');
       row.className = 'row';
       const flyBtn = document.createElement('button');
@@ -622,7 +674,9 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
         try {
           const ent = pinEntities.find((e) => e.__d4dId === p.id);
           if (ent) viewer.entities.remove(ent);
-        } catch { /* noop */ }
+        } catch {
+          /* noop */
+        }
         persist();
         renderList();
         renderStats();
@@ -638,7 +692,11 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
   }
 
   function exportCsv() {
-    downloadFile(driveFileName('csv'), propertiesToCsv(properties), 'text/csv;charset=utf-8');
+    downloadFile(
+      driveFileName('csv'),
+      propertiesToCsv(properties),
+      'text/csv;charset=utf-8',
+    );
   }
 
   function exportJson() {
@@ -648,7 +706,11 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
     }));
     downloadFile(
       driveFileName('json'),
-      JSON.stringify({ exportedAt: new Date().toISOString(), properties: payload }, null, 2),
+      JSON.stringify(
+        { exportedAt: new Date().toISOString(), properties: payload },
+        null,
+        2,
+      ),
       'application/json',
     );
   }
@@ -696,7 +758,9 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
       if (driving) stop();
       else start();
     });
-    markBtn.addEventListener('click', () => { void markProperty(); });
+    markBtn.addEventListener('click', () => {
+      void markProperty();
+    });
     panelEl.querySelector('#d4d-csv').addEventListener('click', exportCsv);
     panelEl.querySelector('#d4d-json').addEventListener('click', exportJson);
     renderStats();
@@ -732,18 +796,28 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
     stop,
     markProperty,
     currentFix,
-    get driving() { return driving; },
-    get propertyCount() { return properties.length; },
+    get driving() {
+      return driving;
+    },
+    get propertyCount() {
+      return properties.length;
+    },
     exportCsv,
     exportJson,
     destroy() {
       aborted.current = true;
-      try { if (driving) stop(); } catch { /* noop */ }
+      try {
+        if (driving) stop();
+      } catch {
+        /* noop */
+      }
       stopGps();
       if (tickTimer) clearInterval(tickTimer);
       try {
         for (const e of pinEntities) viewer.entities.remove(e);
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
       pinEntities.length = 0;
       document.getElementById('gev-drive-form')?.remove();
       panelEl?.remove();
