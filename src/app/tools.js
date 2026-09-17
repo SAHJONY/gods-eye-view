@@ -76,6 +76,32 @@ import { initShippingMapLayer } from '../trade/shippingLayer.js';
 import { initTradeDashboard } from '../trade/tradeDashboard.js';
 import { createWorkforce as createTradeWorkforce } from '../agents/tradeWorkforce.js';
 import { initTradeWorkforcePanel } from '../agents/tradeWorkforcePanel.js';
+// MY CUBA CASH: verified-provider store, corridor math, 3D corridor map,
+// mission-control dashboard, AI workforce + panel. Six seeded providers only;
+// provider fees stay undisclosed until Juan enters them. Nothing invented.
+import * as cubacashEngine from '../cubacash/corridorEngine.js';
+import {
+  createProvider as ccCreateProvider,
+  getProvider as ccGetProvider,
+  updateProvider as ccUpdateProvider,
+  moveProvider as ccMoveProvider,
+  deleteProvider as ccDeleteProvider,
+  listProviders as ccListProviders,
+  addProviderNote as ccAddProviderNote,
+  createCorridor as ccCreateCorridor,
+  getCorridor as ccGetCorridor,
+  updateCorridor as ccUpdateCorridor,
+  deleteCorridor as ccDeleteCorridor,
+  listCorridors as ccListCorridors,
+  addCorridorNote as ccAddCorridorNote,
+  asWorkforceStore as ccAsWorkforceStore,
+  stats as ccStats,
+} from '../cubacash/providerStore.js';
+import { parseCubacashCsv as parseCubacashCsv } from '../cubacash/corridorImporter.js';
+import { initCorridorMapLayer } from '../cubacash/corridorMapLayer.js';
+import { initCubacashDashboard } from '../cubacash/cubacashDashboard.js';
+import { createWorkforce as createCubacashWorkforce } from '../agents/cubacashWorkforce.js';
+import { initCubacashWorkforcePanel } from '../agents/cubacashWorkforcePanel.js';
 import { installScopeMask, destroyScopeMask } from '../scopeMask.js';
 import {
   installRenderGovernor,
@@ -789,6 +815,173 @@ export function createApplicationTools({
     if (window.__gevTradeWorkforceUI) delete window.__gevTradeWorkforceUI;
   });
   debug.tradeWorkforcePanel = tradeWorkforcePanel;
+  // --- MY CUBA CASH ---------------------------------------------------------
+  // One store (localStorage `sahjony.cubacash.v1`) spoken in the three shapes
+  // its consumers expect: the dashboard/map-layer shape, and the AI workforce
+  // engine shape. Mutations notify listeners (the 3D corridor map refreshes,
+  // debounced). The store seeds exactly the six verified providers once —
+  // Western Union, Cubamax, Sendvalu, Fonmoney, Correos España, Íkualo Rem —
+  // with fee models left `undisclosed`; nothing is ever invented.
+  const cubacashMutations = new Set();
+  const notifyCubacashMutations = () => {
+    for (const fn of cubacashMutations) {
+      try {
+        fn();
+      } catch {
+        /* map refresh is best-effort */
+      }
+    }
+  };
+  const cubacashWorkforceRaw = ccAsWorkforceStore();
+  const cubacashStore = {
+    // Dashboard/map-layer shape (accepted as-is by the dashboard's adaptStore).
+    listProviders: (filter) => ccListProviders(filter),
+    getProvider: (id) => ccGetProvider(id),
+    createProvider: (data) => {
+      const provider = ccCreateProvider(data);
+      if (provider) notifyCubacashMutations();
+      return provider;
+    },
+    updateProvider: (id, patch) => {
+      const provider = ccUpdateProvider(id, patch);
+      if (provider) notifyCubacashMutations();
+      return provider;
+    },
+    moveProvider: (id, status) => {
+      const provider = ccMoveProvider(id, status);
+      if (provider) notifyCubacashMutations();
+      return provider;
+    },
+    deleteProvider: (id) => {
+      const ok = ccDeleteProvider(id);
+      if (ok) notifyCubacashMutations();
+      return ok;
+    },
+    addProviderNote: (id, agent, es, en) =>
+      ccAddProviderNote(id, agent, es, en),
+    listCorridors: (filter) => ccListCorridors(filter),
+    getCorridor: (id) => ccGetCorridor(id),
+    createCorridor: (data) => {
+      const corridor = ccCreateCorridor(data);
+      if (corridor) notifyCubacashMutations();
+      return corridor;
+    },
+    updateCorridor: (id, patch) => {
+      const corridor = ccUpdateCorridor(id, patch);
+      if (corridor) notifyCubacashMutations();
+      return corridor;
+    },
+    deleteCorridor: (id) => {
+      const ok = ccDeleteCorridor(id);
+      if (ok) notifyCubacashMutations();
+      return ok;
+    },
+    addCorridorNote: (id, agent, es, en) =>
+      ccAddCorridorNote(id, agent, es, en),
+    stats: () => ccStats(),
+    notes: (id) => cubacashWorkforceRaw.notes(id),
+    onMutate: (fn) => {
+      if (typeof fn === 'function') cubacashMutations.add(fn);
+      return () => cubacashMutations.delete(fn);
+    },
+    // AI workforce engine shape. The engine writes notes under the `notes`
+    // key; the store persists them as `agentNotes` — normalized here so the
+    // dashboard/panel read the same notes the agents write.
+    getAll: () => cubacashWorkforceRaw.getAll(),
+    get: (id) => cubacashWorkforceRaw.get(id),
+    update: (id, patch) => {
+      const provider = cubacashWorkforceRaw.update(id, patch);
+      if (provider) notifyCubacashMutations();
+      return provider;
+    },
+  };
+  // 3D corridor map: provider coverage pins + origin/destination pins and
+  // great-circle routes for corridors with real endpoints. Renders only
+  // coordinates Juan's data supplies — never invented.
+  const corridorMap = initCorridorMapLayer({
+    viewer,
+    providerStore: {
+      listProviders: cubacashStore.listProviders,
+      listCorridors: cubacashStore.listCorridors,
+    },
+    corridorEngine: cubacashEngine,
+    signal,
+  });
+  defer(() => {
+    try {
+      corridorMap.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCorridorMap) delete window.__gevCorridorMap;
+  });
+  let corridorMapRefreshTimer = null;
+  cubacashStore.onMutate(() => {
+    if (corridorMapRefreshTimer) return; // coalesce import bursts
+    corridorMapRefreshTimer = setTimeout(() => {
+      corridorMapRefreshTimer = null;
+      try {
+        corridorMap.refresh();
+      } catch {
+        /* best-effort */
+      }
+    }, 300);
+  });
+  debug.corridorMap = corridorMap;
+  // AI agentic workforce (MY CUBA CASH): provider verifier, fee watcher,
+  // corridor analyst, intake helper. Runs while the app is open; every output
+  // is a draft/note for review — it never sends, posts, or contacts anyone.
+  const cubacashWorkforce = createCubacashWorkforce({
+    providerStore: cubacashStore,
+    corridorEngine: cubacashEngine,
+    signal,
+  });
+  window.__gevCubacashWorkforce = cubacashWorkforce;
+  defer(() => {
+    try {
+      cubacashWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCubacashWorkforce === cubacashWorkforce)
+      delete window.__gevCubacashWorkforce;
+  });
+  debug.cubacashWorkforce = cubacashWorkforce;
+  // Mission-control dashboard (MY CUBA CASH): KPIs with honest beta stats,
+  // provider pipeline, provider drawer with corridor math, corridor manager,
+  // fee comparison, CSV import/export, internal comparison drafts.
+  const cubacashDashboard = initCubacashDashboard({
+    providerStore: cubacashStore,
+    corridorEngine: cubacashEngine,
+    corridorMap,
+    workforce: cubacashWorkforce,
+    signal,
+    parseCsv: parseCubacashCsv,
+  });
+  defer(() => {
+    try {
+      cubacashDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCubacash) delete window.__gevCubacash;
+  });
+  debug.cubacash = cubacashDashboard;
+  // MY CUBA CASH workforce mission-control panel: agent roster + live
+  // activity feed.
+  const cubacashWorkforcePanel = initCubacashWorkforcePanel({
+    workforce: cubacashWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      cubacashWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCubacashWorkforceUI) delete window.__gevCubacashWorkforceUI;
+  });
+  debug.cubacashWorkforcePanel = cubacashWorkforcePanel;
   // SAHJONY VOZ — free bilingual (ES/EN) voice commander. Dedicated action
   // runner driving the same GEV actions; no API keys, no cost.
   const sahjonyVoice = initSahjonyVoice({
@@ -981,6 +1174,41 @@ export function createApplicationTools({
           /* noop */
         }
       },
+      __cubacash_open: () =>
+        cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
+      __cubacash_providers: () =>
+        cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
+      __cubacash_corridors: () =>
+        cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
+      __cubacash_status: () =>
+        cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
+      __cubacash_analyze: () => {
+        try {
+          cubacashWorkforce.processOnce();
+        } catch {
+          /* noop */
+        }
+        cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.();
+      },
+      __cubacash_workforce_start: () => {
+        try {
+          cubacashWorkforce.start();
+        } catch {
+          /* noop */
+        }
+        try {
+          cubacashWorkforcePanel.open?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __cubacash_workforce_pause: () => {
+        try {
+          cubacashWorkforce.pause();
+        } catch {
+          /* noop */
+        }
+      },
     },
   });
   defer(() => {
@@ -1021,5 +1249,9 @@ export function createApplicationTools({
     tradeWorkforce,
     trade: tradeDashboard,
     tradeWorkforcePanel,
+    corridorMap,
+    cubacashWorkforce,
+    cubacash: cubacashDashboard,
+    cubacashWorkforcePanel,
   };
 }
