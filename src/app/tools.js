@@ -50,6 +50,14 @@ import { initTankerMapLayer } from '../crude/tankerMapLayer.js';
 import { initCrudeDashboard } from '../crude/crudeDashboard.js';
 import { createWorkforce as createCrudeWorkforce } from '../agents/crudeWorkforce.js';
 import { initCrudeWorkforcePanel } from '../agents/crudeWorkforcePanel.js';
+// Insurance Command Center: shared coverage/claims store, pure insurance
+// engine, 3D state map, AI workforce, mission-control dashboard.
+import * as insuranceEngine from '../insurance/insuranceEngine.js';
+import { createInsuranceStore } from '../insurance/insuranceStore.js';
+import { initStateMapLayer } from '../insurance/stateMapLayer.js';
+import { initInsuranceDashboard } from '../insurance/insuranceDashboard.js';
+import { createInsuranceWorkforce } from '../agents/insuranceWorkforce.js';
+import { initInsuranceWorkforcePanel } from '../agents/insuranceWorkforcePanel.js';
 import { installScopeMask, destroyScopeMask } from '../scopeMask.js';
 import {
   installRenderGovernor,
@@ -582,6 +590,77 @@ export function createApplicationTools({
     if (window.__gevCrudeWorkforceUI) delete window.__gevCrudeWorkforceUI;
   });
   debug.crudeWorkforcePanel = crudeWorkforcePanel;
+  // --- Insurance Command Center --------------------------------------------
+  // One store (localStorage `sahjony_insurance_v1`, shared with the
+  // standalone /insurance/ app on the same origin). Never invents data —
+  // every getter returns safe empty structures when storage is missing.
+  const insuranceStore = createInsuranceStore();
+  // 3D state map: 51 state/DC entities color-coded by the user's own data
+  // (red = gaps, amber = renewal ≤ 30 days, green = all active, gray = none).
+  const insuranceStateMap = initStateMapLayer(viewer, {
+    store: insuranceStore,
+    engine: insuranceEngine,
+    signal,
+  });
+  defer(() => {
+    try {
+      insuranceStateMap.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevInsStateMap) delete window.__gevInsStateMap;
+  });
+  debug.insuranceStateMap = insuranceStateMap;
+  // AI agentic workforce (insurance): gap analyst, renewal watcher,
+  // claim-prep assistant. Runs while the app is open; outputs are memos and
+  // notes only — it never sends, emails, posts, purchases, files, signs,
+  // calls, or texts.
+  const insuranceWorkforce = createInsuranceWorkforce({
+    insuranceStore,
+    insuranceEngine,
+    signal,
+  });
+  window.__gevInsuranceWorkforce = insuranceWorkforce;
+  defer(() => {
+    try {
+      insuranceWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevInsuranceWorkforce === insuranceWorkforce)
+      delete window.__gevInsuranceWorkforce;
+  });
+  debug.insuranceWorkforce = insuranceWorkforce;
+  // Mission-control dashboard (insurance): KPI cards, deep links to
+  // /insurance/#<view>, backup export/import.
+  const insuranceDashboard = initInsuranceDashboard(null, {
+    store: insuranceStore,
+    engine: insuranceEngine,
+    signal,
+  });
+  defer(() => {
+    try {
+      insuranceDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevInsurance) delete window.__gevInsurance;
+  });
+  debug.insurance = insuranceDashboard;
+  // Insurance workforce mission-control panel: agent roster + live feed.
+  const insuranceWorkforcePanel = initInsuranceWorkforcePanel({
+    workforce: insuranceWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      insuranceWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevInsWorkforceUI) delete window.__gevInsWorkforceUI;
+  });
+  debug.insuranceWorkforcePanel = insuranceWorkforcePanel;
   // SAHJONY VOZ — free bilingual (ES/EN) voice commander. Dedicated action
   // runner driving the same GEV actions; no API keys, no cost.
   const sahjonyVoice = initSahjonyVoice({
@@ -716,6 +795,34 @@ export function createApplicationTools({
           /* noop */
         }
       },
+      __insurance_open: () =>
+        insuranceDashboard.toggle?.() ?? insuranceDashboard.open?.(),
+      __insurance_view: (args) => {
+        try {
+          insuranceDashboard.openDeepLink?.(args?.view || 'coverage');
+        } catch {
+          /* noop */
+        }
+      },
+      __insurance_workforce_start: () => {
+        try {
+          insuranceWorkforce.start();
+        } catch {
+          /* noop */
+        }
+        try {
+          insuranceWorkforcePanel.open?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __insurance_workforce_pause: () => {
+        try {
+          insuranceWorkforce.pause();
+        } catch {
+          /* noop */
+        }
+      },
     },
   });
   defer(() => {
@@ -752,5 +859,9 @@ export function createApplicationTools({
     crudeWorkforce,
     crude: crudeDashboard,
     crudeWorkforcePanel,
+    insuranceStateMap,
+    insuranceWorkforce,
+    insurance: insuranceDashboard,
+    insuranceWorkforcePanel,
   };
 }
