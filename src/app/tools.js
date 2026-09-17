@@ -2,6 +2,8 @@ import { SceneDirector } from '../scenes/director.js';
 import { initAnnotations } from '../annotations/index.js';
 import { initDrawTool } from '../annotations/drawTool.js';
 import { initGevVoiceCommands } from '../voice/gevRealtime.js';
+import { createGevActionRunner } from '../voice/gevActions.js';
+import { initSahjonyVoice } from '../voice/sahjonyVoice.js';
 import { installScopeMask, destroyScopeMask } from '../scopeMask.js';
 import {
   installRenderGovernor,
@@ -137,5 +139,28 @@ export function createApplicationTools({
       delete window.__gevVoiceCommands;
   });
   debug.voiceCommands = voiceCommands;
-  return { sceneDirector, annotations, voiceCommands };
+  // SAHJONY VOZ — free bilingual (ES/EN) voice commander. Dedicated action
+  // runner driving the same GEV actions; no API keys, no cost.
+  const sahjonyVoice = initSahjonyVoice({
+    runner: createGevActionRunner({
+      ...voice,
+      floorServices: operations.surface.groundFloor,
+      annotationResolver: operations.annotationResolver,
+      searchNavigation: operations.searchAndFlyTo,
+      signal,
+      placeSearch,
+      viewer,
+      styleManager,
+      dataManager,
+      sceneDirector,
+      annotations,
+    }),
+    dataManager,
+    signal,
+  });
+  defer(() => {
+    sahjonyVoice.destroy();
+  });
+  debug.sahjonyVoice = sahjonyVoice;
+  return { sceneDirector, annotations, voiceCommands, sahjonyVoice };
 }
