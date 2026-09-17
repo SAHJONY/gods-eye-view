@@ -102,7 +102,11 @@ test('launcher builds floating button and overlay; toggle opens and closes', () 
   fab.click();
   assert.ok(overlay.classList.contains('open'), 'opens on tap');
   const bizButtons = overlay.querySelectorAll('.bl-biz');
-  assert.equal(bizButtons.length, 6, 'five business buttons + globe card');
+  assert.equal(
+    bizButtons.length,
+    11,
+    'five business buttons + globe card + four app links + Sofia',
+  );
   const globe = overlay.querySelectorAll('.bl-globe');
   assert.equal(globe.length, 1, 'exactly one globe card');
   fab.click();
@@ -220,4 +224,53 @@ test('launcher CSS uses large touch targets', async () => {
   assert.ok(src.includes('min-height:84px'), 'business buttons are tall');
   assert.ok(src.includes('min-height:48px'), 'header controls are tall');
   assert.ok(src.includes('width:64px'), 'floating button is 64px');
+});
+
+test('unified ecosystem: external app deep-links + Sofia front door (ES/EN)', async () => {
+  const { EXTERNAL_APPS, SOFIA_WHATSAPP } = await import(
+    './businessLauncher.js'
+  );
+  assert.equal(EXTERNAL_APPS.length, 4, 'four external apps');
+  assert.equal(
+    SOFIA_WHATSAPP.url,
+    'https://wa.me/12816628581',
+    'Sofia front door number',
+  );
+  body.children.length = 0;
+  const launcher = initBusinessLauncher();
+  const overlay = () =>
+    body.children.find((c) => c.id === 'gev-bizlauncher-overlay');
+  const appLinks = () =>
+    overlay()
+      .querySelectorAll('.bl-biz')
+      .filter((el) => el.getAttribute('data-app'));
+  const sections = overlay()
+    .querySelectorAll('.bl-section')
+    .map((s) => s.textContent);
+  assert.ok(sections.length >= 1, 'ecosystem section header present');
+  assert.equal(appLinks().length, 5, 'four apps + Sofia WhatsApp');
+  const hrefs = appLinks().map((el) => el.getAttribute('href'));
+  for (const url of [
+    'https://www.sahjony.com',
+    'https://www.mycubacash.com',
+    'https://www.new850.com',
+    'https://wa.me/12816628581',
+  ]) {
+    assert.ok(hrefs.includes(url), `hub links to ${url}`);
+  }
+  for (const el of appLinks()) {
+    assert.equal(el.getAttribute('target'), '_blank', 'opens in new tab');
+    assert.equal(el.getAttribute('rel'), 'noopener', 'noopener');
+  }
+  launcher.setLang('es');
+  const esNames = appLinks().map(
+    (el) => el.querySelector('.bl-name').textContent,
+  );
+  assert.ok(esNames.includes('Sofia por WhatsApp'), 'spanish Sofia label');
+  launcher.setLang('en');
+  const enNames = appLinks().map(
+    (el) => el.querySelector('.bl-name').textContent,
+  );
+  assert.ok(enNames.includes('Sofia on WhatsApp'), 'english Sofia label');
+  launcher.destroy();
 });

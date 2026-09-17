@@ -82,6 +82,66 @@ export const GLOBE_CARD = Object.freeze({
   enDesc: 'View the GEV 3D globe',
 });
 
+/**
+ * UNIFIED ECOSYSTEM (standing rule, Juan 2026-09-17): all apps and systems
+ * work together as one. The hub deep-links out to every app; the businesses
+ * stay operationally separate behind the scenes. Single front door: Sofia
+ * on WhatsApp +1 281-662-8581. These are user-tapped navigation links only —
+ * the launcher makes no external calls by itself.
+ */
+export const EXTERNAL_APPS = Object.freeze([
+  {
+    id: 'app-sahjony',
+    icon: '🏭',
+    url: 'https://www.sahjony.com',
+    es: 'SAHJONY.com',
+    en: 'SAHJONY.com',
+    esDesc: 'Comercio import/export',
+    enDesc: 'Import/export trade',
+  },
+  {
+    id: 'app-cubacash',
+    icon: '💵',
+    url: 'https://www.mycubacash.com',
+    es: 'MyCubaCash.com',
+    en: 'MyCubaCash.com',
+    esDesc: 'Envíos de dinero a Cuba',
+    enDesc: 'Money transfers to Cuba',
+  },
+  {
+    id: 'app-new850',
+    icon: '📄',
+    url: 'https://www.new850.com',
+    es: 'New850.com',
+    en: 'New850.com',
+    esDesc: 'Reparación de crédito',
+    enDesc: 'Credit repair',
+  },
+  {
+    id: 'app-carsales',
+    icon: '🚗',
+    url: 'https://muse.ai/s/car-sales-machine-lxh5xvxa5xdixyzp',
+    es: 'Venta de carros',
+    en: 'Car sales',
+    esDesc: 'Máquina de venta de carros',
+    enDesc: 'Car sales machine',
+  },
+]);
+
+/**
+ * Single front door, everywhere: Sofia on WhatsApp +1 281-662-8581.
+ * Rendered as the last card of the hub's ecosystem section.
+ */
+export const SOFIA_WHATSAPP = Object.freeze({
+  id: 'sofia-whatsapp',
+  icon: '💬',
+  url: 'https://wa.me/12816628581',
+  es: 'Sofia por WhatsApp',
+  en: 'Sofia on WhatsApp',
+  esDesc: 'Puerta única: +1 281-662-8581',
+  enDesc: 'Single front door: +1 281-662-8581',
+});
+
 const LAUNCHER_CSS = `
 #gev-bizlauncher-btn{position:fixed;z-index:70;left:14px;bottom:14px;width:64px;height:64px;min-width:64px;min-height:64px;border-radius:50%;background:#0c2a3d;border:2px solid #38bdf8;color:#fff;font-size:30px;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
 #gev-bizlauncher-btn:active{transform:scale(.94)}
@@ -95,6 +155,8 @@ const LAUNCHER_CSS = `
 #gev-bizlauncher-overlay .bl-list{padding:14px 16px 40px;display:flex;flex-direction:column;gap:12px;max-width:640px;margin:0 auto}
 #gev-bizlauncher-overlay .bl-biz{display:flex;gap:14px;align-items:center;width:100%;min-height:84px;border-radius:18px;border:2px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;padding:14px 16px;text-align:left;font-family:inherit}
 #gev-bizlauncher-overlay .bl-biz:active{border-color:#38bdf8;background:#0c2a3d}
+#gev-bizlauncher-overlay .bl-section{font-size:15px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7dd3fc;padding:14px 4px 2px}
+#gev-bizlauncher-overlay a.bl-biz{text-decoration:none}
 #gev-bizlauncher-overlay .bl-globe{border-color:#38bdf8;background:#0c2a3d}
 #gev-bizlauncher-overlay .bl-globe .bl-go{color:#7dd3fc}
 #gev-bizlauncher-overlay .bl-icon{font-size:38px;flex:0 0 auto}
@@ -194,6 +256,16 @@ export function initBusinessLauncher({ signal = null, autoOpen = true } = {}) {
           makeCard(b, () => openBusinessScreen(b.screen)),
         );
       }
+      // UNIFIED ECOSYSTEM: deep-links out to every app + the single front
+      // door (Sofia on WhatsApp). User-tapped navigation only.
+      const section = document.createElement('div');
+      section.className = 'bl-section';
+      section.textContent = t('Apps y sitios', 'Apps & sites');
+      list.appendChild(section);
+      for (const a of EXTERNAL_APPS) {
+        list.appendChild(makeLinkCard(a));
+      }
+      list.appendChild(makeLinkCard(SOFIA_WHATSAPP));
     }
     if (fab) fab.setAttribute('aria-label', t('Negocios', 'Businesses'));
   }
@@ -223,6 +295,34 @@ export function initBusinessLauncher({ signal = null, autoOpen = true } = {}) {
     btn.appendChild(go);
     btn.addEventListener('click', onClick);
     return btn;
+  }
+
+  function makeLinkCard(a) {
+    const link = document.createElement('a');
+    link.className = 'bl-biz';
+    link.setAttribute('data-app', a.id);
+    link.setAttribute('href', a.url);
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener');
+    const icon = document.createElement('span');
+    icon.className = 'bl-icon';
+    icon.textContent = a.icon;
+    const txt = document.createElement('span');
+    const name = document.createElement('div');
+    name.className = 'bl-name';
+    name.textContent = lang === 'es' ? a.es : a.en;
+    const desc = document.createElement('div');
+    desc.className = 'bl-desc';
+    desc.textContent = lang === 'es' ? a.esDesc : a.enDesc;
+    txt.appendChild(name);
+    txt.appendChild(desc);
+    const go = document.createElement('span');
+    go.className = 'bl-go';
+    go.textContent = '↗';
+    link.appendChild(icon);
+    link.appendChild(txt);
+    link.appendChild(go);
+    return link;
   }
 
   function build() {
