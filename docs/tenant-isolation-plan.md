@@ -11,9 +11,14 @@ Branch: `sahjony/tenant-isolation`.
   Then STOP. (Juan 2026-09-17: "let me test the business first.")
 - After the merge: NO pilot outreach, NO public tiers, NO selling motion.
   Phase 1 is Juan running his six businesses on the app and testing everything
-  himself. Nothing customer-facing moves until he says the businesses work.
-  The tenant-isolation merge approval stands — it is plumbing only, not a
-  go-to-market signal.
+  himself. The tenant-isolation merge approval stands — it is plumbing only,
+  not a go-to-market signal.
+- **EXPANSION GATE (Juan 2026-09-17, replaces all softer Phase 1 exit language):**
+  NO expansion of GEV as a product — no pilots, no tiers, no selling — until
+  Juan sees the FIRST REAL PROFITS in EVERY one of the six businesses. That is
+  the named exit criterion. Build implication: every station serves revenue
+  first — pipelines, approvals, and workforce features are optimized to get
+  each business to its first real profit, not just to look complete.
 - Merging to main does NOT deploy to the VPS. The VPS deploy (which affects
   the live app at 69.62.68.67) still needs Juan's explicit word when the time
   comes — that gate is unchanged.
