@@ -59,6 +59,23 @@ records Juan's decision ONLY, the app never auto-executes external acts),
 - **Car track secrecy (standing)**: the public never sees supplier prices —
   no Ronny floors, margins, or cost stacks on any customer-facing surface.
 
+## Unified ecosystem (standing rule, Juan 2026-09-17)
+
+ALL APPS AND SYSTEMS WORK TOGETHER AS ONE. GOD'S EYE VIEW is the unified
+command hub:
+- The launcher hub deep-links out to every app: sahjony.com, mycubacash.com,
+  new850.com, the car sales machine page. Every business screen keeps
+  one-tap access to the other business screens.
+- Single front door everywhere: Sofia on WhatsApp +1 281-662-8581
+  (`https://wa.me/12816628581`), same position/label convention on all
+  surfaces.
+- Consistent SAHJONY branding across all surfaces (same brand mark, language
+  toggle, back-to-hub bar).
+- The businesses stay operationally separate behind the scenes (separate
+  stores/keys/pipelines per the tenant rule); what unifies is the experience —
+  one system, one hub, one front door.
+- Applies to all six modules and every future one.
+
 ## Standing gates
 
 - Merge to main: Juan approves every merge (exception: tenant-isolation has
