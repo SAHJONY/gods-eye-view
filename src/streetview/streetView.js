@@ -166,7 +166,13 @@ export function initStreetView({ viewer, signal = null } = {}) {
   if (!viewer) throw new Error('streetView: viewer is required');
   injectStyles();
   const aborted = { current: false };
-  signal?.addEventListener?.('abort', () => { aborted.current = true; }, { once: true });
+  signal?.addEventListener?.(
+    'abort',
+    () => {
+      aborted.current = true;
+    },
+    { once: true },
+  );
 
   let focusProvider = null; // () => { lat, lng } | null — e.g. drive GPS fix
   let pickHandler = null;
@@ -182,14 +188,22 @@ export function initStreetView({ viewer, signal = null } = {}) {
 
   function focusLatLng() {
     const fromFocus = focusProvider?.();
-    if (fromFocus && Number.isFinite(fromFocus.lat) && Number.isFinite(fromFocus.lng)) {
+    if (
+      fromFocus &&
+      Number.isFinite(fromFocus.lat) &&
+      Number.isFinite(fromFocus.lng)
+    ) {
       return { lat: fromFocus.lat, lng: fromFocus.lng };
     }
     return screenCenterLatLng(viewer);
   }
 
   function endPickMode() {
-    try { pickHandler?.destroy(); } catch { /* noop */ }
+    try {
+      pickHandler?.destroy();
+    } catch {
+      /* noop */
+    }
     pickHandler = null;
     hintEl?.remove();
     hintEl = null;
@@ -203,7 +217,8 @@ export function initStreetView({ viewer, signal = null } = {}) {
     btnEl?.classList.add('is-picking');
     hintEl = document.createElement('div');
     hintEl.id = 'gev-streetview-hint';
-    hintEl.textContent = 'Toca el mapa para ver la calle · Tap the map for street view';
+    hintEl.textContent =
+      'Toca el mapa para ver la calle · Tap the map for street view';
     document.body.appendChild(hintEl);
     pickHandler = new C.ScreenSpaceEventHandler(viewer.scene.canvas);
     pickHandler.setInputAction((movement) => {
@@ -245,7 +260,11 @@ export function initStreetView({ viewer, signal = null } = {}) {
       back.type = 'button';
       back.textContent = '↩ Volver / Back';
       back.addEventListener('click', () => {
-        try { restoreStreetCam?.(); } catch { /* noop */ }
+        try {
+          restoreStreetCam?.();
+        } catch {
+          /* noop */
+        }
         restoreStreetCam = null;
       });
       note.appendChild(p);
@@ -253,7 +272,9 @@ export function initStreetView({ viewer, signal = null } = {}) {
       body.appendChild(note);
       try {
         restoreStreetCam?.();
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
       restoreStreetCam = dropToStreetLevel(viewer, current.lat, current.lng);
     } else if (activeTab === 'google') {
       const note = document.createElement('div');
@@ -316,7 +337,11 @@ export function initStreetView({ viewer, signal = null } = {}) {
   }
 
   function close() {
-    try { restoreStreetCam?.(); } catch { /* noop */ }
+    try {
+      restoreStreetCam?.();
+    } catch {
+      /* noop */
+    }
     restoreStreetCam = null;
     panelEl?.remove();
     panelEl = null;
@@ -328,7 +353,8 @@ export function initStreetView({ viewer, signal = null } = {}) {
     btnEl = document.createElement('button');
     btnEl.id = 'gev-streetview-btn';
     btnEl.type = 'button';
-    btnEl.innerHTML = '<span class="sv-emoji">🛣️</span><span>Vista de calle</span>';
+    btnEl.innerHTML =
+      '<span class="sv-emoji">🛣️</span><span>Vista de calle</span>';
     btnEl.setAttribute('aria-label', 'Vista de calle / street view');
     btnEl.addEventListener('click', () => {
       if (pickHandler) endPickMode();
