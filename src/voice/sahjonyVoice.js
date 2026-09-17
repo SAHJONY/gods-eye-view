@@ -346,6 +346,86 @@ export function parseSahjonyCommand(rawText) {
     };
   }
 
+  // --- approval queue (management console) ---
+  // LIST-ONLY INTENTS. Approval and rejection are TAP-ONLY by design: a voice
+  // command can be triggered by anyone within earshot, while approving an
+  // item is Juan's explicit gate on a real external act (send/post/publish).
+  // Voice therefore only OPENS the queue; Juan's tap is the decision.
+  // (Deliberately no __approvals_approve / __approvals_reject intent exists.)
+  {
+    const APPROVAL_BIZ_WORDS = [
+      ['wholesale', ['wholesale', 'mayorista', 'mayoristas']],
+      ['crude', ['crudo', 'crude', 'petroleo']],
+      [
+        'trade',
+        ['comercio', 'trade', 'importacion', 'exportacion', 'import export'],
+      ],
+      ['cubacash', ['cuba cash', 'my cuba cash', 'mi cuba cash', 'remesas']],
+      [
+        'carsales',
+        ['venta de autos', 'venta de carros', 'autos', 'carros', 'car sales'],
+      ],
+      ['new850', ['new850', 'new 850']],
+      ['insurance', ['seguros', 'seguro', 'insurance', 'aseguradora']],
+    ];
+    const approvalBusinessFromText = (t) => {
+      for (const [id, words] of APPROVAL_BIZ_WORDS) {
+        if (words.some((w) => t.includes(w))) return id;
+      }
+      return null;
+    };
+    const bizNames = {
+      wholesale: { es: 'Wholesale', en: 'Wholesale' },
+      crude: { es: 'Crudo', en: 'Crude oil' },
+      trade: { es: 'Import/Export', en: 'Import/Export' },
+      cubacash: { es: 'MY CUBA CASH', en: 'MY CUBA CASH' },
+      carsales: { es: 'Venta de autos', en: 'Car sales' },
+      new850: { es: 'New850', en: 'New850' },
+      insurance: { es: 'Seguros', en: 'Insurance' },
+    };
+    // Per-business: "muéstrame las aprobaciones de New850", "qué tengo pendiente en crudo",
+    // "show trade approvals", …
+    if (
+      /\b(aprobaciones|aprobacion|approvals?)\s+(de|del|para|for)\b/.test(
+        text,
+      ) ||
+      /\b(pendiente|pendientes|pending)\s+(de|del|en|para|for)\s+(?!aprobar\b)/.test(
+        text,
+      ) ||
+      /\b(wholesale|mayorista|mayoristas|crudo|crude|petroleo|comercio|trade|importacion|exportacion|cuba cash|remesas|venta de autos|venta de carros|autos|carros|car sales|new850|new 850|seguros|seguro|insurance|aseguradora)\s+(aprobaciones|aprobacion|approvals?)\b/.test(
+        text,
+      )
+    ) {
+      const businessId = approvalBusinessFromText(text);
+      if (businessId) {
+        const name = bizNames[businessId];
+        return {
+          action: '__approvals_list',
+          args: { businessId },
+          say: {
+            es: `Mostrando tus aprobaciones de ${name.es}`,
+            en: `Showing your ${name.en} approvals`,
+          },
+        };
+      }
+    }
+    // All businesses: "qué tengo pendiente de aprobar", "muéstrame mis aprobaciones", …
+    if (
+      /\b(que tengo pendiente de aprobar|que tengo para aprobar|muestrame mis aprobaciones|muestrame las aprobaciones|muestrame lo pendiente|cola de aprobaciones|cola de aprobacion|lista de aprobaciones|aprobaciones pendientes|what do i have pending approval|what is pending approval|show me my approvals|show my approvals|show pending approvals|approval queue|approvals list)\b/.test(
+        text,
+      )
+    ) {
+      return {
+        action: '__approvals_list',
+        args: { businessId: null },
+        say: {
+          es: 'Abriendo tu cola de aprobaciones',
+          en: 'Opening your approval queue',
+        },
+      };
+    }
+  }
+
   // --- insurance command center ---
   if (
     /\b(seguro|seguros|insurance|abre seguros|open insurance|panel seguros|insurance panel|modo seguros)\b/.test(
@@ -391,86 +471,6 @@ export function parseSahjonyCommand(rawText) {
       },
     };
   }
-  // --- wholesale real estate intelligence ---
-  if (
-    /\b(modo wholesale|wholesale mode|abre wholesale|open wholesale|panel wholesale|wholesale panel)\b/.test(
-      text,
-    )
-  ) {
-    return {
-      action: '__wholesale_open',
-      args: {},
-      say: {
-        es: 'Abriendo el panel wholesale',
-        en: 'Opening the wholesale panel',
-      },
-    };
-  }
-  if (
-    /\b(mejores oportunidades|mejores ofertas|mejor oferta|best deals|best opportunities|top deals|muestrame las mejores)\b/.test(
-      text,
-    )
-  ) {
-    return {
-      action: '__wholesale_best',
-      args: {},
-      say: {
-        es: 'Estas son tus mejores oportunidades',
-        en: 'Here are your top opportunities',
-      },
-    };
-  }
-  if (
-    /\b(cuantas leads|cuántas leads|how many leads|numero de leads|número de leads|estado del negocio|business status|resumen wholesale|wholesale summary)\b/.test(
-      text,
-    )
-  ) {
-    return {
-      action: '__wholesale_status',
-      args: {},
-      say: {
-        es: 'Revisando tu negocio wholesale',
-        en: 'Checking your wholesale business',
-      },
-    };
-  }
-  if (
-    /\b(inicia los agentes|enciende los agentes|start the workforce|start agents|activate agents|pon a trabajar)\b/.test(
-      text,
-    )
-  ) {
-    return {
-      action: '__workforce_start',
-      args: {},
-      say: {
-        es: 'Fuerza de trabajo activada. A trabajar.',
-        en: 'Workforce activated. Getting to work.',
-      },
-    };
-  }
-  if (
-    /\b(pausa los agentes|deten los agentes|pause the workforce|pause agents|stop the agents)\b/.test(
-      text,
-    )
-  ) {
-    return {
-      action: '__workforce_pause',
-      args: {},
-      say: { es: 'Agentes en pausa', en: 'Agents paused' },
-    };
-  }
-  if (
-    /\b(analiza esta propiedad|analiza este lead|analyze this property|analyze this lead)\b/.test(
-      text,
-    )
-  ) {
-    return {
-      action: '__wholesale_analyze',
-      args: {},
-      say: { es: 'Analizando la propiedad', en: 'Analyzing the property' },
-    };
-  }
-
   // --- crude oil brokerage ---
   if (
     /\b(modo crudo|crude mode|abre crudo|open crude|panel crudo|crude panel|petroleo|petróleo|oil broker)\b/.test(
@@ -729,6 +729,90 @@ export function parseSahjonyCommand(rawText) {
       say: { es: 'Agentes de comercio en pausa', en: 'Trade agents paused' },
     };
   }
+  // NOTE: the generic wholesale workforce phrases ('inicia los agentes',
+  // 'pausa los agentes', …) are checked LAST on purpose — the business-
+  // qualified phrases above ('… de crudo', '… de comercio', '… de cuba cash')
+  // must match first or the generic pattern would swallow them.
+  // --- wholesale real estate intelligence ---
+  if (
+    /\b(modo wholesale|wholesale mode|abre wholesale|open wholesale|panel wholesale|wholesale panel)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__wholesale_open',
+      args: {},
+      say: {
+        es: 'Abriendo el panel wholesale',
+        en: 'Opening the wholesale panel',
+      },
+    };
+  }
+  if (
+    /\b(mejores oportunidades|mejores ofertas|mejor oferta|best deals|best opportunities|top deals|muestrame las mejores)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__wholesale_best',
+      args: {},
+      say: {
+        es: 'Estas son tus mejores oportunidades',
+        en: 'Here are your top opportunities',
+      },
+    };
+  }
+  if (
+    /\b(cuantas leads|cuántas leads|how many leads|numero de leads|número de leads|estado del negocio|business status|resumen wholesale|wholesale summary)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__wholesale_status',
+      args: {},
+      say: {
+        es: 'Revisando tu negocio wholesale',
+        en: 'Checking your wholesale business',
+      },
+    };
+  }
+  if (
+    /\b(inicia los agentes|enciende los agentes|start the workforce|start agents|activate agents|pon a trabajar)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__workforce_start',
+      args: {},
+      say: {
+        es: 'Fuerza de trabajo activada. A trabajar.',
+        en: 'Workforce activated. Getting to work.',
+      },
+    };
+  }
+  if (
+    /\b(pausa los agentes|deten los agentes|pause the workforce|pause agents|stop the agents)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__workforce_pause',
+      args: {},
+      say: { es: 'Agentes en pausa', en: 'Agents paused' },
+    };
+  }
+  if (
+    /\b(analiza esta propiedad|analiza este lead|analyze this property|analyze this lead)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__wholesale_analyze',
+      args: {},
+      say: { es: 'Analizando la propiedad', en: 'Analyzing the property' },
+    };
+  }
+
   // --- map views ---
   if (
     /\b(vista satelite|vista satelital|satellite view|vista aerea)\b/.test(text)

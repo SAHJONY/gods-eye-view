@@ -35,6 +35,7 @@ import {
   asWorkforceStore,
   resetTradeStore,
   reloadTradeStore,
+  applyRealDealSeed,
 } from './supplierStore.js';
 
 beforeEach(() => {
@@ -398,6 +399,10 @@ test('netMarginTotal / netMarginPct', () => {
   assert.equal(netMarginTotal({ sellUnitPrice: 12 }), 0);
   assert.equal(netMarginPct({ sellUnitPrice: 12, quantity: 0 }), 0);
   assert.equal(netMarginTotal(), 0);
+  // A 0 sell price means "unknown", never "sold for $0": no invented margins.
+  assert.equal(netMarginTotal({ sellUnitPrice: 0, quantity: 210, unitCost: 265 }), 0);
+  assert.equal(netMarginPct({ sellUnitPrice: 0, quantity: 210, unitCost: 265 }), 0);
+  assert.equal(commissionAmount({ sellUnitPrice: 0, quantity: 210, commissionPct: 5 }), 0);
 });
 
 test('commissionAmount: revenue * commissionPct/100', () => {
@@ -774,4 +779,62 @@ test('imported RFQ flows into the store and engine honestly', () => {
   assert.equal(verdict.tier, 'green');
   // commission 5% of 78750 = 3937.5
   assert.equal(commissionAmount(created), 3937.5);
+});
+
+test('applyRealDealSeed: seeds the 3 real deals + TNJ supplier, idempotent', () => {
+  const refs = applyRealDealSeed();
+  assert.deepEqual(refs, [
+    'RFQ-RICE-DIESEL-0917',
+    'RFQ-SIEMENS-V942-0917',
+    'RFQ-SODA-ASH-TNJ-0917',
+  ]);
+  assert.equal(listRfqs().length, 3);
+
+  const rice = listRfqs().find((r) => r.ref === 'RFQ-RICE-DIESEL-0917');
+  assert.equal(rice.status, 'contacted');
+  assert.equal(rice.quantity, 0); // awaiting prices — missing, never estimated
+  assert.equal(rice.unitCost, 0);
+  assert.equal(rice.sellUnitPrice, 0);
+  assert.match(rice.notes, /2026-09-17/);
+  assert.ok(rice.agentNotes.length >= 1);
+
+  const siemens = listRfqs().find((r) => r.ref === 'RFQ-SIEMENS-V942-0917');
+  // Broker deal: no principal sell price — the $37.5M EXW stated ask lives in
+  // the product text; sellUnitPrice stays 0 so no margin is invented.
+  assert.equal(siemens.sellUnitPrice, 0);
+  assert.match(siemens.product, /\$37\.5M EXW/);
+  assert.equal(siemens.incoterms, 'EXW');
+  assert.equal(siemens.status, 'contacted');
+  assert.match(siemens.notes, /12:45/);
+
+  const soda = listRfqs().find((r) => r.ref === 'RFQ-SODA-ASH-TNJ-0917');
+  assert.equal(soda.quantity, 210);
+  assert.equal(soda.unitCost, 265);
+  assert.equal(soda.sellUnitPrice, 0); // sell price not set — missing
+  assert.equal(soda.incoterms, 'FOB');
+  assert.equal(soda.originPort, 'Qingdao');
+  assert.equal(soda.status, 'quoting');
+  assert.match(soda.notes, /Katharine Xu/);
+
+  const tnj = listSuppliers().find((s) => s.name === 'TNJ Chemical');
+  assert.ok(tnj);
+  assert.equal(tnj.country, 'China');
+  assert.equal(tnj.verification, 'unverified');
+  assert.equal(soda.supplierId, tnj.id);
+
+  // No invented economics: none of the three seeds may produce a margin or
+  // commission from missing prices.
+  for (const r of [rice, siemens, soda]) {
+    assert.equal(netMarginTotal(r), 0, `${r.ref} margin`);
+    assert.equal(netMarginPct(r), 0, `${r.ref} margin pct`);
+    assert.equal(commissionAmount(r), 0, `${r.ref} commission`);
+  }
+
+  // Idempotent: second run adds nothing.
+  applyRealDealSeed();
+  assert.equal(listRfqs().length, 3);
+  assert.equal(
+    listSuppliers().filter((s) => s.name === 'TNJ Chemical').length,
+    1,
+  );
 });

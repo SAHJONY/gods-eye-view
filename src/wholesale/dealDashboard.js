@@ -441,6 +441,7 @@ const WS_CSS = `
 #gev-wholesale-panel .wsp-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(125,211,252,.18)}
 #gev-wholesale-panel .wsp-title{font-size:12px;font-weight:800;letter-spacing:.1em;color:#7dd3fc;flex:1}
 #gev-wholesale-panel .wsp-lang{background:none;border:1px solid rgba(125,211,252,.35);color:#7dd3fc;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:800;font-family:inherit}
+#gev-wholesale-panel .wsp-manage{padding:5px 12px;border-radius:8px;border:1px solid rgba(125,211,252,.35);background:rgba(125,211,252,.1);color:#eaf4ff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;min-height:44px}
 #gev-wholesale-panel .wsp-close{background:none;border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:14px}
 #gev-wholesale-panel .wsp-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 12px;border-bottom:1px solid rgba(125,211,252,.18)}
 #gev-wholesale-panel .wsp-kpi{background:rgba(125,211,252,.06);border:1px solid rgba(125,211,252,.15);border-radius:10px;padding:8px 10px}
@@ -509,6 +510,7 @@ export function initDealDashboard({
   workforce = null,
   signal = null,
   parseCsv = parseLeadsCsv,
+  onOpenManagement = null,
 } = {}) {
   injectStyles();
   const store = adaptStore(leadStore);
@@ -948,6 +950,7 @@ export function initDealDashboard({
     panelEl.innerHTML = `
       <div class="wsp-head">
         <div class="wsp-title">WHOLESALE · MISSION CONTROL</div>
+        <button class="wsp-manage" type="button">⚙️ Gestionar / Manage</button>
         <button class="wsp-lang" type="button">ES / EN</button>
         <button class="wsp-close" type="button" aria-label="Cerrar / close">✕</button>
       </div>
@@ -967,6 +970,8 @@ export function initDealDashboard({
     refs.exportBtn = panelEl.querySelector('.wsp-export');
     const langBtn = panelEl.querySelector('.wsp-lang');
     const closeBtn = panelEl.querySelector('.wsp-close');
+    const manageBtn = panelEl.querySelector('.wsp-manage');
+    if (manageBtn) manageBtn.addEventListener('click', () => { try { onOpenManagement && onOpenManagement('approvals'); } catch {} });
 
     const fileInput = document.createElement('input');
     fileInput.type = 'file';

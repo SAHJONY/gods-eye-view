@@ -684,6 +684,7 @@ const CC_CSS = `
 #gev-crude-panel .ccp-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,180,84,.18)}
 #gev-crude-panel .ccp-title{font-size:12px;font-weight:800;letter-spacing:.1em;color:#ffb454;flex:1}
 #gev-crude-panel .ccp-lang{background:none;border:1px solid rgba(255,180,84,.4);color:#ffb454;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:800;font-family:inherit}
+#gev-crude-panel .ccp-manage{padding:5px 12px;border-radius:8px;border:1px solid rgba(125,211,252,.35);background:rgba(125,211,252,.1);color:#eaf4ff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;min-height:44px}
 #gev-crude-panel .ccp-close{background:none;border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:14px}
 #gev-crude-panel .ccp-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,180,84,.18)}
 #gev-crude-panel .ccp-kpi{background:rgba(255,180,84,.06);border:1px solid rgba(255,180,84,.15);border-radius:10px;padding:8px 10px}
@@ -753,6 +754,7 @@ export function initCrudeDashboard({
   workforce = null,
   signal = null,
   parseCsv = parseCargoesCsv,
+  onOpenManagement = null,
 } = {}) {
   injectStyles();
   const store = adaptStore(cargoStore);
@@ -1390,6 +1392,7 @@ export function initCrudeDashboard({
     panelEl.innerHTML = `
       <div class="ccp-head">
         <div class="ccp-title">CRUDO · MISSION CONTROL</div>
+        <button class="ccp-manage" type="button">⚙️ Gestionar / Manage</button>
         <button class="ccp-lang" type="button">ES / EN</button>
         <button class="ccp-close" type="button" aria-label="Cerrar / close">✕</button>
       </div>
@@ -1411,6 +1414,8 @@ export function initCrudeDashboard({
     refs.importStatus = panelEl.querySelector('.ccp-status');
     const langBtn = panelEl.querySelector('.ccp-lang');
     const closeBtn = panelEl.querySelector('.ccp-close');
+    const manageBtn = panelEl.querySelector('.ccp-manage');
+    if (manageBtn) manageBtn.addEventListener('click', () => { try { onOpenManagement && onOpenManagement('approvals'); } catch {} });
 
     const fileInput = document.createElement('input');
     fileInput.type = 'file';

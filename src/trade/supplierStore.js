@@ -530,3 +530,127 @@ export const reloadTradeStore = () => {
   store.db = store.load();
   return store.db;
 };
+
+// ---- Real-deal backfill (2026-09-17 audit) ---------------------------------
+// Juan's real import/export deals as of 2026-09-17 (America/Chicago).
+// Runs explicitly (called once from app startup and from the standalone
+// screen) — never from the store constructor, so unit tests keep a clean
+// slate. Idempotent: RFQs key on `ref`, suppliers on name+country.
+// Real data only. Prices/quantities stay 0 (reported as missing) wherever
+// the seller has not quoted yet — nothing is estimated or invented.
+const REAL_DEAL_REFS = Object.freeze([
+  'RFQ-RICE-DIESEL-0917',
+  'RFQ-SIEMENS-V942-0917',
+  'RFQ-SODA-ASH-TNJ-0917',
+]);
+
+export function applyRealDealSeed() {
+  const now = chicagoIso();
+  const dealNote = (es, en) => ({ at: now, agent: 'sahjony', es, en });
+
+  // TNJ Chemical (Katharine Xu) — soda ash supplier, in active negotiation.
+  // Verification stays 'unverified' until Juan confirms it.
+  let tnj = store.findDuplicateSupplier({
+    name: 'TNJ Chemical',
+    country: 'China',
+  });
+  if (!tnj) {
+    tnj = store.createSupplier({
+      name: 'TNJ Chemical',
+      type: 'manufacturer',
+      role: 'supplier',
+      country: 'China',
+      verification: 'unverified',
+      notes:
+        'Soda ash supplier — Katharine Xu (sales). In active negotiation on the 210 MT soda ash RFQ; verification pending Juan.',
+      agentNotes: [
+        dealNote(
+          'Proveedor registrado desde la negociación real de soda ash (contraoferta 210 MT a $265/MT FOB Qingdao, 2026-09-17). Sin verificar — pendiente de Juan.',
+          'Supplier registered from the live soda ash negotiation (210 MT counter at $265/MT FOB Qingdao, 2026-09-17). Unverified — pending Juan.',
+        ),
+      ],
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  // 1) Rice + diesel — Juan sent the WhatsApp inquiry himself; awaiting prices.
+  if (!store.findDuplicateRfq({ ref: 'RFQ-RICE-DIESEL-0917' })) {
+    store.createRfq({
+      ref: 'RFQ-RICE-DIESEL-0917',
+      product:
+        'Arroz pilado (1–2 contenedores) + diésel nacionalizado (por IBC / por contenedor)',
+      quantity: 0, // awaiting seller prices — missing, never estimated
+      unitCost: 0,
+      sellUnitPrice: 0,
+      incoterms: '',
+      originPort: 'Cuba',
+      destinationPort: 'Cuba',
+      status: 'contacted',
+      notes:
+        'Consulta enviada por Juan vía WhatsApp el 2026-09-17 (hora Chicago): arroz pilado (1–2 contenedores) y diésel nacionalizado (precio por IBC y por contenedor). Mercancía ya en Cuba, lista para nacionalizar — sin logística de importación. Esperando precios del vendedor.',
+      agentNotes: [
+        dealNote(
+          'Juan envió la consulta al vendedor el 2026-09-17. Estado: esperando precios — cantidades y precios quedan en 0 (faltantes), no estimados.',
+          'Juan sent the inquiry to the seller on 2026-09-17. Status: awaiting seller prices — quantity and prices stay 0 (missing), never estimated.',
+        ),
+      ],
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  // 2) Siemens V94.2 gas turbine — $37.5M EXW stated price; fee protection sent.
+  if (!store.findDuplicateRfq({ ref: 'RFQ-SIEMENS-V942-0917' })) {
+    store.createRfq({
+      ref: 'RFQ-SIEMENS-V942-0917',
+      product: 'Turbina de gas Siemens V94.2 (precio declarado $37.5M EXW)',
+      quantity: 1,
+      unitCost: 0, // SAHJONY never buys — cost unknown, reported as missing
+      // sellUnitPrice stays 0 (missing): SAHJONY is broker/intermediary,
+      // commission % unknown — the engine must not invent a $37.5M margin.
+      sellUnitPrice: 0,
+      incoterms: 'EXW',
+      status: 'contacted',
+      notes:
+        'Precio declarado $37.5M EXW. Acuerdo de protección de comisión (fee protection / non-circumvention) enviado al vendedor el 2026-09-17 ~12:45 CDT. Compradores aún no contactados. SAHJONY actúa como bróker por comisión — nunca comprador final, sin capital en riesgo.',
+      agentNotes: [
+        dealNote(
+          'Fee-protection enviado 2026-09-17 ~12:45 CDT; compradores aún no contactados. Comisión % pendiente — queda en 0, no inventada.',
+          'Fee protection sent 2026-09-17 ~12:45 CDT; buyers not yet contacted. Commission % pending — stays 0, not invented.',
+        ),
+      ],
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  // 3) Soda ash via TNJ Chemical — 210 MT @ $265/MT FOB Qingdao countered.
+  if (!store.findDuplicateRfq({ ref: 'RFQ-SODA-ASH-TNJ-0917' })) {
+    store.createRfq({
+      ref: 'RFQ-SODA-ASH-TNJ-0917',
+      product: 'Soda ash (carbonato de sodio)',
+      quantity: 210,
+      unitCost: 265,
+      sellUnitPrice: 0, // sell price not set — missing, not estimated
+      incoterms: 'FOB',
+      originPort: 'Qingdao',
+      supplierId: tnj.id,
+      status: 'quoting',
+      notes:
+        'TNJ Chemical (Katharine Xu) contraofertó 210 MT a $265/MT FOB Qingdao. Su respuesta del 2026-09-17 llegó vacía — solicitud de reenvío redactada, NO enviada (pendiente de Juan).',
+      agentNotes: [
+        dealNote(
+          'Contraoferta real: 210 MT a $265/MT FOB Qingdao. Respuesta del 2026-09-17 vacía; reenvío redactado, no enviado.',
+          'Live counter: 210 MT at $265/MT FOB Qingdao. 2026-09-17 reply arrived empty; resend drafted, not sent.',
+        ),
+      ],
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  return REAL_DEAL_REFS.filter((ref) => store.findDuplicateRfq({ ref }));
+}
+
+export { REAL_DEAL_REFS };

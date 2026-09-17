@@ -24,6 +24,7 @@ import {
   findDuplicateProvider,
   resetCubacashStore,
   reloadCubacashStore,
+  applyAuditSeed,
 } from './providerStore.js';
 
 const SEED_NAMES = [
@@ -461,4 +462,75 @@ test('resetCubacashStore: wipes providers and corridors, unseeds', () => {
   const db = reloadCubacashStore();
   assert.equal(db.providers.length, 6);
   assert.equal(db.seeded, true);
+});
+
+test('applyAuditSeed: adds audit providers/corridors, idempotent, nothing invented', () => {
+  const before = applyAuditSeed();
+  assert.equal(before.providers, 12); // 6 seeds + 6 audit providers
+  assert.equal(before.corridors, 2); // Peru→Cuba + Chile→Cuba
+
+  const byName = (n) => listProviders().find((p) => p.name === n);
+  assert.equal(byName('Money Exchange S.A.').status, 'live');
+  assert.equal(byName('Correo Uruguayo').status, 'live');
+  const inposdom = byName('INPOSDOM');
+  assert.equal(inposdom.status, 'live');
+  assert.ok(
+    inposdom.agentNotes.some((n) => /2025/.test(n.es || '')),
+    'INPOSDOM note flags the 2025 tariff vintage',
+  );
+  assert.equal(byName('TropiPay').status, 'candidate');
+  assert.equal(byName('Lindo').status, 'candidate');
+  assert.equal(byName('Antilla Capital').status, 'candidate');
+
+  // The 6 seeded providers get the audit as-of stamp…
+  for (const name of [
+    'Western Union',
+    'Cubamax',
+    'Sendvalu',
+    'Fonmoney',
+    'Correos España',
+    'Íkualo Rem',
+  ]) {
+    const p = byName(name);
+    assert.ok(
+      p.agentNotes.some((n) => /2026-09-17/.test(n.es || '')),
+      `${name} carries the audit as-of note`,
+    );
+    assert.equal(p.feeModel.pct, null); // still no invented fees
+  }
+
+  // …but GlobalTrust is NOT registered as a provider — observation only.
+  assert.equal(byName('GlobalTrust Express S&E S.A.C.'), undefined);
+
+  const peru = listCorridors().find(
+    (c) => c.fromCountry === 'Peru' && c.toCountry === 'Cuba',
+  );
+  assert.ok(peru);
+  assert.equal(peru.fxRate, null); // observed figure never stored as fxRate
+  assert.equal(peru.providerId, '');
+  assert.ok(
+    peru.agentNotes.some((n) => /GlobalTrust/.test(n.es || '')),
+    'Peru corridor carries the GlobalTrust observation',
+  );
+  const chile = listCorridors().find(
+    (c) => c.fromCountry === 'Chile' && c.toCountry === 'Cuba',
+  );
+  assert.ok(chile);
+  assert.equal(chile.fxRate, null);
+
+  // Idempotent: second run adds nothing.
+  const after = applyAuditSeed();
+  assert.deepEqual(after, before);
+  assert.equal(listProviders().length, 12);
+  assert.equal(listCorridors().length, 2);
+});
+
+test('applyAuditSeed: demotes an existing TropiPay to candidate (audit verdict)', () => {
+  const tp = createProvider({ name: 'TropiPay', status: 'live' });
+  assert.equal(tp.status, 'live');
+  applyAuditSeed();
+  assert.equal(getProvider(tp.id).status, 'candidate');
+  assert.ok(
+    getProvider(tp.id).agentNotes.some((n) => /Degradado|Demoted/.test(n.es || n.en || '')),
+  );
 });

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Crude Brokerage Command Center</title>
 <style>
+html{overflow-x:hidden}
 :root{--bg:#12100a;--card:#1d1a12;--card2:#282417;--txt:#f5f0e1;--mut:#a89f83;--acc:#fbbf24;--grn:#4ade80;--yel:#facc15;--red:#f87171;--brd:#3d3626}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:60px}
@@ -84,7 +85,7 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 /* ============ i18n ============ */
 const T={
 en:{apptitle:"Crude Brokerage",appsub:"Broker for a fee — never the principal buyer or seller.",
-deals:"Deals",counterparties:"Counterparties",adddeal:"Add deal",
+deals:"Deals",counterparties:"Counterparties",adddeal:"Add deal",manage:"Manage",
 opencargoes:"OPEN CARGOES",totvol:"OPEN VOLUME (BBL)",potcomm:"POTENTIAL COMMISSION",cpcount:"COUNTERPARTIES",
 all:"All",addfirstdeal:"No deals yet — add your first one.",addfirstcp:"No counterparties yet — add your first one.",
 save:"Save",cancel:"Cancel",edit:"Edit",del:"Delete",close:"Close",confirmdel:"Delete this record?",
@@ -108,7 +109,7 @@ st_prospect:"Prospect",st_diligence:"Diligence",st_negotiating:"Negotiating",st_
 st_loading:"Loading",st_intransit:"In transit",st_delivered:"Delivered",st_closed:"Closed",st_dead:"Dead",
 detailfor:"Cargo",updated:"Updated",created:"Created"},
 es:{apptitle:"Corretaje de crudo",appsub:"Corredor por comisión — nunca comprador ni vendedor principal.",
-deals:"Negocios",counterparties:"Contrapartes",adddeal:"Agregar",
+deals:"Negocios",counterparties:"Contrapartes",adddeal:"Agregar",manage:"Gestionar",
 opencargoes:"CARGAMENTOS ABIERTOS",totvol:"VOLUMEN ABIERTO (BBL)",potcomm:"COMISIÓN POTENCIAL",cpcount:"CONTRAPARTES",
 all:"Todos",addfirstdeal:"Aún no hay negocios — agrega el primero.",addfirstcp:"Aún no hay contrapartes — agrega la primera.",
 save:"Guardar",cancel:"Cancelar",edit:"Editar",del:"Eliminar",close:"Cerrar",confirmdel:"¿Eliminar este registro?",
@@ -246,6 +247,7 @@ function renderHead(){
  document.getElementById("apptitle").textContent=t("apptitle");
  document.getElementById("appsub").textContent=t("appsub");
  document.getElementById("disclaimer").textContent=t("disclaimer");
+ try{document.documentElement.lang=lang}catch(e){}
  document.getElementById("btnES").classList.toggle("on",lang==="es");
  document.getElementById("btnEN").classList.toggle("on",lang==="en");
  const xl=document.getElementById("xlinks");xl.innerHTML="";
@@ -254,8 +256,8 @@ function renderHead(){
  [["/"],["/insurance/index.html"],["/wholesale/index.html"],["/import-export/index.html"],["/cubacash/index.html"]]
   .forEach((u,i)=>{const a=document.createElement("a");a.href=u[0];a.textContent=xlNames[lang][i];xl.appendChild(a)});
  const vt=document.getElementById("viewtabs");vt.innerHTML="";
- const VHREF={deals:"#deals",counterparties:"#counterparties",add:"#add"};
- [["deals",t("deals")],["counterparties",t("counterparties")],["add",t("adddeal")]].forEach(([v,l])=>{
+ const VHREF={deals:"#deals",counterparties:"#counterparties",add:"#add",manage:"#manage"};
+ [["deals",t("deals")],["counterparties",t("counterparties")],["add",t("adddeal")],["manage",t("manage")]].forEach(([v,l])=>{
   const b=document.createElement("button");b.className="viewtab"+(VIEW===v?" on":"");b.textContent=l;
   b.onclick=()=>{location.hash=VHREF[v]};vt.appendChild(b)})}
 function pill(st){return '<span class="pill st-'+st+'">'+t(ST_LABEL[st]||st)+"</span>"}
@@ -489,7 +491,7 @@ function importData(){
   r.readAsText(f)};
  i.click()}
 /* ============ view routing ============ */
-const VIEWHASH={deals:"deals",counterparties:"counterparties",add:"add"};
+const VIEWHASH={deals:"deals",counterparties:"counterparties",add:"add",manage:"manage"};
 function applyHash(){try{const h=String(location.hash||"").replace("#","").toLowerCase();
  if(VIEWHASH[h]){VIEW=VIEWHASH[h];render();return true}}catch(e){}return false}
 if(typeof window!=="undefined")window.addEventListener("hashchange",applyHash);
@@ -498,13 +500,111 @@ function render(){
  const m=document.getElementById("main");m.innerHTML="";
  if(VIEW==="deals")renderDeals(m);
  else if(VIEW==="counterparties")renderCounterparties(m);
+ else if(VIEW==="manage")renderManage(m);
  else renderAdd(m)}
 function setLang(l){lang=(l==="en")?"en":"es";
  try{localStorage.setItem(LANG_KEY,lang)}catch(e){}render()}
 document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeSheet()});
 try{const sl=localStorage.getItem(LANG_KEY);if(sl==="en"||sl==="es")lang=sl}catch(e){}
+/* ============ Gestionar / Manage — single-operator console ============ */
+/* ============ Gestionar / Manage — single-operator console (crude) ============ */
+const MGMT_BIZ="crude";
+const AP_KEY="sahjony.gev.approvals.v1",TR_KEY="sahjony.gev.triage.v1",WF_KEY="sahjony.gev.workforce.v1";
+const MGMT_KINDS=[["document","LOI","LOI"],["outreach","Alcance a contraparte","Counterparty outreach draft"]];
+const MG={es:{tabA:"Aprobaciones",tabP:"Pipeline",tabI:"Bandeja",tabW:"Equipo IA",apprH:"Aprobaciones — Crudo",safe:"Tocar aprobar o rechazar solo registra tu decisión. No envía, publica, compra, firma ni ejecuta nada externo.",kind:"Tipo",title:"Título",summary:"Resumen",save:"Guardar borrador",pend:"Pendientes",dec:"Decididas",approve:"Aprobar",reject:"Rechazar",none:"Sin pendientes. Todo al día.",focus:"Primer fee de bróker: verificación de contrapartes y economía del trato primero.",pipeH:"Pipeline — prioridad a ingresos",mvTo:"Mover a",notePh:"Nota de Juan…",addNote:"Añadir nota",inboxH:"Bandeja — WhatsApp",imp:"Importar JSON",impPh:'[{"from":"Nombre","message":"Texto"}]',doImp:"Importar",impBad:"JSON inválido o vacío.",impDone:"importadas, omitidas",addFrom:"De (nombre)",addMsg:"Mensaje",addC:"Añadir",empty:"Sin conversaciones. Importa JSON o añade la primera.",stNew:"nuevo",stRev:"revisado",stDone:"atendido",mark:"Avanzar",del:"Eliminar",wfH:"Equipo IA — Crudo",wfEmpty:"Sin datos del equipo aún. La app principal registra la actividad del equipo aquí.",wfNeed:"Necesita a Juan",wfRunning:"activo",wfIdle:"pausado",wfAgents:"agentes",wfLast:"Última acción",apprBy:"Decidida por Juan"},en:{tabA:"Approvals",tabP:"Pipeline",tabI:"Inbox",tabW:"AI team",apprH:"Approvals — Crude",safe:"Tapping approve or reject only records your decision. It never sends, posts, buys, signs, or executes anything external.",kind:"Kind",title:"Title",summary:"Summary",save:"Save draft",pend:"Pending",dec:"Decided",approve:"Approve",reject:"Reject",none:"Nothing pending. All caught up.",focus:"First broker fee: counterparty verification and deal economics first.",pipeH:"Pipeline — revenue first",mvTo:"Move to",notePh:"Juan's note…",addNote:"Add note",inboxH:"Inbox — WhatsApp",imp:"Import JSON",impPh:'[{"from":"Name","message":"Text"}]',doImp:"Import",impBad:"Invalid or empty JSON.",impDone:"imported, skipped",addFrom:"From (name)",addMsg:"Message",addC:"Add",empty:"No conversations. Import JSON or add the first one.",stNew:"new",stRev:"reviewed",stDone:"done",mark:"Advance",del:"Delete",wfH:"AI team — Crude",wfEmpty:"No team data yet. The main app records team activity here.",wfNeed:"Needs Juan",wfRunning:"running",wfIdle:"paused",wfAgents:"agents",wfLast:"Last action",apprBy:"Decided by Juan"}};
+let MGMT_TAB="approvals";
+function mg(k){return (MG[lang]&&MG[lang][k])||k}
+function mgKind(id){const k=MGMT_KINDS.find(x=>x[0]===id);return k?(lang==="es"?k[1]:k[2]):id}
+/* approvals — shared queue contract (src/approvals/ via module bridge).
+   The module script in the host HTML exposes window.__gevApprovals backed by
+   approvalStore + approvalSection. Same localStorage key
+   "sahjony.gev.approvals.v1": no second store, no divergence. */
+function _ga(){return window.__gevApprovals||null}
+function apList(st){const g=_ga();if(!g)return[];try{return g.list(MGMT_BIZ,st||null)}catch(e){return[]}}
+function apCreate(kind,ti,su){const g=_ga();if(!g)return null;try{return g.create(MGMT_BIZ,{kind:kind,titleEs:ti,titleEn:ti,summaryEs:su||ti,summaryEn:su||ti,payload:null})}catch(e){return null}}
+function apDecide(id,ok){const g=_ga();if(!g)return;try{g.decide(id,ok);render()}catch(e){}}
+function mgSaveApproval(){const kind=document.getElementById("mg_ap_kind").value;const ti=document.getElementById("mg_ap_title").value.trim();const su=document.getElementById("mg_ap_sum").value.trim();if(!ti)return;apCreate(kind,ti,su);render()}
+function mgMountApprovals(){const g=_ga();if(!g)return;try{g.mountSection("mg_apr_panel",MGMT_BIZ,lang)}catch(e){}}
+/* triage store */
+function trDoc(){try{const d=JSON.parse(localStorage.getItem(TR_KEY));if(d&&Array.isArray(d.items))return d}catch(e){}return{version:1,items:[]}}
+function trSave(d){try{localStorage.setItem(TR_KEY,JSON.stringify(d))}catch(e){}}
+function trList(){return trDoc().items.filter(i=>i.businessId===MGMT_BIZ).sort((a,b)=>String(b.receivedAt).localeCompare(String(a.receivedAt)))}
+function trAdd(fr,ms){const d=trDoc();d.items.push({id:"tr-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8),businessId:MGMT_BIZ,from:fr,message:ms,receivedAt:chicagoIso(),status:"new"});trSave(d);render()}
+function trCycle(id){const d=trDoc();const it=d.items.find(x=>x.id===id);if(!it)return;it.status=it.status==="new"?"reviewed":it.status==="reviewed"?"done":"new";trSave(d);render()}
+function trDel(id){const d=trDoc();d.items=d.items.filter(x=>x.id!==id);trSave(d);render()}
+function trAddForm(){const f=document.getElementById("mg_tr_from").value.trim(),m=document.getElementById("mg_tr_msg").value.trim();if(!f||!m)return;trAdd(f,m)}
+function trImport(){const ta=document.getElementById("mg_tr_json");let arr;try{arr=JSON.parse(ta.value)}catch(e){alert(mg("impBad"));return}if(!Array.isArray(arr)){alert(mg("impBad"));return}let added=0,skipped=0;const d=trDoc();arr.forEach(e=>{if(e&&typeof e.from==="string"&&typeof e.message==="string"){d.items.push({id:"tr-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8),businessId:MGMT_BIZ,from:e.from.slice(0,120),message:e.message.slice(0,2000),receivedAt:chicagoIso(),status:"new"});added++}else skipped++});trSave(d);alert(added+" "+mg("impDone").split(",")[0]+", "+skipped+" "+mg("impDone").split(",")[1]);render()}
+/* workforce snapshot */
+function wfBiz(){try{const d=JSON.parse(localStorage.getItem(WF_KEY));if(d&&d.businesses)return d.businesses[MGMT_BIZ]||null}catch(e){}return null}
+function wfNeeds(){return apList("pending").length+trDoc().items.filter(i=>i.businessId===MGMT_BIZ&&i.status!=="done").length}
+/* pipeline (crude) — revenue first: best deal economics + verification first */
+function mgmtPipelineItems(){return S.cargoes.map(c=>{let net=0;try{net=netPerBbl(c)||0}catch(e){}let ver="";try{const sup=c.supplierId?S.counterparties.find(x=>x.id===c.supplierId):null;ver=sup&&sup.verification?sup.verification:""}catch(e){}return{id:c.id,title:c.name||"—",sub:"$"+net.toFixed(2)+"/bbl net"+(ver?" · "+ver:""),_n:net,stage:c.status}}).sort((a,b)=>b._n-a._n)}
+function mgmtMoveCargo(id,st){const c=S.cargoes.find(x=>x.id===id);if(!c)return;c.status=coerceStatus(st);c.updatedAt=chicagoIso();save();render()}
+function mgmtNote(id){const c=S.cargoes.find(x=>x.id===id);if(!c)return;const v=document.getElementById("mg-note-"+id).value.trim();if(!v)return;c.agentNotes=c.agentNotes||[];c.agentNotes.push({agent:"Juan Gonzalez",es:v,en:v,at:chicagoIso()});c.updatedAt=chicagoIso();save();render()}
+/* render */
+function renderManage(m){
+ let h='<div class="viewtabs">';
+ ["approvals","pipeline","inbox","workforce"].forEach(t2=>{h+='<button class="viewtab'+(MGMT_TAB===t2?" on":"")+'" onclick="MGMT_TAB=\''+t2+'\';render()">'+mg("tab"+({approvals:"A",pipeline:"P",inbox:"I",workforce:"W"}[t2]))+"</button>"});
+ h+="</div>";
+ if(MGMT_TAB==="approvals")h+=mgmtApprovalsHtml();
+ else if(MGMT_TAB==="pipeline")h+=mgmtPipelineHtml();
+ else if(MGMT_TAB==="inbox")h+=mgmtInboxHtml();
+ else h+=mgmtWorkforceHtml();
+ m.innerHTML=h;
+ if(MGMT_TAB==="approvals")mgMountApprovals();
+}
+function mgmtApprovalsHtml(){
+ let h='<div class="card"><h3>'+mg("apprH")+'</h3><div class="mut" style="margin-bottom:10px">🔒 '+mg("safe")+'</div>';
+ h+='<label>'+mg("kind")+'</label><select id="mg_ap_kind">'+MGMT_KINDS.map(k=>'<option value="'+k[0]+'">'+(lang==="es"?k[1]:k[2])+"</option>").join("")+"</select>";
+ h+='<label>'+mg("title")+'</label><input id="mg_ap_title" maxlength="140">';
+ h+='<label>'+mg("summary")+'</label><textarea id="mg_ap_sum" rows="2" maxlength="2000"></textarea>';
+ h+='<div class="row"><button class="btn" onclick="mgSaveApproval()">'+mg("save")+"</button></div></div>";
+ h+='<div id="mg_apr_panel"></div>';
+ return h;
+}
+function mgmtPipelineHtml(){
+ const items=mgmtPipelineItems();
+ let h='<div class="card"><h3>'+mg("pipeH")+'</h3><div class="mut" style="margin-bottom:10px">🎯 '+mg("focus")+"</div>";
+ h+=items.length?items.map(it=>'<div class="card"><div><b>'+esc(it.title)+'</b></div><div class="mut">'+esc(it.sub)+'</div><label>'+mg("mvTo")+'</label><select onchange="mgmtMoveCargo(\''+it.id+'\',this.value)">'+STATUSES.map(s=>'<option value="'+s+'"'+(it.stage===s?" selected":"")+'>'+t(ST_LABEL[s]||s)+"</option>").join("")+'</select><label>'+mg("notePh")+'</label><div class="row"><input id="mg-note-'+it.id+'" maxlength="500" placeholder="'+mg("notePh")+'"><button class="btn sec" onclick="mgmtNote(\''+it.id+'\')">'+mg("addNote")+"</button></div></div>").join(""):'<div class="mut">—</div>';
+ return h+"</div>";
+}
+function mgmtInboxHtml(){
+ const items=trList();
+ let h='<div class="card"><h3>'+mg("inboxH")+'</h3>';
+ h+='<label>'+mg("imp")+'</label><textarea id="mg_tr_json" rows="3" placeholder=\''+mg("impPh")+'\'></textarea><div class="row"><button class="btn sec" onclick="trImport()">'+mg("doImp")+"</button></div>";
+ h+='<label>'+mg("addFrom")+'</label><input id="mg_tr_from" maxlength="120"><label>'+mg("addMsg")+'</label><textarea id="mg_tr_msg" rows="2" maxlength="2000"></textarea><div class="row"><button class="btn" onclick="trAddForm()">'+mg("addC")+"</button></div></div>";
+ h+='<div class="card">'+(items.length?items.map(i=>'<div class="card"><div><b>'+esc(i.from)+'</b> <span class="pill">'+mg({new:"stNew",reviewed:"stRev",done:"stDone"}[i.status])+'</span></div><div class="mut">'+esc(i.message)+'</div><div class="mut">'+esc(String(i.receivedAt).slice(0,16).replace("T"," "))+'</div><div class="row"><button class="btn sec" onclick="trCycle(\''+i.id+'\')">'+mg("mark")+'</button><button class="btn sec" onclick="trDel(\''+i.id+'\')">'+mg("del")+"</button></div></div>").join(""):'<div class="mut">'+mg("empty")+"</div>")+"</div>";
+ return h;
+}
+function mgmtWorkforceHtml(){
+ const wf=wfBiz(),need=wfNeeds();
+ let h='<div class="card"><h3>'+mg("wfH")+'</h3>';
+ if(!wf){h+='<div class="mut">'+mg("wfEmpty")+'</div>'}
+ else{h+='<div class="mut">● '+(wf.running?mg("wfRunning"):mg("wfIdle"))+' · '+(wf.agents||[]).length+" "+mg("wfAgents")+'</div>';
+  h+=(wf.agents||[]).map(a=>'<div class="card"><div><b>'+esc(a.name||a.id)+'</b></div><div class="mut">'+(a.lastAction?mg("wfLast")+": "+esc(a.lastAction):"")+"</div></div>").join("")}
+ h+='<div class="card"><div><b>'+mg("wfNeed")+': '+need+'</b></div><div class="mut">'+apList("pending").length+" "+mg("pend").toLowerCase()+" · "+trDoc().items.filter(i=>i.businessId===MGMT_BIZ&&i.status!=="done").length+" "+mg("inboxH").split("—")[0].trim().toLowerCase()+"</div></div>";
+ return h+"</div>";
+}
+
+/* /Gestionar */
 load();
 if(!applyHash())render();
 </script>
+<!-- Shared approval queue bridge — paste before </body> in the standalone screen.
+     Uses ONE localStorage key ("sahjony.gev.approvals.v1") via src/approvals/.
+     Tap-only decisions: approve/reject record decisions, never execute. -->
+<script type="module">
+import * as approvalStore from '../../src/approvals/approvalStore.js';
+import { mountApprovalSection } from '../../src/approvals/approvalSection.js';
+window.__gevApprovals = {
+  list: (businessId, status) => approvalStore.listApprovals(businessId, status),
+  create: (businessId, draft) => approvalStore.createApproval(businessId, draft),
+  decide: (id, ok) =>
+    ok ? approvalStore.approveApproval(id) : approvalStore.rejectApproval(id),
+  mountSection: (elId, businessId, lang) =>
+    mountApprovalSection(document.getElementById(elId), { businessId, lang }),
+};
+</script>
+
 </body>
 </html>

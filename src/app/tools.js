@@ -48,6 +48,7 @@ import {
 import { parseCargoCsv as parseCrudeCsv } from '../crude/cargoImporter.js';
 import { initTankerMapLayer } from '../crude/tankerMapLayer.js';
 import { initCrudeDashboard } from '../crude/crudeDashboard.js';
+import { openApprovalPanel } from '../approvals/approvalPanel.js';
 import { createWorkforce as createCrudeWorkforce } from '../agents/crudeWorkforce.js';
 import { initCrudeWorkforcePanel } from '../agents/crudeWorkforcePanel.js';
 // Insurance Command Center: shared coverage/claims store, pure insurance
@@ -114,6 +115,40 @@ import { parseCubacashCsv as parseCubacashCsv } from '../cubacash/corridorImport
 import { initCorridorMapLayer } from '../cubacash/corridorMapLayer.js';
 import { initCubacashDashboard } from '../cubacash/cubacashDashboard.js';
 import { createWorkforce as createCubacashWorkforce } from '../agents/cubacashWorkforce.js';
+// Management consoles: one per business station — approval queue, pipeline
+// management, inbound triage, workforce oversight. Single-operator: Juan taps
+// decisions; approval taps record the decision ONLY (shared approval contract).
+import { initManagementConsole } from '../management/managementConsole.js';
+import {
+  createApproval as apCreate,
+  listAuditLog as apListAuditLog,
+  approvalStats as apApprovalStats,
+} from '../approvals/approvalStore.js';
+import { mountApprovalPanel as apMountPanel } from '../approvals/approvalPanel.js';
+import {
+  addTriageItem as trAddItem,
+  listTriage as trList,
+  updateTriage as trUpdate,
+  importTriageJson as trImportJson,
+} from '../management/triageStore.js';
+import {
+  STATUSES as WS_STATUSES,
+  STATUS_LABELS as WS_STATUS_LABELS,
+} from '../wholesale/leadStore.js';
+import { assignmentFee as wsAssignmentFee, rankBuyer as wsRankBuyer } from '../wholesale/dealEngine.js';
+import {
+  CARGO_STATUSES as CO_CARGO_STATUSES,
+  STATUS_LABELS as CO_STATUS_LABELS,
+} from '../crude/counterpartyStore.js';
+import { netPerBbl as coNetPerBbl } from '../crude/cargoEngine.js';
+import { STATUSES as TR_STATUSES } from '../trade/tradeDashboard.js';
+import {
+  PROVIDER_STATUSES as CC_PROVIDER_STATUSES,
+  STATUS_LABELS as CC_STATUS_LABELS,
+} from '../cubacash/providerStore.js';
+// Real-data backfills (2026-09-17 audits): idempotent, real records only.
+import { applyRealDealSeed as trApplyRealDealSeed } from '../trade/supplierStore.js';
+import { applyAuditSeed as ccApplyAuditSeed } from '../cubacash/providerStore.js';
 import { installScopeMask, destroyScopeMask } from '../scopeMask.js';
 import {
   installRenderGovernor,
@@ -436,6 +471,7 @@ export function createApplicationTools({
     leadMap,
     workforce,
     signal,
+    onOpenManagement: (tab) => openManagement('wholesale', tab),
     parseCsv: (text) => {
       try {
         return parseWholesaleCsv(text).leads;
@@ -621,6 +657,7 @@ export function createApplicationTools({
     tankerMap,
     workforce: crudeWorkforce,
     signal,
+    onOpenManagement: (tab) => openManagement('crude', tab),
     parseCsv: parseCrudeCsv,
   });
   defer(() => {
@@ -867,12 +904,16 @@ export function createApplicationTools({
   debug.tradeWorkforce = tradeWorkforce;
   // Mission-control dashboard (trade): KPIs, 6-status RFQ pipeline, RFQ
   // drawer, supplier manager, CSV import/export, commission drafts.
+  // Real deal backfill (2026-09-17 audit): rice/diesel inquiry, Siemens V94.2,
+  // soda ash via TNJ Chemical. Idempotent — real data only, never estimated.
+  try { trApplyRealDealSeed(); } catch { /* backfill is best-effort */ }
   const tradeDashboard = initTradeDashboard({
     rfqStore: tradeStore,
     rfqEngine: tradeEngine,
     shippingMap,
     workforce: tradeWorkforce,
     signal,
+    onOpenManagement: (tab) => openManagement('trade', tab),
     parseCsv: parseTradeCsv,
   });
   defer(() => {
@@ -1033,12 +1074,16 @@ export function createApplicationTools({
   // Mission-control dashboard (MY CUBA CASH): KPIs with honest beta stats,
   // provider pipeline, provider drawer with corridor math, corridor manager,
   // fee comparison, CSV import/export, internal comparison drafts.
+  // Provider-audit backfill (2026-09-17 ~15:00 CDT): verified/candidate
+  // providers + Peru/Chile corridors. Idempotent — real data only.
+  try { ccApplyAuditSeed(); } catch { /* backfill is best-effort */ }
   const cubacashDashboard = initCubacashDashboard({
     providerStore: cubacashStore,
     corridorEngine: cubacashEngine,
     corridorMap,
     workforce: cubacashWorkforce,
     signal,
+    onOpenManagement: (tab) => openManagement('cubacash', tab),
     parseCsv: parseCubacashCsv,
   });
   defer(() => {
@@ -1077,6 +1122,309 @@ export function createApplicationTools({
     }
   });
   debug.businessLauncher = businessLauncher;
+  // ---- Management consoles (one per business station) ----------------------
+  // Approval queue + pipeline + inbox triage + workforce oversight.
+  // Single-operator: Juan taps the decisions; the AI workforce does the work.
+  // Approval taps record the decision ONLY — nothing auto-executes, ever.
+  const gevMgmtLang = () => {
+    try { return localStorage.getItem('sahjony.gev.lang') === 'en' ? 'en' : 'es'; }
+    catch { return 'es'; }
+  };
+  const mgmtStages = (ids, labels) =>
+    ids.map((id) => ({ id, es: labels?.[id]?.es || id, en: labels?.[id]?.en || id }));
+  function workforceSummaryOf(wf) {
+    try {
+      return {
+        running: !!wf.running,
+        agents: (wf.agents || []).map((a) => ({
+          id: a.id, name: a.name, role: a.role, status: a.status,
+          lastAction: a.lastAction || null,
+        })),
+      };
+    } catch { return null; }
+  }
+  // Kind ids MUST be valid in the shared contract (src/approvals/approvalEngine.js):
+  // draft | offer | document | outreach | reply | post.
+  const APPROVAL_KINDS = {
+    wholesale: [
+      { id: 'offer', es: 'Borrador de oferta', en: 'Offer draft' },
+      { id: 'document', es: 'Borrador de contrato', en: 'Contract draft' },
+      { id: 'outreach', es: 'Mensaje de contacto', en: 'Outreach message' },
+    ],
+    crude: [
+      { id: 'document', es: 'Borrador LOI', en: 'LOI draft' },
+      { id: 'outreach', es: 'Contacto contraparte', en: 'Counterparty outreach' },
+    ],
+    trade: [
+      { id: 'draft', es: 'Borrador RFQ', en: 'RFQ draft' },
+      { id: 'outreach', es: 'Contacto proveedor', en: 'Supplier outreach' },
+      { id: 'reply', es: 'Respuesta cotización', en: 'Quote reply' },
+    ],
+    cubacash: [
+      { id: 'post', es: 'Contenido proveedor', en: 'Provider content' },
+      { id: 'reply', es: 'Respuesta cliente', en: 'Customer reply' },
+    ],
+  };
+  function managementAdapter(businessId) {
+    const triageAdapter = {
+      list: (status) => trList(businessId, status),
+      add: (data) => trAddItem(businessId, data),
+      update: (id, patch) => trUpdate(id, patch),
+      importJson: (text) => trImportJson(businessId, text),
+    };
+    // Shared approval queue contract: the composer creates via createApproval;
+    // the queue UI itself mounts from approvalPanel (tap-only decisions).
+    const approvalsAdapter = {
+      kinds: APPROVAL_KINDS[businessId] || [],
+      create: (draft) => apCreate(businessId, draft),
+      mountPanel: (container, lang) => apMountPanel(container, { businessId, lang }),
+      audit: () => apListAuditLog(businessId),
+      countPending: () => apApprovalStats(businessId).pending,
+    };
+    if (businessId === 'wholesale') {
+      return {
+        name: { es: 'Mayoreo', en: 'Wholesale' },
+        approvals: approvalsAdapter,
+        triage: triageAdapter,
+        pipeline: {
+          // REVENUE FIRST: first assignment fee — buyers ranked by the REAL
+          // fee engine (assignmentFee / rankBuyer per lead+buyer), never raw
+          // lead score. Deadline risk: Oct 6 auction (see focus banner).
+          focus: {
+            es: 'Primera comisión: compradores ordenados por fee real alcanzable. Ojo: subasta 6 oct.',
+            en: 'First assignment fee: buyers ranked by real achievable fee. Watch: Oct 6 auction.',
+          },
+          stages: mgmtStages(WS_STATUSES, WS_STATUS_LABELS),
+          items: () => {
+            try {
+              const buyers = wsListBuyers();
+              return wsListLeads().map((l) => {
+                let best = null;
+                for (const b of buyers) {
+                  const buyMax = b.maxOffer ?? b.buyBox?.maxPrice ?? 0;
+                  try {
+                    const r = wsRankBuyer({
+                      buyerMaxOffer: buyMax,
+                      contractPrice: l.contractPrice,
+                      targetFee: l.targetFee,
+                    });
+                    if (!best || r.fee > best.fee) best = { ...r, buyer: b.name };
+                  } catch { /* keep best */ }
+                }
+                const fee = best ? best.fee : 0;
+                return {
+                  id: l.id,
+                  title: l.address || l.id,
+                  subtitle: best
+                    ? `${best.buyer || '—'}: $${Number(fee).toLocaleString('en-US')}`
+                    : (l.score != null ? `score ${l.score}` : ''),
+                  stage: l.status,
+                  _fee: Number(fee) || 0,
+                };
+              }).sort((a, b) => b._fee - a._fee);
+            } catch { return []; }
+          },
+          setStage: (id, stage) => {
+            try { wsMoveLead(id, stage); return true; }
+            catch { return false; }
+          },
+          addNote: (id, text) => {
+            try { wsAddAgentNote(id, 'juan', text, text); return true; }
+            catch { return false; }
+          },
+        },
+        workforce: { snapshot: () => workforceSummaryOf(workforce) },
+      };
+    }
+    if (businessId === 'crude') {
+      return {
+        name: { es: 'Crudo', en: 'Crude' },
+        approvals: approvalsAdapter,
+        triage: triageAdapter,
+        pipeline: {
+          // REVENUE FIRST: first broker fee — counterparty verification +
+          // deal economics front and center, best $/bbl first.
+          focus: {
+            es: 'Primer fee de bróker: verificación de contrapartes y economía del trato primero.',
+            en: 'First broker fee: counterparty verification and deal economics first.',
+          },
+          stages: mgmtStages(CO_CARGO_STATUSES, CO_STATUS_LABELS),
+          items: () => {
+            try {
+              return coListCargoes().map((c) => {
+                let net = 0;
+                try { net = coNetPerBbl(c) || 0; } catch { /* noop */ }
+                let verif = '';
+                try {
+                  const sup = c.supplierId ? coGetCounterparty(c.supplierId) : null;
+                  verif = sup ? sup.verification : '';
+                } catch { /* noop */ }
+                return {
+                  id: c.id,
+                  title: c.name || c.id,
+                  subtitle: `$${net.toFixed(2)}/bbl net` + (verif ? ` · ${verif}` : ''),
+                  stage: c.status,
+                  _net: net,
+                };
+              }).sort((a, b) => b._net - a._net);
+            } catch { return []; }
+          },
+          setStage: (id, stage) => {
+            try { coMoveCargo(id, stage); return true; }
+            catch { return false; }
+          },
+          addNote: (id, text) => {
+            try { coAddCargoNote(id, 'juan', text, text); return true; }
+            catch { return false; }
+          },
+        },
+        workforce: { snapshot: () => workforceSummaryOf(crudeWorkforce) },
+      };
+    }
+    if (businessId === 'trade') {
+      return {
+        name: { es: 'Comercio', en: 'Trade' },
+        approvals: approvalsAdapter,
+        triage: triageAdapter,
+        pipeline: {
+          // REVENUE FIRST: the live rice/diesel inquiry (awaiting seller
+          // prices) is pinned first; Siemens + soda ash tracked secondary.
+          focus: {
+            es: 'Arroz/diésel primero — esperando precios del vendedor. Siemens y soda ash en seguimiento.',
+            en: 'Rice/diesel first — awaiting seller prices. Siemens and soda ash tracked secondary.',
+          },
+          stages: TR_STATUSES.map((s) => ({ id: s.id, es: s.es, en: s.en })),
+          items: () => {
+            try {
+              const order = { negotiating: 0, quoting: 1, contacted: 2, prospect: 3, won: 4, lost: 5 };
+              return trListRfqs().map((r) => ({
+                id: r.id,
+                title: `${r.ref} · ${r.product}`,
+                subtitle: r.status,
+                stage: r.status,
+                _pinned: r.ref === 'RFQ-RICE-DIESEL-0917' ? 0 : 1,
+                _order: order[r.status] ?? 9,
+              })).sort((a, b) => a._pinned - b._pinned || a._order - b._order);
+            } catch { return []; }
+          },
+          setStage: (id, stage) => {
+            try { trMoveRfq(id, stage); return true; }
+            catch { return false; }
+          },
+          addNote: (id, text) => {
+            try { trAddRfqNote(id, 'juan', text, text); return true; }
+            catch { return false; }
+          },
+        },
+        workforce: { snapshot: () => workforceSummaryOf(tradeWorkforce) },
+      };
+    }
+    // cubacash
+    return {
+      name: { es: 'MY CUBA CASH', en: 'MY CUBA CASH' },
+      approvals: approvalsAdapter,
+      triage: triageAdapter,
+      pipeline: {
+        // REVENUE FIRST: goal = 25 real transactions in 90 days — live
+        // providers first (readiness), fee clarity in the subtitle.
+        focus: {
+          es: 'Meta: 25 transacciones reales en 90 días — proveedores en vivo primero, tarifas claras.',
+          en: 'Goal: 25 real transactions in 90 days — live providers first, clear fees.',
+        },
+        stages: mgmtStages(CC_PROVIDER_STATUSES, CC_STATUS_LABELS),
+        items: () => {
+          try {
+            const order = { live: 0, verifying: 1, candidate: 2, paused: 3 };
+            return ccListProviders().map((p) => {
+              const fm = p.feeModel || {};
+              const fee = fm.type && fm.type !== 'undisclosed'
+                ? `${fm.type}${fm.pct != null ? ` ${fm.pct}%` : ''}`
+                : null;
+              return {
+                id: p.id,
+                title: p.name,
+                subtitle: fee || 'fee pending / tarifa pendiente',
+                stage: p.status,
+                _order: order[p.status] ?? 9,
+              };
+            }).sort((a, b) => a._order - b._order);
+          } catch { return []; }
+        },
+        setStage: (id, stage) => {
+          try { ccMoveProvider(id, stage); return true; }
+          catch { return false; }
+        },
+        addNote: (id, text) => {
+          try { ccAddProviderNote(id, 'juan', text, text); return true; }
+          catch { return false; }
+        },
+      },
+      workforce: { snapshot: () => workforceSummaryOf(cubacashWorkforce) },
+    };
+  }
+  const mgmtConsoles = {};
+  function getManagementConsole(businessId) {
+    if (mgmtConsoles[businessId]) return mgmtConsoles[businessId];
+    const adapter = managementAdapter(businessId);
+    if (!adapter || typeof document === 'undefined') return null;
+    const c = initManagementConsole({
+      businessId,
+      businessName: adapter.name,
+      getLang: gevMgmtLang,
+      approvals: adapter.approvals,
+      pipeline: adapter.pipeline,
+      triage: adapter.triage,
+      workforce: adapter.workforce,
+      onClose: () => {},
+    });
+    document.body.appendChild(c.el);
+    mgmtConsoles[businessId] = c;
+    return c;
+  }
+  function openManagement(businessId, tab) {
+    try { getManagementConsole(businessId)?.open(tab || 'approvals'); }
+    catch { /* noop */ }
+  }
+  // Workforce snapshot for the standalone phone screens
+  // (sahjony.gev.workforce.v1) — real data only, throttled.
+  const WORKFORCE_SNAPSHOT_KEY = 'sahjony.gev.workforce.v1';
+  let wfSnapLast = 0;
+  function writeWorkforceSnapshot(force) {
+    const now = Date.now();
+    if (!force && now - wfSnapLast < 30000) return;
+    wfSnapLast = now;
+    try {
+      const snap = { at: new Date().toISOString(), businesses: {} };
+      const put = (id, wf) => {
+        const s = workforceSummaryOf(wf);
+        if (!s) return;
+        snap.businesses[id] = {
+          running: s.running,
+          agents: s.agents.map((a) => ({
+            id: a.id, name: a.name, status: a.status,
+            lastActionAt: (a.lastAction && (a.lastAction.t || a.lastAction.at)) || null,
+            lastActionEs: (a.lastAction && a.lastAction.es) || '',
+            lastActionEn: (a.lastAction && a.lastAction.en) || '',
+          })),
+        };
+      };
+      put('wholesale', workforce);
+      put('crude', crudeWorkforce);
+      put('trade', tradeWorkforce);
+      put('cubacash', cubacashWorkforce);
+      localStorage.setItem(WORKFORCE_SNAPSHOT_KEY, JSON.stringify(snap));
+    } catch { /* snapshot is best-effort */ }
+  }
+
+  try {
+    for (const wf of [workforce, crudeWorkforce, tradeWorkforce, cubacashWorkforce]) {
+      if (wf && typeof wf.onActivity === 'function') {
+        wf.onActivity(() => writeWorkforceSnapshot(false));
+      }
+    }
+  } catch { /* noop */ }
+  writeWorkforceSnapshot(true);
+
   // SAHJONY VOZ — free bilingual (ES/EN) voice commander. Dedicated action
   // runner driving the same GEV actions; no API keys, no cost.
   const sahjonyVoice = initSahjonyVoice({
@@ -1142,6 +1490,7 @@ export function createApplicationTools({
         } catch {
           /* noop */
         }
+        writeWorkforceSnapshot(true);
         try {
           workforcePanel.open?.();
         } catch {
@@ -1154,8 +1503,20 @@ export function createApplicationTools({
         } catch {
           /* noop */
         }
+        writeWorkforceSnapshot(true);
       },
       __crude_open: () => crudeDashboard.toggle?.() ?? crudeDashboard.open?.(),
+      __approvals_list: (args) => {
+        try {
+          openApprovalPanel(
+            args && typeof args.businessId === 'string' && args.businessId
+              ? args.businessId
+              : null,
+          );
+        } catch {
+          /* openApprovalPanel is DOM-safe; ignore */
+        }
+      },
       __crude_status: () =>
         crudeDashboard.toggle?.() ?? crudeDashboard.open?.(),
       __crude_best: () => {

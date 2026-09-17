@@ -98,7 +98,7 @@ export function targetSellPrice({
 /** Net margin total: sellUnitPrice*quantity - landedCostTotal. */
 export function netMarginTotal(rfq = {}) {
   if (!rfq || typeof rfq !== 'object') return 0;
-  if (!hasNumber(rfq.sellUnitPrice) || !hasNumber(rfq.quantity)) return 0;
+  if (!hasMoney(rfq.sellUnitPrice) || !hasNumber(rfq.quantity)) return 0;
   const revenue = safeNum(rfq.sellUnitPrice) * safeNum(rfq.quantity);
   return revenue - landedCostTotal(rfq);
 }
@@ -106,7 +106,7 @@ export function netMarginTotal(rfq = {}) {
 /** Net margin as a fraction of revenue. 0 when revenue is missing/invalid. */
 export function netMarginPct(rfq = {}) {
   if (!rfq || typeof rfq !== 'object') return 0;
-  if (!hasNumber(rfq.sellUnitPrice) || !hasNumber(rfq.quantity)) return 0;
+  if (!hasMoney(rfq.sellUnitPrice) || !hasNumber(rfq.quantity)) return 0;
   const revenue = safeNum(rfq.sellUnitPrice) * safeNum(rfq.quantity);
   if (revenue <= 0) return 0;
   return netMarginTotal(rfq) / revenue;
@@ -115,7 +115,7 @@ export function netMarginPct(rfq = {}) {
 /** Broker commission total: sellUnitPrice*quantity*(commissionPct/100). */
 export function commissionAmount(rfq = {}) {
   if (!rfq || typeof rfq !== 'object') return 0;
-  if (!hasNumber(rfq.sellUnitPrice) || !hasNumber(rfq.quantity)) return 0;
+  if (!hasMoney(rfq.sellUnitPrice) || !hasNumber(rfq.quantity)) return 0;
   const revenue = safeNum(rfq.sellUnitPrice) * safeNum(rfq.quantity);
   return revenue * (safeNum(rfq.commissionPct) / 100);
 }

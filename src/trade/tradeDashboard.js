@@ -762,6 +762,7 @@ const TD_CSS = `
 #gev-trade-panel .tdp-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(56,189,248,.18)}
 #gev-trade-panel .tdp-title{font-size:15px;font-weight:800;letter-spacing:.1em;color:#7dd3fc;flex:1}
 #gev-trade-panel .tdp-lang{background:none;border:1px solid rgba(56,189,248,.4);color:#7dd3fc;border-radius:10px;padding:10px 14px;cursor:pointer;font-size:13px;font-weight:800;font-family:inherit;min-height:44px}
+#gev-trade-panel .tdp-manage{padding:5px 12px;border-radius:10px;border:1px solid rgba(125,211,252,.35);background:rgba(125,211,252,.1);color:#eaf4ff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;min-height:44px}
 #gev-trade-panel .tdp-close{background:none;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;min-width:44px;min-height:44px;cursor:pointer;font-size:18px}
 #gev-trade-panel .tdp-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 14px;border-bottom:1px solid rgba(56,189,248,.18)}
 #gev-trade-panel .tdp-kpi{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);border-radius:10px;padding:10px}
@@ -842,6 +843,7 @@ export function initTradeDashboard({
   workforce = null,
   signal = null,
   parseCsv = parseRfqsCsv,
+  onOpenManagement = null,
 } = {}) {
   injectStyles();
   const store = adaptStore(rfqStore);
@@ -1678,6 +1680,7 @@ export function initTradeDashboard({
     panelEl.innerHTML = `
       <div class="tdp-head">
         <div class="tdp-title">COMERCIO · MISSION CONTROL</div>
+        <button class="tdp-manage" type="button">⚙️ Gestionar / Manage</button>
         <button class="tdp-lang" type="button">ES / EN</button>
         <button class="tdp-close" type="button" aria-label="Cerrar / close">✕</button>
       </div>
@@ -1699,6 +1702,8 @@ export function initTradeDashboard({
     refs.importStatus = panelEl.querySelector('.tdp-status');
     const langBtn = panelEl.querySelector('.tdp-lang');
     const closeBtn = panelEl.querySelector('.tdp-close');
+    const manageBtn = panelEl.querySelector('.tdp-manage');
+    if (manageBtn) manageBtn.addEventListener('click', () => { try { onOpenManagement && onOpenManagement('approvals'); } catch {} });
 
     const fileInput = document.createElement('input');
     fileInput.type = 'file';

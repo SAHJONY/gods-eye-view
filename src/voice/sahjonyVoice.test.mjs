@@ -224,3 +224,94 @@ test('parse: cuba-cash provider intent is disambiguated from generic supplier ph
     '__cubacash_providers',
   );
 });
+
+test('parse: import/export trade intents (ES/EN)', () => {
+  assert.equal(parseSahjonyCommand('abre comercio').action, '__trade_open');
+  assert.equal(parseSahjonyCommand('open trade').action, '__trade_open');
+  assert.equal(
+    parseSahjonyCommand('muéstrame los proveedores').action,
+    '__trade_open',
+  );
+  assert.equal(
+    parseSahjonyCommand('show me suppliers').action,
+    '__trade_open',
+  );
+  assert.equal(
+    parseSahjonyCommand('muéstrame las rutas de envío').action,
+    '__trade_open',
+  );
+  assert.equal(
+    parseSahjonyCommand('show me shipping routes').action,
+    '__trade_open',
+  );
+  assert.equal(parseSahjonyCommand('mejores rfq').action, '__trade_best');
+  assert.equal(parseSahjonyCommand('best rfqs').action, '__trade_best');
+  assert.equal(
+    parseSahjonyCommand('estado del comercio').action,
+    '__trade_status',
+  );
+  assert.equal(parseSahjonyCommand('trade status').action, '__trade_status');
+  assert.equal(
+    parseSahjonyCommand('analiza este rfq').action,
+    '__trade_analyze',
+  );
+  assert.equal(parseSahjonyCommand('analyze this rfq').action, '__trade_analyze');
+  assert.equal(
+    parseSahjonyCommand('inicia los agentes de comercio').action,
+    '__trade_workforce_start',
+  );
+  assert.equal(
+    parseSahjonyCommand('start the trade workforce').action,
+    '__trade_workforce_start',
+  );
+  assert.equal(
+    parseSahjonyCommand('pausa los agentes de comercio').action,
+    '__trade_workforce_pause',
+  );
+  assert.equal(
+    parseSahjonyCommand('pause the trade workforce').action,
+    '__trade_workforce_pause',
+  );
+});
+
+test('parse: business-qualified workforce phrases win over the generic wholesale ones', () => {
+  // Generic phrases still route to the wholesale workforce…
+  assert.equal(
+    parseSahjonyCommand('inicia los agentes').action,
+    '__workforce_start',
+  );
+  assert.equal(
+    parseSahjonyCommand('pausa los agentes').action,
+    '__workforce_pause',
+  );
+  // …but qualified phrases must NOT be swallowed by the generic pattern.
+  assert.equal(
+    parseSahjonyCommand('inicia los agentes de comercio').action,
+    '__trade_workforce_start',
+  );
+  assert.equal(
+    parseSahjonyCommand('deten los agentes de comercio').action,
+    '__trade_workforce_pause',
+  );
+  assert.equal(
+    parseSahjonyCommand('inicia los agentes de crudo').action,
+    '__crude_workforce_start',
+  );
+  assert.equal(
+    parseSahjonyCommand('pausa los agentes de crudo').action,
+    '__crude_workforce_pause',
+  );
+  assert.equal(
+    parseSahjonyCommand('deten los agentes de crudo').action,
+    '__crude_workforce_pause',
+  );
+  // English qualified phrases already worked and must keep working.
+  assert.equal(
+    parseSahjonyCommand('start the trade workforce').action,
+    '__trade_workforce_start',
+  );
+  assert.equal(
+    parseSahjonyCommand('start the crude workforce').action,
+    '__crude_workforce_start',
+  );
+});

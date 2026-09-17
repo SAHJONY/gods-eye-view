@@ -561,3 +561,153 @@ export const reloadCubacashStore = () => {
   store.seedIfEmpty();
   return store.db;
 };
+
+// ---- Provider-audit backfill (2026-09-17 audit) ------------------------------
+// MY CUBA CASH provider audit as of 2026-09-17 ~15:00 (America/Chicago).
+// Runs explicitly (called once from app startup and from the standalone
+// screen) — never from the constructor/seedIfEmpty, so unit tests keep the
+// exact 6-name seed. Idempotent: providers key on normalized name,
+// corridors on the from→to pair, audit notes key on the audit marker.
+// Audit facts only — no invented fees, rates, or providers.
+const AUDIT_MARKER = 'auditoría de proveedores 2026-09-17';
+
+export function applyAuditSeed() {
+  const now = chicagoIso();
+  const auditNote = (es, en) => ({ at: now, agent: 'sahjony', es, en });
+  const hasAuditNote = (record) =>
+    (record.agentNotes || []).some(
+      (n) =>
+        String(n.es || '').includes(AUDIT_MARKER) ||
+        String(n.en || '').includes('provider audit 2026-09-17'),
+    );
+
+  // 1) Stamp the 6 seeded providers with the audit as-of (once each).
+  for (const name of SEED_PROVIDERS) {
+    const p = store.findDuplicateProvider({ name });
+    if (p && !hasAuditNote(p)) {
+      p.agentNotes.push(
+        auditNote(
+          'Verificado en la auditoría de proveedores 2026-09-17 (~15:00 hora Chicago) — reclamable. Tarifas pendientes de ingreso por Juan.',
+          'Verified in the provider audit 2026-09-17 (~15:00 Chicago time) — claimable. Fees pending entry by Juan.',
+        ),
+      );
+      p.updatedAt = now;
+    }
+  }
+  if (store.db.providers.some((p) => SEED_PROVIDERS.includes(p.name))) {
+    store.save();
+  }
+
+  // 2) Providers from the audit: add or refresh to the audited status.
+  const auditProviders = [
+    {
+      name: 'Money Exchange S.A.',
+      status: 'live',
+      es: 'Verificado en la auditoría de proveedores 2026-09-17 (~15:00 hora Chicago). Tarifas pendientes de ingreso por Juan.',
+      en: 'Verified in the provider audit 2026-09-17 (~15:00 Chicago time). Fees pending entry by Juan.',
+    },
+    {
+      name: 'Correo Uruguayo',
+      status: 'live',
+      es: 'Verificado en la auditoría de proveedores 2026-09-17 (~15:00 hora Chicago). Tarifas pendientes de ingreso por Juan.',
+      en: 'Verified in the provider audit 2026-09-17 (~15:00 Chicago time). Fees pending entry by Juan.',
+    },
+    {
+      name: 'INPOSDOM',
+      status: 'live',
+      es: 'Verificado en la auditoría de proveedores 2026-09-17 (~15:00 hora Chicago). ATENCIÓN: su tarifa vigente es de 2025 — pendiente actualización a 2026.',
+      en: 'Verified in the provider audit 2026-09-17 (~15:00 Chicago time). NOTE: its current tariff is vintage 2025 — pending update to 2026.',
+    },
+    {
+      name: 'TropiPay',
+      status: 'candidate',
+      es: 'Degradado a candidato en la auditoría de proveedores 2026-09-17 (~15:00 hora Chicago) — pendiente re-verificación.',
+      en: 'Demoted to candidate in the provider audit 2026-09-17 (~15:00 Chicago time) — pending re-verification.',
+    },
+    {
+      name: 'Lindo',
+      status: 'candidate',
+      es: 'Candidato identificado en la auditoría de proveedores 2026-09-17 (~15:00 hora Chicago) — pendiente verificación.',
+      en: 'Candidate identified in the provider audit 2026-09-17 (~15:00 Chicago time) — pending verification.',
+    },
+    {
+      name: 'Antilla Capital',
+      status: 'candidate',
+      es: 'Candidato identificado en la auditoría de proveedores 2026-09-17 (~15:00 hora Chicago) — pendiente verificación.',
+      en: 'Candidate identified in the provider audit 2026-09-17 (~15:00 Chicago time) — pending verification.',
+    },
+  ];
+  for (const { name, status, es, en } of auditProviders) {
+    let p = store.findDuplicateProvider({ name });
+    if (!p) {
+      p = store.createProvider({
+        name,
+        status,
+        createdAt: now,
+        updatedAt: now,
+      });
+    } else if (p.status !== status) {
+      p.status = status;
+    }
+    if (!hasAuditNote(p)) {
+      p.agentNotes.push(auditNote(es, en));
+      p.updatedAt = now;
+    }
+  }
+  store.save();
+
+  // 3) New corridors from the audit (no providers, no rates — never invented).
+  const corridorExists = (from, to) => {
+    const norm = (s) => String(s || '').trim().toLowerCase();
+    return store
+      .listCorridors()
+      .some(
+        (c) => norm(c.fromCountry) === norm(from) && norm(c.toCountry) === norm(to),
+      );
+  };
+  if (!corridorExists('Peru', 'Cuba')) {
+    store.createCorridor({
+      fromCountry: 'Peru',
+      toCountry: 'Cuba',
+      providerId: '',
+      sendAmount: 0,
+      fxRate: null,
+      fxRateAsOf: '',
+      notes:
+        'Corredor nuevo identificado en la auditoría de proveedores 2026-09-17. Proveedor pendiente de verificación — ver notas del agente.',
+      agentNotes: [
+        auditNote(
+          'OBSERVACIÓN (no verificado) 2026-09-17: GlobalTrust Express S&E S.A.C. anuncia entrega en efectivo multi-provincia en la ruta Perú→Cuba a 1 USD = 870 CUP. Cifra publicitaria observada — NO es una cotización confirmada ni un proveedor verificado. No registrar como proveedor hasta verificar.',
+          'OBSERVATION (unverified) 2026-09-17: GlobalTrust Express S&E S.A.C. advertises multi-province cash delivery on the Peru→Cuba route at 1 USD = 870 CUP. Observed advertised figure — NOT a confirmed quote nor a verified provider. Do not register as a provider until verified.',
+        ),
+      ],
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+  if (!corridorExists('Chile', 'Cuba')) {
+    store.createCorridor({
+      fromCountry: 'Chile',
+      toCountry: 'Cuba',
+      providerId: '',
+      sendAmount: 0,
+      fxRate: null,
+      fxRateAsOf: '',
+      notes:
+        'Corredor nuevo identificado en la auditoría de proveedores 2026-09-17. Proveedor y tarifas pendientes de verificación.',
+      agentNotes: [
+        auditNote(
+          'Corredor Chile→Cuba registrado como nuevo en la auditoría de proveedores 2026-09-17. Sin proveedor ni tasa verificados.',
+          'Chile→Cuba corridor registered as new in the provider audit 2026-09-17. No verified provider or rate.',
+        ),
+      ],
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  return {
+    providers: store.listProviders().length,
+    corridors: store.listCorridors().length,
+  };
+}

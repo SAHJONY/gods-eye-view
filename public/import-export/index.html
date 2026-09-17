@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Import/Export Trade — SAHJONY</title>
 <style>
+html{overflow-x:hidden}
 :root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--txt:#f1f5f9;--mut:#94a3b8;--acc:#38bdf8;--grn:#4ade80;--yel:#facc15;--red:#f87171;--brd:#334155}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:110px}
@@ -83,7 +84,7 @@ en:{appsub:"RFQ pipeline + suppliers for the import/export business. SAHJONY act
 broker:"SAHJONY is a business broker for a fee. It never buys goods, never puts capital at risk — it connects sellers and buyers and earns on closed deals.",
 site:"🌐 Open sahjony.com",
 nav_home:"🏠 Home",nav_ins:"🛡️ Insurance",nav_who:"🏠 Wholesale",nav_cru:"🛢️ Crude",nav_cc:"💸 Cuba Cash",
-trfqs:"RFQs",tsup:"Suppliers",tadd:"Add RFQ",
+trfqs:"RFQs",tsup:"Suppliers",tadd:"Add RFQ",tmanage:"Manage",
 k_total:"TOTAL RFQS",k_open:"OPEN RFQS",k_comm:"POTENTIAL COMMISSION",k_sup:"SUPPLIERS",
 norfs:"No RFQs yet — add your first one",nosup:"No suppliers yet — add your first one",
 norfqs_status:"No RFQs in this status yet.",
@@ -108,13 +109,13 @@ r_supplier:"Supplier",r_buyer:"Buyer",r_both:"Both",
 ver_unverified:"Unverified",ver_in_review:"In review",ver_verified:"Verified",ver_flagged:"Flagged",
 export:"Export backup",import:"Import backup",badfile:"Bad file — import cancelled.",
 impreplace:"Importing replaces all RFQs and suppliers on this device. Continue?",
-missing:"Missing",
+missing:"Missing",awaiting:"\u23f3 Pending (awaiting seller)",
 disclaimer:"Broker-for-a-fee tool: SAHJONY never takes custody of goods or funds. Verify every counterparty, contract term, and price independently before committing. Nothing here is legal or financial advice."},
 es:{appsub:"Pipeline de RFQs + proveedores del negocio de importación/exportación. SAHJONY actúa como bróker por comisión — nunca es el comprador final.",
 broker:"SAHJONY es un bróker de negocios por comisión. Nunca compra mercancías ni arriesga capital — conecta vendedores y compradores y gana en los tratos cerrados.",
 site:"🌐 Abrir sahjony.com",
 nav_home:"🏠 Inicio",nav_ins:"🛡️ Seguros",nav_who:"🏠 Mayoreo",nav_cru:"🛢️ Crudo",nav_cc:"💸 Cuba Cash",
-trfqs:"RFQs",tsup:"Proveedores",tadd:"Agregar RFQ",
+trfqs:"RFQs",tsup:"Proveedores",tadd:"Agregar RFQ",tmanage:"Gestionar",
 k_total:"RFQS TOTALES",k_open:"RFQS ABIERTOS",k_comm:"COMISIÓN POTENCIAL",k_sup:"PROVEEDORES",
 norfs:"Aún no hay RFQs — agrega el primero",nosup:"Sin proveedores — agrega el primero",
 norfqs_status:"Sin RFQs en este estado.",
@@ -139,9 +140,9 @@ r_supplier:"Proveedor",r_buyer:"Comprador",r_both:"Ambos",
 ver_unverified:"Sin verificar",ver_in_review:"En revisión",ver_verified:"Verificado",ver_flagged:"Marcado",
 export:"Exportar respaldo",import:"Importar respaldo",badfile:"Archivo inválido — importación cancelada.",
 impreplace:"Importar reemplaza todos los RFQs y proveedores en este dispositivo. ¿Continuar?",
-missing:"Faltan",
+missing:"Faltan",awaiting:"⏳ Pendiente (esperando vendedor)",
 disclaimer:"Herramienta de bróker por comisión: SAHJONY nunca toma custodia de mercancías ni fondos. Verifique cada contraparte, término contractual y precio de forma independiente antes de comprometerse. Nada aquí es asesoría legal o financiera."}};
-let lang="en"; const t=k=>T[lang][k]||k;
+let lang="es"; const t=k=>T[lang][k]||k;
 /* ============ store ============ */
 const KEY="sahjony.trade.v1";
 const LANGKEY="sahjony.gev.lang";
@@ -154,7 +155,8 @@ function load(){try{S=JSON.parse(localStorage.getItem(KEY))||null}catch(e){S=nul
  if(!S||!Array.isArray(S.rfqs)||!Array.isArray(S.suppliers))S={rfqs:[],suppliers:[]};
  if(!Array.isArray(S.rfqs))S.rfqs=[];if(!Array.isArray(S.suppliers))S.suppliers=[]}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function setLang(l){lang=l==="es"?"es":"en";try{localStorage.setItem(LANGKEY,lang)}catch(e){}render()}
+function chicagoIso(){return nowIso()}
+function setLang(l){lang=l==="es"?"es":"en";try{localStorage.setItem(LANGKEY,lang)}catch(e){}try{document.documentElement.lang=lang}catch(e){}render()}
 function supName(id){if(!id)return t("none");const s=S.suppliers.find(x=>x.id===id);return s&&s.name?s.name:t("none")}
 function statusPillClass(st){if(st==="won")return "green";if(["contacted","quoting","negotiating"].includes(st))return "yellow";if(st==="lost")return "red";return "gray"}
 /* ============ deal economics (same formulas as the trade rfq engine) ============ */
@@ -162,9 +164,9 @@ const num=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
 function landedTotal(r){return num(r.unitCost)*num(r.quantity)+num(r.freight)+num(r.duties)+num(r.otherCosts)}
 function landedUnit(r){const q=num(r.quantity);return q>0?landedTotal(r)/q:0}
 function revenue(r){return num(r.sellUnitPrice)*num(r.quantity)}
-function netMargin(r){return revenue(r)-landedTotal(r)}
+function netMargin(r){return num(r.sellUnitPrice)>0?revenue(r)-landedTotal(r):0}
 function netMarginPct(r){const rev=revenue(r);return rev>0?netMargin(r)/rev:0}
-function commission(r){return revenue(r)*num(r.commissionPct)/100}
+function commission(r){return num(r.sellUnitPrice)>0?revenue(r)*num(r.commissionPct)/100:0}
 function econScore(r){
  let s=0;
  if(num(r.unitCost)>0&&num(r.sellUnitPrice)>0)s+=30;
@@ -187,7 +189,7 @@ function verdict(r){
 }
 function money(n){const v=Number(n)||0;return "$"+v.toLocaleString("en-US",{maximumFractionDigits:2})}
 /* ============ hash routing ============ */
-const VIEWS={rfqs:"rfqs",suppliers:"suppliers",add:"add"};
+const VIEWS={rfqs:"rfqs",suppliers:"suppliers",add:"add",manage:"manage"};
 let view="rfqs";
 function applyHash(){const h=String(location.hash||"").replace("#","").toLowerCase();view=VIEWS[h]||"rfqs";render();return true}
 if(typeof window!=="undefined")window.addEventListener("hashchange",applyHash);
@@ -203,11 +205,11 @@ function render(){
  [["/",t("nav_home")],["/insurance/index.html",t("nav_ins")],["/wholesale/index.html",t("nav_who")],["/crude/index.html",t("nav_cru")],["/cubacash/index.html",t("nav_cc")]].forEach(([u,l])=>{
   const a=document.createElement("a");a.className="xlink";a.href=u;a.textContent=l;xl.appendChild(a)});
  const vt=document.getElementById("viewtabs");vt.innerHTML="";
- [["rfqs",t("trfqs")],["suppliers",t("tsup")],["add",t("tadd")]].forEach(([v,l])=>{
+ [["rfqs",t("trfqs")],["suppliers",t("tsup")],["add",t("tadd")],["manage",t("tmanage")]].forEach(([v,l])=>{
   const b=document.createElement("button");b.className="viewtab"+(view===v?" on":"");b.textContent=l;
   b.onclick=()=>{location.hash=v};vt.appendChild(b)});
  const m=document.getElementById("main");
- if(view==="suppliers")renderSuppliers(m);else if(view==="add")renderAddRfq(m);else renderRfqs(m);
+ if(view==="suppliers")renderSuppliers(m);else if(view==="add")renderAddRfq(m);else if(view==="manage")renderManage(m);else renderRfqs(m);
 }
 function kpiCards(){
  const open=S.rfqs.filter(r=>OPEN.includes(r.status));
@@ -250,9 +252,9 @@ function openRfq(id){
  +'<span class="pill '+statusPillClass(r.status)+'">'+statusLabel(r.status)+"</span>"
  +'<span class="pill '+v+'">'+t("v_"+v)+"</span>"
  +'<div class="kv"><span>'+t("product")+"</span><b>"+esc(r.product||t("none"))+"</b></div>"
- +'<div class="kv"><span>'+t("quantity")+"</span><b>"+num(r.quantity).toLocaleString("en-US")+"</b></div>"
+ +'<div class="kv"><span>'+t("quantity")+"</span><b>"+(num(r.quantity)>0?num(r.quantity).toLocaleString("en-US"):t("awaiting"))+"</b></div>"
  +'<div class="kv"><span>'+t("unitcost")+"</span><b>"+money(r.unitCost)+"</b></div>"
- +'<div class="kv"><span>'+t("sellunitprice")+"</span><b>"+money(r.sellUnitPrice)+"</b></div>"
+ +'<div class="kv"><span>'+t("sellunitprice")+"</span><b>"+(num(r.sellUnitPrice)>0?money(r.sellUnitPrice):t("awaiting"))+"</b></div>"
  +'<div class="kv"><span>'+t("incoterms")+"</span><b>"+esc(r.incoterms||t("none"))+"</b></div>"
  +'<div class="kv"><span>'+t("originport")+"</span><b>"+esc(r.originPort||t("none"))+"</b></div>"
  +'<div class="kv"><span>'+t("destport")+"</span><b>"+esc(r.destinationPort||t("none"))+"</b></div>"
@@ -279,6 +281,7 @@ function openRfq(id){
  openSheet(h);
 }
 function delRfq(id){if(!confirm(t("confirmdel")))return;S.rfqs=S.rfqs.filter(x=>x.id!==id);save();closeSheet();render()}
+function updateRfqStatus(id,st){const r=S.rfqs.find(x=>x.id===id);if(!r||!STATUSES.includes(st))return;r.status=st;r.updatedAt=nowIso();save();render()}
 function statusOpts(sel){return STATUSES.map(s=>'<option value="'+s+'"'+(s===sel?" selected":"")+">"+statusLabel(s)+"</option>").join("")}
 function supOpts(sel){return '<option value="">'+t("none")+"</option>"+S.suppliers.map(s=>'<option value="'+s.id+'"'+(s.id===sel?" selected":"")+">"+esc(s.name||"—")+"</option>").join("")}
 /* ============ RFQ add / edit ============ */
@@ -386,6 +389,39 @@ function saveSupplier(id){
  save();closeSheet();render();
 }
 function delSupplier(id){if(!confirm(t("confirmdel")))return;S.suppliers=S.suppliers.filter(x=>x.id!==id);save();render()}
+/* ============ real-deal seed (mirror of src/trade applyRealDealSeed, 2026-09-17) ============
+   Real data only — prices stay 0 (missing) wherever the seller has not quoted. */
+function seedRealDeals(){
+ const now=nowIso();
+ const note=(es,en)=>({at:now,agent:"sahjony",es:es,en:en});
+ if(!S.suppliers.some(s=>String(s.name||"").toLowerCase()==="tnj chemical")){
+  S.suppliers.push({id:uid(),name:"TNJ Chemical",type:"manufacturer",role:"supplier",country:"China",verification:"unverified",
+   notes:"Soda ash supplier \u2014 Katharine Xu (sales). In active negotiation on the 210 MT soda ash RFQ; verification pending Juan.",
+   agentNotes:[note("Proveedor registrado desde la negociaci\u00f3n real de soda ash (contraoferta 210 MT a $265/MT FOB Qingdao, 2026-09-17). Sin verificar \u2014 pendiente de Juan.","Supplier registered from the live soda ash negotiation (210 MT counter at $265/MT FOB Qingdao, 2026-09-17). Unverified \u2014 pending Juan.")],
+   createdAt:now,updatedAt:now});
+ }
+ const tnj=S.suppliers.find(s=>String(s.name||"").toLowerCase()==="tnj chemical");
+ const hasRfq=ref=>S.rfqs.some(r=>r.ref===ref);
+ if(!hasRfq("RFQ-RICE-DIESEL-0917"))S.rfqs.push({id:uid(),ref:"RFQ-RICE-DIESEL-0917",
+  product:"Arroz pilado (1\u20132 contenedores) + di\u00e9sel nacionalizado (por IBC / por contenedor)",
+  quantity:0,unitCost:0,sellUnitPrice:0,incoterms:"",originPort:"Cuba",destinationPort:"Cuba",status:"contacted",
+  notes:"Consulta enviada por Juan v\u00eda WhatsApp el 2026-09-17 (hora Chicago): arroz pilado (1\u20132 contenedores) y di\u00e9sel nacionalizado (precio por IBC y por contenedor). Mercanc\u00eda ya en Cuba, lista para nacionalizar \u2014 sin log\u00edstica de importaci\u00f3n. Esperando precios del vendedor.",
+  agentNotes:[note("Juan envi\u00f3 la consulta al vendedor el 2026-09-17. Estado: esperando precios \u2014 cantidades y precios quedan en 0 (faltantes), no estimados.","Juan sent the inquiry to the seller on 2026-09-17. Status: awaiting seller prices \u2014 quantity and prices stay 0 (missing), never estimated.")],
+  createdAt:now,updatedAt:now});
+ if(!hasRfq("RFQ-SIEMENS-V942-0917"))S.rfqs.push({id:uid(),ref:"RFQ-SIEMENS-V942-0917",
+  product:"Turbina de gas Siemens V94.2 (precio declarado $37.5M EXW)",
+  quantity:1,unitCost:0,sellUnitPrice:0,incoterms:"EXW",status:"contacted",
+  notes:"Precio declarado $37.5M EXW. Acuerdo de protecci\u00f3n de comisi\u00f3n (fee protection / non-circumvention) enviado al vendedor el 2026-09-17 ~12:45 CDT. Compradores a\u00fan no contactados. SAHJONY act\u00faa como br\u00f3ker por comisi\u00f3n \u2014 nunca comprador final, sin capital en riesgo.",
+  agentNotes:[note("Fee-protection enviado 2026-09-17 ~12:45 CDT; compradores a\u00fan no contactados. Comisi\u00f3n % pendiente \u2014 queda en 0, no inventada.","Fee protection sent 2026-09-17 ~12:45 CDT; buyers not yet contacted. Commission % pending \u2014 stays 0, not invented.")],
+  createdAt:now,updatedAt:now});
+ if(!hasRfq("RFQ-SODA-ASH-TNJ-0917"))S.rfqs.push({id:uid(),ref:"RFQ-SODA-ASH-TNJ-0917",
+  product:"Soda ash (carbonato de sodio)",quantity:210,unitCost:265,sellUnitPrice:0,
+  incoterms:"FOB",originPort:"Qingdao",supplierId:tnj?tnj.id:"",status:"quoting",
+  notes:"TNJ Chemical (Katharine Xu) contraofert\u00f3 210 MT a $265/MT FOB Qingdao. Su respuesta del 2026-09-17 lleg\u00f3 vac\u00eda \u2014 solicitud de reenv\u00edo redactada, NO enviada (pendiente de Juan).",
+  agentNotes:[note("Contraoferta real: 210 MT a $265/MT FOB Qingdao. Respuesta del 2026-09-17 vac\u00eda; reenv\u00edo redactado, no enviado.","Live counter: 210 MT at $265/MT FOB Qingdao. 2026-09-17 reply arrived empty; resend drafted, not sent.")],
+  createdAt:now,updatedAt:now});
+ save();
+}
 /* ============ JSON backup ============ */
 function exportData(){
  const blob=new Blob([JSON.stringify(S)],{type:"application/json"});
@@ -401,15 +437,113 @@ function importData(){
  }catch(e){alert(t("badfile"))}};r.readAsText(i.files[0])};
  i.click();
 }
+/* ============ Gestionar / Manage \u2014 single-operator console ============ */
+/* ============ Gestionar / Manage — single-operator console (trade) ============ */
+const MGMT_BIZ="trade";
+const AP_KEY="sahjony.gev.approvals.v1",TR_KEY="sahjony.gev.triage.v1",WF_KEY="sahjony.gev.workforce.v1";
+const MGMT_KINDS=[["draft","Borrador RFQ","RFQ draft"],["outreach","Alcance a proveedor","Supplier outreach"],["reply","Respuesta de cotización","Quote reply"]];
+const MG={es:{tabA:"Aprobaciones",tabP:"Pipeline",tabI:"Bandeja",tabW:"Equipo IA",apprH:"Aprobaciones — Comercio",safe:"Tocar aprobar o rechazar solo registra tu decisión. No envía, publica, compra, firma ni ejecuta nada externo.",kind:"Tipo",title:"Título",summary:"Resumen",save:"Guardar borrador",pend:"Pendientes",dec:"Decididas",approve:"Aprobar",reject:"Rechazar",none:"Sin pendientes. Todo al día.",focus:"Arroz/diésel primero — esperando precios del vendedor. Siemens y soda ash en seguimiento.",pipeH:"Pipeline — prioridad a ingresos",margin:"Margen",await:"en espera de precio",mvTo:"Mover a",notePh:"Nota de Juan…",addNote:"Añadir nota",inboxH:"Bandeja — WhatsApp",imp:"Importar JSON",impPh:'[{"from":"Nombre","message":"Texto"}]',doImp:"Importar",impBad:"JSON inválido o vacío.",impDone:"importadas, omitidas",addFrom:"De (nombre)",addMsg:"Mensaje",addC:"Añadir",empty:"Sin conversaciones. Importa JSON o añade la primera.",stNew:"nuevo",stRev:"revisado",stDone:"atendido",mark:"Avanzar",del:"Eliminar",wfH:"Equipo IA — Comercio",wfEmpty:"Sin datos del equipo aún. La app principal registra la actividad del equipo aquí.",wfNeed:"Necesita a Juan",wfRunning:"activo",wfIdle:"pausado",wfAgents:"agentes",wfLast:"Última acción",apprBy:"Decidida por Juan"},en:{tabA:"Approvals",tabP:"Pipeline",tabI:"Inbox",tabW:"AI team",apprH:"Approvals — Trade",safe:"Tapping approve or reject only records your decision. It never sends, posts, buys, signs, or executes anything external.",kind:"Kind",title:"Title",summary:"Summary",save:"Save draft",pend:"Pending",dec:"Decided",approve:"Approve",reject:"Reject",none:"Nothing pending. All caught up.",focus:"Rice/diesel first — awaiting seller prices. Siemens and soda ash tracked secondary.",pipeH:"Pipeline — revenue first",margin:"Margin",await:"awaiting price",mvTo:"Move to",notePh:"Juan's note…",addNote:"Add note",inboxH:"Inbox — WhatsApp",imp:"Import JSON",impPh:'[{"from":"Name","message":"Text"}]',doImp:"Import",impBad:"Invalid or empty JSON.",impDone:"imported, skipped",addFrom:"From (name)",addMsg:"Message",addC:"Add",empty:"No conversations. Import JSON or add the first one.",stNew:"new",stRev:"reviewed",stDone:"done",mark:"Advance",del:"Delete",wfH:"AI team — Trade",wfEmpty:"No team data yet. The main app records team activity here.",wfNeed:"Needs Juan",wfRunning:"running",wfIdle:"paused",wfAgents:"agents",wfLast:"Last action",apprBy:"Decided by Juan"}};
+let MGMT_TAB="approvals";
+function mg(k){return (MG[lang]&&MG[lang][k])||k}
+function mgKind(id){const k=MGMT_KINDS.find(x=>x[0]===id);return k?(lang==="es"?k[1]:k[2]):id}
+/* approvals — shared queue contract (src/approvals/ via module bridge).
+   The module script in the host HTML exposes window.__gevApprovals backed by
+   approvalStore + approvalSection. Same localStorage key
+   "sahjony.gev.approvals.v1": no second store, no divergence. */
+function _ga(){return window.__gevApprovals||null}
+function apList(st){const g=_ga();if(!g)return[];try{return g.list(MGMT_BIZ,st||null)}catch(e){return[]}}
+function apCreate(kind,ti,su){const g=_ga();if(!g)return null;try{return g.create(MGMT_BIZ,{kind:kind,titleEs:ti,titleEn:ti,summaryEs:su||ti,summaryEn:su||ti,payload:null})}catch(e){return null}}
+function apDecide(id,ok){const g=_ga();if(!g)return;try{g.decide(id,ok);render()}catch(e){}}
+function mgSaveApproval(){const kind=document.getElementById("mg_ap_kind").value;const ti=document.getElementById("mg_ap_title").value.trim();const su=document.getElementById("mg_ap_sum").value.trim();if(!ti)return;apCreate(kind,ti,su);render()}
+function mgMountApprovals(){const g=_ga();if(!g)return;try{g.mountSection("mg_apr_panel",MGMT_BIZ,lang)}catch(e){}}
+/* triage store */
+function trDoc(){try{const d=JSON.parse(localStorage.getItem(TR_KEY));if(d&&Array.isArray(d.items))return d}catch(e){}return{version:1,items:[]}}
+function trSave(d){try{localStorage.setItem(TR_KEY,JSON.stringify(d))}catch(e){}}
+function trList(){return trDoc().items.filter(i=>i.businessId===MGMT_BIZ).sort((a,b)=>String(b.receivedAt).localeCompare(String(a.receivedAt)))}
+function trAdd(fr,ms){const d=trDoc();d.items.push({id:"tr-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8),businessId:MGMT_BIZ,from:fr,message:ms,receivedAt:chicagoIso(),status:"new"});trSave(d);render()}
+function trCycle(id){const d=trDoc();const it=d.items.find(x=>x.id===id);if(!it)return;it.status=it.status==="new"?"reviewed":it.status==="reviewed"?"done":"new";trSave(d);render()}
+function trDel(id){const d=trDoc();d.items=d.items.filter(x=>x.id!==id);trSave(d);render()}
+function trAddForm(){const f=document.getElementById("mg_tr_from").value.trim(),m=document.getElementById("mg_tr_msg").value.trim();if(!f||!m)return;trAdd(f,m)}
+function trImport(){const ta=document.getElementById("mg_tr_json");let arr;try{arr=JSON.parse(ta.value)}catch(e){alert(mg("impBad"));return}if(!Array.isArray(arr)){alert(mg("impBad"));return}let added=0,skipped=0;const d=trDoc();arr.forEach(e=>{if(e&&typeof e.from==="string"&&typeof e.message==="string"){d.items.push({id:"tr-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8),businessId:MGMT_BIZ,from:e.from.slice(0,120),message:e.message.slice(0,2000),receivedAt:chicagoIso(),status:"new"});added++}else skipped++});trSave(d);alert(added+" "+mg("impDone").split(",")[0]+", "+skipped+" "+mg("impDone").split(",")[1]);render()}
+/* workforce snapshot */
+function wfBiz(){try{const d=JSON.parse(localStorage.getItem(WF_KEY));if(d&&d.businesses)return d.businesses[MGMT_BIZ]||null}catch(e){}return null}
+function wfNeeds(){return apList("pending").length+trDoc().items.filter(i=>i.businessId===MGMT_BIZ&&i.status!=="done").length}
+/* pipeline (trade) — revenue first: rice/diesel pinned */
+const MGMT_ORDER={negotiating:0,quoting:1,contacted:2,prospect:3,won:4,lost:5};
+function mgmtPipelineItems(){return S.rfqs.map(r=>({id:r.id,title:(r.ref||"—")+" · "+(r.product||"—"),sub:statusLabel(r.status)+" · "+mg("margin")+": "+(num(r.sellUnitPrice)>0?money(netMargin(r)):mg("await")),_pin:r.ref==="RFQ-RICE-DIESEL-0917"?0:1,_o:MGMT_ORDER[r.status]!=null?MGMT_ORDER[r.status]:9,stage:r.status})).sort((a,b)=>a._pin-b._pin||a._o-b._o)}
+function mgmtRfqNote(id){const r=S.rfqs.find(x=>x.id===id);if(!r)return;const v=document.getElementById("mg-note-"+id).value.trim();if(!v)return;r.agentNotes=r.agentNotes||[];r.agentNotes.push({agent:"Juan Gonzalez",es:v,en:v,at:chicagoIso()});save();render()}
+/* render */
+function renderManage(m){
+ let h='<div class="viewtabs">';
+ ["approvals","pipeline","inbox","workforce"].forEach(t2=>{h+='<button class="viewtab'+(MGMT_TAB===t2?" on":"")+'" onclick="MGMT_TAB=\''+t2+'\';render()">'+mg("tab"+({approvals:"A",pipeline:"P",inbox:"I",workforce:"W"}[t2]))+"</button>"});
+ h+="</div>";
+ if(MGMT_TAB==="approvals")h+=mgmtApprovalsHtml();
+ else if(MGMT_TAB==="pipeline")h+=mgmtPipelineHtml();
+ else if(MGMT_TAB==="inbox")h+=mgmtInboxHtml();
+ else h+=mgmtWorkforceHtml();
+ m.innerHTML=h;
+ if(MGMT_TAB==="approvals")mgMountApprovals();
+}
+function mgmtApprovalsHtml(){
+ let h='<div class="card"><h3>'+mg("apprH")+'</h3><div class="mut" style="margin-bottom:10px">🔒 '+mg("safe")+'</div>';
+ h+='<label>'+mg("kind")+'</label><select id="mg_ap_kind">'+MGMT_KINDS.map(k=>'<option value="'+k[0]+'">'+(lang==="es"?k[1]:k[2])+"</option>").join("")+"</select>";
+ h+='<label>'+mg("title")+'</label><input id="mg_ap_title" maxlength="140">';
+ h+='<label>'+mg("summary")+'</label><textarea id="mg_ap_sum" rows="2" maxlength="2000"></textarea>';
+ h+='<div class="row"><button class="btn" onclick="mgSaveApproval()">'+mg("save")+"</button></div></div>";
+ h+='<div id="mg_apr_panel"></div>';
+ return h;
+}
+function mgmtPipelineHtml(){
+ const items=mgmtPipelineItems();
+ let h='<div class="card"><h3>'+mg("pipeH")+'</h3><div class="mut" style="margin-bottom:10px">🎯 '+mg("focus")+"</div>";
+ h+=items.length?items.map(it=>'<div class="card"><div><b>'+esc(it.title)+'</b></div><div class="mut">'+esc(it.sub)+'</div><label>'+mg("mvTo")+'</label><select onchange="updateRfqStatus(\''+it.id+'\',this.value)">'+STATUSES.map(s=>'<option value="'+s+'"'+(it.stage===s?" selected":"")+'>'+statusLabel(s)+"</option>").join("")+'</select><label>'+mg("notePh")+'</label><div class="row"><input id="mg-note-'+it.id+'" maxlength="500" placeholder="'+mg("notePh")+'"><button class="btn sec" onclick="mgmtRfqNote(\''+it.id+'\')">'+mg("addNote")+"</button></div></div>").join(""):'<div class="mut">—</div>';
+ return h+"</div>";
+}
+function mgmtInboxHtml(){
+ const items=trList();
+ let h='<div class="card"><h3>'+mg("inboxH")+'</h3>';
+ h+='<label>'+mg("imp")+'</label><textarea id="mg_tr_json" rows="3" placeholder=\''+mg("impPh")+'\'></textarea><div class="row"><button class="btn sec" onclick="trImport()">'+mg("doImp")+"</button></div>";
+ h+='<label>'+mg("addFrom")+'</label><input id="mg_tr_from" maxlength="120"><label>'+mg("addMsg")+'</label><textarea id="mg_tr_msg" rows="2" maxlength="2000"></textarea><div class="row"><button class="btn" onclick="trAddForm()">'+mg("addC")+"</button></div></div>";
+ h+='<div class="card">'+(items.length?items.map(i=>'<div class="card"><div><b>'+esc(i.from)+'</b> <span class="pill">'+mg({new:"stNew",reviewed:"stRev",done:"stDone"}[i.status])+'</span></div><div class="mut">'+esc(i.message)+'</div><div class="mut">'+esc(String(i.receivedAt).slice(0,16).replace("T"," "))+'</div><div class="row"><button class="btn sec" onclick="trCycle(\''+i.id+'\')">'+mg("mark")+'</button><button class="btn sec" onclick="trDel(\''+i.id+'\')">'+mg("del")+"</button></div></div>").join(""):'<div class="mut">'+mg("empty")+"</div>")+"</div>";
+ return h;
+}
+function mgmtWorkforceHtml(){
+ const wf=wfBiz(),need=wfNeeds();
+ let h='<div class="card"><h3>'+mg("wfH")+'</h3>';
+ if(!wf){h+='<div class="mut">'+mg("wfEmpty")+'</div>'}
+ else{h+='<div class="mut">● '+(wf.running?mg("wfRunning"):mg("wfIdle"))+' · '+(wf.agents||[]).length+" "+mg("wfAgents")+'</div>';
+  h+=(wf.agents||[]).map(a=>'<div class="card"><div><b>'+esc(a.name||a.id)+'</b></div><div class="mut">'+(a.lastAction?mg("wfLast")+": "+esc(a.lastAction):"")+"</div></div>").join("")}
+ h+='<div class="card"><div><b>'+mg("wfNeed")+': '+need+'</b></div><div class="mut">'+apList("pending").length+" "+mg("pend").toLowerCase()+" · "+trDoc().items.filter(i=>i.businessId===MGMT_BIZ&&i.status!=="done").length+" "+mg("inboxH").split("—")[0].trim().toLowerCase()+"</div></div>";
+ return h+"</div>";
+}
+
+/* /Gestionar */
 /* ============ helpers ============ */
 function openSheet(h){document.getElementById("sheet").innerHTML=h;document.getElementById("modal").classList.add("open")}
 function closeSheet(){document.getElementById("modal").classList.remove("open")}
 document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeSheet()});
 /* ============ init ============ */
 load();
+seedRealDeals();
 try{const l=localStorage.getItem(LANGKEY);if(l==="es"||l==="en")lang=l}catch(e){}
 if(!location.hash)location.hash="rfqs";else applyHash();
 if(!location.hash||location.hash==="#rfqs")render();
 </script>
+<!-- Shared approval queue bridge — paste before </body> in the standalone screen.
+     Uses ONE localStorage key ("sahjony.gev.approvals.v1") via src/approvals/.
+     Tap-only decisions: approve/reject record decisions, never execute. -->
+<script type="module">
+import * as approvalStore from '../../src/approvals/approvalStore.js';
+import { mountApprovalSection } from '../../src/approvals/approvalSection.js';
+window.__gevApprovals = {
+  list: (businessId, status) => approvalStore.listApprovals(businessId, status),
+  create: (businessId, draft) => approvalStore.createApproval(businessId, draft),
+  decide: (id, ok) =>
+    ok ? approvalStore.approveApproval(id) : approvalStore.rejectApproval(id),
+  mountSection: (elId, businessId, lang) =>
+    mountApprovalSection(document.getElementById(elId), { businessId, lang }),
+};
+</script>
+
 </body>
 </html>

@@ -553,6 +553,7 @@ export const CUBACASH_CSS = [
   '.mcc-dockbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 16px;',
   'font-size:15px;font-weight:800;background:#0e7490;color:#fff;border:1px solid #155e75;border-radius:10px;cursor:pointer}',
   '.mcc-lang{background:#16233a;border:1px solid #6b7280;color:#fff;border-radius:8px;min-width:44px;min-height:44px;font-size:14px;font-weight:800;cursor:pointer}',
+  '.mcc-manage{background:#16233a;border:1px solid #6b7280;color:#e5e7eb;font-size:13px;font-weight:700;cursor:pointer;border-radius:8px;min-height:44px;padding:6px 12px;font-family:inherit}',
   '.mcc-close{background:#16233a;border:1px solid #6b7280;color:#e5e7eb;font-size:22px;font-weight:700;cursor:pointer;border-radius:8px;min-width:44px;min-height:44px;line-height:1}',
   // Phone sheet: full-screen panel, single-column pipeline — one thumb away.
   '@media (max-width:640px){',
@@ -597,6 +598,7 @@ export function initCubacashDashboard({
   workforce = null,
   signal = null,
   parseCsv = null,
+  onOpenManagement = null,
 } = {}) {
   injectStyles();
   const store = adaptStore(providerStore);
@@ -1034,6 +1036,7 @@ export function initCubacashDashboard({
       <div class="mcc-head">
         <div class="mcc-title">${t('MY CUBA CASH · Centro de control', 'MY CUBA CASH · Mission control')}</div>
         <div class="mcc-row" style="margin-bottom:0">
+          <button class="mcc-manage" data-mcc="manage">⚙️ Gestionar / Manage</button>
           <button class="mcc-lang" data-mcc="lang" aria-label="Idioma / Language">${lang === 'es' ? 'ES' : 'EN'}</button>
           <button class="mcc-close" data-mcc="close" aria-label="${t('Cerrar', 'Close')}">×</button>
         </div>
@@ -1089,6 +1092,7 @@ export function initCubacashDashboard({
     refs.importStatus = panel.querySelector('[data-mcc="import-status"]');
 
     panel.querySelector('[data-mcc="close"]').addEventListener('click', close);
+    panel.querySelector('[data-mcc="manage"]').addEventListener('click', () => { try { onOpenManagement && onOpenManagement('approvals'); } catch {} });
     panel
       .querySelector('[data-mcc="lang"]')
       .addEventListener('click', () => setLang(lang === 'es' ? 'en' : 'es'));
