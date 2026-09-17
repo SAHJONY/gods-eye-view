@@ -8,7 +8,7 @@
  * in-app dashboard panel, so data is seamless both ways.
  *
  * This launcher is one floating button (🏢) that opens a full-screen,
- * phone-first menu with five big one-tap bilingual buttons — one per
+ * phone-first menu with six big one-tap bilingual buttons — one per
  * business — each opening its standalone screen. No Cesium dependency;
  * the DOM double used in tests works fine.
  */
@@ -58,6 +58,15 @@ export const BUSINESSES = Object.freeze([
     en: 'MY CUBA CASH',
     esDesc: 'Corredores de remesas y proveedores',
     enDesc: 'Remittance corridors and providers',
+  },
+  {
+    id: 'new850',
+    icon: '📄',
+    screen: '/new850/index.html',
+    es: 'New850 — Reparación de crédito',
+    en: 'New850 — Credit Repair',
+    esDesc: 'Casos, rondas FCRA y cola de aprobación',
+    enDesc: 'Cases, FCRA rounds and approval queue',
   },
 ]);
 

@@ -73,14 +73,15 @@ globalThis.localStorage = {
   removeItem: (k) => { delete store[k]; },
 };
 
-test('five businesses, one per module, with standalone screen URLs', () => {
-  assert.equal(BUSINESSES.length, 5);
+test('six businesses, one per module, with standalone screen URLs', () => {
+  assert.equal(BUSINESSES.length, 6);
   const byId = Object.fromEntries(BUSINESSES.map((b) => [b.id, b]));
   assert.equal(byId.wholesale.screen, '/wholesale/index.html');
   assert.equal(byId.crude.screen, '/crude/index.html');
   assert.equal(byId.insurance.screen, '/insurance/index.html');
   assert.equal(byId.trade.screen, '/import-export/index.html');
   assert.equal(byId.cubacash.screen, '/cubacash/index.html');
+  assert.equal(byId.new850.screen, '/new850/index.html');
   for (const b of BUSINESSES) {
     assert.ok(b.es && b.en, `${b.id} bilingual labels`);
     assert.ok(b.esDesc && b.enDesc, `${b.id} bilingual description`);
@@ -101,7 +102,7 @@ test('launcher builds floating button and overlay; toggle opens and closes', () 
   fab.click();
   assert.ok(overlay.classList.contains('open'), 'opens on tap');
   const bizButtons = overlay.querySelectorAll('.bl-biz');
-  assert.equal(bizButtons.length, 5, 'five big business buttons');
+  assert.equal(bizButtons.length, 6, 'six big business buttons');
   fab.click();
   assert.ok(!overlay.classList.contains('open'), 'closes on second tap');
   launcher.destroy();

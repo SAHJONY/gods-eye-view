@@ -551,6 +551,39 @@ export function parseSahjonyCommand(rawText) {
     };
   }
 
+  // --- New850 credit repair ---
+  // LIST-ONLY intents: they open the approval queue so Juan can SEE what is
+  // pending. Approval/rejection itself is TAP-ONLY — there are deliberately
+  // NO voice intents that approve or reject anything.
+  if (
+    /\b(que disputas estan pendientes de aprobar|qué disputas están pendientes de aprobar|que aprobaciones tengo pendientes|qué aprobaciones tengo pendientes|aprobaciones pendientes|muestrame las aprobaciones|muéstrame las aprobaciones|cola de aprobaciones|what disputes are pending approval|list pending approvals|show pending approvals|pending approvals|approval queue)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__new850_pending_approvals',
+      args: {},
+      say: {
+        es: 'Abriendo la cola de aprobaciones de New850',
+        en: 'Opening the New850 approval queue',
+      },
+    };
+  }
+  if (
+    /\b(abre new850|abrir new850|open new850|panel new850|new850 panel|reparacion de credito|reparación de crédito|credit repair)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__new850_open',
+      args: {},
+      say: {
+        es: 'Abriendo New850, reparación de crédito',
+        en: 'Opening New850 credit repair',
+      },
+    };
+  }
+
   // --- MY CUBA CASH ---
   // NOTE: the "cuba cash" qualifier keeps these intents distinct from any
   // generic "muestrame los proveedores" intent elsewhere — the longer,

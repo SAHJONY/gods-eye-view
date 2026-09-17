@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>New850 — Reparación de crédito</title>
+<style>
+:root{--bg:#0b1220;--card:#16233a;--card2:#1e293b;--txt:#f3f4f6;--mut:#9ca3af;--acc:#0f766e;--grn:#86efac;--yel:#fde68a;--red:#fca5a5;--brd:#374151}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{max-width:100%;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:110px}
+header{position:sticky;top:0;z-index:10;background:#0b1220;border-bottom:1px solid var(--brd);padding:12px 14px}
+h1{margin:0;font-size:20px}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.langrow{display:flex;gap:8px;margin-top:10px}
+.langbtn{flex:1;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700}
+.langbtn.on{border-color:var(--acc);background:#0c2a3d}
+.bizlinks{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 4px;scrollbar-width:none}
+.bizlink{flex:0 0 auto;min-height:52px;padding:10px 16px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:15px;font-weight:700;white-space:nowrap;text-decoration:none;display:flex;align-items:center}
+.bizlink.on{border-color:var(--acc);background:#0c2a3d}
+main{padding:6px 14px;max-width:720px;margin:0 auto}
+.banner{background:#052e16;border:1px solid #10b981;color:#a7f3d0;border-radius:10px;padding:10px 12px;font-size:13px;margin:12px 0}
+.openbtn{display:block;width:100%;min-height:64px;margin-top:14px;border-radius:16px;border:2px solid var(--acc);background:#0c2a3d;color:var(--txt);font-size:19px;font-weight:800}
+.sectabs{display:flex;gap:8px;margin-top:12px}
+.sectab{flex:1;min-height:56px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:15px;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.mut{color:var(--mut);font-size:14px}
+.foot{color:var(--mut);font-size:12px;margin:18px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="t_title">New850 — Reparación de crédito</h1>
+  <div class="sub" id="t_sub">Consola de gestión · nada se envía solo</div>
+  <div class="langrow">
+    <button class="langbtn" id="lang_es">ES</button>
+    <button class="langbtn" id="lang_en">EN</button>
+  </div>
+</header>
+<nav class="bizlinks" id="bizlinks" aria-label="Negocios / Businesses"></nav>
+<main>
+  <div class="banner" id="t_safety">⚠️ Aprobar solo registra tu decisión — la app nunca envía nada automáticamente.</div>
+  <div class="banner" id="t_fee" style="background:#3b2f0b;border-color:#d97706;color:#fef3c7">💰 Modelo de tarifa: pendiente de tu decisión — sin cobros hasta que lo definas.</div>
+  <div class="sectabs" id="sectabs"></div>
+  <button class="openbtn" id="open_console">📄 Abrir consola New850</button>
+  <p class="mut" id="t_hint">La consola se abre automáticamente. Ciérrala con ✕ para volver aquí.</p>
+  <p class="foot" id="t_foot">Borradores solamente · sin SSN · sin pagos · New850 es una estación de gestión: tú tocas las decisiones.</p>
+</main>
+<script type="module">
+import {
+  initNew850Dashboard,
+  new850ViewFromHash,
+  NEW850_OWNER_INTAKE_URL,
+} from '/src/new850/new850Dashboard.js';
+
+// Production owner intake URL: configured in the dashboard module.
+// TODO(Juan): set NEW850_OWNER_INTAKE_URL when the intake endpoint is ready.
+const INTAKE_URL = NEW850_OWNER_INTAKE_URL; // intentionally empty for now
+
+const STR = {
+  es: {
+    title: 'New850 — Reparación de crédito',
+    sub: 'Consola de gestión · nada se envía solo',
+    safety: '⚠️ Aprobar solo registra tu decisión — la app nunca envía nada automáticamente.',
+    open: '📄 Abrir consola New850',
+    hint: 'La consola se abre automáticamente. Ciérrala con ✕ para volver aquí.',
+    fee: '💰 Modelo de tarifa: pendiente de tu decisión — sin cobros hasta que lo definas.',
+    foot: 'Borradores solamente · sin SSN · sin pagos · New850 es una estación de gestión: tú tocas las decisiones.',
+    tabs: [['aprobaciones','Aprobaciones'],['casos','Casos'],['entrada','Entrada'],['equipo','Equipo IA']],
+  },
+  en: {
+    title: 'New850 — Credit Repair',
+    sub: 'Management console · nothing sends itself',
+    safety: '⚠️ Approving only records your decision — the app never sends anything automatically.',
+    open: '📄 Open New850 console',
+    hint: 'The console opens automatically. Close it with ✕ to come back here.',
+    fee: '💰 Fee model: pending your decision — no charges until you define it.',
+    foot: 'Drafts only · no SSN · no payments · New850 is a management station: you tap the decisions.',
+    tabs: [['aprobaciones','Approvals'],['casos','Cases'],['entrada','Inbox'],['equipo','AI Team']],
+  },
+};
+
+const BIZ = [
+  ['/', '🏠', {es:'Inicio',en:'Home'}],
+  ['/wholesale/index.html', '🏠', {es:'Mayorista',en:'Wholesale'}],
+  ['/crude/index.html', '🛢️', {es:'Crudo',en:'Crude'}],
+  ['/insurance/index.html', '🛡️', {es:'Seguros',en:'Insurance'}],
+  ['/import-export/index.html', '🌐', {es:'Comercio',en:'Trade'}],
+  ['/cubacash/index.html', '💸', {es:'MY CUBA CASH',en:'MY CUBA CASH'}],
+  ['/new850/index.html', '📄', {es:'New850',en:'New850'}],
+];
+
+let lang = 'es';
+try { lang = localStorage.getItem('sahjony.gev.lang') === 'en' ? 'en' : 'es'; } catch {}
+
+function render() {
+  const s = STR[lang];
+  document.documentElement.lang = lang;
+  document.getElementById('t_title').textContent = s.title;
+  document.getElementById('t_sub').textContent = s.sub;
+  document.getElementById('t_safety').textContent = s.safety;
+  document.getElementById('t_fee').textContent = s.fee;
+  document.getElementById('open_console').textContent = s.open;
+  document.getElementById('t_hint').textContent = s.hint;
+  document.getElementById('t_foot').textContent = s.foot;
+  document.getElementById('lang_es').classList.toggle('on', lang === 'es');
+  document.getElementById('lang_en').classList.toggle('on', lang === 'en');
+  const bl = document.getElementById('bizlinks');
+  bl.innerHTML = '';
+  for (const [href, icon, label] of BIZ) {
+    const a = document.createElement('a');
+    a.className = 'bizlink' + (href === '/new850/index.html' ? ' on' : '');
+    a.href = href;
+    a.textContent = `${icon} ${label[lang]}`;
+    bl.appendChild(a);
+  }
+  const st = document.getElementById('sectabs');
+  st.innerHTML = '';
+  for (const [hash, label] of s.tabs) {
+    const a = document.createElement('a');
+    a.className = 'sectab';
+    a.href = `#${hash}`;
+    a.textContent = label;
+    st.appendChild(a);
+  }
+}
+
+document.getElementById('lang_es').addEventListener('click', () => setLang('es'));
+document.getElementById('lang_en').addEventListener('click', () => setLang('en'));
+
+let dd = null;
+function setLang(l) {
+  lang = l === 'en' ? 'en' : 'es';
+  try { localStorage.setItem('sahjony.gev.lang', lang); } catch {}
+  render();
+  if (dd) dd.setLang(lang);
+}
+
+const dd0 = initNew850Dashboard({ lang });
+dd = dd0;
+render();
+document.getElementById('open_console').addEventListener('click', () => dd.open());
+window.addEventListener('hashchange', () => dd.setView(new850ViewFromHash(location.hash)));
+dd.open();
+dd.setView(new850ViewFromHash(location.hash));
+</script>
+</body>
+</html>

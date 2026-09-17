@@ -113,6 +113,7 @@ import {
 import { parseCubacashCsv as parseCubacashCsv } from '../cubacash/corridorImporter.js';
 import { initCorridorMapLayer } from '../cubacash/corridorMapLayer.js';
 import { initCubacashDashboard } from '../cubacash/cubacashDashboard.js';
+import { initNew850Dashboard } from '../new850/new850Dashboard.js';
 import { createWorkforce as createCubacashWorkforce } from '../agents/cubacashWorkforce.js';
 import { installScopeMask, destroyScopeMask } from '../scopeMask.js';
 import {
@@ -1050,6 +1051,19 @@ export function createApplicationTools({
     if (window.__gevCubacash) delete window.__gevCubacash;
   });
   debug.cubacash = cubacashDashboard;
+  // New850 credit-repair management console: approval queue (the core),
+  // case pipeline, WhatsApp triage, AI workforce oversight. Draft-only —
+  // the console records decisions; nothing is ever sent.
+  const new850Dashboard = initNew850Dashboard({ signal });
+  defer(() => {
+    try {
+      new850Dashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevNew850) delete window.__gevNew850;
+  });
+  debug.new850 = new850Dashboard;
   // MY CUBA CASH workforce mission-control panel: agent roster + live
   // activity feed.
   const cubacashWorkforcePanel = initCubacashWorkforcePanel({
@@ -1299,6 +1313,13 @@ export function createApplicationTools({
       },
       __cubacash_open: () =>
         cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
+      // New850 credit repair — LIST-ONLY voice intents. They open the
+      // approval queue so Juan can see what is pending; approval/rejection
+      // itself stays TAP-ONLY (no voice approve/reject actions exist).
+      __new850_open: () =>
+        new850Dashboard.toggle?.() ?? new850Dashboard.open?.(),
+      __new850_pending_approvals: () =>
+        new850Dashboard.openApprovals?.() ?? new850Dashboard.open?.(),
       __cubacash_providers: () =>
         cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
       __cubacash_corridors: () =>

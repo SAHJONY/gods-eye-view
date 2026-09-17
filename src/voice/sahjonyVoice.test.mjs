@@ -224,3 +224,53 @@ test('parse: cuba-cash provider intent is disambiguated from generic supplier ph
     '__cubacash_providers',
   );
 });
+
+test('parse: New850 intents (ES/EN) — list pending approvals, open station', () => {
+  // Spanish-first: list pending approvals.
+  let parsed = parseSahjonyCommand(
+    'qué disputas están pendientes de aprobar',
+  );
+  assert.equal(parsed.action, '__new850_pending_approvals');
+  assert.match(parsed.say.es, /aprobaciones/);
+
+  parsed = parseSahjonyCommand('qué aprobaciones tengo pendientes');
+  assert.equal(parsed.action, '__new850_pending_approvals');
+
+  // English: list pending approvals.
+  parsed = parseSahjonyCommand('what disputes are pending approval');
+  assert.equal(parsed.action, '__new850_pending_approvals');
+  assert.match(parsed.say.en, /approval queue/);
+
+  parsed = parseSahjonyCommand('list pending approvals');
+  assert.equal(parsed.action, '__new850_pending_approvals');
+
+  // Open the station.
+  assert.equal(
+    parseSahjonyCommand('abre new850').action,
+    '__new850_open',
+  );
+  assert.equal(
+    parseSahjonyCommand('open new850').action,
+    '__new850_open',
+  );
+});
+
+test('parse: New850 — approval/rejection is TAP-ONLY, never by voice', () => {
+  // No voice phrasing may resolve to an approve/reject action. These must
+  // either miss (null) or land on the list intent — never approve/reject.
+  for (const phrase of [
+    'aprueba la disputa',
+    'approve the dispute',
+    'rechaza el borrador',
+    'reject the draft',
+    'aprueba todo',
+    'approve all',
+  ]) {
+    const parsed = parseSahjonyCommand(phrase);
+    const action = parsed ? parsed.action : null;
+    assert.ok(
+      !/approv|reject/i.test(action || ''),
+      `voice must never approve/reject (phrase: "${phrase}" -> ${action})`,
+    );
+  }
+});
