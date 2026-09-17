@@ -2,7 +2,19 @@
 
 Status: design approved for queuing by Juan 2026-09-17. Build starts AFTER Phase 1
 (six business stations as management consoles) lands on `sahjony/main`.
-Branch: `sahjony/tenant-isolation`. No merge, no deploy without Juan's explicit approval.
+Branch: `sahjony/tenant-isolation`.
+
+## Approvals (recorded 2026-09-17)
+
+- Juan: **"merge and proceed"** — ADVANCE APPROVAL: when this branch is built
+  and its tests are green, merge it to `sahjony/main` WITHOUT asking again,
+  then proceed with this plan's sequencing (pilot readiness).
+- Merging to main does NOT deploy to the VPS. The VPS deploy (which affects
+  the live app at 69.62.68.67) still needs Juan's explicit word when the time
+  comes — that gate is unchanged.
+- The six business stations (Phase 1) still need Juan's merge+deploy approval
+  once verified — that gate is also unchanged. Phase 1 merges happen first;
+  this branch rebases onto the new main before building.
 
 ## Goal
 
