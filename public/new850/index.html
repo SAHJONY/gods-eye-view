@@ -25,10 +25,27 @@ main{padding:6px 14px;max-width:720px;margin:0 auto}
 .sectab{flex:1;min-height:56px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:15px;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center}
 .mut{color:var(--mut);font-size:14px}
 .foot{color:var(--mut);font-size:12px;margin:18px 0}
+/* GEV hub-architecture contract: back-to-hub bar + voice button.
+   #gev-back-hub: href="/", ES "‹ Volver" / EN "‹ Back", min-height 52px, always visible (sticky header). */
+#gev-back-hub-bar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:8px;background:#0b1220}
+#gev-back-hub{flex:1;display:flex;align-items:center;min-height:52px;padding:8px 6px;font-size:17px;font-weight:800;color:var(--acc);text-decoration:none}
+#gev-back-hub:active{opacity:.65}
+#gev-voice-btn{display:flex;align-items:center;gap:6px;min-height:52px;padding:8px 14px;font-size:16px;font-weight:800;color:var(--txt);text-decoration:none;border:2px solid var(--brd);border-radius:12px;background:var(--card)}
+#gev-voice-btn:active{border-color:var(--acc)}
+/* Unified ecosystem: external app deep-links + Sofia front door */
+.ecosys{padding:4px 14px 0;max-width:720px;margin:0 auto}
+.ecosys h2{font-size:15px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#5eead4;margin:10px 0 8px}
+.ecobtn{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;margin-bottom:10px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700;text-decoration:none;padding:10px 14px}
+.ecobtn:active{border-color:var(--acc)}
+.ecobtn.sofia{border-color:var(--acc);background:#0c2a3d}
 </style>
 </head>
 <body>
 <header>
+<nav id="gev-back-hub-bar" aria-label="hub">
+<a id="gev-back-hub" href="/">‹ <span id="gev-back-hub-label">Volver</span></a>
+<a id="gev-voice-btn" href="/?voice=1&amp;biz=new850">🎙️ <span id="gev-voice-label">Voz</span></a>
+</nav>
   <h1 id="t_title">New850 — Reparación de crédito</h1>
   <div class="sub" id="t_sub">Consola de gestión · nada se envía solo</div>
   <div class="langrow">
@@ -37,6 +54,11 @@ main{padding:6px 14px;max-width:720px;margin:0 auto}
   </div>
 </header>
 <nav class="bizlinks" id="bizlinks" aria-label="Negocios / Businesses"></nav>
+<section class="ecosys" aria-label="Apps y sitios / Apps and sites">
+  <h2 id="t_ecosys">Apps y sitios</h2>
+  <a class="ecobtn" href="https://www.new850.com" target="_blank" rel="noopener">📄 <span id="t_site">New850.com — sitio público</span></a>
+  <a class="ecobtn sofia" href="https://wa.me/12816628581" target="_blank" rel="noopener">💬 <span id="t_sofia">Sofia por WhatsApp</span></a>
+</section>
 <main>
   <div class="banner" id="t_safety">⚠️ Aprobar solo registra tu decisión — la app nunca envía nada automáticamente.</div>
   <div class="banner" id="t_fee" style="background:#3b2f0b;border-color:#d97706;color:#fef3c7">💰 Modelo de tarifa: pendiente de tu decisión — sin cobros hasta que lo definas.</div>
@@ -66,6 +88,11 @@ const STR = {
     fee: '💰 Modelo de tarifa: pendiente de tu decisión — sin cobros hasta que lo definas.',
     foot: 'Borradores solamente · sin SSN · sin pagos · New850 es una estación de gestión: tú tocas las decisiones.',
     tabs: [['aprobaciones','Aprobaciones'],['casos','Casos'],['entrada','Entrada'],['equipo','Equipo IA']],
+    backhub: 'Volver',
+    voicelink: 'Voz',
+    ecosys: 'Apps y sitios',
+    site: 'New850.com — sitio público',
+    sofia: 'Sofia por WhatsApp',
   },
   en: {
     title: 'New850 — Credit Repair',
@@ -76,6 +103,11 @@ const STR = {
     fee: '💰 Fee model: pending your decision — no charges until you define it.',
     foot: 'Drafts only · no SSN · no payments · New850 is a management station: you tap the decisions.',
     tabs: [['aprobaciones','Approvals'],['casos','Cases'],['entrada','Inbox'],['equipo','AI Team']],
+    backhub: 'Back',
+    voicelink: 'Voice',
+    ecosys: 'Apps & sites',
+    site: 'New850.com — public site',
+    sofia: 'Sofia on WhatsApp',
   },
 };
 
@@ -102,6 +134,11 @@ function render() {
   document.getElementById('open_console').textContent = s.open;
   document.getElementById('t_hint').textContent = s.hint;
   document.getElementById('t_foot').textContent = s.foot;
+  document.getElementById('gev-back-hub-label').textContent = s.backhub;
+  document.getElementById('gev-voice-label').textContent = s.voicelink;
+  document.getElementById('t_ecosys').textContent = s.ecosys;
+  document.getElementById('t_site').textContent = s.site;
+  document.getElementById('t_sofia').textContent = s.sofia;
   document.getElementById('lang_es').classList.toggle('on', lang === 'es');
   document.getElementById('lang_en').classList.toggle('on', lang === 'en');
   const bl = document.getElementById('bizlinks');
