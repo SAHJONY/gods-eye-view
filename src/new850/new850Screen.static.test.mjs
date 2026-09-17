@@ -11,9 +11,19 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(here, '..', '..', 'public', 'new850', 'index.html'), 'utf8');
 
-test('screen: no Cesium, no external requests, no forms', () => {
+test('screen: no Cesium, no external resource requests, no forms', () => {
   assert.ok(!/cesium/i.test(html), 'no Cesium');
-  assert.ok(!/https?:\/\//i.test(html), 'no external http(s) requests');
+  // External RESOURCES (scripts, styles, images, fetches) are banned — the
+  // page must make no external calls by itself. User-tapped deep links
+  // (<a href="https://…">) are the unified-ecosystem navigation (Juan's
+  // standing rule) and are allowed: they navigate only when Juan taps them.
+  const resourceUrls = [
+    ...html.matchAll(
+      /<(?:script|link|img|iframe|source|video|audio)[^>]+(?:src|href)\s*=\s*["']https?:\/\//gi,
+    ),
+  ];
+  assert.equal(resourceUrls.length, 0, 'no external resource requests');
+  assert.ok(!/fetch\(\s*["']https?:\/\//i.test(html), 'no external fetch');
   assert.ok(!/<form/i.test(html), 'no forms');
   assert.ok(!/type="submit"/i.test(html), 'no submit controls');
 });
