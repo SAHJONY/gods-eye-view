@@ -62,8 +62,13 @@ test('cross-links to GEV home and the other standalone screens', () => {
   }
 });
 
-test('contains no external http(s) URLs at all', () => {
-  assert.ok(!/https?:\/\//.test(html), 'no external URLs');
+test('only approved external URLs: business site + Sofia WhatsApp', () => {
+  // Unified-ecosystem rule: the screen may deep-link to its business site and
+  // to Sofia on WhatsApp — nothing else external.
+  const urls = html.match(/https?:\/\/[^\s"'`<>()]+/g) || [];
+  const allowed = ['https://www.sahjony.com', 'https://wa.me/12816628581'];
+  for (const u of urls) assert.ok(allowed.includes(u), `unexpected external URL: ${u}`);
+  for (const u of allowed) assert.ok(urls.includes(u), `approved URL present: ${u}`);
 });
 
 test('does not contain other modules\' storage keys', () => {

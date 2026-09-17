@@ -110,11 +110,13 @@ test('cross-links to GEV home and the other business screens', () => {
   }
 });
 
-test('no external network calls, API keys, or fonts/CDN', () => {
-  assert.ok(
-    !/https?:\/\//.test(html),
-    'no http:// or https:// URLs anywhere in the file',
-  );
+test('no external network calls except the approved deep-links, no API keys, no fonts/CDN', () => {
+  // Unified-ecosystem rule: the screen may deep-link to its business site and
+  // to Sofia on WhatsApp — nothing else external.
+  const urls = html.match(/https?:\/\/[^\s"'`<>()]+/g) || [];
+  const allowed = ['https://www.sahjony.com', 'https://wa.me/12816628581'];
+  for (const u of urls) assert.ok(allowed.includes(u), `unexpected external URL: ${u}`);
+  for (const u of allowed) assert.ok(urls.includes(u), `approved URL present: ${u}`);
   assert.ok(!/fonts\.googleapis/.test(html), 'no web fonts');
 });
 

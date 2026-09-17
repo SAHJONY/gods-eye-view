@@ -17,6 +17,13 @@ h1{margin:0;font-size:20px}
 .langbtn.on{border-color:var(--acc);background:#2b2210}
 .xlinks{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
 .xlinks a{flex:0 0 auto;display:inline-flex;align-items:center;min-height:52px;padding:10px 14px;border-radius:12px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap}
+.xlinks a.on{border-color:var(--acc);background:#0c2a3d}
+.brand{font-size:13px;font-weight:800;letter-spacing:.22em;color:var(--acc)}
+.ecosystem{max-width:760px;margin:20px auto 0;padding:0 14px}
+.ecohead{font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--mut);margin:4px 2px 10px}
+.ecobtn{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;margin:0 0 6px;padding:12px 14px;border-radius:14px;border:2px solid var(--acc);background:#0c2a3d;color:var(--txt);font-size:17px;font-weight:800;text-decoration:none;text-align:center}
+.ecoext{display:block;text-align:center;font-size:12px;color:var(--mut);margin:0 0 12px}
+.ecowa{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;margin:0;padding:12px 14px;border-radius:14px;border:none;background:#1f9d55;color:#fff;font-size:17px;font-weight:800;text-decoration:none;text-align:center}
 .viewtabs{display:flex;gap:8px;padding:10px 0 0}
 .viewtab{flex:1;min-height:52px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:800}
 .viewtab.on{border-color:var(--acc);background:#2b2210}
@@ -68,6 +75,7 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 </head>
 <body>
 <header>
+<div class="brand">SAHJONY</div>
 <h1>🛢️ <span id="apptitle">Crude Brokerage</span></h1>
 <div class="sub" id="appsub"></div>
 <div class="langrow noprint">
@@ -78,6 +86,12 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 <div class="viewtabs noprint" id="viewtabs"></div>
 </header>
 <main id="main"></main>
+<section class="ecosystem noprint" id="ecosystem" aria-label="ecosystem">
+<div class="ecohead" id="ecohead"></div>
+<a class="ecobtn" id="ecosite" href="https://www.sahjony.com" target="_blank" rel="noopener"></a>
+<span class="ecoext" id="ecoext"></span>
+<a class="ecowa" id="ecowa" href="https://wa.me/12816628581" target="_blank" rel="noopener"></a>
+</section>
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 <div class="disc" id="disclaimer"></div>
 <script>
@@ -107,7 +121,9 @@ ver_unverified:"Unverified",ver_inreview:"In review",ver_verified:"Verified",ver
 vd_green:"Viable",vd_yellow:"Marginal",vd_red:"No deal",vd_gray:"Missing data",
 st_prospect:"Prospect",st_diligence:"Diligence",st_negotiating:"Negotiating",st_contracted:"Contracted",
 st_loading:"Loading",st_intransit:"In transit",st_delivered:"Delivered",st_closed:"Closed",st_dead:"Dead",
-detailfor:"Cargo",updated:"Updated",created:"Created"},
+detailfor:"Cargo",updated:"Updated",created:"Created",
+nav_home:"🌐 GEV",nav_ins:"🛡️ Insurance",nav_who:"🏠 Wholesale",nav_cru:"🛢️ Crude",nav_imp:"🚢 Import/Export",nav_cc:"💸 MY CUBA CASH",
+eco_title:"SAHJONY ecosystem",eco_site:"🌐 Open sahjony.com ↗",eco_ext:"(external site — opens in a new tab)",eco_wa:"💬 Chat with Sofia on WhatsApp"},
 es:{apptitle:"Corretaje de crudo",appsub:"Corredor por comisión — nunca comprador ni vendedor principal.",
 deals:"Negocios",counterparties:"Contrapartes",adddeal:"Agregar",manage:"Gestionar",
 opencargoes:"CARGAMENTOS ABIERTOS",totvol:"VOLUMEN ABIERTO (BBL)",potcomm:"COMISIÓN POTENCIAL",cpcount:"CONTRAPARTES",
@@ -131,7 +147,9 @@ ver_unverified:"Sin verificar",ver_inreview:"En revisión",ver_verified:"Verific
 vd_green:"Viable",vd_yellow:"Marginal",vd_red:"No viable",vd_gray:"Faltan datos",
 st_prospect:"Prospecto",st_diligence:"Diligencia",st_negotiating:"Negociando",st_contracted:"Contratado",
 st_loading:"Cargando",st_intransit:"En tránsito",st_delivered:"Entregado",st_closed:"Cerrado",st_dead:"Descartado",
-detailfor:"Cargamento",updated:"Actualizado",created:"Creado"}};
+detailfor:"Cargamento",updated:"Actualizado",created:"Creado",
+nav_home:"🌐 GEV",nav_ins:"🛡️ Seguros",nav_who:"🏠 Mayoreo",nav_cru:"🛢️ Crudo",nav_imp:"🚢 Import/Export",nav_cc:"💸 MY CUBA CASH",
+eco_title:"Ecosistema SAHJONY",eco_site:"🌐 Abrir sahjony.com ↗",eco_ext:"(sitio externo — se abre en una pestaña nueva)",eco_wa:"💬 Hablar con Sofia por WhatsApp"}};
 let lang="es"; const t=k=>T[lang][k]||k;
 /* ============ constants ============ */
 const KEY="sahjony.crude.v1";
@@ -251,10 +269,13 @@ function renderHead(){
  document.getElementById("btnES").classList.toggle("on",lang==="es");
  document.getElementById("btnEN").classList.toggle("on",lang==="en");
  const xl=document.getElementById("xlinks");xl.innerHTML="";
- const xlNames={en:["🌐 GEV","🛡️ Insurance","🏠 Wholesale","🚢 Import/Export","💸 MY CUBA CASH"],
-  es:["🌐 GEV","🛡️ Seguros","🏠 Mayoreo","🚢 Import/Export","💸 MY CUBA CASH"]};
- [["/"],["/insurance/index.html"],["/wholesale/index.html"],["/import-export/index.html"],["/cubacash/index.html"]]
-  .forEach((u,i)=>{const a=document.createElement("a");a.href=u[0];a.textContent=xlNames[lang][i];xl.appendChild(a)});
+ [["/",t("nav_home"),false],["/insurance/index.html",t("nav_ins"),false],["/wholesale/index.html",t("nav_who"),false],
+  ["/crude/index.html",t("nav_cru"),true],["/import-export/index.html",t("nav_imp"),false],["/cubacash/index.html",t("nav_cc"),false]]
+  .forEach(([u,l,on])=>{const a=document.createElement("a");if(on)a.className="on";a.href=u;a.textContent=l;xl.appendChild(a)});
+ document.getElementById("ecohead").textContent=t("eco_title");
+ document.getElementById("ecosite").textContent=t("eco_site");
+ document.getElementById("ecoext").textContent=t("eco_ext");
+ document.getElementById("ecowa").textContent=t("eco_wa");
  const vt=document.getElementById("viewtabs");vt.innerHTML="";
  const VHREF={deals:"#deals",counterparties:"#counterparties",add:"#add",manage:"#manage"};
  [["deals",t("deals")],["counterparties",t("counterparties")],["add",t("adddeal")],["manage",t("manage")]].forEach(([v,l])=>{

@@ -17,7 +17,13 @@ h2{font-size:18px;margin:14px 0 6px}
 .langrow{display:flex;gap:8px;margin-top:10px}
 .langbtn{flex:1;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:17px;font-weight:700}
 .langbtn.on{border-color:var(--acc);background:#0c2a3d}
-.mccbtn{display:block;width:100%;min-height:56px;margin-top:10px;border-radius:14px;border:2px solid var(--acc);background:#0c2a3d;color:var(--txt);font-size:18px;font-weight:800;text-decoration:none;text-align:center;padding:14px 10px}
+.biztab.on{border-color:var(--acc);background:#0c2a3d}
+.brand{font-size:13px;font-weight:800;letter-spacing:.22em;color:var(--acc)}
+.ecosystem{max-width:760px;margin:20px auto 0;padding:0 14px}
+.ecohead{font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--mut);margin:4px 2px 10px}
+.ecobtn{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;margin:0 0 6px;padding:12px 14px;border-radius:14px;border:2px solid var(--acc);background:#0c2a3d;color:var(--txt);font-size:17px;font-weight:800;text-decoration:none;text-align:center}
+.ecoext{display:block;text-align:center;font-size:12px;color:var(--mut);margin:0 0 12px}
+.ecowa{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;margin:0;padding:12px 14px;border-radius:14px;border:none;background:#1f9d55;color:#fff;font-size:17px;font-weight:800;text-decoration:none;text-align:center}
 .biztabs{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 4px;scrollbar-width:none}
 .biztab{flex:0 0 auto;min-height:52px;padding:10px 16px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:15px;font-weight:700;white-space:nowrap;text-decoration:none;line-height:28px}
 .viewtabs{display:flex;gap:8px;padding:10px 14px}
@@ -59,17 +65,23 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 </head>
 <body>
 <header>
+<div class="brand">SAHJONY</div>
 <h1>💸 MY CUBA CASH</h1>
 <div class="sub" id="appsub"></div>
 <div class="langrow">
 <button class="langbtn" id="btnES" onclick="setLang('es')">ES</button>
 <button class="langbtn" id="btnEN" onclick="setLang('en')">EN</button>
 </div>
-<a class="mccbtn" id="mccsite" href="https://www.mycubacash.com" target="_blank" rel="noopener"></a>
 </header>
 <nav class="biztabs" id="biztabs" aria-label="cross"></nav>
 <div class="viewtabs" id="viewtabs"></div>
 <main id="main"></main>
+<section class="ecosystem noprint" id="ecosystem" aria-label="ecosystem">
+<div class="ecohead" id="ecohead"></div>
+<a class="ecobtn" id="ecosite" href="https://www.mycubacash.com" target="_blank" rel="noopener"></a>
+<span class="ecoext" id="ecoext"></span>
+<a class="ecowa" id="ecowa" href="https://wa.me/12816628581" target="_blank" rel="noopener"></a>
+</section>
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 <div class="disc" id="disclaimer"></div>
 <script>
@@ -77,7 +89,8 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 /* ============ i18n ============ */
 const T={
 en:{appsub:"Remittance corridors + providers · Zero custody — creating a request moves no money",
-open:"🌐 Open mycubacash.com",
+nav_home:"🌐 GEV",nav_ins:"🛡️ Insurance",nav_who:"🏠 Wholesale",nav_cru:"🛢️ Crude",nav_imp:"🚢 Import/Export",nav_cc:"💸 MY CUBA CASH",
+eco_title:"SAHJONY ecosystem",eco_site:"🌐 Open mycubacash.com ↗",eco_ext:"(external site — opens in a new tab)",eco_wa:"💬 Chat with Sofia on WhatsApp",
 tocorridors:"Corridors",toproviders:"Providers",toadd:"Add",add:"Add",manage:"Manage",
 kProviders:"PROVIDERS",kLive:"LIVE",kCorridors:"CORRIDORS",
 beta1:"Beta v0.9 — 0 verified customers · 0 transactions · 0 reviews",
@@ -104,10 +117,10 @@ needname:"The provider name is required.",
 export:"Export data",import:"Import data",badfile:"That file could not be read.",
 wfnotes:"Workforce notes",nonotes:"No notes",
 disclaimer:"Zero custody: creating a request or corridor moves no money. Data only changes with real information — nothing is invented.",
-st_candidate:"Candidate",st_verifying:"Verifying",st_live:"Live",st_paused:"Paused",
-nav_home:"⌂ GEV",nav_ins:"🛡️ Insurance",nav_who:"🏠 Wholesale",nav_cru:"🛢️ Crude",nav_imp:"🌐 Imp/Exp"},
+st_candidate:"Candidate",st_verifying:"Verifying",st_live:"Live",st_paused:"Paused"},
 es:{appsub:"Corredores + proveedores de remesas · Custodia cero — crear una solicitud no mueve dinero",
-open:"🌐 Abrir mycubacash.com",
+nav_home:"🌐 GEV",nav_ins:"🛡️ Seguros",nav_who:"🏠 Mayoreo",nav_cru:"🛢️ Crudo",nav_imp:"🚢 Import/Export",nav_cc:"💸 MY CUBA CASH",
+eco_title:"Ecosistema SAHJONY",eco_site:"🌐 Abrir mycubacash.com ↗",eco_ext:"(sitio externo — se abre en una pestaña nueva)",eco_wa:"💬 Hablar con Sofia por WhatsApp",
 tocorridors:"Corredores",toproviders:"Proveedores",toadd:"Agregar",add:"Añadir",manage:"Gestionar",
 kProviders:"PROVEEDORES",kLive:"EN VIVO",kCorridors:"CORREDORES",
 beta1:"Beta v0.9 — 0 clientes verificados · 0 transacciones · 0 reseñas",
@@ -134,8 +147,7 @@ needname:"El nombre del proveedor es obligatorio.",
 export:"Exportar datos",import:"Importar datos",badfile:"No se pudo leer el archivo.",
 wfnotes:"Notas de la fuerza",nonotes:"Sin notas",
 disclaimer:"Custodia cero: crear una solicitud o corredor no mueve dinero. Los datos solo cambian con información real — nada se inventa.",
-st_candidate:"Candidato",st_verifying:"Verificando",st_live:"Activo",st_paused:"Pausado",
-nav_home:"⌂ GEV",nav_ins:"🛡️ Seguro",nav_who:"🏠 Mayoreo",nav_cru:"🛢️ Crudo",nav_imp:"🌐 Imp/Exp"}};
+st_candidate:"Candidato",st_verifying:"Verificando",st_live:"Activo",st_paused:"Pausado"}};
 let lang="es"; const t=k=>T[lang][k]||k;
 /* ============ store (mirrors src/cubacash/providerStore.js) ============ */
 const KEY="sahjony.cubacash.v1";
@@ -357,19 +369,22 @@ function stats(){
   corridorsWithRates:S.corridors.filter(c=>c.fxRate!==null&&c.fxRate>0).length};
 }
 /* ============ render ============ */
-const NAVLINKS=[["nav_home","/"],["nav_ins","/insurance/index.html"],["nav_who","/wholesale/index.html"],["nav_cru","/crude/index.html"],["nav_imp","/import-export/index.html"]];
+const NAVLINKS=[["nav_home","/"],["nav_ins","/insurance/index.html"],["nav_who","/wholesale/index.html"],["nav_cru","/crude/index.html"],["nav_imp","/import-export/index.html"],["nav_cc","/cubacash/index.html",true]];
 let addTab="corridor";
 function render(){
  document.getElementById("btnES").classList.toggle("on",lang==="es");
  document.getElementById("btnEN").classList.toggle("on",lang==="en");
  document.documentElement.lang=lang;
  document.getElementById("appsub").textContent=t("appsub");
- document.getElementById("mccsite").textContent=t("open");
  document.getElementById("disclaimer").textContent=t("disclaimer");
  const nb=document.getElementById("biztabs");nb.innerHTML="";
- NAVLINKS.forEach(([k,href])=>{
-  const a=document.createElement("a");a.className="biztab";a.href=href;a.textContent=t(k);nb.appendChild(a);
+ NAVLINKS.forEach(([k,href,on])=>{
+  const a=document.createElement("a");a.className="biztab"+(on?" on":"");a.href=href;a.textContent=t(k);nb.appendChild(a);
  });
+ document.getElementById("ecohead").textContent=t("eco_title");
+ document.getElementById("ecosite").textContent=t("eco_site");
+ document.getElementById("ecoext").textContent=t("eco_ext");
+ document.getElementById("ecowa").textContent=t("eco_wa");
  const vt=document.getElementById("viewtabs");vt.innerHTML="";
  [["corridors",t("tocorridors")],["providers",t("toproviders")],["add",t("toadd")],["manage",t("manage")]].forEach(([v,l])=>{
   const b=document.createElement("button");b.className="viewtab"+(view===v?" on":"");b.textContent=l;

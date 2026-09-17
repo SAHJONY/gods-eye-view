@@ -88,16 +88,21 @@ test('cross-links to GEV home and the other business screens', () => {
   }
 });
 
-test('the one allowed external URL is mycubacash.com — and nothing else', () => {
+test('the allowed external URLs are mycubacash.com and Sofia WhatsApp — nothing else', () => {
   const text = html();
   assert.ok(
     text.includes('https://www.mycubacash.com'),
     'mycubacash.com link present',
   );
+  assert.ok(
+    text.includes('https://wa.me/12816628581'),
+    'Sofia WhatsApp link present',
+  );
   const urls = text.match(/https?:\/\/[^\s"'`<>()]+/g) || [];
+  const allowed = ['https://www.mycubacash.com', 'https://wa.me/12816628581'];
   assert.deepEqual(
-    urls,
-    ['https://www.mycubacash.com'],
+    urls.filter((u) => !allowed.includes(u)),
+    [],
     `no other external URLs allowed, found: ${JSON.stringify(urls)}`,
   );
 });

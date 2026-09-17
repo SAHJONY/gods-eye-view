@@ -19,6 +19,12 @@ h1{margin:0;font-size:20px}
 .bizlinks{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 4px;scrollbar-width:none}
 .bizlink{flex:0 0 auto;min-height:52px;padding:10px 16px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:15px;font-weight:700;white-space:nowrap;text-decoration:none;display:flex;align-items:center}
 .bizlink.on{border-color:var(--acc);background:#0c2a3d}
+.brand{font-size:13px;font-weight:800;letter-spacing:.22em;color:var(--acc)}
+.ecosystem{max-width:760px;margin:20px auto 0;padding:0 14px}
+.ecohead{font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--mut);margin:4px 2px 10px}
+.ecobtn{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;margin:0 0 6px;padding:12px 14px;border-radius:14px;border:2px solid var(--acc);background:#0c2a3d;color:var(--txt);font-size:17px;font-weight:800;text-decoration:none;text-align:center}
+.ecoext{display:block;text-align:center;font-size:12px;color:var(--mut);margin:0 0 12px}
+.ecowa{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;margin:0;padding:12px 14px;border-radius:14px;border:none;background:#1f9d55;color:#fff;font-size:17px;font-weight:800;text-decoration:none;text-align:center}
 .viewtabs{display:flex;gap:8px;padding:10px 14px}
 .viewtab{flex:1;min-height:52px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;text-align:center}
 .viewtab.on{border-color:var(--grn);background:#0d2b1a}
@@ -70,16 +76,23 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 </head>
 <body>
 <header>
+<div class="brand">SAHJONY</div>
 <h1 id="apptitle">🏠 Wholesale Command Center</h1>
 <div class="sub" id="appsub"></div>
 <div class="langrow noprint">
-<button class="langbtn" id="btnEN" onclick="setLang('en')">EN</button>
 <button class="langbtn" id="btnES" onclick="setLang('es')">ES</button>
+<button class="langbtn" id="btnEN" onclick="setLang('en')">EN</button>
 </div>
 </header>
 <nav class="bizlinks noprint" id="bizlinks" aria-label="businesses"></nav>
 <nav class="viewtabs noprint" id="viewtabs" aria-label="views"></nav>
 <main id="main"></main>
+<section class="ecosystem noprint" id="ecosystem" aria-label="ecosystem">
+<div class="ecohead" id="ecohead"></div>
+<a class="ecobtn" id="ecosite" href="https://www.sahjony.com" target="_blank" rel="noopener"></a>
+<span class="ecoext" id="ecoext"></span>
+<a class="ecowa" id="ecowa" href="https://wa.me/12816628581" target="_blank" rel="noopener"></a>
+</section>
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 <div class="disc" id="disclaimer"></div>
 <script>
@@ -110,7 +123,9 @@ st_assigned:"Assigned",st_closed:"Closed",st_dead:"Dead",
 c_vacant:"Vacant",c_boarded:"Boarded",c_fire:"Fire damage",c_roof:"Roof damage",c_overgrown:"Overgrown",c_fsbo:"FSBO",c_other:"Other",
 d_tax:"Tax delinquent",d_absentee:"Absentee owner",d_vacantland:"Vacant land",
 condfreetext:"Other condition (free text)",distfreetext:"Other distress (free text)",
-viewdetails:"View details",close:"Close",home:"GEV home",ins:"Insurance",cru:"Crude",imp:"Import/Export",cub:"MY CUBA CASH",wsl:"Wholesale"},
+viewdetails:"View details",close:"Close",
+nav_home:"🌐 GEV",nav_ins:"🛡️ Insurance",nav_who:"🏠 Wholesale",nav_cru:"🛢️ Crude",nav_imp:"🚢 Import/Export",nav_cc:"💸 MY CUBA CASH",
+eco_title:"SAHJONY ecosystem",eco_site:"🌐 Open sahjony.com ↗",eco_ext:"(external site — opens in a new tab)",eco_wa:"💬 Chat with Sofia on WhatsApp"},
 es:{appsub:"Pipeline de leads + compradores en efectivo — pantalla completa, primero el teléfono",
 pipeline:"Pipeline",buyers:"Compradores",add:"Agregar lead",manage:"Gestionar",
 total:"LEADS",avgscore:"PUNTAJE PROM.",pipeval:"VALOR PIPELINE",potfees:"HONORARIOS POT.",
@@ -135,7 +150,9 @@ st_assigned:"Asignada",st_closed:"Cerrada",st_dead:"Descartada",
 c_vacant:"Vacante",c_boarded:"Tapiada",c_fire:"Daño por fuego",c_roof:"Daño de techo",c_overgrown:"Descuidada",c_fsbo:"FSBO",c_other:"Otra",
 d_tax:"Impuestos morosos",d_absentee:"Dueño ausente",d_vacantland:"Terreno vacante",
 condfreetext:"Otra condición (texto libre)",distfreetext:"Otro distress (texto libre)",
-viewdetails:"Ver detalles",close:"Cerrar",home:"Inicio GEV",ins:"Seguros",cru:"Crudo",imp:"Import/Export",cub:"MY CUBA CASH",wsl:"Wholesale"}};
+viewdetails:"Ver detalles",close:"Cerrar",
+nav_home:"🌐 GEV",nav_ins:"🛡️ Seguros",nav_who:"🏠 Mayoreo",nav_cru:"🛢️ Crudo",nav_imp:"🚢 Import/Export",nav_cc:"💸 MY CUBA CASH",
+eco_title:"Ecosistema SAHJONY",eco_site:"🌐 Abrir sahjony.com ↗",eco_ext:"(sitio externo — se abre en una pestaña nueva)",eco_wa:"💬 Hablar con Sofia por WhatsApp"}};
 let lang="es"; const t=k=>T[lang][k]||k;
 /* ============ constants ============ */
 const KEY="sahjony.wholesale.v1";
@@ -212,10 +229,14 @@ function render(){
  document.getElementById("disclaimer").textContent=t("disclaimer");
  document.documentElement.lang=lang;
  const bl=document.getElementById("bizlinks");bl.innerHTML="";
- [["/",t("home"),false],["/wholesale/index.html",t("wsl"),true],["/insurance/index.html",t("ins"),false],
-  ["/crude/index.html",t("cru"),false],["/import-export/index.html",t("imp"),false],["/cubacash/index.html",t("cub"),false]]
+ [["/",t("nav_home"),false],["/insurance/index.html",t("nav_ins"),false],["/wholesale/index.html",t("nav_who"),true],
+  ["/crude/index.html",t("nav_cru"),false],["/import-export/index.html",t("nav_imp"),false],["/cubacash/index.html",t("nav_cc"),false]]
  .forEach(([u,l,on])=>{const a=document.createElement("a");a.className="bizlink"+(on?" on":"");
   a.href=u;a.textContent=l;bl.appendChild(a)});
+ document.getElementById("ecohead").textContent=t("eco_title");
+ document.getElementById("ecosite").textContent=t("eco_site");
+ document.getElementById("ecoext").textContent=t("eco_ext");
+ document.getElementById("ecowa").textContent=t("eco_wa");
  const vt=document.getElementById("viewtabs");vt.innerHTML="";
  [["#pipeline",t("pipeline")],["#buyers",t("buyers")],["#add","➕ "+t("add")],["#manage",t("manage")]].forEach(([h,l])=>{
   const a=document.createElement("a");a.className="viewtab"+(VIEW===h.slice(1)?" on":"");

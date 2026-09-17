@@ -83,13 +83,18 @@ test('cross-links to every business module and GEV home', () => {
   }
 });
 
-test('links the business website and nothing else external', () => {
+test('links the business website and Sofia WhatsApp — nothing else external', () => {
   assert.ok(
     html.includes('https://www.sahjony.com'),
     'sahjony.com link present',
   );
+  assert.ok(
+    html.includes('https://wa.me/12816628581'),
+    'Sofia WhatsApp link present',
+  );
   const urls = [...html.matchAll(/https?:\/\/[^\s"'<>]+/g)].map((m) => m[0]);
-  const others = urls.filter((u) => u !== 'https://www.sahjony.com');
+  const allowed = ['https://www.sahjony.com', 'https://wa.me/12816628581'];
+  const others = urls.filter((u) => !allowed.includes(u));
   assert.deepEqual(others, [], `no other external URLs (found: ${others})`);
 });
 

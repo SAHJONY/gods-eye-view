@@ -126,3 +126,69 @@ test('trade: rice/diesel is pinned first in the manage pipeline', () => {
   const sec = manageSection(html.trade);
   assert.ok(sec.includes('RFQ-RICE-DIESEL-0917'), 'pin marker present');
 });
+
+/* ============ unified ecosystem: one SAHJONY experience ============ */
+const ECO_SITE = {
+  wholesale: 'https://www.sahjony.com',
+  crude: 'https://www.sahjony.com',
+  trade: 'https://www.sahjony.com',
+  cubacash: 'https://www.mycubacash.com',
+};
+const ECO_HOST = {
+  wholesale: 'sahjony.com',
+  crude: 'sahjony.com',
+  trade: 'sahjony.com',
+  cubacash: 'mycubacash.com',
+};
+
+for (const [name, src] of Object.entries(html)) {
+  test(`${name}: same SAHJONY brand mark at the top of the header`, () => {
+    assert.ok(src.includes('<div class="brand">SAHJONY</div>'), 'brand mark present');
+    const hdr = src.indexOf('<header>');
+    assert.ok(hdr >= 0 && src.indexOf('<div class="brand">SAHJONY</div>') > hdr, 'brand inside header');
+  });
+
+  test(`${name}: language toggle is ES-first, same placement`, () => {
+    const esPos = src.indexOf('id="btnES"');
+    const enPos = src.indexOf('id="btnEN"');
+    assert.ok(esPos > 0 && enPos > 0 && esPos < enPos, 'ES button before EN button');
+  });
+
+  test(`${name}: back-to-hub bar links all six destinations with self highlighted`, () => {
+    for (const href of ['"/"', '"/insurance/index.html"', '"/wholesale/index.html"', '"/crude/index.html"', '"/import-export/index.html"', '"/cubacash/index.html"']) {
+      assert.ok(src.includes(href), `cross-link ${href} present`);
+    }
+    // the current station's link carries the " on" marker exactly once
+    if (name === 'cubacash') {
+      assert.ok(src.includes('["nav_cc","/cubacash/index.html",true]'), 'self link /cubacash/index.html rendered with on marker');
+    } else {
+      const selfHref = `/${name === 'trade' ? 'import-export' : name}/index.html`;
+      assert.ok(src.includes(`["${selfHref}",t("nav_`), `self link ${selfHref} rendered with nav key`);
+    }
+  });
+
+  test(`${name}: ecosystem section — external site deep-link, big target, new tab`, () => {
+    assert.ok(src.includes('id="ecosystem"'), 'ecosystem section present');
+    assert.ok(
+      src.includes(`id="ecosite" href="${ECO_SITE[name]}" target="_blank" rel="noopener"`),
+      `external site link ${ECO_SITE[name]} opens in a new tab with noopener`,
+    );
+    assert.ok(src.includes(`Abrir ${ECO_HOST[name]} ↗`) && src.includes(`Open ${ECO_HOST[name]} ↗`), 'bilingual external-site label with ↗');
+    assert.ok(src.includes('sitio externo') && src.includes('external site'), 'clearly labeled as an external site');
+    const m = src.match(/\.ecobtn\{[^}]*min-height:(\d+)px/);
+    assert.ok(m && Number(m[1]) >= 44, `ecobtn min-height ${m && m[1]}px >= 44px`);
+  });
+
+  test(`${name}: ecosystem section — Sofia on WhatsApp, same position and labels`, () => {
+    assert.ok(
+      src.includes('id="ecowa" href="https://wa.me/12816628581" target="_blank" rel="noopener"'),
+      'Sofia WhatsApp deep-link present, new tab, noopener',
+    );
+    assert.ok(src.includes('Hablar con Sofia por WhatsApp'), 'ES label exact');
+    assert.ok(src.includes('Chat with Sofia on WhatsApp'), 'EN label exact');
+    const m = src.match(/\.ecowa\{[^}]*min-height:(\d+)px/);
+    assert.ok(m && Number(m[1]) >= 44, `ecowa min-height ${m && m[1]}px >= 44px`);
+    // ecosystem section sits after <main> on every screen (same position)
+    assert.ok(src.indexOf('id="ecosystem"') > src.indexOf('<main'), 'ecosystem after main');
+  });
+}
