@@ -1,6 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
+// Import the module BEFORE installing the DOM double: cesium sniffs for a
+// real document at load time, and a half-mocked one crashes its widget
+// bundle. (In the browser the document is always real.)
+const { initDriveForDollars } = await import('./driveForDollars.js');
+
 function makeEl() {
   const el = {
     children: [],
@@ -33,6 +38,7 @@ function makeEl() {
 
 globalThis.window = globalThis;
 globalThis.document = {
+  location: { href: 'http://localhost/' },
   getElementById: () => null,
   createElement: () => makeEl(),
   head: makeEl(),
@@ -52,8 +58,6 @@ const viewer = {
   },
   entities: { add: () => ({ __stub: true }), remove: () => {} },
 };
-
-const { initDriveForDollars } = await import('./driveForDollars.js');
 
 test('drive: start/stop cycle works headless (no GPS in node)', () => {
   const drive = initDriveForDollars({ viewer });

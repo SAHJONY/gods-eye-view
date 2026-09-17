@@ -12,6 +12,7 @@
  * Pure URL builders are exported for unit tests; the live Cesium/DOM
  * wiring lives in initStreetView().
  */
+import * as Cesium from 'cesium';
 
 const KARTAVIEW_ZOOM = 18;
 
@@ -66,17 +67,11 @@ function injectStyles() {
   document.head.appendChild(style);
 }
 
-function getCesium() {
-  if (typeof Cesium !== 'undefined') return Cesium;
-  if (typeof window !== 'undefined' && window.Cesium) return window.Cesium;
-  return null;
-}
-
 /** Lat/lng under the center of the screen, or null. */
 export function screenCenterLatLng(viewer) {
   try {
-    const C = getCesium();
-    if (!C || !viewer?.scene?.canvas) return null;
+    const C = Cesium;
+    if (!viewer?.scene?.canvas) return null;
     const canvas = viewer.scene.canvas;
     const center = new C.Cartesian2(
       canvas.clientWidth / 2,
@@ -100,8 +95,7 @@ export function screenCenterLatLng(viewer) {
 /** Lat/lng for a click event on the canvas, or null. */
 function clickLatLng(viewer, movement) {
   try {
-    const C = getCesium();
-    if (!C) return null;
+    const C = Cesium;
     const cartesian = viewer.camera.pickEllipsoid(
       movement.position,
       viewer.scene.globe.ellipsoid,
@@ -123,8 +117,7 @@ function clickLatLng(viewer, movement) {
  * Returns a restore function for the previous camera pose.
  */
 export function dropToStreetLevel(viewer, lat, lng) {
-  const C = getCesium();
-  if (!C) throw new Error('Cesium unavailable');
+  const C = Cesium;
   const camera = viewer.camera;
   const prev = {
     destination: camera.position.clone(),
@@ -205,8 +198,7 @@ export function initStreetView({ viewer, signal = null } = {}) {
 
   function startPickMode() {
     if (aborted.current || typeof document === 'undefined') return;
-    const C = getCesium();
-    if (!C) return;
+    const C = Cesium;
     endPickMode();
     btnEl?.classList.add('is-picking');
     hintEl = document.createElement('div');

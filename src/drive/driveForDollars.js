@@ -10,6 +10,7 @@
  * for unit tests; the live GPS/Cesium/DOM wiring lives in
  * initDriveForDollars().
  */
+import * as Cesium from 'cesium';
 
 const STORAGE_KEY = 'sahjony.d4d.v1';
 const REVERSE_GEOCODE_MIN_INTERVAL_MS = 1200;
@@ -222,12 +223,6 @@ function injectStyles() {
   document.head.appendChild(style);
 }
 
-function getCesium() {
-  if (typeof Cesium !== 'undefined') return Cesium;
-  if (typeof window !== 'undefined' && window.Cesium) return window.Cesium;
-  return null;
-}
-
 function downloadFile(name, content, mime) {
   if (typeof document === 'undefined') return;
   const blob = new Blob([content], { type: mime });
@@ -253,7 +248,7 @@ export function initDriveForDollars({ viewer, streetView = null, signal = null }
   const aborted = { current: false };
   signal?.addEventListener?.('abort', () => { aborted.current = true; }, { once: true });
 
-  const C = getCesium();
+  const C = Cesium;
   const state = loadState();
   let drives = state.drives;
   let properties = state.properties;
