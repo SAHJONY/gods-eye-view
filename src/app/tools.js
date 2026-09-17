@@ -50,6 +50,32 @@ import { initTankerMapLayer } from '../crude/tankerMapLayer.js';
 import { initCrudeDashboard } from '../crude/crudeDashboard.js';
 import { createWorkforce as createCrudeWorkforce } from '../agents/crudeWorkforce.js';
 import { initCrudeWorkforcePanel } from '../agents/crudeWorkforcePanel.js';
+// Import/export trade: RFQ deal economics, persistent supplier/RFQ pipeline,
+// CSV importer, 3D shipping-lane map, AI workforce, mission-control
+// dashboard.
+import * as tradeEngine from '../trade/rfqEngine.js';
+import {
+  createRfq as trCreateRfq,
+  getRfq as trGetRfq,
+  updateRfq as trUpdateRfq,
+  moveRfq as trMoveRfq,
+  deleteRfq as trDeleteRfq,
+  listRfqs as trListRfqs,
+  addRfqNote as trAddRfqNote,
+  createSupplier as trCreateSupplier,
+  getSupplier as trGetSupplier,
+  updateSupplier as trUpdateSupplier,
+  deleteSupplier as trDeleteSupplier,
+  listSuppliers as trListSuppliers,
+  addSupplierNote as trAddSupplierNote,
+  asWorkforceStore as trAsWorkforceStore,
+  stats as trStats,
+} from '../trade/supplierStore.js';
+import { parseTradeCsv as parseTradeCsv } from '../trade/supplierImporter.js';
+import { initShippingMapLayer } from '../trade/shippingLayer.js';
+import { initTradeDashboard } from '../trade/tradeDashboard.js';
+import { createWorkforce as createTradeWorkforce } from '../agents/tradeWorkforce.js';
+import { initTradeWorkforcePanel } from '../agents/tradeWorkforcePanel.js';
 import { installScopeMask, destroyScopeMask } from '../scopeMask.js';
 import {
   installRenderGovernor,
@@ -582,6 +608,187 @@ export function createApplicationTools({
     if (window.__gevCrudeWorkforceUI) delete window.__gevCrudeWorkforceUI;
   });
   debug.crudeWorkforcePanel = crudeWorkforcePanel;
+  // --- Import/export trade --------------------------------------------------
+  // One store (localStorage `sahjony.trade.v1`) spoken in the three shapes its
+  // consumers expect: the dashboard/map-layer shape, and the AI workforce
+  // engine shape. Mutations notify listeners (the 3D shipping-lane map
+  // refreshes, debounced).
+  const tradeMutations = new Set();
+  const notifyTradeMutations = () => {
+    for (const fn of tradeMutations) {
+      try {
+        fn();
+      } catch {
+        /* map refresh is best-effort */
+      }
+    }
+  };
+  const tradeWorkforceRaw = trAsWorkforceStore();
+  const tradeStore = {
+    // Dashboard/map-layer shape (accepted as-is by the dashboard's adaptStore).
+    listRfqs: (filter) => trListRfqs(filter),
+    getRfq: (id) => trGetRfq(id),
+    createRfq: (data) => {
+      const rfq = trCreateRfq(data);
+      if (rfq) notifyTradeMutations();
+      return rfq;
+    },
+    updateRfq: (id, patch) => {
+      const rfq = trUpdateRfq(id, patch);
+      if (rfq) notifyTradeMutations();
+      return rfq;
+    },
+    moveRfq: (id, status) => {
+      const rfq = trMoveRfq(id, status);
+      if (rfq) notifyTradeMutations();
+      return rfq;
+    },
+    deleteRfq: (id) => {
+      const ok = trDeleteRfq(id);
+      if (ok) notifyTradeMutations();
+      return ok;
+    },
+    addRfqNote: (id, agent, es, en) => trAddRfqNote(id, agent, es, en),
+    listSuppliers: (filter) => trListSuppliers(filter),
+    getSupplier: (id) => trGetSupplier(id),
+    createSupplier: (data) => {
+      const supplier = trCreateSupplier(data);
+      if (supplier) notifyTradeMutations();
+      return supplier;
+    },
+    updateSupplier: (id, patch) => {
+      const supplier = trUpdateSupplier(id, patch);
+      if (supplier) notifyTradeMutations();
+      return supplier;
+    },
+    deleteSupplier: (id) => {
+      const ok = trDeleteSupplier(id);
+      if (ok) notifyTradeMutations();
+      return ok;
+    },
+    addSupplierNote: (id, agent, es, en) =>
+      trAddSupplierNote(id, agent, es, en),
+    stats: () => trStats(),
+    notes: (id) => tradeWorkforceRaw.notes(id),
+    onMutate: (fn) => {
+      if (typeof fn === 'function') tradeMutations.add(fn);
+      return () => tradeMutations.delete(fn);
+    },
+    // AI workforce engine shape. The engine writes notes under the `notes`
+    // key; the store persists them as `agentNotes` — normalized here so the
+    // dashboard/panel read the same notes the agents write.
+    getAll: () =>
+      tradeWorkforceRaw.getAll().map((r) => ({
+        ...r,
+        notes: tradeWorkforceRaw.notes(r.id),
+      })),
+    get: (id) => {
+      const r = tradeWorkforceRaw.get(id);
+      return r ? { ...r, notes: tradeWorkforceRaw.notes(id) } : null;
+    },
+    update: (id, patch) => {
+      const p = { ...(patch || {}) };
+      if (Array.isArray(p.notes)) {
+        p.agentNotes = p.notes.map((n) => ({
+          at: n.t ?? n.at ?? Date.now(),
+          agent: n.agent || '',
+          es: n.es || '',
+          en: n.en || '',
+        }));
+        delete p.notes;
+      }
+      const rfq = tradeWorkforceRaw.update(id, p);
+      if (rfq) notifyTradeMutations();
+      return rfq;
+    },
+  };
+  // 3D shipping-lane map: origin/destination pins + great-circle lane arcs,
+  // colored by RFQ status. Renders only coordinates Juan's data supplies —
+  // never (0,0).
+  const shippingMap = initShippingMapLayer({
+    viewer,
+    rfqStore: { listRfqs: tradeStore.listRfqs },
+    rfqEngine: tradeEngine,
+    signal,
+  });
+  defer(() => {
+    try {
+      shippingMap.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevShippingMap) delete window.__gevShippingMap;
+  });
+  let shippingMapRefreshTimer = null;
+  tradeStore.onMutate(() => {
+    if (shippingMapRefreshTimer) return; // coalesce import bursts
+    shippingMapRefreshTimer = setTimeout(() => {
+      shippingMapRefreshTimer = null;
+      try {
+        shippingMap.refresh();
+      } catch {
+        /* best-effort */
+      }
+    }, 300);
+  });
+  debug.shippingMap = shippingMap;
+  // AI agentic workforce (trade): supplier scout, RFQ researcher, logistics
+  // analyst, deal coordinator. Runs while the app is open; every output is a
+  // draft/note for review — it never sends, posts, or contacts anyone.
+  const tradeWorkforce = createTradeWorkforce({
+    rfqStore: tradeStore,
+    rfqEngine: tradeEngine,
+    signal,
+  });
+  try {
+    tradeWorkforce.setSuppliers(tradeStore.listSuppliers());
+  } catch {
+    /* no suppliers configured yet */
+  }
+  window.__gevTradeWorkforce = tradeWorkforce;
+  defer(() => {
+    try {
+      tradeWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevTradeWorkforce === tradeWorkforce)
+      delete window.__gevTradeWorkforce;
+  });
+  debug.tradeWorkforce = tradeWorkforce;
+  // Mission-control dashboard (trade): KPIs, 6-status RFQ pipeline, RFQ
+  // drawer, supplier manager, CSV import/export, commission drafts.
+  const tradeDashboard = initTradeDashboard({
+    rfqStore: tradeStore,
+    rfqEngine: tradeEngine,
+    shippingMap,
+    workforce: tradeWorkforce,
+    signal,
+    parseCsv: parseTradeCsv,
+  });
+  defer(() => {
+    try {
+      tradeDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevTrade) delete window.__gevTrade;
+  });
+  debug.trade = tradeDashboard;
+  // Trade workforce mission-control panel: agent roster + live activity feed.
+  const tradeWorkforcePanel = initTradeWorkforcePanel({
+    workforce: tradeWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      tradeWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevTradeWorkforceUI) delete window.__gevTradeWorkforceUI;
+  });
+  debug.tradeWorkforcePanel = tradeWorkforcePanel;
   // SAHJONY VOZ — free bilingual (ES/EN) voice commander. Dedicated action
   // runner driving the same GEV actions; no API keys, no cost.
   const sahjonyVoice = initSahjonyVoice({
@@ -716,6 +923,64 @@ export function createApplicationTools({
           /* noop */
         }
       },
+      __trade_open: () => tradeDashboard.toggle?.() ?? tradeDashboard.open?.(),
+      __trade_status: () =>
+        tradeDashboard.toggle?.() ?? tradeDashboard.open?.(),
+      __trade_best: () => {
+        const rfqs = tradeStore
+          .listRfqs()
+          .filter(
+            (r) =>
+              r.status !== 'lost' &&
+              r.status !== 'won' &&
+              tradeEngine.netMarginPct(r) > 0,
+          )
+          .sort(
+            (a, b) => tradeEngine.netMarginPct(b) - tradeEngine.netMarginPct(a),
+          );
+        const top = rfqs[0];
+        if (top) {
+          try {
+            shippingMap.flyToRfq(top.id);
+          } catch {
+            /* noop */
+          }
+          try {
+            tradeDashboard.openDrawer?.(top.id);
+          } catch {
+            /* noop */
+          }
+        } else {
+          tradeDashboard.toggle?.() ?? tradeDashboard.open?.();
+        }
+      },
+      __trade_analyze: () => {
+        try {
+          tradeWorkforce.processOnce();
+        } catch {
+          /* noop */
+        }
+        tradeDashboard.toggle?.() ?? tradeDashboard.open?.();
+      },
+      __trade_workforce_start: () => {
+        try {
+          tradeWorkforce.start();
+        } catch {
+          /* noop */
+        }
+        try {
+          tradeWorkforcePanel.open?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __trade_workforce_pause: () => {
+        try {
+          tradeWorkforce.pause();
+        } catch {
+          /* noop */
+        }
+      },
     },
   });
   defer(() => {
@@ -752,5 +1017,9 @@ export function createApplicationTools({
     crudeWorkforce,
     crude: crudeDashboard,
     crudeWorkforcePanel,
+    shippingMap,
+    tradeWorkforce,
+    trade: tradeDashboard,
+    tradeWorkforcePanel,
   };
 }
