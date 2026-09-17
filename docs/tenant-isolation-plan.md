@@ -7,8 +7,13 @@ Branch: `sahjony/tenant-isolation`.
 ## Approvals (recorded 2026-09-17)
 
 - Juan: **"merge and proceed"** — ADVANCE APPROVAL: when this branch is built
-  and its tests are green, merge it to `sahjony/main` WITHOUT asking again,
-  then proceed with this plan's sequencing (pilot readiness).
+  and its tests are green, merge it to `sahjony/main` WITHOUT asking again.
+  Then STOP. (Juan 2026-09-17: "let me test the business first.")
+- After the merge: NO pilot outreach, NO public tiers, NO selling motion.
+  Phase 1 is Juan running his six businesses on the app and testing everything
+  himself. Nothing customer-facing moves until he says the businesses work.
+  The tenant-isolation merge approval stands — it is plumbing only, not a
+  go-to-market signal.
 - Merging to main does NOT deploy to the VPS. The VPS deploy (which affects
   the live app at 69.62.68.67) still needs Juan's explicit word when the time
   comes — that gate is unchanged.
