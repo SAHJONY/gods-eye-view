@@ -22,6 +22,15 @@ Current modules: wholesale, crude, insurance, trade (import/export), cubacash
    360px-safe, touch targets ≥44px, ES/EN toggle persisted in
    `sahjony.gev.lang`, hash deep-link views, cross-links to other business
    screens, no Cesium, no external calls, nothing hover-only.
+   **Hub architecture (standing rule, Juan 2026-09-17): EVERY business gets its
+   OWN SEPARATE FULL SCREEN — never crammed into the main screen.** Each
+   business screen contains that business's pipeline, dashboard panel, map
+   layers, AI workforce panel, and voice controls. Every business screen has
+   an easy visible back-to-hub button: persistent sticky header, element id
+   `gev-back-hub`, `href="/"`, ES "‹ Volver" / EN "‹ Back", min-height 52px.
+   The main screen is the hub/launcher: one-tap business cards (big targets,
+   ES/EN) as the default entry view; the globe stays accessible from the hub.
+   Nothing business-specific lives on the main screen except the launcher cards.
 6. **Launcher registration** — entry in `src/businessLauncher.js` BUSINESSES
    (+ test): one-tap access from the main screen.
 7. **Map layer** — `<name>MapLayer.js` + UI tests, where the business has a
