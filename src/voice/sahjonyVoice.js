@@ -128,8 +128,8 @@ export function parseSahjonyCommand(rawText) {
       action: '__help',
       args: {},
       say: {
-        es: 'Puedo mostrar capas como aviones, barcos o terremotos, volar a cualquier ciudad, acercar o alejar, y seguir aviones. Prueba: muéstrame los aviones sobre Houston.',
-        en: 'I can show layers like aircraft, ships or earthquakes, fly to any city, zoom in or out, and track aircraft. Try: show me aircraft over Houston.',
+        es: 'Puedo mostrar capas como aviones, barcos o terremotos, volar a cualquier ciudad, acercar o alejar, seguir aviones, abrir la vista de calle y manejar el modo driver for dollars. Prueba: marca esta propiedad.',
+        en: 'I can show layers like aircraft, ships or earthquakes, fly to any city, zoom in or out, track aircraft, open street view, and run driver-for-dollars mode. Try: mark this property.',
       },
     };
   }
@@ -174,6 +174,38 @@ export function parseSahjonyCommand(rawText) {
       action: 'select_nearest_aircraft',
       args: {},
       say: { es: 'Buscando el avión más cercano', en: 'Finding the nearest aircraft' },
+    };
+  }
+
+  // --- street view (photo / 3D, no API key) ---
+  if (/\b(vista de calle|street view)\b/.test(text)) {
+    return {
+      action: '__street_view',
+      args: {},
+      say: { es: 'Vista de calle lista', en: 'Street view ready' },
+    };
+  }
+
+  // --- driver for dollars ---
+  if (/\b(driver for dollars|modo manejo|modo manejar|empieza( a)? manejar|inicia( el)? recorrido|start driving|begin driving)\b/.test(text)) {
+    return {
+      action: '__drive_start',
+      args: {},
+      say: { es: 'Modo manejo activado. Buena cacería.', en: 'Driving mode on. Happy hunting.' },
+    };
+  }
+  if (/\b(termina( el)? recorrido|finaliza( el)? recorrido|para de manejar|deja de manejar|stop driving|end (the )?drive|finish driving)\b/.test(text)) {
+    return {
+      action: '__drive_stop',
+      args: {},
+      say: { es: 'Recorrido terminado', en: 'Drive finished' },
+    };
+  }
+  if (/\b(marca esta propiedad|marca esta casa|agrega esta propiedad|anade esta propiedad|mark this property|mark this house)\b/.test(text)) {
+    return {
+      action: '__drive_mark',
+      args: {},
+      say: { es: 'Marcando esta propiedad', en: 'Marking this property' },
     };
   }
 
@@ -362,8 +394,9 @@ function describeViewState(result, lang) {
 /**
  * Live commander: microphone (Web Speech API) + intent engine + TTS + UI.
  */
-export function createSahjonyVoiceCommander({ runner, dataManager = null, signal = null, defaultLang = ES } = {}) {
+export function createSahjonyVoiceCommander({ runner, dataManager = null, signal = null, defaultLang = ES, extensions = {} } = {}) {
   if (typeof runner !== 'function') throw new Error('sahjonyVoice: runner is required');
+  const ext = extensions && typeof extensions === 'object' ? extensions : {};
   let lang = defaultLang === EN ? EN : ES;
   let listening = false;
   let recognition = null;
@@ -429,6 +462,18 @@ export function createSahjonyVoiceCommander({ runner, dataManager = null, signal
     if (parsed.action === '__help') {
       setTranscript(`«${originalText}» ✓`);
       speak(parsed.say[lang], lang);
+      return;
+    }
+    // Extension actions (street view, driver-for-dollars, …) are handled by
+    // the host app, not the GEV action runner.
+    if (parsed.action.startsWith('__') && typeof ext[parsed.action] === 'function') {
+      setTranscript(`«${originalText}» ✓`);
+      try {
+        await ext[parsed.action](parsed.args, { lang });
+        if (parsed.say) speak(parsed.say[lang], lang);
+      } catch {
+        speak(lang === ES ? 'Ese comando falló.' : 'That command failed.', lang);
+      }
       return;
     }
     let { action, args } = parsed;
@@ -579,6 +624,7 @@ export function initSahjonyVoice(options = {}) {
     dataManager: options.dataManager || null,
     signal: options.signal || null,
     defaultLang: options.defaultLang || ES,
+    extensions: options.extensions || {},
   });
   if (typeof window !== 'undefined') {
     window.__sahjonyVoice = commander;

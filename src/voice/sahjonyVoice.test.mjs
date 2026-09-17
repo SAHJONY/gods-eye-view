@@ -111,3 +111,46 @@ test('parse: unknown text returns null', () => {
   assert.equal(parseSahjonyCommand('el ornitorrinco baila'), null);
   assert.equal(parseSahjonyCommand(''), null);
 });
+
+test('parse: street view (ES/EN)', () => {
+  const es = parseSahjonyCommand('vista de calle');
+  assert.equal(es.action, '__street_view');
+  assert.match(es.say.es, /calle/);
+
+  const en = parseSahjonyCommand('show me the street view');
+  assert.equal(en.action, '__street_view');
+  assert.match(en.say.en, /Street view/);
+});
+
+test('parse: driver for dollars start/stop/mark (ES/EN)', () => {
+  const startEs = parseSahjonyCommand('empieza a manejar');
+  assert.equal(startEs.action, '__drive_start');
+
+  const startEn = parseSahjonyCommand('start driving');
+  assert.equal(startEn.action, '__drive_start');
+
+  const d4d = parseSahjonyCommand('driver for dollars');
+  assert.equal(d4d.action, '__drive_start');
+
+  const stopEs = parseSahjonyCommand('termina el recorrido');
+  assert.equal(stopEs.action, '__drive_stop');
+
+  const stopEn = parseSahjonyCommand('stop driving');
+  assert.equal(stopEn.action, '__drive_stop');
+
+  const markEs = parseSahjonyCommand('marca esta propiedad');
+  assert.equal(markEs.action, '__drive_mark');
+
+  const markEn = parseSahjonyCommand('mark this property');
+  assert.equal(markEn.action, '__drive_mark');
+});
+
+test('parse: street-view and drive phrases do not collide with map views', () => {
+  // "vista calle" (street MAP) must keep mapping to the OSM stack…
+  assert.equal(parseSahjonyCommand('vista calle').action, 'set_map_stack');
+  // …while "vista de calle" (street VIEW) opens the viewer.
+  assert.equal(parseSahjonyCommand('vista de calle').action, '__street_view');
+  // plain "para" still stops tracking, "para de manejar" ends the drive
+  assert.equal(parseSahjonyCommand('para').action, 'stop_tracking');
+  assert.equal(parseSahjonyCommand('para de manejar').action, '__drive_stop');
+});

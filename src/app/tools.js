@@ -4,6 +4,8 @@ import { initDrawTool } from '../annotations/drawTool.js';
 import { initGevVoiceCommands } from '../voice/gevRealtime.js';
 import { createGevActionRunner } from '../voice/gevActions.js';
 import { initSahjonyVoice } from '../voice/sahjonyVoice.js';
+import { initStreetView } from '../streetview/streetView.js';
+import { initDriveForDollars } from '../drive/driveForDollars.js';
 import { installScopeMask, destroyScopeMask } from '../scopeMask.js';
 import {
   installRenderGovernor,
@@ -139,6 +141,22 @@ export function createApplicationTools({
       delete window.__gevVoiceCommands;
   });
   debug.voiceCommands = voiceCommands;
+  // Street View (keyless: KartaView embed + 3D street level + Google link).
+  const streetView = initStreetView({ viewer, signal });
+  defer(() => {
+    streetView.destroy();
+    if (window.__gevStreetView) delete window.__gevStreetView;
+  });
+  debug.streetView = streetView;
+  // Driver for Dollars — wholesaling drive mode (GPS route + property pins).
+  const drive = initDriveForDollars({ viewer, streetView, signal });
+  defer(() => {
+    drive.destroy();
+    if (window.__gevDriveForDollars) delete window.__gevDriveForDollars;
+  });
+  debug.drive = drive;
+  // Voice prefers the drive GPS fix (hands-free while driving), then map center.
+  streetView.setFocusProvider(() => drive.currentFix());
   // SAHJONY VOZ — free bilingual (ES/EN) voice commander. Dedicated action
   // runner driving the same GEV actions; no API keys, no cost.
   const sahjonyVoice = initSahjonyVoice({
@@ -157,6 +175,12 @@ export function createApplicationTools({
     }),
     dataManager,
     signal,
+    extensions: {
+      __street_view: () => streetView.openAtCurrent(),
+      __drive_start: () => drive.start(),
+      __drive_stop: () => drive.stop(),
+      __drive_mark: () => drive.markProperty(),
+    },
   });
   defer(() => {
     sahjonyVoice.destroy();
@@ -176,5 +200,5 @@ export function createApplicationTools({
   } catch {
     document.getElementById('gev-voice-control')?.remove();
   }
-  return { sceneDirector, annotations, voiceCommands, sahjonyVoice };
+  return { sceneDirector, annotations, voiceCommands, sahjonyVoice, streetView, drive };
 }
