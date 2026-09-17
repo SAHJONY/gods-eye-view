@@ -154,3 +154,73 @@ test('parse: street-view and drive phrases do not collide with map views', () =>
   assert.equal(parseSahjonyCommand('para').action, 'stop_tracking');
   assert.equal(parseSahjonyCommand('para de manejar').action, '__drive_stop');
 });
+
+test('parse: MY CUBA CASH intents (ES/EN)', () => {
+  assert.equal(parseSahjonyCommand('abre cuba cash').action, '__cubacash_open');
+  assert.equal(parseSahjonyCommand('open cuba cash').action, '__cubacash_open');
+  assert.equal(
+    parseSahjonyCommand('muéstrame los proveedores de cuba cash').action,
+    '__cubacash_providers',
+  );
+  assert.equal(
+    parseSahjonyCommand('show me cuba cash providers').action,
+    '__cubacash_providers',
+  );
+  assert.equal(
+    parseSahjonyCommand('muéstrame los corredores').action,
+    '__cubacash_corridors',
+  );
+  assert.equal(
+    parseSahjonyCommand('show me corridors').action,
+    '__cubacash_corridors',
+  );
+  assert.equal(
+    parseSahjonyCommand('estado de cuba cash').action,
+    '__cubacash_status',
+  );
+  assert.equal(
+    parseSahjonyCommand('cuba cash status').action,
+    '__cubacash_status',
+  );
+  assert.equal(
+    parseSahjonyCommand('analiza este corredor').action,
+    '__cubacash_analyze',
+  );
+  assert.equal(
+    parseSahjonyCommand('analyze this corridor').action,
+    '__cubacash_analyze',
+  );
+  assert.equal(
+    parseSahjonyCommand('inicia el equipo de cuba cash').action,
+    '__cubacash_workforce_start',
+  );
+  assert.equal(
+    parseSahjonyCommand('start the cuba cash team').action,
+    '__cubacash_workforce_start',
+  );
+  assert.equal(
+    parseSahjonyCommand('pausa el equipo de cuba cash').action,
+    '__cubacash_workforce_pause',
+  );
+  assert.equal(
+    parseSahjonyCommand('pause the cuba cash team').action,
+    '__cubacash_workforce_pause',
+  );
+});
+
+test('parse: cuba-cash provider intent is disambiguated from generic supplier phrases', () => {
+  // The "cuba cash" qualified phrase must route to MY CUBA CASH, while the
+  // generic phrase must NOT swallow into the cuba-cash route.
+  assert.equal(
+    parseSahjonyCommand('muéstrame los proveedores de cuba cash').action,
+    '__cubacash_providers',
+  );
+  assert.equal(
+    parseSahjonyCommand('show me cuba cash providers').action,
+    '__cubacash_providers',
+  );
+  assert.notEqual(
+    parseSahjonyCommand('muéstrame los proveedores').action,
+    '__cubacash_providers',
+  );
+});

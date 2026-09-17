@@ -551,6 +551,184 @@ export function parseSahjonyCommand(rawText) {
     };
   }
 
+  // --- import/export trade ---
+  if (
+    /\b(modo comercio|trade mode|abre comercio|open trade|panel comercio|trade panel|importacion|importación|exportacion|exportación|import export|muestrame los proveedores|muéstrame los proveedores|show me suppliers|muestrame las rutas de envio|muéstrame las rutas de envío|show me shipping routes|rfq panel|panel rfq)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__trade_open',
+      args: {},
+      say: {
+        es: 'Abriendo el panel de comercio',
+        en: 'Opening the trade panel',
+      },
+    };
+  }
+  if (
+    /\b(mejores rfq|mejores rfqs|mejor rfq|best rfq|best rfqs|top rfqs|muestrame los mejores rfq|muéstrame los mejores rfq)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__trade_best',
+      args: {},
+      say: {
+        es: 'Estas son tus mejores oportunidades comerciales',
+        en: 'Here are your best trade opportunities',
+      },
+    };
+  }
+  if (
+    /\b(cuantos rfq|cuántos rfq|cuantos rfqs|cuántos rfqs|how many rfq|how many rfqs|estado del comercio|trade status|resumen comercio|trade summary|resumen importacion|resumen importación|resumen exportacion|resumen exportación)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__trade_status',
+      args: {},
+      say: {
+        es: 'Revisando tu negocio de comercio',
+        en: 'Checking your trade business',
+      },
+    };
+  }
+  if (
+    /\b(analiza este rfq|analiza esta oportunidad|analyze this rfq|analyze this trade)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__trade_analyze',
+      args: {},
+      say: { es: 'Analizando el RFQ', en: 'Analyzing the RFQ' },
+    };
+  }
+  if (
+    /\b(inicia los agentes de comercio|start the trade workforce|start trade agents|activa los agentes de comercio)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__trade_workforce_start',
+      args: {},
+      say: {
+        es: 'Agentes de comercio activados. A trabajar.',
+        en: 'Trade workforce activated. Getting to work.',
+      },
+    };
+  }
+  if (
+    /\b(pausa los agentes de comercio|pause the trade workforce|pause trade agents|deten los agentes de comercio)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__trade_workforce_pause',
+      args: {},
+      say: { es: 'Agentes de comercio en pausa', en: 'Trade agents paused' },
+    };
+  }
+  // --- MY CUBA CASH ---
+  // NOTE: the "cuba cash" qualifier keeps these intents distinct from any
+  // generic "muestrame los proveedores" intent elsewhere — the longer,
+  // qualified phrase must match here first.
+  if (
+    /\b(modo cuba cash|cuba cash mode|abre cuba cash|open cuba cash|panel cuba cash|cuba cash panel|my cuba cash|mi cuba cash)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cubacash_open',
+      args: {},
+      say: {
+        es: 'Abriendo el panel de MY CUBA CASH',
+        en: 'Opening the MY CUBA CASH panel',
+      },
+    };
+  }
+  if (
+    /\b(muestrame los proveedores de cuba cash|muestrame los proveedores de cuba|show me cuba cash providers|show me remittance providers|proveedores de remesas|remittance providers)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cubacash_providers',
+      args: {},
+      say: {
+        es: 'Estos son los proveedores de remesas',
+        en: 'Here are the remittance providers',
+      },
+    };
+  }
+  if (
+    /\b(muestrame los corredores|show me corridors|corredores de remesa|corredores de remesas|remittance corridors|muestrame las rutas de cuba cash|show me cuba cash corridors)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cubacash_corridors',
+      args: {},
+      say: {
+        es: 'Mostrando los corredores de remesa',
+        en: 'Showing the remittance corridors',
+      },
+    };
+  }
+  if (
+    /\b(cuantos proveedores de cuba cash|cuántos proveedores de cuba cash|how many cuba cash providers|estado de cuba cash|cuba cash status|resumen cuba cash|cuba cash summary|cuantas remesas|cuántas remesas|how many remittances)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cubacash_status',
+      args: {},
+      say: {
+        es: 'Revisando tu negocio de MY CUBA CASH',
+        en: 'Checking your MY CUBA CASH business',
+      },
+    };
+  }
+  if (
+    /\b(analiza este corredor|analyze this corridor|analiza el corredor|analyze the corridor)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cubacash_analyze',
+      args: {},
+      say: { es: 'Analizando el corredor', en: 'Analyzing the corridor' },
+    };
+  }
+  if (
+    /\b(inicia el equipo de cuba cash|activate the cuba cash team|start the cuba cash team|activa el equipo de cuba cash)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cubacash_workforce_start',
+      args: {},
+      say: {
+        es: 'Agentes de MY CUBA CASH activados. A trabajar.',
+        en: 'MY CUBA CASH workforce activated. Getting to work.',
+      },
+    };
+  }
+  if (
+    /\b(pausa el equipo de cuba cash|pause the cuba cash team|deten el equipo de cuba cash)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cubacash_workforce_pause',
+      args: {},
+      say: {
+        es: 'Agentes de MY CUBA CASH en pausa',
+        en: 'MY CUBA CASH agents paused',
+      },
+    };
+  }
   // --- map views ---
   if (
     /\b(vista satelite|vista satelital|satellite view|vista aerea)\b/.test(text)

@@ -58,6 +58,57 @@ import { initStateMapLayer } from '../insurance/stateMapLayer.js';
 import { initInsuranceDashboard } from '../insurance/insuranceDashboard.js';
 import { createInsuranceWorkforce } from '../agents/insuranceWorkforce.js';
 import { initInsuranceWorkforcePanel } from '../agents/insuranceWorkforcePanel.js';
+// Import/export trade: RFQ deal economics, persistent supplier/RFQ pipeline,
+// CSV importer, 3D shipping-lane map, AI workforce, mission-control
+// dashboard.
+import * as tradeEngine from '../trade/rfqEngine.js';
+import {
+  createRfq as trCreateRfq,
+  getRfq as trGetRfq,
+  updateRfq as trUpdateRfq,
+  moveRfq as trMoveRfq,
+  deleteRfq as trDeleteRfq,
+  listRfqs as trListRfqs,
+  addRfqNote as trAddRfqNote,
+  createSupplier as trCreateSupplier,
+  getSupplier as trGetSupplier,
+  updateSupplier as trUpdateSupplier,
+  deleteSupplier as trDeleteSupplier,
+  listSuppliers as trListSuppliers,
+  addSupplierNote as trAddSupplierNote,
+  asWorkforceStore as trAsWorkforceStore,
+  stats as trStats,
+} from '../trade/supplierStore.js';
+import { parseTradeCsv as parseTradeCsv } from '../trade/supplierImporter.js';
+import { initShippingMapLayer } from '../trade/shippingLayer.js';
+import { initTradeDashboard } from '../trade/tradeDashboard.js';
+import { createWorkforce as createTradeWorkforce } from '../agents/tradeWorkforce.js';
+import { initTradeWorkforcePanel } from '../agents/tradeWorkforcePanel.js';
+// MY CUBA CASH: verified-provider store, corridor math, 3D corridor map,
+// mission-control dashboard, AI workforce + panel. Six seeded providers only;
+// provider fees stay undisclosed until Juan enters them. Nothing invented.
+import * as cubacashEngine from '../cubacash/corridorEngine.js';
+import {
+  createProvider as ccCreateProvider,
+  getProvider as ccGetProvider,
+  updateProvider as ccUpdateProvider,
+  moveProvider as ccMoveProvider,
+  deleteProvider as ccDeleteProvider,
+  listProviders as ccListProviders,
+  addProviderNote as ccAddProviderNote,
+  createCorridor as ccCreateCorridor,
+  getCorridor as ccGetCorridor,
+  updateCorridor as ccUpdateCorridor,
+  deleteCorridor as ccDeleteCorridor,
+  listCorridors as ccListCorridors,
+  addCorridorNote as ccAddCorridorNote,
+  asWorkforceStore as ccAsWorkforceStore,
+  stats as ccStats,
+} from '../cubacash/providerStore.js';
+import { parseCubacashCsv as parseCubacashCsv } from '../cubacash/corridorImporter.js';
+import { initCorridorMapLayer } from '../cubacash/corridorMapLayer.js';
+import { initCubacashDashboard } from '../cubacash/cubacashDashboard.js';
+import { createWorkforce as createCubacashWorkforce } from '../agents/cubacashWorkforce.js';
 import { installScopeMask, destroyScopeMask } from '../scopeMask.js';
 import {
   installRenderGovernor,
@@ -661,6 +712,352 @@ export function createApplicationTools({
     if (window.__gevInsWorkforceUI) delete window.__gevInsWorkforceUI;
   });
   debug.insuranceWorkforcePanel = insuranceWorkforcePanel;
+  // --- Import/export trade --------------------------------------------------
+  // One store (localStorage `sahjony.trade.v1`) spoken in the three shapes its
+  // consumers expect: the dashboard/map-layer shape, and the AI workforce
+  // engine shape. Mutations notify listeners (the 3D shipping-lane map
+  // refreshes, debounced).
+  const tradeMutations = new Set();
+  const notifyTradeMutations = () => {
+    for (const fn of tradeMutations) {
+      try {
+        fn();
+      } catch {
+        /* map refresh is best-effort */
+      }
+    }
+  };
+  const tradeWorkforceRaw = trAsWorkforceStore();
+  const tradeStore = {
+    // Dashboard/map-layer shape (accepted as-is by the dashboard's adaptStore).
+    listRfqs: (filter) => trListRfqs(filter),
+    getRfq: (id) => trGetRfq(id),
+    createRfq: (data) => {
+      const rfq = trCreateRfq(data);
+      if (rfq) notifyTradeMutations();
+      return rfq;
+    },
+    updateRfq: (id, patch) => {
+      const rfq = trUpdateRfq(id, patch);
+      if (rfq) notifyTradeMutations();
+      return rfq;
+    },
+    moveRfq: (id, status) => {
+      const rfq = trMoveRfq(id, status);
+      if (rfq) notifyTradeMutations();
+      return rfq;
+    },
+    deleteRfq: (id) => {
+      const ok = trDeleteRfq(id);
+      if (ok) notifyTradeMutations();
+      return ok;
+    },
+    addRfqNote: (id, agent, es, en) => trAddRfqNote(id, agent, es, en),
+    listSuppliers: (filter) => trListSuppliers(filter),
+    getSupplier: (id) => trGetSupplier(id),
+    createSupplier: (data) => {
+      const supplier = trCreateSupplier(data);
+      if (supplier) notifyTradeMutations();
+      return supplier;
+    },
+    updateSupplier: (id, patch) => {
+      const supplier = trUpdateSupplier(id, patch);
+      if (supplier) notifyTradeMutations();
+      return supplier;
+    },
+    deleteSupplier: (id) => {
+      const ok = trDeleteSupplier(id);
+      if (ok) notifyTradeMutations();
+      return ok;
+    },
+    addSupplierNote: (id, agent, es, en) =>
+      trAddSupplierNote(id, agent, es, en),
+    stats: () => trStats(),
+    notes: (id) => tradeWorkforceRaw.notes(id),
+    onMutate: (fn) => {
+      if (typeof fn === 'function') tradeMutations.add(fn);
+      return () => tradeMutations.delete(fn);
+    },
+    // AI workforce engine shape. The engine writes notes under the `notes`
+    // key; the store persists them as `agentNotes` — normalized here so the
+    // dashboard/panel read the same notes the agents write.
+    getAll: () =>
+      tradeWorkforceRaw.getAll().map((r) => ({
+        ...r,
+        notes: tradeWorkforceRaw.notes(r.id),
+      })),
+    get: (id) => {
+      const r = tradeWorkforceRaw.get(id);
+      return r ? { ...r, notes: tradeWorkforceRaw.notes(id) } : null;
+    },
+    update: (id, patch) => {
+      const p = { ...(patch || {}) };
+      if (Array.isArray(p.notes)) {
+        p.agentNotes = p.notes.map((n) => ({
+          at: n.t ?? n.at ?? Date.now(),
+          agent: n.agent || '',
+          es: n.es || '',
+          en: n.en || '',
+        }));
+        delete p.notes;
+      }
+      const rfq = tradeWorkforceRaw.update(id, p);
+      if (rfq) notifyTradeMutations();
+      return rfq;
+    },
+  };
+  // 3D shipping-lane map: origin/destination pins + great-circle lane arcs,
+  // colored by RFQ status. Renders only coordinates Juan's data supplies —
+  // never (0,0).
+  const shippingMap = initShippingMapLayer({
+    viewer,
+    rfqStore: { listRfqs: tradeStore.listRfqs },
+    rfqEngine: tradeEngine,
+    signal,
+  });
+  defer(() => {
+    try {
+      shippingMap.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevShippingMap) delete window.__gevShippingMap;
+  });
+  let shippingMapRefreshTimer = null;
+  tradeStore.onMutate(() => {
+    if (shippingMapRefreshTimer) return; // coalesce import bursts
+    shippingMapRefreshTimer = setTimeout(() => {
+      shippingMapRefreshTimer = null;
+      try {
+        shippingMap.refresh();
+      } catch {
+        /* best-effort */
+      }
+    }, 300);
+  });
+  debug.shippingMap = shippingMap;
+  // AI agentic workforce (trade): supplier scout, RFQ researcher, logistics
+  // analyst, deal coordinator. Runs while the app is open; every output is a
+  // draft/note for review — it never sends, posts, or contacts anyone.
+  const tradeWorkforce = createTradeWorkforce({
+    rfqStore: tradeStore,
+    rfqEngine: tradeEngine,
+    signal,
+  });
+  try {
+    tradeWorkforce.setSuppliers(tradeStore.listSuppliers());
+  } catch {
+    /* no suppliers configured yet */
+  }
+  window.__gevTradeWorkforce = tradeWorkforce;
+  defer(() => {
+    try {
+      tradeWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevTradeWorkforce === tradeWorkforce)
+      delete window.__gevTradeWorkforce;
+  });
+  debug.tradeWorkforce = tradeWorkforce;
+  // Mission-control dashboard (trade): KPIs, 6-status RFQ pipeline, RFQ
+  // drawer, supplier manager, CSV import/export, commission drafts.
+  const tradeDashboard = initTradeDashboard({
+    rfqStore: tradeStore,
+    rfqEngine: tradeEngine,
+    shippingMap,
+    workforce: tradeWorkforce,
+    signal,
+    parseCsv: parseTradeCsv,
+  });
+  defer(() => {
+    try {
+      tradeDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevTrade) delete window.__gevTrade;
+  });
+  debug.trade = tradeDashboard;
+  // Trade workforce mission-control panel: agent roster + live activity feed.
+  const tradeWorkforcePanel = initTradeWorkforcePanel({
+    workforce: tradeWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      tradeWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevTradeWorkforceUI) delete window.__gevTradeWorkforceUI;
+  });
+  // --- MY CUBA CASH ---------------------------------------------------------
+  // One store (localStorage `sahjony.cubacash.v1`) spoken in the three shapes
+  // its consumers expect: the dashboard/map-layer shape, and the AI workforce
+  // engine shape. Mutations notify listeners (the 3D corridor map refreshes,
+  // debounced). The store seeds exactly the six verified providers once —
+  // Western Union, Cubamax, Sendvalu, Fonmoney, Correos España, Íkualo Rem —
+  // with fee models left `undisclosed`; nothing is ever invented.
+  const cubacashMutations = new Set();
+  const notifyCubacashMutations = () => {
+    for (const fn of cubacashMutations) {
+      try {
+        fn();
+      } catch {
+        /* map refresh is best-effort */
+      }
+    }
+  };
+  const cubacashWorkforceRaw = ccAsWorkforceStore();
+  const cubacashStore = {
+    // Dashboard/map-layer shape (accepted as-is by the dashboard's adaptStore).
+    listProviders: (filter) => ccListProviders(filter),
+    getProvider: (id) => ccGetProvider(id),
+    createProvider: (data) => {
+      const provider = ccCreateProvider(data);
+      if (provider) notifyCubacashMutations();
+      return provider;
+    },
+    updateProvider: (id, patch) => {
+      const provider = ccUpdateProvider(id, patch);
+      if (provider) notifyCubacashMutations();
+      return provider;
+    },
+    moveProvider: (id, status) => {
+      const provider = ccMoveProvider(id, status);
+      if (provider) notifyCubacashMutations();
+      return provider;
+    },
+    deleteProvider: (id) => {
+      const ok = ccDeleteProvider(id);
+      if (ok) notifyCubacashMutations();
+      return ok;
+    },
+    addProviderNote: (id, agent, es, en) =>
+      ccAddProviderNote(id, agent, es, en),
+    listCorridors: (filter) => ccListCorridors(filter),
+    getCorridor: (id) => ccGetCorridor(id),
+    createCorridor: (data) => {
+      const corridor = ccCreateCorridor(data);
+      if (corridor) notifyCubacashMutations();
+      return corridor;
+    },
+    updateCorridor: (id, patch) => {
+      const corridor = ccUpdateCorridor(id, patch);
+      if (corridor) notifyCubacashMutations();
+      return corridor;
+    },
+    deleteCorridor: (id) => {
+      const ok = ccDeleteCorridor(id);
+      if (ok) notifyCubacashMutations();
+      return ok;
+    },
+    addCorridorNote: (id, agent, es, en) =>
+      ccAddCorridorNote(id, agent, es, en),
+    stats: () => ccStats(),
+    notes: (id) => cubacashWorkforceRaw.notes(id),
+    onMutate: (fn) => {
+      if (typeof fn === 'function') cubacashMutations.add(fn);
+      return () => cubacashMutations.delete(fn);
+    },
+    // AI workforce engine shape. The engine writes notes under the `notes`
+    // key; the store persists them as `agentNotes` — normalized here so the
+    // dashboard/panel read the same notes the agents write.
+    getAll: () => cubacashWorkforceRaw.getAll(),
+    get: (id) => cubacashWorkforceRaw.get(id),
+    update: (id, patch) => {
+      const provider = cubacashWorkforceRaw.update(id, patch);
+      if (provider) notifyCubacashMutations();
+      return provider;
+    },
+  };
+  // 3D corridor map: provider coverage pins + origin/destination pins and
+  // great-circle routes for corridors with real endpoints. Renders only
+  // coordinates Juan's data supplies — never invented.
+  const corridorMap = initCorridorMapLayer({
+    viewer,
+    providerStore: {
+      listProviders: cubacashStore.listProviders,
+      listCorridors: cubacashStore.listCorridors,
+    },
+    corridorEngine: cubacashEngine,
+    signal,
+  });
+  defer(() => {
+    try {
+      corridorMap.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCorridorMap) delete window.__gevCorridorMap;
+  });
+  let corridorMapRefreshTimer = null;
+  cubacashStore.onMutate(() => {
+    if (corridorMapRefreshTimer) return; // coalesce import bursts
+    corridorMapRefreshTimer = setTimeout(() => {
+      corridorMapRefreshTimer = null;
+      try {
+        corridorMap.refresh();
+      } catch {
+        /* best-effort */
+      }
+    }, 300);
+  });
+  debug.corridorMap = corridorMap;
+  // AI agentic workforce (MY CUBA CASH): provider verifier, fee watcher,
+  // corridor analyst, intake helper. Runs while the app is open; every output
+  // is a draft/note for review — it never sends, posts, or contacts anyone.
+  const cubacashWorkforce = createCubacashWorkforce({
+    providerStore: cubacashStore,
+    corridorEngine: cubacashEngine,
+    signal,
+  });
+  window.__gevCubacashWorkforce = cubacashWorkforce;
+  defer(() => {
+    try {
+      cubacashWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCubacashWorkforce === cubacashWorkforce)
+      delete window.__gevCubacashWorkforce;
+  });
+  debug.cubacashWorkforce = cubacashWorkforce;
+  // Mission-control dashboard (MY CUBA CASH): KPIs with honest beta stats,
+  // provider pipeline, provider drawer with corridor math, corridor manager,
+  // fee comparison, CSV import/export, internal comparison drafts.
+  const cubacashDashboard = initCubacashDashboard({
+    providerStore: cubacashStore,
+    corridorEngine: cubacashEngine,
+    corridorMap,
+    workforce: cubacashWorkforce,
+    signal,
+    parseCsv: parseCubacashCsv,
+  });
+  defer(() => {
+    try {
+      cubacashDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCubacash) delete window.__gevCubacash;
+  });
+  debug.cubacash = cubacashDashboard;
+  // MY CUBA CASH workforce mission-control panel: agent roster + live
+  // activity feed.
+  const cubacashWorkforcePanel = initCubacashWorkforcePanel({
+    workforce: cubacashWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      cubacashWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCubacashWorkforceUI) delete window.__gevCubacashWorkforceUI;
+  });
   // SAHJONY VOZ — free bilingual (ES/EN) voice commander. Dedicated action
   // runner driving the same GEV actions; no API keys, no cost.
   const sahjonyVoice = initSahjonyVoice({
@@ -823,6 +1220,99 @@ export function createApplicationTools({
           /* noop */
         }
       },
+      __trade_open: () => tradeDashboard.toggle?.() ?? tradeDashboard.open?.(),
+      __trade_status: () =>
+        tradeDashboard.toggle?.() ?? tradeDashboard.open?.(),
+      __trade_best: () => {
+        const rfqs = tradeStore
+          .listRfqs()
+          .filter(
+            (r) =>
+              r.status !== 'lost' &&
+              r.status !== 'won' &&
+              tradeEngine.netMarginPct(r) > 0,
+          )
+          .sort(
+            (a, b) => tradeEngine.netMarginPct(b) - tradeEngine.netMarginPct(a),
+          );
+        const top = rfqs[0];
+        if (top) {
+          try {
+            shippingMap.flyToRfq(top.id);
+          } catch {
+            /* noop */
+          }
+          try {
+            tradeDashboard.openDrawer?.(top.id);
+          } catch {
+            /* noop */
+          }
+        } else {
+          tradeDashboard.toggle?.() ?? tradeDashboard.open?.();
+        }
+      },
+      __trade_analyze: () => {
+        try {
+          tradeWorkforce.processOnce();
+        } catch {
+          /* noop */
+        }
+        tradeDashboard.toggle?.() ?? tradeDashboard.open?.();
+      },
+      __trade_workforce_start: () => {
+        try {
+          tradeWorkforce.start();
+        } catch {
+          /* noop */
+        }
+        try {
+          tradeWorkforcePanel.open?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __trade_workforce_pause: () => {
+        try {
+          tradeWorkforce.pause();
+        } catch {
+          /* noop */
+        }
+      },
+      __cubacash_open: () =>
+        cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
+      __cubacash_providers: () =>
+        cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
+      __cubacash_corridors: () =>
+        cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
+      __cubacash_status: () =>
+        cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
+      __cubacash_analyze: () => {
+        try {
+          cubacashWorkforce.processOnce();
+        } catch {
+          /* noop */
+        }
+        cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.();
+      },
+      __cubacash_workforce_start: () => {
+        try {
+          cubacashWorkforce.start();
+        } catch {
+          /* noop */
+        }
+        try {
+          cubacashWorkforcePanel.open?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __cubacash_workforce_pause: () => {
+        try {
+          cubacashWorkforce.pause();
+        } catch {
+          /* noop */
+        }
+      },
     },
   });
   defer(() => {
@@ -863,5 +1353,13 @@ export function createApplicationTools({
     insuranceWorkforce,
     insurance: insuranceDashboard,
     insuranceWorkforcePanel,
+    shippingMap,
+    tradeWorkforce,
+    trade: tradeDashboard,
+    tradeWorkforcePanel,
+    corridorMap,
+    cubacashWorkforce,
+    cubacash: cubacashDashboard,
+    cubacashWorkforcePanel,
   };
 }
