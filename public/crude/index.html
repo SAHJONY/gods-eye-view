@@ -7,7 +7,7 @@
 <style>
 :root{--bg:#12100a;--card:#1d1a12;--card2:#282417;--txt:#f5f0e1;--mut:#a89f83;--acc:#fbbf24;--grn:#4ade80;--yel:#facc15;--red:#f87171;--brd:#3d3626}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:60px}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;overflow-x:hidden;padding-bottom:60px}
 header{position:sticky;top:0;z-index:10;background:#0c0b07;border-bottom:1px solid var(--brd);padding:12px 14px}
 h1{margin:0;font-size:20px}
 .sub{color:var(--mut);font-size:13px;margin-top:2px}
@@ -63,10 +63,26 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 .note .nts{font-size:12px;color:var(--mut)}
 .scorebar{height:10px;border-radius:6px;background:var(--brd);margin-top:6px;overflow:hidden}
 .scorebar i{display:block;height:100%;background:var(--acc)}
+/* GEV hub-architecture contract: back-to-hub bar + voice button.
+   #gev-back-hub: href="/", ES "‹ Volver" / EN "‹ Back", min-height 52px, always visible (sticky header). */
+#gev-back-hub-bar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:8px;background:#0c0b07}
+#gev-back-hub{flex:1;display:flex;align-items:center;min-height:52px;padding:8px 6px;font-size:17px;font-weight:800;color:var(--acc);text-decoration:none}
+#gev-back-hub:active{opacity:.65}
+#gev-voice-btn{display:flex;align-items:center;gap:6px;min-height:52px;padding:8px 14px;font-size:16px;font-weight:800;color:var(--txt);text-decoration:none;border:2px solid var(--brd);border-radius:12px;background:var(--card)}
+#gev-voice-btn:active{border-color:var(--acc)}
+/* module deck: map + AI workforce cards */
+.wfagent{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--brd)}
+.wfdot{width:12px;height:12px;border-radius:50%;background:#78716c;flex:0 0 auto;margin-top:6px}
+.wfname{font-weight:800;font-size:16px}
+.wfdesc{font-size:14px;color:var(--mut)}
 </style>
 </head>
 <body>
 <header>
+<nav id="gev-back-hub-bar" aria-label="hub">
+<a id="gev-back-hub" href="/">‹ <span id="gev-back-hub-label">Volver</span></a>
+<a id="gev-voice-btn" href="/?voice=1&amp;biz=crude">🎙️ <span id="gev-voice-label">Voz</span></a>
+</nav>
 <h1>🛢️ <span id="apptitle">Crude Brokerage</span></h1>
 <div class="sub" id="appsub"></div>
 <div class="langrow noprint">
@@ -106,7 +122,12 @@ ver_unverified:"Unverified",ver_inreview:"In review",ver_verified:"Verified",ver
 vd_green:"Viable",vd_yellow:"Marginal",vd_red:"No deal",vd_gray:"Missing data",
 st_prospect:"Prospect",st_diligence:"Diligence",st_negotiating:"Negotiating",st_contracted:"Contracted",
 st_loading:"Loading",st_intransit:"In transit",st_delivered:"Delivered",st_closed:"Closed",st_dead:"Dead",
-detailfor:"Cargo",updated:"Updated",created:"Created"},
+detailfor:"Cargo",updated:"Updated",created:"Created",
+backhub:"Back",voicelink:"Voice",
+deckmap:"Map",deckwf:"AI workforce",openroutes:"open routes",mapnone:"No ports on your open cargoes yet — add load/discharge ports.",
+mapnote:"The full interactive map with tanker, port and terminal layers lives on the GEV globe.",
+viewglobe:"🌐 View on the GEV globe",wfactivity:"Latest agent activity on this device",wfnone:"No agent notes yet.",
+wflive:"Live agent statuses run in the GEV app — the hub opens them with the 🎙️ button."},
 es:{apptitle:"Corretaje de crudo",appsub:"Corredor por comisión — nunca comprador ni vendedor principal.",
 deals:"Negocios",counterparties:"Contrapartes",adddeal:"Agregar",
 opencargoes:"CARGAMENTOS ABIERTOS",totvol:"VOLUMEN ABIERTO (BBL)",potcomm:"COMISIÓN POTENCIAL",cpcount:"CONTRAPARTES",
@@ -130,7 +151,12 @@ ver_unverified:"Sin verificar",ver_inreview:"En revisión",ver_verified:"Verific
 vd_green:"Viable",vd_yellow:"Marginal",vd_red:"No viable",vd_gray:"Faltan datos",
 st_prospect:"Prospecto",st_diligence:"Diligencia",st_negotiating:"Negociando",st_contracted:"Contratado",
 st_loading:"Cargando",st_intransit:"En tránsito",st_delivered:"Entregado",st_closed:"Cerrado",st_dead:"Descartado",
-detailfor:"Cargamento",updated:"Actualizado",created:"Creado"}};
+detailfor:"Cargamento",updated:"Actualizado",created:"Creado",
+backhub:"Volver",voicelink:"Voz",
+deckmap:"Mapa",deckwf:"Fuerza IA",openroutes:"rutas abiertas",mapnone:"Sin puertos en tus cargamentos abiertos — agrega puertos de carga/descarga.",
+mapnote:"El mapa interactivo completo con capas de tanqueros, puertos y terminales vive en el globo GEV.",
+viewglobe:"🌐 Ver en el globo GEV",wfactivity:"Actividad reciente de agentes en este dispositivo",wfnone:"Sin notas de agentes todavía.",
+wflive:"Los estados en vivo corren en la app GEV — el hub los abre con el botón 🎙️."}};
 let lang="es"; const t=k=>T[lang][k]||k;
 /* ============ constants ============ */
 const KEY="sahjony.crude.v1";
@@ -246,6 +272,8 @@ function renderHead(){
  document.getElementById("apptitle").textContent=t("apptitle");
  document.getElementById("appsub").textContent=t("appsub");
  document.getElementById("disclaimer").textContent=t("disclaimer");
+ document.getElementById("gev-back-hub-label").textContent=t("backhub");
+ document.getElementById("gev-voice-label").textContent=t("voicelink");
  document.getElementById("btnES").classList.toggle("on",lang==="es");
  document.getElementById("btnEN").classList.toggle("on",lang==="en");
  const xl=document.getElementById("xlinks");xl.innerHTML="";
@@ -309,9 +337,45 @@ function renderDeals(m){
   +'<div class="kv"><span>'+t("commissions")+"</span><b>"+money(brokerCommission(c))+"</b></div>"
   +'<div class="mut">'+esc(c.loadPort||"")+(c.loadPort&&c.dischargePort?" → ":"")+esc(c.dischargePort||"")+"</div></div>"}
  h+='<div class="row"><button class="btn sec" onclick="exportData()">'+t("export")+'</button><button class="btn sec" onclick="importData()">'+t("import")+"</button></div>";
- m.innerHTML+=h;
+ m.innerHTML+=h+mapDeckHTML()+wfDeckHTML();
  m.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{FILTER=c.dataset.f;render()});
  m.querySelectorAll(".tappable").forEach(el=>el.onclick=()=>openDeal(el.dataset.id))}
+/* ============ GEV module deck: map layers + AI workforce (hub architecture) ============ */
+/* Workforce roster mirrors src/agents/crudeWorkforce.js ROLE_DEFS (same names, same note). */
+const WF_AGENTS_CRUDE=[
+ {es:"Explorador",en:"Scout"},
+ {es:"Investigador",en:"Researcher"},
+ {es:"Analista",en:"Analyst"},
+ {es:"Disposiciones",en:"Dispositions"}];
+const WF_NOTE_CRUDE={
+ es:"La fuerza trabaja mientras la app está abierta.",
+ en:"The workforce runs while the app is open."};
+function mapDeckHTML(){
+ const open=S.cargoes.filter(c=>OPEN_SET.has(c.status)&&(c.loadPort||c.dischargePort));
+ let h='<div class="card" id="gev-map-deck"><h3>🗺️ '+t("deckmap")+" · "+open.length+" "+t("openroutes")+"</h3>";
+ if(!open.length)h+='<div class="mut">'+t("mapnone")+"</div>";
+ open.slice(0,8).forEach(c=>{
+  h+='<div class="kv"><span>⚓ '+esc(c.ref||t("deal"))+"</span><b>"+esc(c.loadPort||"?")+" → "+esc(c.dischargePort||"?")+"</b></div>"});
+ if(open.length>8)h+='<div class="mut">+'+(open.length-8)+"</div>";
+ h+='<div class="mut" style="margin-top:8px">'+t("mapnote")+"</div>"
+ +'<div class="row"><a class="btn sec" href="/" style="text-decoration:none;display:flex;align-items:center;justify-content:center">'+t("viewglobe")+"</a></div></div>";
+ return h}
+function wfDeckHTML(){
+ let h='<div class="card" id="gev-workforce-deck"><h3>🤖 '+t("deckwf")+"</h3>";
+ WF_AGENTS_CRUDE.forEach(a=>{
+  h+='<div class="wfagent"><span class="wfdot"></span><div><div class="wfname">'+esc(lang==="es"?a.es:a.en)+"</div></div></div>"});
+ h+='<div class="mut" style="margin-top:8px">'+esc(lang==="es"?WF_NOTE_CRUDE.es:WF_NOTE_CRUDE.en)+"</div>";
+ h+='<div class="mut" style="margin-top:8px">'+t("wflive")+"</div>";
+ const notes=[];
+ S.cargoes.forEach(c=>{(c.agentNotes||[]).forEach(n=>notes.push(n))});
+ S.counterparties.forEach(c=>{(c.agentNotes||[]).forEach(n=>notes.push(n))});
+ notes.sort((a,b)=>String(b.at||"").localeCompare(String(a.at||"")));
+ h+="<h3 style=\"margin-top:12px\">"+t("wfactivity")+"</h3>";
+ if(!notes.length)h+='<div class="mut">'+t("wfnone")+"</div>";
+ notes.slice(0,5).forEach(n=>{
+  h+='<div class="kv"><span>'+esc(n.at||"")+" · "+esc(n.agent||"")+"</span><b>"+esc(lang==="es"?n.es:n.en)+"</b></div>"});
+ h+="</div>";
+ return h}
 /* ============ render: deal detail modal ============ */
 function openDeal(id){
  const c=getCargo(id);if(!c)return;

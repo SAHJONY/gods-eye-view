@@ -11,6 +11,14 @@
  * phone-first menu with five big one-tap bilingual buttons — one per
  * business — each opening its standalone screen. No Cesium dependency;
  * the DOM double used in tests works fine.
+ *
+ * HUB ARCHITECTURE (Juan's standing rule): the main screen IS the hub.
+ * The launcher overlay is therefore the DEFAULT entry view — it opens
+ * automatically on load (reversible via the `autoOpen` option). A
+ * clearly-labeled "🌐 Globe / Globo" card at the top of the overlay
+ * dismisses the hub and reveals the 3D globe; the floating 🏢 button
+ * re-opens the hub from the globe at any time. Nothing business-specific
+ * lives on the hub except the launcher cards.
  */
 
 export const BUSINESSES = Object.freeze([
@@ -63,6 +71,17 @@ export const BUSINESSES = Object.freeze([
 
 const LANG_KEY = 'sahjony.gev.lang';
 
+/** The globe card: dismisses the hub overlay, revealing the 3D globe.
+ *  Kept OUT of BUSINESSES so the business roster stays exactly five. */
+export const GLOBE_CARD = Object.freeze({
+  id: 'globe',
+  icon: '🌐',
+  es: 'Globo',
+  en: 'Globe',
+  esDesc: 'Ver el globo 3D de GEV',
+  enDesc: 'View the GEV 3D globe',
+});
+
 const LAUNCHER_CSS = `
 #gev-bizlauncher-btn{position:fixed;z-index:70;left:14px;bottom:14px;width:64px;height:64px;min-width:64px;min-height:64px;border-radius:50%;background:#0c2a3d;border:2px solid #38bdf8;color:#fff;font-size:30px;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
 #gev-bizlauncher-btn:active{transform:scale(.94)}
@@ -76,6 +95,8 @@ const LAUNCHER_CSS = `
 #gev-bizlauncher-overlay .bl-list{padding:14px 16px 40px;display:flex;flex-direction:column;gap:12px;max-width:640px;margin:0 auto}
 #gev-bizlauncher-overlay .bl-biz{display:flex;gap:14px;align-items:center;width:100%;min-height:84px;border-radius:18px;border:2px solid #334155;background:#1e293b;color:#f1f5f9;cursor:pointer;padding:14px 16px;text-align:left;font-family:inherit}
 #gev-bizlauncher-overlay .bl-biz:active{border-color:#38bdf8;background:#0c2a3d}
+#gev-bizlauncher-overlay .bl-globe{border-color:#38bdf8;background:#0c2a3d}
+#gev-bizlauncher-overlay .bl-globe .bl-go{color:#7dd3fc}
 #gev-bizlauncher-overlay .bl-icon{font-size:38px;flex:0 0 auto}
 #gev-bizlauncher-overlay .bl-name{font-size:19px;font-weight:800;line-height:1.25}
 #gev-bizlauncher-overlay .bl-desc{font-size:14px;color:#94a3b8;margin-top:4px;line-height:1.35}
@@ -130,10 +151,15 @@ export function openBusinessScreen(screen) {
 }
 
 /**
- * initBusinessLauncher({ signal }) → handle { open, close, toggle, destroy, setLang, getLang }
+ * initBusinessLauncher({ signal, autoOpen }) → handle { open, close, toggle, destroy, setLang, getLang }
  * Floating 🏢 button + full-screen bilingual business menu. No Cesium.
+ *
+ * Hub architecture: `autoOpen` (default true) opens the overlay as the
+ * default entry view right after build. Pass `autoOpen: false` to keep the
+ * old behavior (launcher closed until the 🏢 button is tapped). The
+ * "🌐 Globe / Globo" card dismisses the overlay to reveal the globe.
  */
-export function initBusinessLauncher({ signal = null } = {}) {
+export function initBusinessLauncher({ signal = null, autoOpen = true } = {}) {
   injectStyles();
   let lang = readLang();
   let overlay = null;
@@ -161,34 +187,42 @@ export function initBusinessLauncher({ signal = null } = {}) {
     const list = overlay.querySelector('.bl-list');
     if (list) {
       list.innerHTML = '';
+      // Globe card first: dismisses the hub, revealing the 3D globe.
+      list.appendChild(makeCard(GLOBE_CARD, () => closeOverlay()));
       for (const b of BUSINESSES) {
-        const btn = document.createElement('button');
-        btn.className = 'bl-biz';
-        btn.type = 'button';
-        btn.setAttribute('data-biz', b.id);
-        const icon = document.createElement('span');
-        icon.className = 'bl-icon';
-        icon.textContent = b.icon;
-        const txt = document.createElement('span');
-        const name = document.createElement('div');
-        name.className = 'bl-name';
-        name.textContent = lang === 'es' ? b.es : b.en;
-        const desc = document.createElement('div');
-        desc.className = 'bl-desc';
-        desc.textContent = lang === 'es' ? b.esDesc : b.enDesc;
-        txt.appendChild(name);
-        txt.appendChild(desc);
-        const go = document.createElement('span');
-        go.className = 'bl-go';
-        go.textContent = '›';
-        btn.appendChild(icon);
-        btn.appendChild(txt);
-        btn.appendChild(go);
-        btn.addEventListener('click', () => openBusinessScreen(b.screen));
-        list.appendChild(btn);
+        list.appendChild(
+          makeCard(b, () => openBusinessScreen(b.screen)),
+        );
       }
     }
     if (fab) fab.setAttribute('aria-label', t('Negocios', 'Businesses'));
+  }
+
+  function makeCard(b, onClick) {
+    const btn = document.createElement('button');
+    btn.className = 'bl-biz' + (b.id === 'globe' ? ' bl-globe' : '');
+    btn.type = 'button';
+    btn.setAttribute('data-biz', b.id);
+    const icon = document.createElement('span');
+    icon.className = 'bl-icon';
+    icon.textContent = b.icon;
+    const txt = document.createElement('span');
+    const name = document.createElement('div');
+    name.className = 'bl-name';
+    name.textContent = lang === 'es' ? b.es : b.en;
+    const desc = document.createElement('div');
+    desc.className = 'bl-desc';
+    desc.textContent = lang === 'es' ? b.esDesc : b.enDesc;
+    txt.appendChild(name);
+    txt.appendChild(desc);
+    const go = document.createElement('span');
+    go.className = 'bl-go';
+    go.textContent = b.id === 'globe' ? '✕' : '›';
+    btn.appendChild(icon);
+    btn.appendChild(txt);
+    btn.appendChild(go);
+    btn.addEventListener('click', onClick);
+    return btn;
   }
 
   function build() {
@@ -264,6 +298,8 @@ export function initBusinessLauncher({ signal = null } = {}) {
   }
 
   build();
+  // Hub architecture: the launcher overlay IS the default entry view.
+  if (autoOpen) openOverlay();
   return {
     open: openOverlay,
     close: closeOverlay,

@@ -64,11 +64,27 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 .empty{color:var(--mut);text-align:center;padding:28px 16px;font-size:16px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 @media(max-width:420px){.grid2{grid-template-columns:1fr}}
-@media print{.fab,.viewtabs,.bizlinks,.langrow,.btn,.noprint{display:none!important}body{background:#fff;color:#000;padding:0}.card{background:#fff;border:1px solid #999;color:#000}}
+/* GEV hub-architecture contract: back-to-hub bar + voice button.
+   #gev-back-hub: href="/", ES "‹ Volver" / EN "‹ Back", min-height 52px, always visible (sticky header). */
+#gev-back-hub-bar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:8px;background:#0b1220}
+#gev-back-hub{flex:1;display:flex;align-items:center;min-height:52px;padding:8px 6px;font-size:17px;font-weight:800;color:var(--acc);text-decoration:none}
+#gev-back-hub:active{opacity:.65}
+#gev-voice-btn{display:flex;align-items:center;gap:6px;min-height:52px;padding:8px 14px;font-size:16px;font-weight:800;color:var(--txt);text-decoration:none;border:2px solid var(--brd);border-radius:12px;background:var(--card)}
+#gev-voice-btn:active{border-color:var(--acc)}
+/* module deck: map + AI workforce cards */
+.wfagent{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--brd)}
+.wfdot{width:12px;height:12px;border-radius:50%;background:#64748b;flex:0 0 auto;margin-top:6px}
+.wfname{font-weight:800;font-size:16px}
+.wfdesc{font-size:14px;color:var(--mut)}
+@media print{.fab,.viewtabs,.bizlinks,.langrow,.btn,.noprint,#gev-back-hub-bar{display:none!important}body{background:#fff;color:#000;padding:0}.card{background:#fff;border:1px solid #999;color:#000}}
 </style>
 </head>
 <body>
 <header>
+<nav id="gev-back-hub-bar" aria-label="hub">
+<a id="gev-back-hub" href="/">‹ <span id="gev-back-hub-label">Volver</span></a>
+<a id="gev-voice-btn" href="/?voice=1&amp;biz=wholesale">🎙️ <span id="gev-voice-label">Voz</span></a>
+</nav>
 <h1 id="apptitle">🏠 Wholesale Command Center</h1>
 <div class="sub" id="appsub"></div>
 <div class="langrow noprint">
@@ -109,7 +125,12 @@ st_assigned:"Assigned",st_closed:"Closed",st_dead:"Dead",
 c_vacant:"Vacant",c_boarded:"Boarded",c_fire:"Fire damage",c_roof:"Roof damage",c_overgrown:"Overgrown",c_fsbo:"FSBO",c_other:"Other",
 d_tax:"Tax delinquent",d_absentee:"Absentee owner",d_vacantland:"Vacant land",
 condfreetext:"Other condition (free text)",distfreetext:"Other distress (free text)",
-viewdetails:"View details",close:"Close",home:"GEV home",ins:"Insurance",cru:"Crude",imp:"Import/Export",cub:"MY CUBA CASH",wsl:"Wholesale"},
+viewdetails:"View details",close:"Close",home:"GEV home",ins:"Insurance",cru:"Crude",imp:"Import/Export",cub:"MY CUBA CASH",wsl:"Wholesale",
+backhub:"Back",voicelink:"Voice",
+deckmap:"Map",deckwf:"AI workforce",withloc:"with location",mapnone:"No locations yet — add lat/lng on the lead.",
+mapnote:"The full interactive map with lead markers lives on the GEV globe.",
+viewglobe:"🌐 View on the GEV globe",wfactivity:"Latest agent activity on this device",wfnone:"No agent notes yet.",
+wflive:"Live agent statuses run in the GEV app — the hub opens them with the 🎙️ button."},
 es:{appsub:"Pipeline de leads + compradores en efectivo — pantalla completa, primero el teléfono",
 pipeline:"Pipeline",buyers:"Compradores",add:"Agregar lead",
 total:"LEADS",avgscore:"PUNTAJE PROM.",pipeval:"VALOR PIPELINE",potfees:"HONORARIOS POT.",
@@ -134,7 +155,12 @@ st_assigned:"Asignada",st_closed:"Cerrada",st_dead:"Descartada",
 c_vacant:"Vacante",c_boarded:"Tapiada",c_fire:"Daño por fuego",c_roof:"Daño de techo",c_overgrown:"Descuidada",c_fsbo:"FSBO",c_other:"Otra",
 d_tax:"Impuestos morosos",d_absentee:"Dueño ausente",d_vacantland:"Terreno vacante",
 condfreetext:"Otra condición (texto libre)",distfreetext:"Otro distress (texto libre)",
-viewdetails:"Ver detalles",close:"Cerrar",home:"Inicio GEV",ins:"Seguros",cru:"Crudo",imp:"Import/Export",cub:"MY CUBA CASH",wsl:"Wholesale"}};
+viewdetails:"Ver detalles",close:"Cerrar",home:"Inicio GEV",ins:"Seguros",cru:"Crudo",imp:"Import/Export",cub:"MY CUBA CASH",wsl:"Wholesale",
+backhub:"Volver",voicelink:"Voz",
+deckmap:"Mapa",deckwf:"Fuerza IA",withloc:"con ubicación",mapnone:"Sin ubicaciones todavía — agrega lat/lng en el lead.",
+mapnote:"El mapa interactivo completo con marcadores vive en el globo GEV.",
+viewglobe:"🌐 Ver en el globo GEV",wfactivity:"Actividad reciente de agentes en este dispositivo",wfnone:"Sin notas de agentes todavía.",
+wflive:"Los estados en vivo corren en la app GEV — el hub los abre con el botón 🎙️."}};
 let lang="es"; const t=k=>T[lang][k]||k;
 /* ============ constants ============ */
 const KEY="sahjony.wholesale.v1";
@@ -209,6 +235,8 @@ function render(){
  document.getElementById("btnES").classList.toggle("on",lang==="es");
  document.getElementById("appsub").textContent=t("appsub");
  document.getElementById("disclaimer").textContent=t("disclaimer");
+ document.getElementById("gev-back-hub-label").textContent=t("backhub");
+ document.getElementById("gev-voice-label").textContent=t("voicelink");
  document.documentElement.lang=lang;
  const bl=document.getElementById("bizlinks");bl.innerHTML="";
  [["/",t("home"),false],["/wholesale/index.html",t("wsl"),true],["/insurance/index.html",t("ins"),false],
@@ -235,6 +263,44 @@ function leadCard(l){
  +'<span class="pill stbadge">'+t("st_"+l.status)+"</span></div>"
  +'<div class="mut">'+[l.city,l.state,l.zip].filter(Boolean).map(esc).join(", ")
  +(num(l.arv)?' · ARV '+money(l.arv):"")+(num(l.targetFee)?' · '+t("fee")+" "+money(l.targetFee):"")+"</div></button>"}
+/* ============ GEV module deck: map layers + AI workforce (hub architecture) ============ */
+/* Workforce roster mirrors src/agents/workforcePanel.js AGENT_DEFS (same names, same note). */
+const WF_AGENTS=[
+ {es:"Explorador",en:"Scout",esd:"Busca leads vacantes en los datos locales y los puntúa.",end:"Finds vacant leads in local data and scores them."},
+ {es:"Analista",en:"Analyst",esd:"Calcula MAO, reparaciones y honorarios por comprador.",end:"Computes MAO, repairs, and per-buyer fees."},
+ {es:"Investigador",en:"Researcher",esd:"Investiga propietario y gravámenes en registros públicos.",end:"Researches owner and liens in public records."},
+ {es:"Disposiciones",en:"Dispositions",esd:"Prepara la asignación del contrato con compradores en efectivo.",end:"Prepares contract assignment with cash buyers."},
+ {es:"Seguimiento",en:"Follow-up",esd:"Prepara borradores de mensajes de seguimiento para tu revisión.",end:"Drafts follow-up messages for your review."},
+ {es:"Contratos",en:"Contracts",esd:"Genera borradores de oferta en primera persona para copiar.",end:"Generates first-person draft offers for you to copy."}];
+const WF_NOTE={
+ es:"Estos agentes trabajan con datos locales en tu navegador. No llaman a servicios externos, no gastan dinero y no actúan sin tu aprobación: cada acción importante espera tu visto bueno.",
+ en:"These agents work with local data in your browser. They make no external calls, spend no money, and never act without your approval: every important action waits for your OK."};
+function hasCoords(l){return Number.isFinite(Number(l.lat))&&Number.isFinite(Number(l.lng))}
+function mapDeckHTML(){
+ const geo=DB.leads.filter(hasCoords);
+ let h='<div class="card" id="gev-map-deck"><h3>🗺️ '+t("deckmap")+" · "+geo.length+" "+t("withloc")+"</h3>";
+ if(!geo.length)h+='<div class="mut">'+t("mapnone")+"</div>";
+ geo.slice(0,8).forEach(l=>{
+  h+='<div class="kv"><span>'+esc(l.address||"—")+"</span><b>"+esc(l.lat)+", "+esc(l.lng)+"</b></div>"});
+ if(geo.length>8)h+='<div class="mut">+'+(geo.length-8)+"</div>";
+ h+='<div class="mut" style="margin-top:8px">'+t("mapnote")+"</div>"
+ +'<div class="row"><a class="btn sec" href="/" style="text-decoration:none;display:flex;align-items:center;justify-content:center">'+t("viewglobe")+"</a></div></div>";
+ return h}
+function wfDeckHTML(){
+ let h='<div class="card" id="gev-workforce-deck"><h3>🤖 '+t("deckwf")+"</h3>";
+ WF_AGENTS.forEach(a=>{
+  h+='<div class="wfagent"><span class="wfdot"></span><div><div class="wfname">'+esc(lang==="es"?a.es:a.en)+'</div><div class="wfdesc">'+esc(lang==="es"?a.esd:a.end)+"</div></div></div>"});
+ h+='<div class="mut" style="margin-top:8px">'+esc(lang==="es"?WF_NOTE.es:WF_NOTE.en)+"</div>";
+ h+='<div class="mut" style="margin-top:8px">'+t("wflive")+"</div>";
+ const notes=[];
+ DB.leads.forEach(l=>{(l.agentNotes||[]).forEach(n=>notes.push(n))});
+ notes.sort((a,b)=>String(b.at||"").localeCompare(String(a.at||"")));
+ h+="<h3 style=\"margin-top:12px\">"+t("wfactivity")+"</h3>";
+ if(!notes.length)h+='<div class="mut">'+t("wfnone")+"</div>";
+ notes.slice(0,5).forEach(n=>{
+  h+='<div class="kv"><span>'+esc(n.at||"")+" · "+esc(n.agent||"")+"</span><b>"+esc(lang==="es"?n.es:n.en)+"</b></div>"});
+ h+="</div>";
+ return h}
 /* ============ pipeline view ============ */
 function renderPipeline(m){
  let h=kpiRow();
@@ -247,6 +313,7 @@ function renderPipeline(m){
  });
  h+='<div class="row noprint"><button class="btn" onclick="location.hash=\'#add\'">➕ '+t("addlead")+'</button></div>';
  h+='<div class="row noprint"><button class="btn sec" onclick="exportData()">'+t("export")+'</button><button class="btn sec" onclick="importData()">'+t("import")+"</button></div>";
+ h+=mapDeckHTML()+wfDeckHTML();
  m.innerHTML=h;
 }
 /* ============ buyers view ============ */

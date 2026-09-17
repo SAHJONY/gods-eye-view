@@ -7,7 +7,7 @@
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--txt:#f1f5f9;--mut:#94a3b8;--acc:#38bdf8;--grn:#4ade80;--yel:#facc15;--red:#f87171;--brd:#334155}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:90px}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;overflow-x:hidden;padding-bottom:90px}
 header{position:sticky;top:0;z-index:10;background:#0b1220;border-bottom:1px solid var(--brd);padding:12px 14px}
 h1{margin:0;font-size:20px}
 .sub{color:var(--mut);font-size:13px;margin-top:2px}
@@ -16,6 +16,17 @@ h1{margin:0;font-size:20px}
 .langbtn.on{border-color:var(--acc);background:#0c2a3d}
 .biztabs{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 4px;scrollbar-width:none}
 .biztab{flex:0 0 auto;min-height:52px;padding:10px 16px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:15px;font-weight:700;white-space:nowrap}
+/* GEV hub-architecture contract: back-to-hub bar + voice button.
+   #gev-back-hub: href="/", ES "‹ Volver" / EN "‹ Back", min-height 52px, always visible (sticky header). */
+#gev-back-hub-bar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:8px;background:#0b1220}
+#gev-back-hub{flex:1;display:flex;align-items:center;min-height:52px;padding:8px 6px;font-size:17px;font-weight:800;color:var(--acc);text-decoration:none}
+#gev-back-hub:active{opacity:.65}
+#gev-voice-btn{display:flex;align-items:center;gap:6px;min-height:52px;padding:8px 14px;font-size:16px;font-weight:800;color:var(--txt);text-decoration:none;border:2px solid var(--brd);border-radius:12px;background:var(--card)}
+#gev-voice-btn:active{border-color:var(--acc)}
+/* module deck: AI workforce card */
+.wfagent{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--brd)}
+.wfdot{width:12px;height:12px;border-radius:50%;background:#64748b;flex:0 0 auto;margin-top:6px}
+.wfname{font-weight:800;font-size:16px}
 .biztab.on{border-color:var(--acc);background:#0c2a3d}
 .viewtabs{display:flex;gap:8px;padding:10px 14px}
 .viewtab{flex:1;min-height:52px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700}
@@ -57,6 +68,10 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 </head>
 <body>
 <header>
+<nav id="gev-back-hub-bar" aria-label="hub">
+<a id="gev-back-hub" href="/">‹ <span id="gev-back-hub-label">Volver</span></a>
+<a id="gev-voice-btn" href="/?voice=1&amp;biz=insurance">🎙️ <span id="gev-voice-label">Voz</span></a>
+</nav>
 <h1 id="apptitle">🛡️ Insurance Command Center</h1>
 <div class="sub" id="appsub">Coverage tracking + claim prep for all 4 businesses</div>
 <div class="langrow noprint">
@@ -97,6 +112,9 @@ att_case:"Case / claim #",att_filed:"Date filed",att_venue:"Court / venue",att_s
 att_next:"Next action",att_nextdate:"Next action date",att_notes:"Notes / updates",overdue:"overdue",attalert:"Attorney claim action due",
 astages:["Filed","In negotiation","In discovery","Mediation","Trial set","Settled","Closed"],
 state:"State",homestate:"Your state",naic:"Find your state insurance department (NAIC)",
+backhub:"Back",voicelink:"Voice",deckwf:"AI workforce",
+wflive:"Live agent statuses run in the GEV app — the hub opens them with the 🎙️ button.",
+wfnone:"No workforce notes on this device yet.",
 shop:"Shop & compare",shop_new:"Add a quote",noquotes:"No quotes yet — add the real quotes you receive and compare them side by side.",
 q_type:"Coverage type",q_carrier:"Carrier / agent",q_premium:"Annual premium ($)",q_deductible:"Deductible ($)",q_limits:"Coverage limits",
 q_contact:"Contact",q_date:"Quote date",q_exp:"Quote valid until",q_notes:"Notes",bestdeal:"Best deal",peryear:"/yr",permonth:"/mo",
@@ -128,6 +146,9 @@ att_case:"Caso / reclamo #",att_filed:"Fecha de presentación",att_venue:"Corte 
 att_next:"Próxima acción",att_nextdate:"Fecha próxima acción",att_notes:"Notas / actualizaciones",overdue:"vencido",attalert:"Acción de reclamo con abogado próxima",
 astages:["Presentado","En negociación","En descubrimiento","Mediación","Juicio programado","Resuelto","Cerrado"],
 state:"Estado",homestate:"Tu estado",naic:"Encuentra el departamento de seguros de tu estado (NAIC)",
+backhub:"Volver",voicelink:"Voz",deckwf:"Fuerza IA",
+wflive:"Los estados en vivo corren en la app GEV — el hub los abre con el botón 🎙️.",
+wfnone:"Sin notas de la fuerza en este dispositivo todavía.",
 shop:"Comparar cotizaciones",shop_new:"Agregar cotización",noquotes:"Sin cotizaciones — agrega las cotizaciones reales que recibas y compáralas lado a lado.",
 q_type:"Tipo de cobertura",q_carrier:"Aseguradora / agente",q_premium:"Prima anual ($)",q_deductible:"Deducible ($)",q_limits:"Límites de cobertura",
 q_contact:"Contacto",q_date:"Fecha de cotización",q_exp:"Cotización válida hasta",q_notes:"Notas",bestdeal:"Mejor oferta",peryear:"/año",permonth:"/mes",
@@ -259,6 +280,8 @@ function render(){
  document.getElementById("btnEN").classList.toggle("on",lang==="en");
  document.getElementById("btnES").classList.toggle("on",lang==="es");
  document.getElementById("appsub").textContent=t("appsub");
+ document.getElementById("gev-back-hub-label").textContent=t("backhub");
+ document.getElementById("gev-voice-label").textContent=t("voicelink");
  document.getElementById("disclaimer").innerHTML=esc(t("disclaimer"))+'<br><a href="https://content.naic.org/state-insurance-departments/contacts?page=0" target="_blank" rel="noopener" style="color:var(--acc)">'+esc(t("naic"))+"</a>";
  const hs=document.getElementById("homestate");
  hs.innerHTML='<option value="">'+esc(t("homestate"))+"</option>"+STATES.map(s=>'<option value="'+s[0]+'"'+(S.homeState===s[0]?" selected":"")+">"+s[1]+" ("+s[0]+")</option>").join("");
@@ -290,8 +313,25 @@ function renderCoverage(m){
   +'<button class="btn dgr" onclick="delCoverage(\''+c.id+"')\">"+t("del")+"</button></div></div>"});
  h+='<div class="row"><button class="btn" onclick="editCoverage(\'\')">'+t("addcov")+"</button></div>";
  h+='<div class="row"><button class="btn sec" onclick="exportData()">'+t("export")+'</button><button class="btn sec" onclick="importData()">'+t("import")+"</button></div>";
+ h+=wfDeckHTML();
  m.innerHTML=h;
 }
+/* ============ GEV module deck: AI workforce (hub architecture) ============ */
+/* Workforce roster mirrors src/agents/insuranceWorkforce.js INSURANCE_ROLE_DEFS (same names, same note). */
+const WF_AGENTS_INS=[
+ {es:"Analista de brechas",en:"Gap analyst"},
+ {es:"Vigilante de renovaciones",en:"Renewal watcher"},
+ {es:"Asistente de reclamos",en:"Claim-prep assistant"}];
+const WF_NOTE_INS={
+ es:"La fuerza trabaja mientras la app está abierta.",
+ en:"The workforce runs while the app is open."};
+function wfDeckHTML(){
+ let h='<div class="card" id="gev-workforce-deck"><h3>🤖 '+t("deckwf")+"</h3>";
+ WF_AGENTS_INS.forEach(a=>{
+  h+='<div class="wfagent"><span class="wfdot"></span><div><div class="wfname">'+esc(lang==="es"?a.es:a.en)+"</div></div></div>"});
+ h+='<div class="mut" style="margin-top:8px">'+esc(lang==="es"?WF_NOTE_INS.es:WF_NOTE_INS.en)+"</div>";
+ h+='<div class="mut" style="margin-top:8px">'+t("wflive")+"</div></div>";
+ return h}
 function renderClaims(m){
  let h="";
  if(!biz().claims.length)h+='<div class="card mut">'+t("noclaims")+"</div>";

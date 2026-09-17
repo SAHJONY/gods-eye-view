@@ -7,7 +7,7 @@
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--txt:#f1f5f9;--mut:#94a3b8;--acc:#38bdf8;--grn:#4ade80;--yel:#facc15;--red:#f87171;--brd:#334155}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:110px}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;overflow-x:hidden;padding-bottom:110px}
 header{position:sticky;top:0;z-index:10;background:#0b1220;border-bottom:1px solid var(--brd);padding:12px 14px}
 h1{margin:0;font-size:20px}
 .sub{color:var(--mut);font-size:13px;margin-top:4px}
@@ -57,10 +57,26 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 .empty{padding:24px;text-align:center;border:1px dashed var(--brd);border-radius:16px;color:var(--mut);margin:12px 0}
 .scorebar{height:10px;border-radius:6px;background:var(--brd);margin-top:8px}
 .scorebar i{display:block;height:100%;border-radius:6px;background:var(--acc)}
+/* GEV hub-architecture contract: back-to-hub bar + voice button.
+   #gev-back-hub: href="/", ES "‹ Volver" / EN "‹ Back", min-height 52px, always visible (sticky header). */
+#gev-back-hub-bar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:8px;background:#0b1220}
+#gev-back-hub{flex:1;display:flex;align-items:center;min-height:52px;padding:8px 6px;font-size:17px;font-weight:800;color:var(--acc);text-decoration:none}
+#gev-back-hub:active{opacity:.65}
+#gev-voice-btn{display:flex;align-items:center;gap:6px;min-height:52px;padding:8px 14px;font-size:16px;font-weight:800;color:var(--txt);text-decoration:none;border:2px solid var(--brd);border-radius:12px;background:var(--card)}
+#gev-voice-btn:active{border-color:var(--acc)}
+/* module deck: map + AI workforce cards */
+.wfagent{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--brd)}
+.wfdot{width:12px;height:12px;border-radius:50%;background:#64748b;flex:0 0 auto;margin-top:6px}
+.wfname{font-weight:800;font-size:16px}
+.wfdesc{font-size:14px;color:var(--mut)}
 </style>
 </head>
 <body>
 <header>
+<nav id="gev-back-hub-bar" aria-label="hub">
+<a id="gev-back-hub" href="/">‹ <span id="gev-back-hub-label">Volver</span></a>
+<a id="gev-voice-btn" href="/?voice=1&amp;biz=trade">🎙️ <span id="gev-voice-label">Voz</span></a>
+</nav>
 <h1 id="apptitle">🚢 Import/Export Trade</h1>
 <div class="sub" id="appsub"></div>
 <div class="langrow">
@@ -109,7 +125,13 @@ ver_unverified:"Unverified",ver_in_review:"In review",ver_verified:"Verified",ve
 export:"Export backup",import:"Import backup",badfile:"Bad file — import cancelled.",
 impreplace:"Importing replaces all RFQs and suppliers on this device. Continue?",
 missing:"Missing",
-disclaimer:"Broker-for-a-fee tool: SAHJONY never takes custody of goods or funds. Verify every counterparty, contract term, and price independently before committing. Nothing here is legal or financial advice."},
+disclaimer:"Broker-for-a-fee tool: SAHJONY never takes custody of goods or funds. Verify every counterparty, contract term, and price independently before committing. Nothing here is legal or financial advice.",
+backhub:"Back",voicelink:"Voice",
+deckmap:"Map",deckwf:"AI workforce",openroutes:"open routes",withcoords:"with coordinates",
+mapnone:"No ports on your open RFQs yet — add origin/destination ports.",
+mapnote:"The full interactive map with shipping lanes and port layers lives on the GEV globe.",
+viewglobe:"🌐 View on the GEV globe",wfactivity:"Latest agent activity on this device",wfnone:"No agent notes yet.",
+wflive:"Live agent statuses run in the GEV app — the hub opens them with the 🎙️ button."},
 es:{appsub:"Pipeline de RFQs + proveedores del negocio de importación/exportación. SAHJONY actúa como bróker por comisión — nunca es el comprador final.",
 broker:"SAHJONY es un bróker de negocios por comisión. Nunca compra mercancías ni arriesga capital — conecta vendedores y compradores y gana en los tratos cerrados.",
 site:"🌐 Abrir sahjony.com",
@@ -140,7 +162,13 @@ ver_unverified:"Sin verificar",ver_in_review:"En revisión",ver_verified:"Verifi
 export:"Exportar respaldo",import:"Importar respaldo",badfile:"Archivo inválido — importación cancelada.",
 impreplace:"Importar reemplaza todos los RFQs y proveedores en este dispositivo. ¿Continuar?",
 missing:"Faltan",
-disclaimer:"Herramienta de bróker por comisión: SAHJONY nunca toma custodia de mercancías ni fondos. Verifique cada contraparte, término contractual y precio de forma independiente antes de comprometerse. Nada aquí es asesoría legal o financiera."}};
+disclaimer:"Herramienta de bróker por comisión: SAHJONY nunca toma custodia de mercancías ni fondos. Verifique cada contraparte, término contractual y precio de forma independiente antes de comprometerse. Nada aquí es asesoría legal o financiera.",
+backhub:"Volver",voicelink:"Voz",
+deckmap:"Mapa",deckwf:"Fuerza IA",openroutes:"rutas abiertas",withcoords:"con coordenadas",
+mapnone:"Sin puertos en tus RFQs abiertos — agrega puertos de origen/destino.",
+mapnote:"El mapa interactivo completo con rutas de envío y puertos vive en el globo GEV.",
+viewglobe:"🌐 Ver en el globo GEV",wfactivity:"Actividad reciente de agentes en este dispositivo",wfnone:"Sin notas de agentes todavía.",
+wflive:"Los estados en vivo corren en la app GEV — el hub los abre con el botón 🎙️."}};
 let lang="en"; const t=k=>T[lang][k]||k;
 /* ============ store ============ */
 const KEY="sahjony.trade.v1";
@@ -199,6 +227,8 @@ function render(){
  document.getElementById("appsub").textContent=t("appsub");
  document.getElementById("sitebtn").textContent=t("site");
  document.getElementById("disclaimer").textContent=t("disclaimer");
+ document.getElementById("gev-back-hub-label").textContent=t("backhub");
+ document.getElementById("gev-voice-label").textContent=t("voicelink");
  const xl=document.getElementById("xlinks");xl.innerHTML="";
  [["/",t("nav_home")],["/insurance/index.html",t("nav_ins")],["/wholesale/index.html",t("nav_who")],["/crude/index.html",t("nav_cru")],["/cubacash/index.html",t("nav_cc")]].forEach(([u,l])=>{
   const a=document.createElement("a");a.className="xlink";a.href=u;a.textContent=l;xl.appendChild(a)});
@@ -240,8 +270,45 @@ function renderRfqs(m){
   list.forEach(r=>{h+=rfqCard(r)});
  });
  h+='<div class="row"><button class="btn sec" onclick="exportData()">'+t("export")+'</button><button class="btn sec" onclick="importData()">'+t("import")+"</button></div>";
+ h+=mapDeckHTML()+wfDeckHTML();
  m.innerHTML=h;
 }
+/* ============ GEV module deck: map layers + AI workforce (hub architecture) ============ */
+/* Workforce roster mirrors src/agents/tradeWorkforce.js ROLE_DEFS (same names, same note). */
+const WF_AGENTS_TRADE=[
+ {es:"Explorador de proveedores",en:"Supplier Scout"},
+ {es:"Investigador RFQ",en:"RFQ Researcher"},
+ {es:"Analista de logística",en:"Logistics Analyst"},
+ {es:"Coordinador de trato",en:"Deal Coordinator"}];
+const WF_NOTE_TRADE={
+ es:"La fuerza trabaja mientras la app está abierta.",
+ en:"The workforce runs while the app is open."};
+function mapDeckHTML(){
+ const open=S.rfqs.filter(r=>OPEN.includes(r.status)&&(r.originPort||r.destinationPort));
+ const coords=S.rfqs.filter(r=>r.originLat!=null&&r.originLng!=null&&r.destLat!=null&&r.destLng!=null).length;
+ let h='<div class="card" id="gev-map-deck"><h3>🗺️ '+t("deckmap")+" · "+open.length+" "+t("openroutes")+" · "+coords+" "+t("withcoords")+"</h3>";
+ if(!open.length)h+='<div class="mut">'+t("mapnone")+"</div>";
+ open.slice(0,8).forEach(r=>{
+  h+='<div class="kv"><span>⚓ '+esc(r.ref||r.product||t("none"))+"</span><b>"+esc(r.originPort||"?")+" → "+esc(r.destinationPort||"?")+"</b></div>"});
+ if(open.length>8)h+='<div class="mut">+'+(open.length-8)+"</div>";
+ h+='<div class="mut" style="margin-top:8px">'+t("mapnote")+"</div>"
+ +'<div class="row"><a class="btn sec" href="/" style="text-decoration:none;display:flex;align-items:center;justify-content:center">'+t("viewglobe")+"</a></div></div>";
+ return h}
+function wfDeckHTML(){
+ let h='<div class="card" id="gev-workforce-deck"><h3>🤖 '+t("deckwf")+"</h3>";
+ WF_AGENTS_TRADE.forEach(a=>{
+  h+='<div class="wfagent"><span class="wfdot"></span><div><div class="wfname">'+esc(lang==="es"?a.es:a.en)+"</div></div></div>"});
+ h+='<div class="mut" style="margin-top:8px">'+esc(lang==="es"?WF_NOTE_TRADE.es:WF_NOTE_TRADE.en)+"</div>";
+ h+='<div class="mut" style="margin-top:8px">'+t("wflive")+"</div>";
+ const notes=[];
+ S.rfqs.forEach(r=>{(r.agentNotes||[]).forEach(n=>notes.push(n))});
+ notes.sort((a,b)=>String(b.at||"").localeCompare(String(a.at||"")));
+ h+="<h3 style=\"margin-top:12px\">"+t("wfactivity")+"</h3>";
+ if(!notes.length)h+='<div class="mut">'+t("wfnone")+"</div>";
+ notes.slice(0,5).forEach(n=>{
+  h+='<div class="kv"><span>'+esc(String(n.at||"").slice(0,10))+" · "+esc(n.agent||"")+"</span><b>"+esc(lang==="es"?(n.es||""):(n.en||""))+"</b></div>"});
+ h+="</div>";
+ return h}
 /* ============ RFQ detail ============ */
 function openRfq(id){
  const r=S.rfqs.find(x=>x.id===id);if(!r)return;

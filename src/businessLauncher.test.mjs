@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 const {
   BUSINESSES,
+  GLOBE_CARD,
   initBusinessLauncher,
   openBusinessScreen,
 } = await import('./businessLauncher.js');
@@ -90,7 +91,7 @@ test('five businesses, one per module, with standalone screen URLs', () => {
 
 test('launcher builds floating button and overlay; toggle opens and closes', () => {
   body.children.length = 0;
-  const launcher = initBusinessLauncher();
+  const launcher = initBusinessLauncher({ autoOpen: false });
   const fab = body.children.find((c) => c.id === 'gev-bizlauncher-btn');
   const overlay = body.children.find(
     (c) => c.id === 'gev-bizlauncher-overlay',
@@ -101,7 +102,9 @@ test('launcher builds floating button and overlay; toggle opens and closes', () 
   fab.click();
   assert.ok(overlay.classList.contains('open'), 'opens on tap');
   const bizButtons = overlay.querySelectorAll('.bl-biz');
-  assert.equal(bizButtons.length, 5, 'five big business buttons');
+  assert.equal(bizButtons.length, 6, 'five business buttons + globe card');
+  const globe = overlay.querySelectorAll('.bl-globe');
+  assert.equal(globe.length, 1, 'exactly one globe card');
   fab.click();
   assert.ok(!overlay.classList.contains('open'), 'closes on second tap');
   launcher.destroy();
@@ -131,6 +134,67 @@ test('ES/EN toggle relabels the business buttons', () => {
     'spanish labels applied',
   );
   assert.equal(store['sahjony.gev.lang'], 'es', 'language persisted');
+  launcher.destroy();
+});
+
+test('globe card is bilingual and separate from the five businesses', () => {
+  assert.equal(BUSINESSES.length, 5, 'business roster stays five');
+  assert.ok(
+    !BUSINESSES.some((b) => b.id === 'globe'),
+    'globe is not a business',
+  );
+  assert.equal(GLOBE_CARD.id, 'globe');
+  assert.equal(GLOBE_CARD.icon, '🌐');
+  assert.ok(GLOBE_CARD.es && GLOBE_CARD.en, 'globe card bilingual');
+});
+
+test('hub architecture: launcher auto-opens as the default entry view', () => {
+  body.children.length = 0;
+  const launcher = initBusinessLauncher();
+  const overlay = body.children.find(
+    (c) => c.id === 'gev-bizlauncher-overlay',
+  );
+  assert.ok(
+    overlay.classList.contains('open'),
+    'overlay opens automatically by default',
+  );
+  launcher.destroy();
+});
+
+test('autoOpen:false keeps the pre-hub behavior (reversible)', () => {
+  body.children.length = 0;
+  const launcher = initBusinessLauncher({ autoOpen: false });
+  const overlay = body.children.find(
+    (c) => c.id === 'gev-bizlauncher-overlay',
+  );
+  assert.ok(
+    !overlay.classList.contains('open'),
+    'overlay stays closed with autoOpen:false',
+  );
+  launcher.destroy();
+});
+
+test('globe card dismisses the hub and relabels ES/EN', () => {
+  body.children.length = 0;
+  const launcher = initBusinessLauncher();
+  const overlay = () =>
+    body.children.find((c) => c.id === 'gev-bizlauncher-overlay');
+  // NOTE: the node DOM double does not clear children on innerHTML='',
+  // so re-query (like the ES/EN toggle test) instead of holding an element.
+  const globeNames = () =>
+    overlay()
+      .querySelectorAll('.bl-globe')
+      .map((g) => g.querySelector('.bl-name').textContent);
+  launcher.setLang('es');
+  assert.ok(globeNames().includes('Globo'), 'spanish globe label');
+  launcher.setLang('en');
+  assert.ok(globeNames().includes('Globe'), 'english globe label');
+  assert.ok(overlay().classList.contains('open'), 'hub open before tap');
+  overlay().querySelectorAll('.bl-globe')[0].click();
+  assert.ok(
+    !overlay().classList.contains('open'),
+    'globe card closes the hub overlay',
+  );
   launcher.destroy();
 });
 

@@ -1065,10 +1065,13 @@ export function createApplicationTools({
     if (window.__gevCubacashWorkforceUI) delete window.__gevCubacashWorkforceUI;
   });
   debug.cubacashWorkforcePanel = cubacashWorkforcePanel;
-  // Business launcher: floating 🏢 button + full-screen bilingual menu with
-  // one-tap buttons opening each business's standalone screen. The screens
-  // share each module's localStorage key, so data is seamless both ways.
-  const businessLauncher = initBusinessLauncher({ signal });
+  // Business launcher = the hub (Juan's standing hub-architecture rule).
+  // Floating 🏢 button + full-screen bilingual menu with one-tap buttons
+  // opening each business's standalone screen. The screens share each
+  // module's localStorage key, so data is seamless both ways.
+  // autoOpen: the hub overlay IS the default entry view; the "🌐 Globe"
+  // card dismisses it to reveal the globe, and the 🏢 button re-opens it.
+  const businessLauncher = initBusinessLauncher({ signal, autoOpen: true });
   defer(() => {
     try {
       businessLauncher.destroy();
@@ -1338,6 +1341,44 @@ export function createApplicationTools({
     sahjonyVoice.destroy();
   });
   debug.sahjonyVoice = sahjonyVoice;
+  // Voice deep link from a standalone business screen (?voice=1&biz=<id>):
+  // the screen's 🎙️ button returns here to the hub's voice commander with
+  // business context. Close the hub overlay, open that business's in-app
+  // panel via its voice intent, and start listening. Browsers may still
+  // require one tap on the hub's mic if mic permission isn't granted yet —
+  // the commander UI stays visible for that one tap, so nothing dead-ends.
+  try {
+    const qp = new URLSearchParams(window.location.search || '');
+    if (qp.get('voice') === '1') {
+      const BIZ_PHRASE = {
+        wholesale: 'abre wholesale',
+        crude: 'abre crudo',
+        insurance: 'abre seguros',
+        trade: 'abre comercio',
+        cubacash: 'abre cuba cash',
+      };
+      const phrase = BIZ_PHRASE[String(qp.get('biz') || '').toLowerCase()];
+      if (phrase) {
+        try {
+          businessLauncher.close();
+        } catch {
+          /* overlay already closed */
+        }
+        try {
+          sahjonyVoice.execute(phrase);
+        } catch {
+          /* panel open is best-effort */
+        }
+      }
+      try {
+        sahjonyVoice.start();
+      } catch {
+        /* mic start may need a user tap; commander UI remains visible */
+      }
+    }
+  } catch {
+    /* URL parsing never breaks startup */
+  }
   // If the paid realtime backend is unreachable (no API key configured),
   // retire the legacy voice control — SAHJONY VOZ (free, bilingual) is the
   // voice interface. The control reappears automatically if a backend is

@@ -54,10 +54,26 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 .sheet{background:var(--card);border-radius:18px;padding:18px;max-width:640px;margin:20px auto}
 .sheet h2{margin-top:0}
 .disc{font-size:12px;color:var(--mut);padding:14px;text-align:center;max-width:720px;margin:0 auto}
+/* GEV hub-architecture contract: back-to-hub bar + voice button.
+   #gev-back-hub: href="/", ES "‹ Volver" / EN "‹ Back", min-height 52px, always visible (sticky header). */
+#gev-back-hub-bar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:8px;background:#0b1220}
+#gev-back-hub{flex:1;display:flex;align-items:center;min-height:52px;padding:8px 6px;font-size:17px;font-weight:800;color:var(--acc);text-decoration:none}
+#gev-back-hub:active{opacity:.65}
+#gev-voice-btn{display:flex;align-items:center;gap:6px;min-height:52px;padding:8px 14px;font-size:16px;font-weight:800;color:var(--txt);text-decoration:none;border:2px solid var(--brd);border-radius:12px;background:var(--card)}
+#gev-voice-btn:active{border-color:var(--acc)}
+/* module deck: map + AI workforce cards */
+.wfagent{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--brd)}
+.wfdot{width:12px;height:12px;border-radius:50%;background:#9ca3af;flex:0 0 auto;margin-top:6px}
+.wfname{font-weight:800;font-size:16px}
+.wfdesc{font-size:14px;color:var(--mut)}
 </style>
 </head>
 <body>
 <header>
+<nav id="gev-back-hub-bar" aria-label="hub">
+<a id="gev-back-hub" href="/">‹ <span id="gev-back-hub-label">Volver</span></a>
+<a id="gev-voice-btn" href="/?voice=1&amp;biz=cubacash">🎙️ <span id="gev-voice-label">Voz</span></a>
+</nav>
 <h1>💸 MY CUBA CASH</h1>
 <div class="sub" id="appsub"></div>
 <div class="langrow">
@@ -104,7 +120,13 @@ export:"Export data",import:"Import data",badfile:"That file could not be read."
 wfnotes:"Workforce notes",nonotes:"No notes",
 disclaimer:"Zero custody: creating a request or corridor moves no money. Data only changes with real information — nothing is invented.",
 st_candidate:"Candidate",st_verifying:"Verifying",st_live:"Live",st_paused:"Paused",
-nav_home:"⌂ GEV",nav_ins:"🛡️ Insurance",nav_who:"🏠 Wholesale",nav_cru:"🛢️ Crude",nav_imp:"🌐 Imp/Exp"},
+nav_home:"⌂ GEV",nav_ins:"🛡️ Insurance",nav_who:"🏠 Wholesale",nav_cru:"🛢️ Crude",nav_imp:"🌐 Imp/Exp",
+backhub:"Back",voicelink:"Voice",
+deckmap:"Map",deckwf:"AI workforce",corrwithcoords:"corridors with coordinates",provwithcoords:"providers with coordinates",
+mapnone:"No corridor coordinates yet — add lat/lng on the corridor.",
+mapnote:"The full interactive map with remittance corridor layers lives on the GEV globe.",
+viewglobe:"🌐 View on the GEV globe",wfnone:"No notes yet.",
+wflive:"Live agent statuses run in the GEV app — the hub opens them with the 🎙️ button."},
 es:{appsub:"Corredores + proveedores de remesas · Custodia cero — crear una solicitud no mueve dinero",
 open:"🌐 Abrir mycubacash.com",
 tocorridors:"Corredores",toproviders:"Proveedores",toadd:"Agregar",
@@ -134,7 +156,13 @@ export:"Exportar datos",import:"Importar datos",badfile:"No se pudo leer el arch
 wfnotes:"Notas de la fuerza",nonotes:"Sin notas",
 disclaimer:"Custodia cero: crear una solicitud o corredor no mueve dinero. Los datos solo cambian con información real — nada se inventa.",
 st_candidate:"Candidato",st_verifying:"Verificando",st_live:"Activo",st_paused:"Pausado",
-nav_home:"⌂ GEV",nav_ins:"🛡️ Seguro",nav_who:"🏠 Mayoreo",nav_cru:"🛢️ Crudo",nav_imp:"🌐 Imp/Exp"}};
+nav_home:"⌂ GEV",nav_ins:"🛡️ Seguro",nav_who:"🏠 Mayoreo",nav_cru:"🛢️ Crudo",nav_imp:"🌐 Imp/Exp",
+backhub:"Volver",voicelink:"Voz",
+deckmap:"Mapa",deckwf:"Fuerza IA",corrwithcoords:"corredores con coordenadas",provwithcoords:"proveedores con coordenadas",
+mapnone:"Sin coordenadas en corredores todavía — agrega lat/lng en el corredor.",
+mapnote:"El mapa interactivo completo con capas de corredores de remesas vive en el globo GEV.",
+viewglobe:"🌐 Ver en el globo GEV",wfnone:"Sin notas todavía.",
+wflive:"Los estados en vivo corren en la app GEV — el hub los abre con el botón 🎙️."}};
 let lang="es"; const t=k=>T[lang][k]||k;
 /* ============ store (mirrors src/cubacash/providerStore.js) ============ */
 const KEY="sahjony.cubacash.v1";
@@ -235,6 +263,8 @@ function render(){
  document.getElementById("appsub").textContent=t("appsub");
  document.getElementById("mccsite").textContent=t("open");
  document.getElementById("disclaimer").textContent=t("disclaimer");
+ document.getElementById("gev-back-hub-label").textContent=t("backhub");
+ document.getElementById("gev-voice-label").textContent=t("voicelink");
  const nb=document.getElementById("biztabs");nb.innerHTML="";
  NAVLINKS.forEach(([k,href])=>{
   const a=document.createElement("a");a.className="biztab";a.href=href;a.textContent=t(k);nb.appendChild(a);
@@ -270,8 +300,46 @@ function renderCorridors(m){
  });
  h+='<div class="row"><button class="btn" onclick="go(\'#add\')">'+esc(t("add")+" · "+t("tabCorr"))+"</button></div>";
  h+='<div class="row"><button class="btn sec" onclick="exportData()">'+esc(t("export"))+'</button><button class="btn sec" onclick="importData()">'+esc(t("import"))+"</button></div>";
+ h+=mapDeckHTML()+wfDeckHTML();
  m.innerHTML=h;
 }
+/* ============ GEV module deck: map layers + AI workforce (hub architecture) ============ */
+/* Workforce roster mirrors src/agents/cubacashWorkforce.js ROLE_DEFS (same names, same note). */
+const WF_AGENTS_CUBACASH=[
+ {es:"Verificador de proveedores",en:"Provider Verifier"},
+ {es:"Vigilante de tarifas",en:"Fee Watcher"},
+ {es:"Analista de corredores",en:"Corridor Analyst"},
+ {es:"Ayudante de captación",en:"Intake Helper"}];
+const WF_NOTE_CUBACASH={
+ es:"La fuerza trabaja mientras la app está abierta.",
+ en:"The workforce runs while the app is open."};
+function corrHasCoords(c){return c.fromLat!=null&&c.fromLng!=null&&c.toLat!=null&&c.toLng!=null}
+function mapDeckHTML(){
+ const geo=S.corridors.filter(corrHasCoords);
+ const provGeo=S.providers.filter(p=>p.lat!=null&&p.lng!=null).length;
+ let h='<div class="card" id="gev-map-deck"><h3>🗺️ '+esc(t("deckmap"))+" · "+geo.length+" "+esc(t("corrwithcoords"))+" · "+provGeo+" "+esc(t("provwithcoords"))+"</h3>";
+ if(!geo.length)h+='<div class="mut">'+esc(t("mapnone"))+"</div>";
+ geo.slice(0,8).forEach(c=>{
+  h+='<div class="kv"><span>'+esc(c.fromCountry||"?")+" → "+esc(c.toCountry||"?")+"</span><b>"+esc(c.fromLat)+", "+esc(c.fromLng)+" → "+esc(c.toLat)+", "+esc(c.toLng)+"</b></div>"});
+ if(geo.length>8)h+='<div class="mut">+'+(geo.length-8)+"</div>";
+ h+='<div class="mut" style="margin-top:8px">'+esc(t("mapnote"))+"</div>"
+ +'<div class="row"><a class="btn sec" href="/" style="text-decoration:none;display:flex;align-items:center;justify-content:center">'+esc(t("viewglobe"))+"</a></div></div>";
+ return h}
+function wfDeckHTML(){
+ let h='<div class="card" id="gev-workforce-deck"><h3>🤖 '+esc(t("deckwf"))+"</h3>";
+ WF_AGENTS_CUBACASH.forEach(a=>{
+  h+='<div class="wfagent"><span class="wfdot"></span><div><div class="wfname">'+esc(lang==="es"?a.es:a.en)+"</div></div></div>"});
+ h+='<div class="mut" style="margin-top:8px">'+esc(lang==="es"?WF_NOTE_CUBACASH.es:WF_NOTE_CUBACASH.en)+"</div>";
+ h+='<div class="mut" style="margin-top:8px">'+esc(t("wflive"))+"</div>";
+ h+="<h2>"+esc(t("wfnotes"))+"</h2>";
+ const notes=[];
+ S.corridors.forEach(c=>{(c.agentNotes||[]).forEach(n=>notes.push(n))});
+ S.providers.forEach(p=>{(p.agentNotes||[]).forEach(n=>notes.push(n))});
+ if(!notes.length)h+='<div class="mut">'+esc(t("wfnone"))+"</div>";
+ notes.slice(-5).reverse().forEach(n=>{
+  h+='<div class="note"><span class="who">'+esc(n.agent||"")+"</span>"+(n.at?" · "+esc(n.at):"")+"<br>"+esc(lang==="es"?(n.es||n.en||""):(n.en||n.es||""))+"</div>"});
+ h+="</div>";
+ return h}
 function renderProviders(m){
  let h=kpiRow();
  h+='<div class="mut" style="margin:4px 0 0">'+esc(t("seednote"))+"</div>";
