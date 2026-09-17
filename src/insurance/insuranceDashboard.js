@@ -121,7 +121,7 @@ export function initInsuranceDashboard(
   const refs = { kpis: null, err: null, fileInput: null };
 
   function openDeepLink(view) {
-    const url = `/insurance/#${view}`;
+    const url = `/insurance/index.html#${view}`;
     try {
       if (typeof window !== 'undefined' && typeof window.open === 'function') {
         window.open(url, '_blank', 'noopener');

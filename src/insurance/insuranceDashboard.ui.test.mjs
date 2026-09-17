@@ -109,11 +109,11 @@ test('initInsuranceDashboard opens panel and renders 4 KPI cards', () => {
   assert.ok(panel.removed, 'panel removed on destroy');
 });
 
-test('openDeepLink opens /insurance/#<view>', () => {
+test('openDeepLink opens /insurance/index.html#<view>', () => {
   openedUrl = null;
   const dash = initInsuranceDashboard(null, { store });
   dash.openDeepLink('claims');
-  assert.equal(openedUrl, '/insurance/#claims');
+  assert.equal(openedUrl, '/insurance/index.html#claims');
   dash.destroy();
 });
 
