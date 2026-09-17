@@ -346,6 +346,86 @@ export function parseSahjonyCommand(rawText) {
     };
   }
 
+  // --- approval queue (management console) ---
+  // LIST-ONLY INTENTS. Approval and rejection are TAP-ONLY by design: a voice
+  // command can be triggered by anyone within earshot, while approving an
+  // item is Juan's explicit gate on a real external act (send/post/publish).
+  // Voice therefore only OPENS the queue; Juan's tap is the decision.
+  // (Deliberately no __approvals_approve / __approvals_reject intent exists.)
+  {
+    const APPROVAL_BIZ_WORDS = [
+      ['wholesale', ['wholesale', 'mayorista', 'mayoristas']],
+      ['crude', ['crudo', 'crude', 'petroleo']],
+      [
+        'trade',
+        ['comercio', 'trade', 'importacion', 'exportacion', 'import export'],
+      ],
+      ['cubacash', ['cuba cash', 'my cuba cash', 'mi cuba cash', 'remesas']],
+      [
+        'carsales',
+        ['venta de autos', 'venta de carros', 'autos', 'carros', 'car sales'],
+      ],
+      ['new850', ['new850', 'new 850']],
+      ['insurance', ['seguros', 'seguro', 'insurance', 'aseguradora']],
+    ];
+    const approvalBusinessFromText = (t) => {
+      for (const [id, words] of APPROVAL_BIZ_WORDS) {
+        if (words.some((w) => t.includes(w))) return id;
+      }
+      return null;
+    };
+    const bizNames = {
+      wholesale: { es: 'Wholesale', en: 'Wholesale' },
+      crude: { es: 'Crudo', en: 'Crude oil' },
+      trade: { es: 'Import/Export', en: 'Import/Export' },
+      cubacash: { es: 'MY CUBA CASH', en: 'MY CUBA CASH' },
+      carsales: { es: 'Venta de autos', en: 'Car sales' },
+      new850: { es: 'New850', en: 'New850' },
+      insurance: { es: 'Seguros', en: 'Insurance' },
+    };
+    // Per-business: "muéstrame las aprobaciones de New850", "qué tengo pendiente en crudo",
+    // "show trade approvals", …
+    if (
+      /\b(aprobaciones|aprobacion|approvals?)\s+(de|del|para|for)\b/.test(
+        text,
+      ) ||
+      /\b(pendiente|pendientes|pending)\s+(de|del|en|para|for)\s+(?!aprobar\b)/.test(
+        text,
+      ) ||
+      /\b(wholesale|mayorista|mayoristas|crudo|crude|petroleo|comercio|trade|importacion|exportacion|cuba cash|remesas|venta de autos|venta de carros|autos|carros|car sales|new850|new 850|seguros|seguro|insurance|aseguradora)\s+(aprobaciones|aprobacion|approvals?)\b/.test(
+        text,
+      )
+    ) {
+      const businessId = approvalBusinessFromText(text);
+      if (businessId) {
+        const name = bizNames[businessId];
+        return {
+          action: '__approvals_list',
+          args: { businessId },
+          say: {
+            es: `Mostrando tus aprobaciones de ${name.es}`,
+            en: `Showing your ${name.en} approvals`,
+          },
+        };
+      }
+    }
+    // All businesses: "qué tengo pendiente de aprobar", "muéstrame mis aprobaciones", …
+    if (
+      /\b(que tengo pendiente de aprobar|que tengo para aprobar|muestrame mis aprobaciones|muestrame las aprobaciones|muestrame lo pendiente|cola de aprobaciones|cola de aprobacion|lista de aprobaciones|aprobaciones pendientes|what do i have pending approval|what is pending approval|show me my approvals|show my approvals|show pending approvals|approval queue|approvals list)\b/.test(
+        text,
+      )
+    ) {
+      return {
+        action: '__approvals_list',
+        args: { businessId: null },
+        say: {
+          es: 'Abriendo tu cola de aprobaciones',
+          en: 'Opening your approval queue',
+        },
+      };
+    }
+  }
+
   // --- insurance command center ---
   if (
     /\b(seguro|seguros|insurance|abre seguros|open insurance|panel seguros|insurance panel|modo seguros)\b/.test(

@@ -48,6 +48,10 @@ import {
 import { parseCargoCsv as parseCrudeCsv } from '../crude/cargoImporter.js';
 import { initTankerMapLayer } from '../crude/tankerMapLayer.js';
 import { initCrudeDashboard } from '../crude/crudeDashboard.js';
+// Shared approval queue (management-console scope): every business station's
+// drafts awaiting Juan's word, one-tap approve/reject. Voice intents are
+// LIST-ONLY; approval itself is tap-only by design (see sahjonyVoice.js).
+import { openApprovalPanel } from '../approvals/approvalPanel.js';
 import { createWorkforce as createCrudeWorkforce } from '../agents/crudeWorkforce.js';
 import { initCrudeWorkforcePanel } from '../agents/crudeWorkforcePanel.js';
 // Insurance Command Center: shared coverage/claims store, pure insurance
@@ -1156,6 +1160,15 @@ export function createApplicationTools({
         }
       },
       __crude_open: () => crudeDashboard.toggle?.() ?? crudeDashboard.open?.(),
+      // Approval queue: voice LIST intent opens the queue; decisions stay
+      // tap-only — no voice approve/reject path exists anywhere.
+      __approvals_list: (args) => {
+        try {
+          openApprovalPanel(args?.businessId ?? null);
+        } catch {
+          /* noop */
+        }
+      },
       __crude_status: () =>
         crudeDashboard.toggle?.() ?? crudeDashboard.open?.(),
       __crude_best: () => {
