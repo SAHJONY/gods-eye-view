@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Insurance Command Center</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--txt:#f1f5f9;--mut:#94a3b8;--acc:#38bdf8;--grn:#4ade80;--yel:#facc15;--red:#f87171;--brd:#334155}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45;padding-bottom:90px}
+header{position:sticky;top:0;z-index:10;background:#0b1220;border-bottom:1px solid var(--brd);padding:12px 14px}
+h1{margin:0;font-size:20px}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.langrow{display:flex;gap:8px;margin-top:10px}
+.langbtn{flex:1;min-height:48px;border-radius:12px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700}
+.langbtn.on{border-color:var(--acc);background:#0c2a3d}
+.biztabs{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 4px;scrollbar-width:none}
+.biztab{flex:0 0 auto;min-height:52px;padding:10px 16px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:15px;font-weight:700;white-space:nowrap}
+.biztab.on{border-color:var(--acc);background:#0c2a3d}
+.viewtabs{display:flex;gap:8px;padding:10px 14px}
+.viewtab{flex:1;min-height:52px;border-radius:14px;border:2px solid var(--brd);background:var(--card);color:var(--txt);font-size:16px;font-weight:700}
+.viewtab.on{border-color:var(--grn);background:#0d2b1a}
+main{padding:6px 14px}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:16px;margin:12px 0}
+.card h3{margin:0 0 6px;font-size:18px}
+.pill{display:inline-block;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:800;margin:4px 6px 4px 0}
+.gap{background:#3b1114;color:var(--red);border:1px solid var(--red)}
+.active{background:#0d2b1a;color:var(--grn);border:1px solid var(--grn)}
+.expsoon{background:#33270a;color:var(--yel);border:1px solid var(--yel)}
+.mut{color:var(--mut);font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.btn{flex:1;min-height:52px;border-radius:14px;border:none;font-size:16px;font-weight:800;color:#0b1220;background:var(--acc)}
+.btn.sec{background:var(--card2);color:var(--txt);border:2px solid var(--brd)}
+.btn.dgr{background:#3b1114;color:var(--red);border:1px solid var(--red)}
+.btn.grn{background:#0d2b1a;color:var(--grn);border:1px solid var(--grn)}
+input,select,textarea{width:100%;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:#0b1220;color:var(--txt);font-size:16px;padding:10px 12px;margin:6px 0}
+textarea{min-height:110px;resize:vertical}
+label{font-size:14px;color:var(--mut);font-weight:700}
+.stages{display:flex;gap:4px;margin:10px 0}
+.stage{flex:1;height:10px;border-radius:6px;background:var(--brd)}
+.stage.done{background:var(--grn)}
+.check{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--brd);border-radius:12px;margin:8px 0;min-height:56px}
+.check input{width:28px;height:28px;min-height:28px;margin:0;flex:0 0 auto}
+.alertcard{border-left:6px solid var(--red)}
+.alertcard.warn{border-left-color:var(--yel)}
+.st8{background:#0b1220;color:var(--acc);border:1px solid var(--acc)}
+.fab{position:fixed;bottom:18px;right:18px;width:72px;height:72px;border-radius:50%;background:var(--acc);color:#0b1220;font-size:34px;font-weight:900;border:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;z-index:20;overflow-y:auto;padding:16px}
+.modal.open{display:block}
+.sheet{background:var(--card);border-radius:18px;padding:18px;max-width:640px;margin:20px auto}
+.sheet h2{margin-top:0}
+.disc{font-size:12px;color:var(--mut);padding:14px}
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--brd);font-size:15px}
+.kv b{text-align:right}
+@media print{.fab,.viewtabs,.biztabs,.langrow,.btn,.noprint{display:none!important}body{background:#fff;color:#000;padding:0}.card{background:#fff;border:1px solid #999;color:#000}}
+</style>
+</head>
+<body>
+<header>
+<h1 id="apptitle">🛡️ Insurance Command Center</h1>
+<div class="sub" id="appsub">Coverage tracking + claim prep for all 4 businesses</div>
+<div class="langrow noprint">
+<button class="langbtn" id="btnEN" onclick="setLang('en')">EN</button>
+<button class="langbtn" id="btnES" onclick="setLang('es')">ES</button>
+</div>
+<div class="noprint" style="margin-top:8px"><select id="homestate" onchange="setHome(this.value)" style="margin:0" aria-label="state"></select></div>
+</header>
+<div class="biztabs noprint" id="biztabs"></div>
+<div class="viewtabs noprint" id="viewtabs"></div>
+<main id="main"></main>
+<button class="fab noprint" onclick="openNewClaim()" title="+">+</button>
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="disc" id="disclaimer"></div>
+<script>
+"use strict";
+/* ============ i18n ============ */
+const T={
+en:{appsub:"Coverage tracking + claim prep for all 4 businesses",coverage:"Coverage",claims:"Claims",alerts:"Alerts",
+gap:"GAP — NO POLICY",active:"ACTIVE",expsoon:"EXPIRING SOON",priority:"Priority",carrier:"Carrier",policy:"Policy #",
+eff:"Effective",exp:"Expiry",prem:"Premium",notes:"Notes",save:"Save",cancel:"Cancel",addcov:"Add coverage",
+edit:"Edit",del:"Delete",newclaim:"New claim",ctype:"Claim type",incident:"Incident date",desc:"What happened",
+docs:"Documents checklist",packet:"Claim packet",filed:"Mark filed",followup:"Log follow-up",close:"Close claim",
+reopen:"Reopen",stages:["Incident","Docs gathering","Packet ready","Filed","Follow-up","Closed"],
+nogaps:"No coverage gaps. All required lines have an active policy.",norenew:"No renewals due within 30 days.",
+noclaims:"No claims on file.",noalerts:"All clear — no gaps, no renewals due, no claims need attention.",
+gapalert:"Coverage gap",renewalert:"Renewal due",claimatt:"Claim needs attention",days:"days",
+packetfor:"Claim packet for",prepared:"Prepared",print:"Print / PDF",export:"Export data",import:"Import data",
+confirmdel:"Delete this record?",disclaimer:"Educational tool only — not licensed insurance advice. Always verify notice deadlines and requirements against your actual policy documents and confirm with a licensed agent. Never invent or alter facts in a claim.",
+prop:"Property damage",cargo:"Cargo / transit",liab:"Liability (third-party)",theft:"Theft",bi:"Business interruption",
+auto:"Auto accident",health:"Health claim / appeal",
+biz_personal:"👤 Personal",biz_wholesale:"🏠 Wholesale RE",biz_import:"🌐 Import/Export",biz_crude:"🛢️ Crude brokerage",biz_cuba:"💸 MY CUBA CASH",
+status:"Status",addnote:"Add a note / follow-up entry",followlog:"Follow-up log",created:"Opened",
+claimid:"Claim",tocoverage:"Coverage",toclaims:"Claims",toalerts:"Alerts",
+attorney:"Attorney claims",att_new:"New attorney claim",noatt:"No attorney-filed claims tracked yet.",
+att_title:"Matter / claim title",att_for:"For",att_name:"Attorney name",att_firm:"Firm",att_contact:"Contact (phone/email)",
+att_case:"Case / claim #",att_filed:"Date filed",att_venue:"Court / venue",att_status:"Status",
+att_next:"Next action",att_nextdate:"Next action date",att_notes:"Notes / updates",overdue:"overdue",attalert:"Attorney claim action due",
+astages:["Filed","In negotiation","In discovery","Mediation","Trial set","Settled","Closed"],
+state:"State",homestate:"Your state",naic:"Find your state insurance department (NAIC)",
+shop:"Shop & compare",shop_new:"Add a quote",noquotes:"No quotes yet — add the real quotes you receive and compare them side by side.",
+q_type:"Coverage type",q_carrier:"Carrier / agent",q_premium:"Annual premium ($)",q_deductible:"Deductible ($)",q_limits:"Coverage limits",
+q_contact:"Contact",q_date:"Quote date",q_exp:"Quote valid until",q_notes:"Notes",bestdeal:"Best deal",peryear:"/yr",permonth:"/mo",
+qreq:"Quote requests",qreq_new:"Log a request",qreq_from:"Requested from",qreq_fup:"Follow up on",qreq_type:"For coverage",
+quotexp:"Quote expiring",wts:"Where to shop",wts_health:"Health insurance — official marketplace",
+wts_other:"Auto, home, life & business: get at least 3 real quotes (carriers, independent agents) and enter them here to compare. Never buy on price alone — check the carrier's rating and complaint record with your state insurance department.",
+other:"Other",
+library:"Insurance library",lib:"Library",lib_p:"Personal lines",lib_c:"Commercial lines",lib_search:"Search coverages…",
+managebiz:"Businesses",bizname:"Business name",industry:"Industry",addbiz:"Add business"},
+es:{appsub:"Seguimiento de cobertura + preparación de reclamos para los 4 negocios",coverage:"Cobertura",claims:"Reclamos",alerts:"Alertas",
+gap:"VACÍO — SIN PÓLIZA",active:"ACTIVA",expsoon:"POR VENCER",priority:"Prioridad",carrier:"Aseguradora",policy:"Póliza #",
+eff:"Vigencia",exp:"Vencimiento",prem:"Prima",notes:"Notas",save:"Guardar",cancel:"Cancelar",addcov:"Agregar cobertura",
+edit:"Editar",del:"Eliminar",newclaim:"Nuevo reclamo",ctype:"Tipo de reclamo",incident:"Fecha del incidente",desc:"Qué pasó",
+docs:"Lista de documentos",packet:"Paquete del reclamo",filed:"Marcar presentado",followup:"Registrar seguimiento",close:"Cerrar reclamo",
+reopen:"Reabrir",stages:["Incidente","Reuniendo docs","Paquete listo","Presentado","Seguimiento","Cerrado"],
+nogaps:"Sin vacíos de cobertura. Todas las líneas requeridas tienen póliza activa.",norenew:"Sin renovaciones en 30 días.",
+noclaims:"Sin reclamos registrados.",noalerts:"Todo en orden — sin vacíos, sin renovaciones próximas, sin reclamos pendientes.",
+gapalert:"Vacío de cobertura",renewalert:"Renovación próxima",claimatt:"Reclamo necesita atención",days:"días",
+packetfor:"Paquete de reclamo para",prepared:"Preparado",print:"Imprimir / PDF",export:"Exportar datos",import:"Importar datos",
+confirmdel:"¿Eliminar este registro?",disclaimer:"Herramienta educativa — no es asesoría de seguros con licencia. Verifique siempre los plazos y requisitos en sus documentos de póliza reales y confirme con un agente licenciado. Nunca invente ni altere hechos en un reclamo.",
+prop:"Daño a propiedad",cargo:"Carga / tránsito",liab:"Responsabilidad (terceros)",theft:"Robo",bi:"Interrupción del negocio",
+auto:"Accidente de auto",health:"Reclamo de salud / apelación",
+biz_personal:"👤 Personal",biz_wholesale:"🏠 Mayoreo RE",biz_import:"🌐 Import/Export",biz_crude:"🛢️ Corretaje crudo",biz_cuba:"💸 MY CUBA CASH",
+status:"Estado",addnote:"Agregar nota / seguimiento",followlog:"Registro de seguimiento",created:"Abierto",
+claimid:"Reclamo",tocoverage:"Cobertura",toclaims:"Reclamos",toalerts:"Alertas",
+attorney:"Reclamos con abogado",att_new:"Nuevo reclamo con abogado",noatt:"Aún no hay reclamos de abogados registrados.",
+att_title:"Título del caso / reclamo",att_for:"Para",att_name:"Nombre del abogado",att_firm:"Firma",att_contact:"Contacto (teléfono/email)",
+att_case:"Caso / reclamo #",att_filed:"Fecha de presentación",att_venue:"Corte / jurisdicción",att_status:"Estado",
+att_next:"Próxima acción",att_nextdate:"Fecha próxima acción",att_notes:"Notas / actualizaciones",overdue:"vencido",attalert:"Acción de reclamo con abogado próxima",
+astages:["Presentado","En negociación","En descubrimiento","Mediación","Juicio programado","Resuelto","Cerrado"],
+state:"Estado",homestate:"Tu estado",naic:"Encuentra el departamento de seguros de tu estado (NAIC)",
+shop:"Comparar cotizaciones",shop_new:"Agregar cotización",noquotes:"Sin cotizaciones — agrega las cotizaciones reales que recibas y compáralas lado a lado.",
+q_type:"Tipo de cobertura",q_carrier:"Aseguradora / agente",q_premium:"Prima anual ($)",q_deductible:"Deducible ($)",q_limits:"Límites de cobertura",
+q_contact:"Contacto",q_date:"Fecha de cotización",q_exp:"Cotización válida hasta",q_notes:"Notas",bestdeal:"Mejor oferta",peryear:"/año",permonth:"/mes",
+qreq:"Solicitudes de cotización",qreq_new:"Registrar solicitud",qreq_from:"Solicitado a",qreq_fup:"Dar seguimiento el",qreq_type:"Para cobertura",
+quotexp:"Cotización por vencer",wts:"Dónde cotizar",wts_health:"Seguro de salud — mercado oficial",
+wts_other:"Auto, hogar, vida y negocios: consigue al menos 3 cotizaciones reales (aseguradoras, agentes independientes) e ingrésalas aquí para comparar. No compres solo por precio — revisa la calificación de la aseguradora y su historial de quejas con el departamento de seguros de tu estado.",
+other:"Otro",
+library:"Biblioteca de seguros",lib:"Biblioteca",lib_p:"Líneas personales",lib_c:"Líneas comerciales",lib_search:"Buscar coberturas…",
+managebiz:"Negocios",bizname:"Nombre del negocio",industry:"Industria",addbiz:"Agregar negocio"}};
+let lang="en"; const t=k=>T[lang][k]||k;
+/* ============ seed data ============ */
+const SEED={
+wholesale:{coverages:[
+ {id:"w1",type:"Vacant property insurance",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Covers vacant homes under contract. Standard homeowners will not cover vacant >30-60 days."},
+ {id:"w2",type:"Commercial general liability",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Slip-and-fall etc. on properties being shown."},
+ {id:"w3",type:"Builder's risk",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Per-project, when a rehab is in play."},
+ {id:"w4",type:"Errors & omissions (E&O)",priority:3,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Professional liability as deal intermediary."}],claims:[]},
+import:{coverages:[
+ {id:"i1",type:"Cargo / marine insurance (per shipment)",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Insure every shipment door-to-door. Notify carrier in writing immediately on damage."},
+ {id:"i2",type:"Warehouse / storage liability",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"If goods sit in a warehouse at any point."},
+ {id:"i3",type:"Commercial general liability",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:""},
+ {id:"i4",type:"Trade credit insurance",priority:3,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Protects receivables if a buyer defaults."}],claims:[]},
+crude:{coverages:[
+ {id:"c1",type:"Errors & omissions (E&O)",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Core broker protection — failed-deal and misrepresentation claims."},
+ {id:"c2",type:"Commercial general liability",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:""},
+ {id:"c3",type:"Contingent cargo (per deal)",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Backstop if a counterparty's cargo cover fails."}],claims:[]},
+cuba:{coverages:[
+ {id:"m1",type:"Cyber liability",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Platform handling customer data and payment info."},
+ {id:"m2",type:"Errors & omissions (E&O)",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Concierge coordination errors."},
+ {id:"m3",type:"Crime / fidelity",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Employee/contractor dishonesty."},
+ {id:"m4",type:"Commercial general liability",priority:3,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:""}],claims:[]},
+personal:{coverages:[
+ {id:"p1",type:"Auto insurance",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Liability + collision/comprehensive. Required by law to drive."},
+ {id:"p2",type:"Homeowners / renters insurance",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Dwelling + personal property + liability. Renters: personal property + liability."},
+ {id:"p3",type:"Health insurance",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Keep ID cards, EOBs, and denial letters — appeals need them."},
+ {id:"p4",type:"Umbrella liability",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Extra liability above auto/home limits. Cheap for the protection."},
+ {id:"p5",type:"Life insurance",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Term or permanent. Beneficiaries should know the carrier and policy number."}],claims:[]}};
+const CHECKLISTS={
+prop:["Photos / video of damage (before cleanup)","Police or fire report (if applicable)","Two repair estimates","Inventory list of damaged items","Policy declarations page","Receipts for emergency repairs"],
+cargo:["Bill of lading (front + back)","Commercial invoice","Packing list","Photos of damage at delivery","Written notice to carrier (keep proof)","Independent survey / inspection report","Delivery receipt with exceptions noted"],
+liab:["Incident report (facts only, no admissions)","Witness names and contact","Photos of scene","All correspondence saved","Do NOT admit fault in writing"],
+theft:["Police report","Inventory of stolen items with values","Proof of ownership (receipts, serials)","Photos of point of entry / scene","Policy declarations page"],
+bi:["Proof of closure / interruption period","Financial records (P&L before and after)","Extra expense receipts","Lease / contract obligations during closure"],
+auto:["Police report","Photos of all vehicles and the scene","Other driver's info: license, insurance, plates","Medical records if anyone injured","Repair estimates","Policy declarations page","Do NOT admit fault at the scene"],
+health:["EOB (explanation of benefits)","Itemized bills from the provider","Referral / prior authorization documents","Denial letter (if appealing)","Doctor letter of medical necessity","Claim / appeal forms"]};
+/* ============ states ============ */
+const STATES=[["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["DC","District of Columbia"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"]];
+function stateOpts(sel){return STATES.map(s=>'<option value="'+s[0]+'"'+(s[0]===sel?" selected":"")+">"+s[1]+" ("+s[0]+")</option>").join("")}
+function setHome(v){S.homeState=v;save()}
+const QTYPES=["Auto","Home / renters","Health","Life","Umbrella","Commercial general liability","Marine cargo","E&O / professional liability","Cyber liability","Crime / fidelity","Builder's risk","Vacant property","Warehouse / storage liability","Trade credit","Contingent cargo"];
+const QTYPES_ES=["Auto","Hogar / inquilinos","Salud","Vida","Paraguas (umbrella)","Responsabilidad comercial general","Carga marítima","E&O / responsabilidad profesional","Responsabilidad cibernética","Crimen / fidelidad","Riesgo de construcción","Propiedad vacante","Responsabilidad de almacén","Crédito comercial","Carga contingente"];
+function qtypeOpts(sel){const arr=lang==="es"?QTYPES_ES:QTYPES;return arr.map((s,i)=>'<option value="'+i+'"'+(i===+sel?" selected":"")+">"+s+"</option>").join("")+'<option value="99"'+(99===+sel?" selected":"")+">"+t("other")+"</option>"}
+/* ============ insurance industry library ============ */
+const LIB=[
+{id:"auto",grp:"p",en:"Auto insurance",es:"Seguro de auto",den:"Covers injuries and damage you cause others, plus optional coverage for your own car.",des:"Cubre lesiones y daños que causes a terceros, más cobertura opcional para tu auto."},
+{id:"home",grp:"p",en:"Homeowners",es:"Seguro de vivienda",den:"Your house, belongings, and liability — the standard home policy.",des:"Tu casa, tus pertenencias y tu responsabilidad civil."},
+{id:"renters",grp:"p",en:"Renters",es:"Seguro de inquilinos",den:"Your belongings and liability inside a rented apartment or house.",des:"Tus pertenencias y responsabilidad en una vivienda alquilada."},
+{id:"condo",grp:"p",en:"Condo",es:"Seguro de condominio",den:"The interior of your condo unit, belongings, and liability.",des:"El interior de tu unidad, tus pertenencias y tu responsabilidad."},
+{id:"flood",grp:"p",en:"Flood",es:"Seguro contra inundaciones",den:"Floodwater damage — excluded from standard home policies.",des:"Daños por inundación — excluido de las pólizas estándar de hogar."},
+{id:"quake",grp:"p",en:"Earthquake",es:"Seguro contra terremotos",den:"Damage from earth movement, usually a separate policy.",des:"Daños por movimiento sísmico, normalmente póliza aparte."},
+{id:"umbrella",grp:"p",en:"Personal umbrella",es:"Paraguas personal",den:"Extra liability limits above your auto and home policies.",des:"Límites extra de responsabilidad sobre tus pólizas de auto y hogar."},
+{id:"health",grp:"p",en:"Health",es:"Salud",den:"Doctor visits, hospital, prescriptions — marketplace or employer plans.",des:"Consultas, hospital y medicinas — planes del mercado o del empleador."},
+{id:"dental",grp:"p",en:"Dental & vision",es:"Dental y visión",den:"Routine dental care and eye exams/glasses.",des:"Cuidado dental de rutina y exámenes/lentes."},
+{id:"disability",grp:"p",en:"Disability",es:"Incapacidad",den:"Replaces part of your income if illness or injury stops you working.",des:"Reemplaza parte de tu ingreso si no puedes trabajar."},
+{id:"life",grp:"p",en:"Life",es:"Vida",den:"Pays your beneficiaries when you die — term or permanent.",des:"Paga a tus beneficiarios al fallecer — temporal o permanente."},
+{id:"ltc",grp:"p",en:"Long-term care",es:"Cuidado a largo plazo",den:"Nursing home and assisted-living costs.",des:"Costos de asilos y cuidado asistido."},
+{id:"pet",grp:"p",en:"Pet",es:"Mascotas",den:"Vet bills for accidents and illness.",des:"Gastos veterinarios por accidentes y enfermedades."},
+{id:"travel",grp:"p",en:"Travel",es:"Viaje",den:"Trip cancellation, medical emergencies abroad, lost luggage.",des:"Cancelación de viaje, emergencias médicas en el extranjero, equipaje perdido."},
+{id:"boat",grp:"p",en:"Boat",es:"Embarcación",den:"Liability and damage for boats and watercraft.",des:"Responsabilidad y daños para botes y embarcaciones."},
+{id:"moto",grp:"p",en:"Motorcycle",es:"Motocicleta",den:"Liability and damage for motorcycles.",des:"Responsabilidad y daños para motocicletas."},
+{id:"cgl",grp:"c",en:"Commercial general liability (CGL)",es:"Responsabilidad comercial general",den:"Third-party injury and property-damage claims against your business.",des:"Reclamos de terceros por lesiones y daños contra tu negocio."},
+{id:"commprop",grp:"c",en:"Commercial property",es:"Propiedad comercial",den:"Buildings, equipment, and inventory your business owns.",des:"Edificios, equipos e inventario de tu negocio."},
+{id:"bop",grp:"c",en:"Business owner's policy (BOP)",es:"Póliza para dueños de negocio (BOP)",den:"Bundles property + liability for small businesses, usually cheaper.",des:"Combina propiedad y responsabilidad para pequeños negocios, suele ser más barata."},
+{id:"workerscomp",grp:"c",en:"Workers' compensation",es:"Compensación laboral",den:"Medical and wages for employees hurt on the job — required in most states.",des:"Gastos médicos y salarios de empleados lesionados — obligatoria en la mayoría de los estados."},
+{id:"commauto",grp:"c",en:"Commercial auto",es:"Auto comercial",den:"Cars and trucks the business owns, leases, or uses.",des:"Autos y camiones que el negocio posee o utiliza."},
+{id:"eo",grp:"c",en:"Professional liability (E&O)",es:"Responsabilidad profesional (E&O)",den:"Claims that your professional work caused a client loss.",des:"Reclamos de que tu trabajo profesional causó pérdidas a un cliente."},
+{id:"do",grp:"c",en:"Directors & officers (D&O)",es:"Directores y oficiales (D&O)",den:"Lawsuits against company directors and officers.",des:"Demandas contra directores y oficiales de la empresa."},
+{id:"cyber",grp:"c",en:"Cyber liability",es:"Responsabilidad cibernética",den:"Data breaches, ransomware, and privacy fines.",des:"Brechas de datos, ransomware y multas de privacidad."},
+{id:"crime",grp:"c",en:"Crime / fidelity",es:"Crimen / fidelidad",den:"Employee theft, fraud, and forgery.",des:"Robo de empleados, fraude y falsificación."},
+{id:"epli",grp:"c",en:"Employment practices (EPLI)",es:"Prácticas laborales (EPLI)",den:"Wrongful termination, harassment, and discrimination claims.",des:"Demandas por despido injusto, acoso y discriminación."},
+{id:"bi",grp:"c",en:"Business interruption",es:"Interrupción del negocio",den:"Lost income while a disaster keeps you closed.",des:"Ingresos perdidos mientras un desastre te mantiene cerrado."},
+{id:"equipbreak",grp:"c",en:"Equipment breakdown",es:"Descompostura de equipos",den:"Boilers, HVAC, and machinery breakdowns.",des:"Calderas, climatización y maquinaria averiada."},
+{id:"inlandmarine",grp:"c",en:"Inland marine",es:"Transporte terrestre",den:"Tools, equipment, and goods moving over land.",des:"Herramientas, equipos y mercancías en tránsito terrestre."},
+{id:"marinecargo",grp:"c",en:"Marine cargo",es:"Carga marítima",den:"Goods shipped internationally by ocean or air.",des:"Mercancías enviadas internacionalmente por mar o aire."},
+{id:"buildersrisk",grp:"c",en:"Builder's risk",es:"Riesgo de construcción",den:"Buildings under construction or renovation.",des:"Edificios en construcción o renovación."},
+{id:"surety",grp:"c",en:"Surety bonds",es:"Fianzas",den:"Guarantees you'll complete contracted work — often legally required.",des:"Garantizan que completarás el trabajo contratado — a menudo exigidas por ley."},
+{id:"tradecredit",grp:"c",en:"Trade credit",es:"Crédito comercial",den:"Protects against customers who don't pay.",des:"Protege contra clientes que no pagan."},
+{id:"commumbrella",grp:"c",en:"Commercial umbrella",es:"Paraguas comercial",den:"Extra liability above your business policies.",des:"Responsabilidad extra sobre tus pólizas comerciales."},
+{id:"pollution",grp:"c",en:"Pollution / environmental",es:"Contaminación / ambiental",den:"Cleanup costs and liability for pollution events.",des:"Costos de limpieza y responsabilidad por contaminación."},
+{id:"liquor",grp:"c",en:"Liquor liability",es:"Responsabilidad de licores",den:"Bars and restaurants that serve alcohol.",des:"Bares y restaurantes que sirven alcohol."},
+{id:"garage",grp:"c",en:"Garage liability",es:"Responsabilidad de taller",den:"Auto dealers, repair shops, and parking operations.",des:"Concesionarios, talleres y estacionamientos."},
+{id:"crop",grp:"c",en:"Crop insurance",es:"Seguro de cosechas",den:"Farm crop losses from weather and disaster.",des:"Pérdidas de cosechas por clima y desastres."},
+{id:"farm",grp:"c",en:"Farm & ranch",es:"Granja / rancho",den:"Farm buildings, livestock, and farm liability.",des:"Edificios agrícolas, ganado y responsabilidad de la granja."},
+{id:"malpractice",grp:"c",en:"Medical malpractice",es:"Negligencia médica",den:"Claims against healthcare professionals.",des:"Reclamos contra profesionales de la salud."},
+{id:"landlord",grp:"c",en:"Landlord / dwelling",es:"Propiedad en alquiler",den:"Rental property structure and landlord liability.",des:"Estructura de propiedades en alquiler y responsabilidad del propietario."}
+];
+const INDUSTRIES=[
+{id:"restaurant",en:"Restaurant & food",es:"Restaurante y comida",lines:["cgl","commprop","workerscomp","liquor","bi","equipbreak"]},
+{id:"trucking",en:"Trucking & transport",es:"Transporte y carga",lines:["commauto","inlandmarine","cgl","workerscomp"]},
+{id:"retail",en:"Retail / store",es:"Tienda / retail",lines:["bop","workerscomp","crime"]},
+{id:"contractor",en:"Contractor / construction",es:"Contratista / construcción",lines:["cgl","buildersrisk","workerscomp","commauto","surety","inlandmarine"]},
+{id:"professional",en:"Professional services",es:"Servicios profesionales",lines:["eo","cgl","cyber","workerscomp"]},
+{id:"landlord",en:"Landlord / rentals",es:"Alquileres",lines:["landlord","commumbrella","cgl"]},
+{id:"ecommerce",en:"E-commerce",es:"Comercio electrónico",lines:["cgl","cyber","inlandmarine","bi"]},
+{id:"farm",en:"Farm & ranch",es:"Granja",lines:["farm","crop","workerscomp","commauto"]},
+{id:"healthcare",en:"Healthcare practice",es:"Práctica médica",lines:["malpractice","cgl","cyber","workerscomp"]},
+{id:"nonprofit",en:"Nonprofit",es:"Sin fines de lucro",lines:["do","cgl","eo"]},
+{id:"other",en:"Other / general",es:"Otro / general",lines:["bop","workerscomp","cgl"]}];
+var LIBQ="";
+/* ============ state ============ */
+const KEY="sahjony_insurance_v1";
+let S;
+function load(){try{S=JSON.parse(localStorage.getItem(KEY))||null}catch(e){S=null}
+ if(!S||!S.businesses){S={lang:"en",biz:"wholesale",view:"coverage",businesses:JSON.parse(JSON.stringify(SEED))};save()}
+ Object.keys(SEED).forEach(k=>{if(!S.businesses[k])S.businesses[k]=JSON.parse(JSON.stringify(SEED[k]))});
+ if(!S.attorney)S.attorney=[];
+ if(!("homeState" in S))S.homeState="";
+ if(!S.quotes)S.quotes=[];if(!S.qreq)S.qreq=[];if(!S.custom)S.custom=[];save()}
+/* hash deep-linking: /insurance/#claims etc. — kept in sync with the GEV copy */
+const VIEWHASH={coverage:"coverage",claims:"claims",attorney:"attorney",shop:"shop",library:"lib",alerts:"alerts"};
+function applyHash(){try{const h=String(location.hash||"").replace("#","").toLowerCase();const v=VIEWHASH[h];if(v){S.view=v;save();render();return true}}catch(e){}return false}
+if(typeof window!=="undefined")window.addEventListener("hashchange",applyHash);
+function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+function biz(){return S.businesses[S.biz]}
+function bizLabel(b){const c=(S.custom||[]).find(x=>x.id===b);return c?c.name:t("biz_"+b)}
+function allBiz(){return ["personal","wholesale","import","crude","cuba"].concat((S.custom||[]).map(x=>x.id))}
+/* ============ render ============ */
+function render(){
+ document.getElementById("btnEN").classList.toggle("on",lang==="en");
+ document.getElementById("btnES").classList.toggle("on",lang==="es");
+ document.getElementById("appsub").textContent=t("appsub");
+ document.getElementById("disclaimer").innerHTML=esc(t("disclaimer"))+'<br><a href="https://content.naic.org/state-insurance-departments/contacts?page=0" target="_blank" rel="noopener" style="color:var(--acc)">'+esc(t("naic"))+"</a>";
+ const hs=document.getElementById("homestate");
+ hs.innerHTML='<option value="">'+esc(t("homestate"))+"</option>"+STATES.map(s=>'<option value="'+s[0]+'"'+(S.homeState===s[0]?" selected":"")+">"+s[1]+" ("+s[0]+")</option>").join("");
+ const bt=document.getElementById("biztabs");bt.innerHTML="";
+ allBiz().forEach(b=>{const d=document.createElement("button");
+  d.className="biztab"+(S.biz===b?" on":"");d.textContent=bizLabel(b);
+  d.onclick=()=>{S.biz=b;save();render()};bt.appendChild(d)});
+ const addB=document.createElement("button");addB.className="biztab";addB.textContent="➕";addB.title=t("addbiz");addB.onclick=openBizMgr;bt.appendChild(addB);
+ const vt=document.getElementById("viewtabs");vt.innerHTML="";
+ [["coverage",t("coverage")],["claims",t("claims")],["attorney",t("attorney")],["shop",t("shop")],["lib",t("lib")],["alerts",t("alerts")]].forEach(([v,l])=>{
+  const d=document.createElement("button");d.className="viewtab"+(S.view===v?" on":"");d.textContent=l;
+  d.onclick=()=>{S.view=v;save();render()};vt.appendChild(d)});
+ const m=document.getElementById("main");
+ if(S.view==="coverage")renderCoverage(m);else if(S.view==="claims")renderClaims(m);else if(S.view==="attorney")renderAttorney(m);else if(S.view==="shop")renderShop(m);else if(S.view==="lib")renderLib(m);else renderAlerts(m);
+}
+function pill(st){return st==="active"?'<span class="pill active">'+t("active")+"</span>"
+ :st==="expsoon"?'<span class="pill expsoon">'+t("expsoon")+"</span>":'<span class="pill gap">'+t("gap")+"</span>"}
+function renderCoverage(m){
+ let h="";
+ biz().coverages.sort((a,b)=>a.priority-b.priority).forEach(c=>{
+  h+='<div class="card"><h3>'+esc(c.type)+"</h3>"+pill(c.status)+(c.state?'<span class="pill st8">'+esc(c.state)+"</span>":"")
+  +'<div class="mut">'+t("priority")+": P"+c.priority+"</div>"
+  +(c.carrier?'<div class="kv"><span>'+t("carrier")+"</span><b>"+esc(c.carrier)+"</b></div>":"")
+  +(c.policy?'<div class="kv"><span>'+t("policy")+"</span><b>"+esc(c.policy)+"</b></div>":"")
+  +(c.exp?'<div class="kv"><span>'+t("eff")+" → "+t("exp")+"</span><b>"+esc(c.eff)+" → "+esc(c.exp)+"</b></div>":"")
+  +(c.prem?'<div class="kv"><span>'+t("prem")+"</span><b>"+esc(c.prem)+"</b></div>":"")
+  +(c.notes?'<div class="mut" style="margin-top:8px">'+esc(c.notes)+"</div>":"")
+  +'<div class="row"><button class="btn sec" onclick="editCoverage(\''+c.id+"')\">"+t("edit")+"</button>"
+  +'<button class="btn dgr" onclick="delCoverage(\''+c.id+"')\">"+t("del")+"</button></div></div>"});
+ h+='<div class="row"><button class="btn" onclick="editCoverage(\'\')">'+t("addcov")+"</button></div>";
+ h+='<div class="row"><button class="btn sec" onclick="exportData()">'+t("export")+'</button><button class="btn sec" onclick="importData()">'+t("import")+"</button></div>";
+ m.innerHTML=h;
+}
+function renderClaims(m){
+ let h="";
+ if(!biz().claims.length)h+='<div class="card mut">'+t("noclaims")+"</div>";
+ biz().claims.slice().reverse().forEach(c=>{
+  h+='<div class="card"><h3>'+t("claimid")+" #"+esc(c.id)+" — "+t(c.type)+"</h3>"
+  +'<div class="mut">'+t("incident")+": "+esc(c.date)+" · "+t("created")+": "+esc(c.created)+(c.state?' <span class="pill st8">'+esc(c.state)+"</span>":"")+"</div>"
+  +'<div class="stages">'+T[lang].stages.map((s,i)=>'<div class="stage'+(i<=c.stage?" done":"")+'" title="'+s+'"></div>').join("")+"</div>"
+  +'<div><b>'+T[lang].stages[c.stage]+"</b></div>"
+  +'<div class="mut" style="margin-top:6px">'+esc(c.desc)+"</div>"
+  +'<div class="row"><button class="btn sec" onclick="openClaim(\''+c.id+"')\">"+t("packet")+"</button>";
+  if(c.stage<5)h+='<button class="btn sec" onclick="advanceClaim(\''+c.id+"')\">→ "+T[lang].stages[c.stage+1]+"</button>";
+  h+="</div></div>"});
+ m.innerHTML=h;
+}
+function renderAlerts(m){
+ let h="";const gaps=[],renew=[],catt=[],aatt=[],qexp=[];
+ Object.keys(S.businesses).forEach(b=>{
+  S.businesses[b].coverages.forEach(c=>{if(c.status==="gap")gaps.push({b:b,c:c})});
+  S.businesses[b].coverages.forEach(c=>{if(c.status==="active"&&c.exp){const d=Math.ceil((new Date(c.exp)-Date.now())/864e5);if(d<=30)renew.push({b:b,c:c,d:d})}});
+  S.businesses[b].claims.forEach(c=>{if(c.stage<5){const d=Math.ceil((Date.now()-new Date(c.date))/864e5);if(d>3)catt.push({b:b,c:c,d:d})}});
+ });
+ S.attorney.forEach(a=>{if(a.nextdate&&a.status<6){const d=Math.ceil((new Date(a.nextdate)-Date.now())/864e5);if(d<=7)aatt.push({a:a,d:d})}});
+ S.quotes.forEach(q=>{if(q.exp){const d=Math.ceil((new Date(q.exp)-Date.now())/864e5);if(d<=14)qexp.push({q:q,d:d})}});
+ if(!gaps.length&&!renew.length&&!catt.length&&!aatt.length&&!qexp.length){m.innerHTML='<div class="card">'+t("noalerts")+"</div>";return}
+ gaps.forEach(g=>{h+='<div class="card alertcard"><b>'+t("gapalert")+"</b> — "+bizLabel(g.b)+"<br>"+esc(g.c.type)+' <span class="mut">(P'+g.c.priority+")</span></div>"});
+ renew.forEach(r=>{h+='<div class="card alertcard warn"><b>'+t("renewalert")+"</b> — "+bizLabel(r.b)+"<br>"+esc(r.c.type)+" · "+r.d+" "+t("days")+"</div>"});
+ catt.forEach(x=>{h+='<div class="card alertcard warn"><b>'+t("claimatt")+"</b> — "+bizLabel(x.b)+"<br>"+t("claimid")+" #"+esc(x.c.id)+" · "+x.d+" "+t("days")+"</div>"});
+ aatt.forEach(x=>{h+='<div class="card alertcard warn"><b>'+t("attalert")+"</b><br>⚖️ "+esc(x.a.title)+" — "+esc(x.a.next||T[lang].astages[x.a.status])+" · "+(x.d<0?Math.abs(x.d)+" "+t("days")+" "+t("overdue"):x.d+" "+t("days"))+"</div>"});
+ qexp.forEach(x=>{const qn=(lang==="es"?QTYPES_ES:QTYPES)[+x.q.type]||t("other");h+='<div class="card alertcard warn"><b>'+t("quotexp")+"</b><br>🛒 "+esc(qn)+" — "+esc(x.q.carrier)+" · "+(x.d<0?Math.abs(x.d)+" "+t("days")+" "+t("overdue"):x.d+" "+t("days"))+"</div>"});
+ m.innerHTML=h;
+}
+/* ============ coverage edit ============ */
+function editCoverage(id){
+ const c=id?biz().coverages.find(x=>x.id===id):{id:"x"+Date.now(),type:"",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"",state:""};
+ openSheet('<h2>'+(id?t("edit"):t("addcov"))+"</h2>"
+ +'<label>'+t("ctype")+'</label><input id="f_type" value="'+esc(c.type)+'">'
+ +'<label>'+t("priority")+'</label><select id="f_pri"><option'+(c.priority==1?" selected":"")+'>1</option><option'+(c.priority==2?" selected":"")+'>2</option><option'+(c.priority==3?" selected":"")+'>3</option></select>'
+ +'<label>'+t("status")+'</label><select id="f_st"><option value="gap"'+(c.status==="gap"?" selected":"")+'>'+t("gap")+'</option><option value="active"'+(c.status==="active"?" selected":"")+'>'+t("active")+'</option><option value="expsoon"'+(c.status==="expsoon"?" selected":"")+'>'+t("expsoon")+'</option></select>'
+ +'<label>'+t("carrier")+'</label><input id="f_car" value="'+esc(c.carrier)+'">'
+ +'<label>'+t("policy")+'</label><input id="f_pol" value="'+esc(c.policy)+'">'
+ +'<label>'+t("state")+'</label><select id="f_state"><option value="">—</option>'+stateOpts(c.state||S.homeState||"")+"</select>"
+ +'<label>'+t("eff")+'</label><input id="f_eff" type="date" value="'+esc(c.eff)+'">'
+ +'<label>'+t("exp")+'</label><input id="f_exp" type="date" value="'+esc(c.exp)+'">'
+ +'<label>'+t("prem")+'</label><input id="f_pre" value="'+esc(c.prem)+'">'
+ +'<label>'+t("notes")+'</label><textarea id="f_not">'+esc(c.notes)+"</textarea>"
+ +'<div class="row"><button class="btn" onclick="saveCoverage(\''+c.id+"')\">"+t("save")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>");
+}
+function saveCoverage(id){
+ const g=i=>document.getElementById(i).value.trim();
+ const arr=biz().coverages;let c=arr.find(x=>x.id===id);
+ const rec={id:id,type:g("f_type"),priority:+g("f_pri"),status:g("f_st"),carrier:g("f_car"),policy:g("f_pol"),eff:g("f_eff"),exp:g("f_exp"),prem:g("f_pre"),notes:g("f_not"),state:g("f_state")};
+ if(c)Object.assign(c,rec);else arr.push(rec);
+ save();closeSheet();render();
+}
+function delCoverage(id){if(!confirm(t("confirmdel")))return;biz().coverages=biz().coverages.filter(x=>x.id!==id);save();render()}
+/* ============ claims ============ */
+function openNewClaim(){
+ openSheet('<h2>'+t("newclaim")+"</h2>"
+ +'<label>'+t("ctype")+'</label><select id="n_type"><option value="prop">'+t("prop")+'</option><option value="cargo">'+t("cargo")+'</option><option value="liab">'+t("liab")+'</option><option value="theft">'+t("theft")+'</option><option value="bi">'+t("bi")+'</option><option value="auto">'+t("auto")+'</option><option value="health">'+t("health")+'</option></select>'
+ +'<label>'+t("incident")+'</label><input id="n_date" type="date" value="'+new Date().toISOString().slice(0,10)+'">'
+ +'<label>'+t("state")+'</label><select id="n_state"><option value="">—</option>'+stateOpts(S.homeState||"")+"</select>"
+ +'<label>'+t("desc")+'</label><textarea id="n_desc" placeholder="..."></textarea>'
+ +'<div class="row"><button class="btn" onclick="saveNewClaim()">'+t("save")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>");
+}
+function saveNewClaim(){
+ const ty=document.getElementById("n_type").value,dt=document.getElementById("n_date").value,ds=document.getElementById("n_desc").value.trim(),nst=document.getElementById("n_state").value;
+ const c={id:String(Date.now()).slice(-6),type:ty,date:dt,desc:ds,stage:0,state:nst,created:new Date().toISOString().slice(0,10),
+  docs:CHECKLISTS[ty].map(d=>({d:d,got:false})),log:[{d:new Date().toISOString().slice(0,10),n:"Claim opened"}]};
+ biz().claims.push(c);save();closeSheet();S.view="claims";render();openClaim(c.id);
+}
+function openClaim(id){
+ const c=biz().claims.find(x=>x.id===id);
+ let h='<h2>'+t("packetfor")+" "+bizLabel(S.biz)+"</h2>"
+ +'<div class="kv"><span>'+t("claimid")+'</span><b>#'+esc(c.id)+"</b></div>"
+ +'<div class="kv"><span>'+t("ctype")+"</span><b>"+t(c.type)+"</b></div>"
+ +'<div class="kv"><span>'+t("incident")+"</span><b>"+esc(c.date)+"</b></div>"
+ +'<div class="kv"><span>'+t("status")+"</span><b>"+T[lang].stages[c.stage]+"</b></div>"
+ +'<div class="mut" style="margin:8px 0">'+esc(c.desc)+"</div>"
+ +"<h3>"+t("docs")+"</h3>";
+ c.docs.forEach((d,i)=>{h+='<div class="check"><input type="checkbox" '+(d.got?"checked":"")+' onchange="toggleDoc(\''+id+"',"+i+',this.checked)"><div>'+esc(d.d)+"</div></div>"});
+ h+="<h3>"+t("followlog")+"</h3>";
+ c.log.slice().reverse().forEach(l=>{h+='<div class="kv"><span>'+esc(l.d)+"</span><b>"+esc(l.n)+"</b></div>"});
+ h+='<label>'+t("addnote")+'</label><input id="lognote" placeholder="...">';
+ h+='<div class="row"><button class="btn sec" onclick="addLog(\''+id+"')\">"+t("followup")+"</button>";
+ if(c.stage<5)h+='<button class="btn" onclick="advanceClaim(\''+id+"',true)\">→ "+T[lang].stages[c.stage+1]+"</button>";
+ else h+='<button class="btn sec" onclick="advanceClaim(\''+id+"',true)\">"+t("reopen")+"</button>";
+ h+='<button class="btn sec" onclick="window.print()">'+t("print")+"</button></div>";
+ h+='<div class="row"><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>";
+ h+='<div class="mut">'+t("prepared")+": "+new Date().toISOString().slice(0,10)+"</div>";
+ openSheet(h);
+}
+function toggleDoc(id,i,v){const c=biz().claims.find(x=>x.id===id);c.docs[i].got=v;save()}
+function addLog(id){const n=document.getElementById("lognote").value.trim();if(!n)return;
+ const c=biz().claims.find(x=>x.id===id);c.log.push({d:new Date().toISOString().slice(0,10),n:n});save();openClaim(id)}
+function advanceClaim(id,fromModal){
+ const c=biz().claims.find(x=>x.id===id);
+ c.stage=c.stage>=5?0:Math.min(5,c.stage+1);
+ c.log.push({d:new Date().toISOString().slice(0,10),n:"Stage → "+T[lang].stages[c.stage]});
+ save();if(fromModal)openClaim(id);else render();
+}
+/* ============ attorney-filed claims ============ */
+function renderAttorney(m){
+ let h="";const list=S.attorney.slice().reverse();
+ if(!list.length)h+='<div class="card mut">'+t("noatt")+"</div>";
+ list.forEach(a=>{
+  const dd=a.nextdate?Math.ceil((new Date(a.nextdate)-Date.now())/864e5):null;
+  const due=dd!==null&&dd<=7?'<span class="pill '+(dd<0?"gap":"expsoon")+'">'+(dd<0?Math.abs(dd)+" "+t("days")+" "+t("overdue"):dd+" "+t("days"))+"</span>":"";
+  h+='<div class="card"><h3>⚖️ '+esc(a.title)+"</h3>"+(a.state?'<span class="pill st8">'+esc(a.state)+"</span>":"")
+  +'<div class="mut">'+t("att_for")+": "+t("biz_"+a.for)+" · "+esc(a.attorney)+(a.firm?" · "+esc(a.firm):"")+"</div>"
+  +(a.case?'<div class="kv"><span>'+t("att_case")+"</span><b>"+esc(a.case)+"</b></div>":"")
+  +(a.filed?'<div class="kv"><span>'+t("att_filed")+"</span><b>"+esc(a.filed)+"</b></div>":"")
+  +(a.venue?'<div class="kv"><span>'+t("att_venue")+"</span><b>"+esc(a.venue)+"</b></div>":"")
+  +'<div class="kv"><span>'+t("att_status")+"</span><b>"+T[lang].astages[a.status]+"</b></div>"
+  +(a.nextdate?'<div class="kv"><span>'+t("att_next")+"</span><b>"+esc(a.next)+" — "+esc(a.nextdate)+" "+due+"</b></div>":"")
+  +(a.contact?'<div class="mut">'+esc(a.contact)+"</div>":"")
+  +(a.notes?'<div class="mut" style="margin-top:8px;white-space:pre-wrap">'+esc(a.notes)+"</div>":"")
+  +'<div class="row"><button class="btn sec" onclick="editAttorney(\''+a.id+"')\">"+t("edit")+'</button><button class="btn dgr" onclick="delAttorney(\''+a.id+"')\">"+t("del")+"</button></div></div>"});
+ h+='<div class="row"><button class="btn" onclick="editAttorney(\'\')">'+t("att_new")+"</button></div>";
+ m.innerHTML=h;
+}
+function forOpts(sel){return allBiz().map(b=>'<option value="'+b+'"'+(b===sel?" selected":"")+">"+bizLabel(b)+"</option>").join("")}
+function editAttorney(id){
+ const a=id?S.attorney.find(x=>x.id===id):{id:"a"+Date.now(),for:"personal",title:"",attorney:"",firm:"",contact:"",case:"",filed:"",venue:"",status:0,next:"",nextdate:"",notes:"",state:""};
+ openSheet('<h2>⚖️ '+(id?t("edit"):t("att_new"))+"</h2>"
+ +'<label>'+t("att_title")+'</label><input id="a_title" value="'+esc(a.title)+'">'
+ +'<label>'+t("att_for")+'</label><select id="a_for">'+forOpts(a.for)+"</select>"
+ +'<label>'+t("state")+'</label><select id="a_state"><option value="">—</option>'+stateOpts(a.state||S.homeState||"")+"</select>"
+ +'<label>'+t("att_name")+'</label><input id="a_attorney" value="'+esc(a.attorney)+'">'
+ +'<label>'+t("att_firm")+'</label><input id="a_firm" value="'+esc(a.firm)+'">'
+ +'<label>'+t("att_contact")+'</label><input id="a_contact" value="'+esc(a.contact)+'">'
+ +'<label>'+t("att_case")+'</label><input id="a_case" value="'+esc(a.case)+'">'
+ +'<label>'+t("att_filed")+'</label><input id="a_filed" type="date" value="'+esc(a.filed)+'">'
+ +'<label>'+t("att_venue")+'</label><input id="a_venue" value="'+esc(a.venue)+'">'
+ +'<label>'+t("att_status")+'</label><select id="a_status">'+T[lang].astages.map((s,i)=>'<option value="'+i+'"'+(i===a.status?" selected":"")+">"+s+"</option>").join("")+"</select>"
+ +'<label>'+t("att_next")+'</label><input id="a_next" value="'+esc(a.next)+'">'
+ +'<label>'+t("att_nextdate")+'</label><input id="a_nextdate" type="date" value="'+esc(a.nextdate)+'">'
+ +'<label>'+t("att_notes")+'</label><textarea id="a_notes">'+esc(a.notes)+"</textarea>"
+ +'<div class="row"><button class="btn" onclick="saveAttorney(\''+a.id+"')\">"+t("save")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>");
+}
+function saveAttorney(id){
+ const g=i=>document.getElementById(i).value.trim();
+ const rec={id:id,for:g("a_for"),title:g("a_title"),attorney:g("a_attorney"),firm:g("a_firm"),contact:g("a_contact"),case:g("a_case"),filed:g("a_filed"),venue:g("a_venue"),status:+g("a_status"),next:g("a_next"),nextdate:g("a_nextdate"),notes:g("a_notes"),state:g("a_state")};
+ const ex=S.attorney.find(x=>x.id===id);
+ if(ex)Object.assign(ex,rec);else S.attorney.push(rec);
+ save();closeSheet();render();
+}
+function delAttorney(id){if(!confirm(t("confirmdel")))return;S.attorney=S.attorney.filter(x=>x.id!==id);save();render()}
+/* ============ shop & compare ============ */
+function renderShop(m){
+ let h='<div class="card"><b>🛒 '+t("wts")+'</b><div class="mut" style="margin-top:6px">'+t("wts_health")+': <a href="https://www.healthcare.gov/" target="_blank" rel="noopener" style="color:var(--acc)">HealthCare.gov</a> · <a href="https://www.cuidadodesalud.gov/" target="_blank" rel="noopener" style="color:var(--acc)">CuidadoDeSalud.gov</a></div><div class="mut" style="margin-top:6px">'+t("wts_other")+"</div></div>";
+ const best={};
+ S.quotes.forEach(q=>{const p=+q.premium||Infinity;if(!(q.type in best)||p<best[q.type])best[q.type]=p});
+ const list=S.quotes.slice().sort((a,b)=>(+a.premium||Infinity)-(+b.premium||Infinity));
+ if(!list.length)h+='<div class="card mut">'+t("noquotes")+"</div>";
+ list.forEach(q=>{
+  const p=+q.premium||0,mo=p?Math.round(p/12):0;
+  const isbest=p>0&&(+q.premium===best[q.type]);
+  const tn=(lang==="es"?QTYPES_ES:QTYPES)[+q.type]||t("other");
+  h+='<div class="card"><h3>'+esc(tn)+"</h3>"
+  +(isbest?'<span class="pill expsoon">🏆 '+t("bestdeal")+"</span>":"")
+  +'<div class="big">'+money(p)+'<span class="mut"> '+t("peryear")+" · "+money(mo)+t("permonth")+"</span></div>"
+  +'<div class="mut">'+esc(q.carrier)+"</div>"
+  +(q.deductible?'<div class="kv"><span>'+t("q_deductible")+"</span><b>"+money(+q.deductible)+"</b></div>":"")
+  +(q.limits?'<div class="kv"><span>'+t("q_limits")+"</span><b>"+esc(q.limits)+"</b></div>":"")
+  +(q.exp?'<div class="kv"><span>'+t("q_exp")+"</span><b>"+esc(q.exp)+"</b></div>":"")
+  +(q.contact?'<div class="mut">'+esc(q.contact)+"</div>":"")
+  +(q.notes?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(q.notes)+"</div>":"")
+  +'<div class="row"><button class="btn sec" onclick="editQuote(\''+q.id+"')\">"+t("edit")+'</button><button class="btn dgr" onclick="delQuote(\''+q.id+"')\">"+t("del")+"</button></div></div>"});
+ h+='<div class="row"><button class="btn" onclick="editQuote(\'\')">'+t("shop_new")+"</button></div>";
+ h+='<div class="card"><b>📋 '+t("qreq")+"</b>";
+ if(!S.qreq.length)h+='<div class="mut">—</div>';
+ S.qreq.slice().reverse().forEach(r=>{
+  const rn=(lang==="es"?QTYPES_ES:QTYPES)[+r.type]||t("other");
+  h+='<div class="kv"><span>'+esc(r.from)+" · "+esc(rn)+(r.fup?" · "+t("qreq_fup")+": "+esc(r.fup):"")+'</span><button class="btn dgr" style="padding:8px 12px" onclick="delQreq(\''+r.id+"')\">"+t("del")+"</button></div>"});
+ h+='<div class="row"><button class="btn sec" onclick="editQreq()">'+t("qreq_new")+"</button></div></div>";
+ m.innerHTML=h;
+}
+function editQuote(id){
+ const q=id?S.quotes.find(x=>x.id===id):{id:"q"+Date.now(),type:0,carrier:"",premium:"",deductible:"",limits:"",contact:"",date:new Date().toISOString().slice(0,10),exp:"",notes:""};
+ openSheet('<h2>🛒 '+(id?t("edit"):t("shop_new"))+"</h2>"
+ +'<label>'+t("q_type")+'</label><select id="q_type">'+qtypeOpts(q.type)+"</select>"
+ +'<label>'+t("q_carrier")+'</label><input id="q_carrier" value="'+esc(q.carrier)+'">'
+ +'<label>'+t("q_premium")+'</label><input id="q_premium" type="number" min="0" value="'+esc(q.premium)+'">'
+ +'<label>'+t("q_deductible")+'</label><input id="q_deductible" type="number" min="0" value="'+esc(q.deductible)+'">'
+ +'<label>'+t("q_limits")+'</label><input id="q_limits" value="'+esc(q.limits)+'">'
+ +'<label>'+t("q_contact")+'</label><input id="q_contact" value="'+esc(q.contact)+'">'
+ +'<label>'+t("q_date")+'</label><input id="q_date" type="date" value="'+esc(q.date)+'">'
+ +'<label>'+t("q_exp")+'</label><input id="q_exp" type="date" value="'+esc(q.exp)+'">'
+ +'<label>'+t("q_notes")+'</label><textarea id="q_notes">'+esc(q.notes)+"</textarea>"
+ +'<div class="row"><button class="btn" onclick="saveQuote(\''+q.id+"')\">"+t("save")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>");
+}
+function saveQuote(id){
+ const g=i=>document.getElementById(i).value.trim();
+ const rec={id:id,type:g("q_type"),carrier:g("q_carrier"),premium:g("q_premium"),deductible:g("q_deductible"),limits:g("q_limits"),contact:g("q_contact"),date:g("q_date"),exp:g("q_exp"),notes:g("q_notes")};
+ const ex=S.quotes.find(x=>x.id===id);
+ if(ex)Object.assign(ex,rec);else S.quotes.push(rec);
+ save();closeSheet();render();
+}
+function delQuote(id){if(!confirm(t("confirmdel")))return;S.quotes=S.quotes.filter(x=>x.id!==id);save();render()}
+function editQreq(){
+ openSheet('<h2>📋 '+t("qreq_new")+"</h2>"
+ +'<label>'+t("qreq_from")+'</label><input id="r_from">'
+ +'<label>'+t("qreq_type")+'</label><select id="r_type">'+qtypeOpts(0)+"</select>"
+ +'<label>'+t("qreq_fup")+'</label><input id="r_fup" type="date">'
+ +'<div class="row"><button class="btn" onclick="saveQreq()">'+t("save")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>");
+}
+function saveQreq(){
+ const g=i=>document.getElementById(i).value.trim();
+ S.qreq.push({id:"r"+Date.now(),from:g("r_from"),type:g("r_type"),fup:g("r_fup")});
+ save();closeSheet();render();
+}
+function delQreq(id){if(!confirm(t("confirmdel")))return;S.qreq=S.qreq.filter(x=>x.id!==id);save();render()}
+/* ============ custom businesses ============ */
+function indName(id){const x=INDUSTRIES.find(i=>i.id===id);return x?(lang==="es"?x.es:x.en):""}
+function openBizMgr(){
+ let h="<h2>🏢 "+t("managebiz")+"</h2>";
+ (S.custom||[]).forEach(c=>{
+  h+='<div class="kv"><span>'+esc(c.name)+' <span class="mut">('+esc(indName(c.industry))+")</span></span>"+
+  '<button class="btn dgr" style="padding:8px 12px" onclick="delBiz(\''+c.id+"')\">"+t("del")+"</button></div>"});
+ h+='<label>'+t("bizname")+'</label><input id="nb_name">'
+ +'<label>'+t("industry")+'</label><select id="nb_ind">'+INDUSTRIES.map(x=>'<option value="'+x.id+'">'+esc(lang==="es"?x.es:x.en)+"</option>").join("")+"</select>"
+ +'<div class="row"><button class="btn" onclick="saveBiz()">'+t("addbiz")+'</button><button class="btn sec" onclick="closeSheet()">'+t("cancel")+"</button></div>";
+ openSheet(h);
+}
+function saveBiz(){
+ const name=document.getElementById("nb_name").value.trim();if(!name)return;
+ const ind=document.getElementById("nb_ind").value;
+ const id="cb"+Date.now();
+ const lines=(INDUSTRIES.find(x=>x.id===ind)||{lines:[]}).lines;
+ S.custom.push({id:id,name:name,industry:ind});
+ S.businesses[id]={coverages:lines.map((lid,i)=>{const l=LIB.find(x=>x.id===lid);return{id:"x"+Date.now()+i,type:lang==="es"?l.es:l.en,priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"",state:""}}),claims:[]};
+ S.biz=id;save();closeSheet();render();
+}
+function delBiz(id){if(!confirm(t("confirmdel")))return;S.custom=S.custom.filter(x=>x.id!==id);delete S.businesses[id];if(S.biz===id)S.biz="personal";save();closeSheet();render()}
+/* ============ insurance library ============ */
+function renderLib(m){
+ const q=LIBQ.toLowerCase();
+ let h='<div class="card noprint"><input id="libq" placeholder="'+esc(t("lib_search"))+'" value="'+esc(LIBQ)+'" oninput="LIBQ=this.value;renderLib(document.getElementById(\'main\'))"></div>';
+ [["p",t("lib_p")],["c",t("lib_c")]].forEach(([g,gl])=>{
+  const items=LIB.filter(l=>l.grp===g&&(!q||(l.en+" "+l.es+" "+l.den+" "+l.des).toLowerCase().indexOf(q)>=0));
+  if(!items.length)return;
+  h+='<div class="card"><b>📚 '+gl+" ("+items.length+")</b></div>";
+  items.forEach(l=>{h+='<div class="card"><h3>'+esc(lang==="es"?l.es:l.en)+"</h3>"+'<div class="mut">'+esc(lang==="es"?l.des:l.den)+"</div></div>"});
+ });
+ m.innerHTML=h;
+ const qi=document.getElementById("libq");if(qi){qi.focus();try{qi.setSelectionRange(qi.value.length,qi.value.length)}catch(e){}}
+}
+/* ============ import/export ============ */
+function exportData(){
+ const blob=new Blob([JSON.stringify(S)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="insurance-backup.json";a.click();
+}
+function importData(){
+ const i=document.createElement("input");i.type="file";i.accept=".json";
+ i.onchange=()=>{const r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();render()}catch(e){alert("bad file")}};r.readAsText(i.files[0])};
+ i.click();
+}
+/* ============ helpers ============ */
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function openSheet(h){document.getElementById("sheet").innerHTML=h;document.getElementById("modal").classList.add("open")}
+function closeSheet(){document.getElementById("modal").classList.remove("open")}
+function setLang(l){lang=l;S.lang=l;save();render()}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeSheet()});
+load();lang=S.lang||"en";if(!applyHash())render();
+</script>
+</body>
+</html>

@@ -346,6 +346,51 @@ export function parseSahjonyCommand(rawText) {
     };
   }
 
+  // --- insurance command center ---
+  if (
+    /\b(seguro|seguros|insurance|abre seguros|open insurance|panel seguros|insurance panel|modo seguros)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__insurance_open',
+      args: {},
+      say: {
+        es: 'Abriendo el centro de seguros',
+        en: 'Opening the insurance center',
+      },
+    };
+  }
+  if (/\b(reclamo|reclamos|claim|claims)\b/.test(text)) {
+    return {
+      action: '__insurance_view',
+      args: { view: 'claims' },
+      say: {
+        es: 'Abriendo los reclamos de seguros',
+        en: 'Opening insurance claims',
+      },
+    };
+  }
+  if (/\b(cotizaci[oó]n|cotizaciones|quote|quotes)\b/.test(text)) {
+    return {
+      action: '__insurance_view',
+      args: { view: 'shop' },
+      say: {
+        es: 'Abriendo las cotizaciones de seguros',
+        en: 'Opening insurance quotes',
+      },
+    };
+  }
+  if (/\b(cobertura|coberturas|coverage)\b/.test(text)) {
+    return {
+      action: '__insurance_view',
+      args: { view: 'coverage' },
+      say: {
+        es: 'Abriendo la cobertura de seguros',
+        en: 'Opening insurance coverage',
+      },
+    };
+  }
   // --- wholesale real estate intelligence ---
   if (
     /\b(modo wholesale|wholesale mode|abre wholesale|open wholesale|panel wholesale|wholesale panel)\b/.test(
