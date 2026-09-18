@@ -82,6 +82,7 @@ import {
 import { parseTradeCsv as parseTradeCsv } from '../trade/supplierImporter.js';
 import { initShippingMapLayer } from '../trade/shippingLayer.js';
 import { initTradeDashboard } from '../trade/tradeDashboard.js';
+import { seedLiveDeals as seedTradeLiveDeals } from '../trade/tradeDeals.js';
 import { createWorkforce as createTradeWorkforce } from '../agents/tradeWorkforce.js';
 import { initTradeWorkforcePanel } from '../agents/tradeWorkforcePanel.js';
 import { initCubacashWorkforcePanel } from '../agents/cubacashWorkforcePanel.js';
@@ -811,6 +812,14 @@ export function createApplicationTools({
       return rfq;
     },
   };
+  // Live-deal seeds (idempotent): the three grandfathered global-desk deals
+  // (rice/diesel inquiry, TNJ soda ash, Siemens V94.2) are created once and
+  // skipped on later loads. Real 2026 facts only; unknown fields stay blank.
+  try {
+    seedTradeLiveDeals(tradeStore);
+  } catch {
+    /* seeds are best-effort; the desk works without them */
+  }
   // 3D shipping-lane map: origin/destination pins + great-circle lane arcs,
   // colored by RFQ status. Renders only coordinates Juan's data supplies —
   // never (0,0).
@@ -842,8 +851,9 @@ export function createApplicationTools({
   });
   debug.shippingMap = shippingMap;
   // AI agentic workforce (trade): supplier scout, RFQ researcher, logistics
-  // analyst, deal coordinator. Runs while the app is open; every output is a
-  // draft/note for review — it never sends, posts, or contacts anyone.
+  // analyst, deal coordinator, compliance, follow-up. Runs while the app is
+  // open; every output is a draft/note for review — it never sends, posts,
+  // or contacts anyone.
   const tradeWorkforce = createTradeWorkforce({
     rfqStore: tradeStore,
     rfqEngine: tradeEngine,

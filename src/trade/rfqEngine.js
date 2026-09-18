@@ -120,6 +120,82 @@ export function commissionAmount(rfq = {}) {
   return revenue * (safeNum(rfq.commissionPct) / 100);
 }
 
+// ---------------------------------------------------------------------------
+// Broker economics — SAHJONY is a fee/spread BROKER, never the buyer.
+// The broker's take is the commission (fee). The spread (sell − landed)
+// belongs to the buyer/seller chain; it is reported so the desk can see
+// how much room a deal has, not as broker revenue.
+// ---------------------------------------------------------------------------
+
+/**
+ * Break-even sell price per unit: the landed cost per unit. Below this the
+ * deal loses money. 0 when it cannot be computed.
+ */
+export function breakEvenUnitPrice(rfq = {}) {
+  return landedCostUnit(rfq);
+}
+
+/**
+ * Per-unit spread: sellUnitPrice − landedCostUnit. The gross room in the
+ * deal before the broker's fee. 0 when prices are missing.
+ */
+export function spreadPerUnit(rfq = {}) {
+  if (!rfq || typeof rfq !== 'object') return 0;
+  if (!hasNumber(rfq.sellUnitPrice)) return 0;
+  const landed = landedCostUnit(rfq);
+  if (landed <= 0) return 0;
+  return safeNum(rfq.sellUnitPrice) - landed;
+}
+
+/** Total spread: spreadPerUnit × quantity. */
+export function spreadTotal(rfq = {}) {
+  if (!rfq || typeof rfq !== 'object') return 0;
+  if (!hasNumber(rfq.quantity)) return 0;
+  return spreadPerUnit(rfq) * safeNum(rfq.quantity);
+}
+
+/** Broker commission per unit. 0 when quantity is missing. */
+export function commissionPerUnit(rfq = {}) {
+  if (!rfq || typeof rfq !== 'object') return 0;
+  const quantity = safeNum(rfq.quantity);
+  if (quantity <= 0) return 0;
+  return commissionAmount(rfq) / quantity;
+}
+
+/**
+ * Broker-economics summary for the deal drawer. All values are numbers
+ * (0 when not computable); `missing` lists absent core fields via
+ * missingFields(). Never throws.
+ */
+export function brokerEconomics(rfq = {}) {
+  const data = rfq && typeof rfq === 'object' ? rfq : {};
+  const quantity = safeNum(data.quantity);
+  const landedUnit = landedCostUnit(data);
+  const landed = landedCostTotal(data);
+  const revenue = hasNumber(data.sellUnitPrice) && quantity > 0
+    ? safeNum(data.sellUnitPrice) * quantity
+    : 0;
+  const spreadUnit = spreadPerUnit(data);
+  const spread = spreadTotal(data);
+  const commission = commissionAmount(data);
+  const commissionUnit = commissionPerUnit(data);
+  return {
+    quantity,
+    landedUnit,
+    landedTotal: landed,
+    revenue,
+    spreadUnit,
+    spreadTotal: spread,
+    commissionPct: safeNum(data.commissionPct),
+    commissionTotal: commission,
+    commissionUnit,
+    breakEvenUnit: breakEvenUnitPrice(data),
+    netMarginTotal: netMarginTotal(data),
+    netMarginPct: netMarginPct(data),
+    missing: missingFields(data).map((m) => m.field),
+  };
+}
+
 const MISSING_FIELD_LABELS = [
   { field: 'unitCost', es: 'Costo unitario', en: 'Unit cost' },
   { field: 'sellUnitPrice', es: 'Precio de venta', en: 'Sell price' },

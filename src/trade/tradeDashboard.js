@@ -14,6 +14,14 @@
  * NOT touch Cesium — the shipping layer owns the 3D entities.
  */
 
+import { triageQueue as buildTriageQueue, slaLabel } from './tradeIntake.js';
+import { liveDealNextAction } from './tradeDeals.js';
+import {
+  pendingDrafts as listPendingDrafts,
+  moveDraft as moveFollowupDraft,
+  DRAFT_STATUS_LABELS,
+} from './followupDrafts.js';
+
 export const STATUSES = [
   { id: 'prospect', es: 'Prospectos', en: 'Prospects' },
   { id: 'contacted', es: 'Contactados', en: 'Contacted' },
@@ -585,6 +593,28 @@ export function adaptStore(raw) {
     addSupplier,
     updateSupplier,
     onMutate,
+    listLiveDeals() {
+      try {
+        if (typeof raw.listLiveDeals === 'function')
+          return raw.listLiveDeals() || [];
+      } catch {
+        /* fall through to flag filter */
+      }
+      try {
+        return listAll().filter((r) => r && r.liveDeal === true);
+      } catch {
+        return [];
+      }
+    },
+    linkedCounterparties(rfqId) {
+      try {
+        if (typeof raw.linkedCounterparties === 'function')
+          return raw.linkedCounterparties(rfqId) || {};
+      } catch {
+        /* fall through */
+      }
+      return {};
+    },
   };
 }
 
@@ -788,6 +818,29 @@ const TD_CSS = `
 #gev-trade-panel .pill.red{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.4)}
 #gev-trade-panel .pill.gray{background:rgba(148,163,184,.15);color:#94a3b8;border:1px solid rgba(148,163,184,.4)}
 #gev-trade-panel .tdp-colempty{font-size:11px;color:#5b6b82;padding:12px;text-align:center}
+#gev-trade-panel .tdp-desk{padding:10px 14px;border-bottom:1px solid rgba(56,189,248,.18);font-size:12px;color:#c3d0e4;background:rgba(56,189,248,.05)}
+#gev-trade-panel .tdp-desk b{color:#7dd3fc;letter-spacing:.06em}
+#gev-trade-panel .tdp-strip{padding:10px 14px;border-bottom:1px solid rgba(56,189,248,.18)}
+#gev-trade-panel .tdp-striphead{font-size:11px;font-weight:800;letter-spacing:.08em;color:#7dd3fc;margin-bottom:8px;text-transform:uppercase}
+#gev-trade-panel .tdp-livedeal{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.35);border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;min-height:44px}
+#gev-trade-panel .tdp-livedeal .lr{font-weight:800;color:#fff;font-size:14px;margin-bottom:4px}
+#gev-trade-panel .tdp-livedeal .lm{font-size:13px;color:#c3d0e4;margin-bottom:4px}
+#gev-trade-panel .tdp-livedeal .la{font-size:13px;color:#fbbf24}
+#gev-trade-panel .tdp-triage-row{display:flex;align-items:center;gap:10px;background:rgba(10,14,22,.9);border:1px solid rgba(56,189,248,.25);border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer;min-height:44px;font-size:13px}
+#gev-trade-panel .tdp-triage-row .tr{font-weight:800;color:#fff}
+#gev-trade-panel .tdp-triage-row .tp{color:#c3d0e4;flex:1}
+#gev-trade-panel .tdp-sla{font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}
+#gev-trade-panel .tdp-sla.ok{background:rgba(52,211,153,.15);color:#34d399}
+#gev-trade-panel .tdp-sla.due{background:rgba(251,191,36,.15);color:#fbbf24}
+#gev-trade-panel .tdp-sla.breached{background:rgba(248,113,113,.15);color:#f87171}
+#gev-trade-panel .tdp-sla.unknown{background:rgba(148,163,184,.15);color:#94a3b8}
+#gev-trade-panel .tdp-draft{background:rgba(251,191,36,.05);border:1px dashed rgba(251,191,36,.5);border-radius:12px;padding:12px;margin-bottom:8px;font-size:13px}
+#gev-trade-panel .tdp-draft .dbadge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;color:#fbbf24;border:1px solid rgba(251,191,36,.5);border-radius:999px;padding:3px 10px;margin-bottom:6px}
+#gev-trade-panel .tdp-draft .dt{color:#e0f2fe;white-space:pre-wrap;margin:6px 0}
+#gev-trade-panel .tdp-draft .dm{font-size:12px;color:#9fb0c9;margin-bottom:8px}
+#gev-trade-drawer .cp{background:rgba(255,255,255,.03);border:1px solid rgba(56,189,248,.2);border-radius:10px;padding:10px;margin:6px 0;font-size:13px}
+#gev-trade-drawer .cp .cn{font-weight:700;color:#fff}
+#gev-trade-drawer .cp .cd{font-size:12px;color:#9fb0c9}
 #gev-trade-drawer{position:absolute;top:0;right:0;bottom:0;width:min(420px,94%);background:rgba(10,14,22,.99);border-left:1px solid rgba(56,189,248,.4);padding:16px;overflow-y:auto;font-size:14px}
 #gev-trade-drawer h3{margin:0 0 6px;font-size:17px;color:#fff}
 #gev-trade-drawer .dsub{font-size:13px;color:#c3d0e4;margin-bottom:12px}
@@ -867,6 +920,10 @@ export function initTradeDashboard({
   const t = (es, en) => (lang === 'es' ? es : en);
   const refs = {
     kpis: null,
+    desk: null,
+    livedeals: null,
+    triage: null,
+    drafts: null,
     cols: null,
     emptyState: null,
     importBtn: null,
@@ -964,6 +1021,183 @@ export function initTradeDashboard({
       <div class="tdp-kpi"><div class="k">${t('COMISIÓN POTENCIAL', 'POTENTIAL COMMISSION')}</div><div class="v">${fmtMoney(potentialCommission(openRfqs))}</div></div>
       <div class="tdp-kpi"><div class="k">${t('PROVEEDORES', 'SUPPLIERS')}</div><div class="v">${supplierCount}</div></div>
     `;
+  }
+
+  /** Global-vs-Cuba desk boundary: this panel is the GLOBAL desk. */
+  function renderDeskBanner() {
+    if (!refs.desk) return;
+    refs.desk.innerHTML = '';
+    const b = document.createElement('b');
+    b.textContent = t('MESA GLOBAL · GLOBAL DESK', 'MESA GLOBAL · GLOBAL DESK');
+    const span = document.createElement('span');
+    span.textContent =
+      ' — ' +
+      t(
+        'Los RFQs con origen o destino Cuba pertenecen a la mesa Cuba, no se archivan aquí.',
+        'Cuba-bound or Cuba-originated RFQs belong in the Cuba desk, not filed here.',
+      );
+    refs.desk.appendChild(b);
+    refs.desk.appendChild(span);
+  }
+
+  /** Live-deal cards: the three grandfathered real 2026 deals + next actions. */
+  function renderLiveDeals() {
+    const box = refs.livedeals;
+    if (!box) return;
+    box.innerHTML = '';
+    let deals = [];
+    try {
+      deals = store.listLiveDeals() || [];
+    } catch {
+      deals = [];
+    }
+    if (!deals.length) {
+      box.hidden = true;
+      return;
+    }
+    box.hidden = false;
+    const head = document.createElement('div');
+    head.className = 'tdp-striphead';
+    head.textContent = t('TRATOS EN VIVO', 'LIVE DEALS');
+    box.appendChild(head);
+    for (const deal of deals) {
+      const card = document.createElement('div');
+      card.className = 'tdp-livedeal';
+      const r = document.createElement('div');
+      r.className = 'lr';
+      r.textContent = `${deal.ref || ''} · ${statusLabel(deal.status)}`;
+      const m = document.createElement('div');
+      m.className = 'lm';
+      m.textContent = [deal.product, deal.sourceDate ? `${t('Fuente', 'Source')}: ${deal.sourceDate}` : '']
+        .filter(Boolean)
+        .join(' · ');
+      const a = document.createElement('div');
+      a.className = 'la';
+      a.textContent =
+        '→ ' + (liveDealNextAction(deal.ref, lang) || t('Sin acción pendiente', 'No pending action'));
+      card.appendChild(r);
+      card.appendChild(m);
+      card.appendChild(a);
+      card.addEventListener('click', () => openDrawer(deal.id));
+      box.appendChild(card);
+    }
+  }
+
+  /** RFQ triage queue with the 24h SLA flags (breached / due soon / on track). */
+  function renderTriage() {
+    const box = refs.triage;
+    if (!box) return;
+    box.innerHTML = '';
+    let result = { queue: [], rerouted: [], counts: {} };
+    try {
+      result = buildTriageQueue(listAll()) || result;
+    } catch {
+      /* keep empty */
+    }
+    if (!result.queue.length && !result.rerouted.length) {
+      box.hidden = true;
+      return;
+    }
+    box.hidden = false;
+    const head = document.createElement('div');
+    head.className = 'tdp-striphead';
+    const c = result.counts || {};
+    head.textContent =
+      `${t('COLA DE TRIAJE · 24H', 'TRIAGE QUEUE · 24H')}` +
+      (c.breached ? ` · ${c.breached} ${t('vencidos', 'breached')}` : '') +
+      (c.due ? ` · ${c.due} ${t('por vencer', 'due soon')}` : '');
+    box.appendChild(head);
+    for (const item of result.queue) {
+      const rfq = item.rfq || {};
+      const row = document.createElement('div');
+      row.className = 'tdp-triage-row';
+      const pill = document.createElement('span');
+      pill.className = `tdp-sla ${item.sla || 'unknown'}`;
+      pill.textContent = slaLabel(item.sla, lang);
+      const rr = document.createElement('span');
+      rr.className = 'tr';
+      rr.textContent = rfq.ref || t('(sin referencia)', '(no ref)');
+      const pp = document.createElement('span');
+      pp.className = 'tp';
+      pp.textContent = rfq.product || '';
+      row.appendChild(pill);
+      row.appendChild(rr);
+      row.appendChild(pp);
+      row.addEventListener('click', () => openDrawer(rfq.id));
+      box.appendChild(row);
+    }
+    if (result.rerouted.length) {
+      const note = document.createElement('div');
+      note.style.cssText = 'font-size:12px;color:#9fb0c9;margin-top:4px';
+      note.textContent = `${result.rerouted.length} ${t(
+        'van a la mesa Cuba (no se archivan aquí).',
+        'go to the Cuba desk (not filed here).',
+      )}`;
+      box.appendChild(note);
+    }
+  }
+
+  /** Follow-up draft queue — drafts only, clearly marked NOT sent. */
+  function renderDrafts() {
+    const box = refs.drafts;
+    if (!box) return;
+    box.innerHTML = '';
+    let drafts = [];
+    try {
+      drafts = listPendingDrafts() || [];
+    } catch {
+      drafts = [];
+    }
+    if (!drafts.length) {
+      box.hidden = true;
+      return;
+    }
+    box.hidden = false;
+    const head = document.createElement('div');
+    head.className = 'tdp-striphead';
+    head.textContent = t('BORRADORES DE SEGUIMIENTO', 'FOLLOW-UP DRAFTS');
+    box.appendChild(head);
+    for (const d of drafts) {
+      const card = document.createElement('div');
+      card.className = 'tdp-draft';
+      const badge = document.createElement('div');
+      const st = DRAFT_STATUS_LABELS[d.status] || {};
+      badge.innerHTML = '';
+      const bb = document.createElement('span');
+      bb.className = 'dbadge';
+      bb.textContent =
+        t('BORRADOR — NO ENVIADO', 'DRAFT — NOT SENT') +
+        (st && (lang === 'es' ? st.es : st.en) ? ` · ${lang === 'es' ? st.es : st.en}` : '');
+      badge.appendChild(bb);
+      const meta = document.createElement('div');
+      meta.className = 'dm';
+      meta.textContent = [d.rfqRef, d.kind, d.channel].filter(Boolean).join(' · ');
+      const txt = document.createElement('div');
+      txt.className = 'dt';
+      txt.textContent = (lang === 'es' ? d.es : d.en) || d.es || d.en || '';
+      card.appendChild(badge);
+      card.appendChild(meta);
+      card.appendChild(txt);
+      if (d.status === 'draft') {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;margin-top:8px';
+        const okBtn = document.createElement('button');
+        okBtn.className = 'tdp-btn';
+        okBtn.type = 'button';
+        okBtn.textContent = t('Aprobar (Juan envía)', 'Approve (Juan sends)');
+        okBtn.addEventListener('click', () => {
+          try {
+            moveFollowupDraft(d.id, 'approved');
+          } catch {
+            /* noop */
+          }
+          refresh();
+        });
+        row.appendChild(okBtn);
+        card.appendChild(row);
+      }
+      box.appendChild(card);
+    }
   }
 
   function listAll() {
@@ -1442,6 +1676,80 @@ export function initTradeDashboard({
     }
     drawer.appendChild(math);
 
+    // Broker economics (fee/spread only — SAHJONY never buys, zero capital at
+    // risk). Shown only when the engine exposes brokerEconomics().
+    try {
+      if (rfqEngine && typeof rfqEngine.brokerEconomics === 'function') {
+        const be = rfqEngine.brokerEconomics(rfq) || {};
+        const bTitle = document.createElement('div');
+        bTitle.style.cssText =
+          'font-size:10px;font-weight:800;letter-spacing:.08em;color:#7dd3fc;margin:12px 0 4px';
+        bTitle.textContent = t('BROKER · SOLO INTERMEDIACIÓN', 'BROKER · FEE ONLY');
+        drawer.appendChild(bTitle);
+        const bmath = document.createElement('div');
+        bmath.className = 'math';
+        const brows = [
+          [t('Punto de equilibrio ($/u)', 'Break-even ($/unit)'), fmtMoney(be.breakEvenUnit)],
+          [t('Spread ($/u)', 'Spread ($/unit)'), fmtMoney(be.spreadUnit)],
+          [t('Spread total', 'Total spread'), fmtMoney(be.spreadTotal)],
+          [t('Comisión ($/u)', 'Commission ($/unit)'), fmtMoney(be.commissionUnit)],
+          [t('Comisión total', 'Total commission'), fmtMoney(be.commissionTotal)],
+        ];
+        for (const [label, val] of brows) {
+          const r = document.createElement('div');
+          r.className = 'mrow';
+          const lab = document.createElement('span');
+          lab.textContent = label;
+          const b = document.createElement('b');
+          b.textContent = val;
+          r.appendChild(lab);
+          r.appendChild(b);
+          bmath.appendChild(r);
+        }
+        drawer.appendChild(bmath);
+      }
+    } catch {
+      /* broker block is best-effort */
+    }
+
+    // Counterparties: linked supplier + buyer with verification state.
+    try {
+      const cp = store.linkedCounterparties(rfq.id) || {};
+      if (cp.supplier || cp.buyer) {
+        const cTitle = document.createElement('div');
+        cTitle.style.cssText =
+          'font-size:10px;font-weight:800;letter-spacing:.08em;color:#7dd3fc;margin:12px 0 4px';
+        cTitle.textContent = t('CONTRAPARTES', 'COUNTERPARTIES');
+        drawer.appendChild(cTitle);
+        for (const [role, rec] of [
+          [t('Proveedor', 'Supplier'), cp.supplier],
+          [t('Comprador', 'Buyer'), cp.buyer],
+        ]) {
+          if (!rec) continue;
+          const box = document.createElement('div');
+          box.className = 'cp';
+          const nm = document.createElement('div');
+          nm.className = 'cn';
+          nm.textContent = `${role}: ${rec.name || '—'}`;
+          const det = document.createElement('div');
+          det.className = 'cd';
+          det.textContent = [
+            rec.country,
+            rec.verification
+              ? t('verificado', 'verified') + `: ${rec.verification}`
+              : t('sin verificar', 'unverified'),
+          ]
+            .filter(Boolean)
+            .join(' · ');
+          box.appendChild(nm);
+          box.appendChild(det);
+          drawer.appendChild(box);
+        }
+      }
+    } catch {
+      /* counterparties block is best-effort */
+    }
+
     const notesTitle = document.createElement('div');
     notesTitle.style.cssText =
       'font-size:10px;font-weight:800;letter-spacing:.08em;color:#7dd3fc;margin:12px 0 4px';
@@ -1586,8 +1894,12 @@ export function initTradeDashboard({
   function refresh() {
     updateDockBadge();
     if (!panelEl || aborted.current) return;
+    renderDeskBanner();
     renderKpis();
+    renderLiveDeals();
+    renderTriage();
     renderColumns();
+    renderDrafts();
     renderSuppliers();
     renderWorkforceControls();
     if (selectedId) renderDrawerBody();
@@ -1681,7 +1993,10 @@ export function initTradeDashboard({
         <button class="tdp-lang" type="button">ES / EN</button>
         <button class="tdp-close" type="button" aria-label="Cerrar / close">✕</button>
       </div>
+      <div class="tdp-desk"></div>
       <div class="tdp-kpis"></div>
+      <div class="tdp-livedeals tdp-strip" hidden></div>
+      <div class="tdp-triage tdp-strip" hidden></div>
       <div class="tdp-tools">
         <button class="tdp-btn tdp-import" type="button">📥 ${t('Importar CSV / Import CSV', 'Importar CSV / Import CSV')}</button>
         <button class="tdp-btn tdp-template" type="button">📄 ${t('Descargar plantilla / Download template', 'Descargar plantilla / Download template')}</button>
@@ -1689,9 +2004,14 @@ export function initTradeDashboard({
         <span class="tdp-status"></span>
       </div>
       <div class="tdp-cols"></div>
+      <div id="gev-trade-drafts" class="tdp-strip" hidden></div>
       <div id="gev-trade-suppliers"></div>
     `;
     refs.kpis = panelEl.querySelector('.tdp-kpis');
+    refs.desk = panelEl.querySelector('.tdp-desk');
+    refs.livedeals = panelEl.querySelector('.tdp-livedeals');
+    refs.triage = panelEl.querySelector('.tdp-triage');
+    refs.drafts = panelEl.querySelector('#gev-trade-drafts');
     refs.cols = panelEl.querySelector('.tdp-cols');
     refs.importBtn = panelEl.querySelector('.tdp-import');
     refs.templateBtn = panelEl.querySelector('.tdp-template');
@@ -1753,7 +2073,7 @@ export function initTradeDashboard({
     }
     panelEl?.remove();
     panelEl = null;
-    refs.kpis = refs.cols = refs.drawer = null;
+    refs.kpis = refs.desk = refs.livedeals = refs.triage = refs.drafts = refs.cols = refs.drawer = null;
     refs.rfqCards = [];
   }
 

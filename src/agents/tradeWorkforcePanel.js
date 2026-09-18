@@ -1,7 +1,7 @@
 /**
  * Trade AI Workforce Panel for GOD'S EYE VIEW — $0, no API keys, no external calls.
  *
- * Roster of the 4 local import/export AI agents: status dots, last action,
+ * Roster of the 6 local import/export AI agents: status dots, last action,
  * Start/Pause/Resume, live bilingual activity feed (newest first, refreshes
  * while open via workforce.onActivity), queue depth via getSummary(), and
  * the honest WORKFORCE_NOTE. Agents process local data in the browser only;
@@ -44,6 +44,22 @@ export const AGENT_DEFS = [
     desc: {
       es: 'Cruza RFQs con proveedores y prepara el borrador.',
       en: 'Matches RFQs to suppliers and prepares the draft.',
+    },
+  },
+  {
+    id: 'compliance',
+    name: { es: 'Cumplimiento', en: 'Compliance' },
+    desc: {
+      es: 'Solo lectura: temas de sanciones/aduanas se escalan a Juan.',
+      en: 'Read-only: sanctions/customs topics escalate to Juan.',
+    },
+  },
+  {
+    id: 'follow-up',
+    name: { es: 'Seguimiento', en: 'Follow-up' },
+    desc: {
+      es: 'Redacta seguimientos para revisión — nunca envía.',
+      en: 'Drafts follow-ups for review — never sends.',
     },
   },
 ];
@@ -129,7 +145,7 @@ export function adaptWorkforce(raw) {
         }
         out.push({ id: r.id, name, desc, status, lastActionEs, lastActionEn });
       }
-      // No workforce connected: show the 4 canonical trade roles, all idle,
+      // No workforce connected: show the 6 canonical trade roles, all idle,
       // so the roster is never a lie about activity.
       if (!out.length) {
         for (const def of AGENT_DEFS) {
