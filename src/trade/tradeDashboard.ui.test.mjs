@@ -657,3 +657,177 @@ test('openDeepLink opens /import-export/index.html#<view>', () => {
     else globalThis.open = prev;
   }
 });
+
+// ---- Module 1 priority UI: desk banner, live deals, triage, drafts ----
+
+const { createDraft, resetFollowupDrafts } = await import('./followupDrafts.js');
+
+function fakeDeskStore({ rfqs = [], liveDeals = [], counterparties = {} } = {}) {
+  return {
+    listRfqs: () => rfqs,
+    getRfq: (id) => rfqs.find((r) => r.id === id) || null,
+    listSuppliers: () => [],
+    listLiveDeals: () => liveDeals,
+    linkedCounterparties: (id) => counterparties[id] || {},
+    stats: () => ({
+      total: rfqs.length,
+      openRfqs: rfqs.length,
+      potentialCommission: 0,
+      supplierCount: 0,
+    }),
+    notes: () => [],
+  };
+}
+
+test('dashboard: global desk banner names the Cuba-desk boundary', () => {
+  const dd = initTradeDashboard({ rfqStore: fakeDeskStore() });
+  dd.open();
+  try {
+    assert.ok(dd.refs.desk, 'desk banner ref exists');
+    const txt = dd.refs.desk.textContent || '';
+    assert.ok(txt.includes('MESA GLOBAL'), 'banner names the global desk');
+    assert.ok(txt.includes('Cuba'), 'banner names the Cuba-desk boundary');
+    dd.setLang('en');
+    dd.open();
+    const en = dd.refs.desk.textContent || '';
+    assert.ok(en.includes('GLOBAL DESK'), 'banner bilingual (EN)');
+    assert.ok(en.includes('Cuba desk'), 'boundary bilingual (EN)');
+  } finally {
+    dd.destroy();
+  }
+});
+
+test('dashboard: live-deal cards show status and next action', () => {
+  const deal = {
+    id: 'deal-1',
+    ref: 'DEAL-2026-TNJ01',
+    product: 'Soda ash',
+    status: 'contacted',
+    sourceDate: '2026-09-16',
+  };
+  const dd = initTradeDashboard({ rfqStore: fakeDeskStore({ liveDeals: [deal] }) });
+  dd.open();
+  try {
+    assert.equal(dd.refs.livedeals.hidden, false, 'live-deal strip visible');
+    const txt = dd.refs.livedeals.textContent || '';
+    assert.ok(txt.includes('DEAL-2026-TNJ01'), 'deal ref rendered');
+    assert.ok(txt.includes('Soda ash'), 'deal product rendered');
+    assert.ok(
+      txt.includes('Katharine Xu'),
+      'next action rendered (resend request queued, not sent)',
+    );
+  } finally {
+    dd.destroy();
+  }
+});
+
+test('dashboard: triage queue flags a breached 24h SLA', () => {
+  const old = {
+    id: 'rfq-old',
+    ref: 'TRIAGE-001',
+    product: 'Old widgets',
+    status: 'prospect',
+    createdAt: Date.now() - 30 * 3600 * 1000, // 30h ago → breached
+  };
+  const fresh = {
+    id: 'rfq-fresh',
+    ref: 'TRIAGE-002',
+    product: 'Fresh widgets',
+    status: 'prospect',
+    createdAt: Date.now() - 1 * 3600 * 1000, // 1h ago → on track
+  };
+  const dd = initTradeDashboard({ rfqStore: fakeDeskStore({ rfqs: [old, fresh] }) });
+  dd.open();
+  try {
+    assert.equal(dd.refs.triage.hidden, false, 'triage strip visible');
+    const txt = dd.refs.triage.textContent || '';
+    assert.ok(txt.includes('TRIAGE-001'), 'breached RFQ listed');
+    assert.ok(txt.includes('TRIAGE-002'), 'on-track RFQ listed');
+    assert.ok(
+      txt.includes('SLA vencido') || txt.includes('vencidos'),
+      'breached SLA flagged in ES',
+    );
+    dd.setLang('en');
+    dd.open();
+    const en = dd.refs.triage.textContent || '';
+    assert.ok(en.includes('breached'), 'breached SLA flagged in EN');
+  } finally {
+    dd.destroy();
+  }
+});
+
+test('dashboard: follow-up drafts render as DRAFT — NOT SENT, with approve', () => {
+  resetFollowupDrafts();
+  const d = createDraft({
+    rfqId: 'rfq-1',
+    rfqRef: 'DEAL-2026-TNJ01',
+    kind: 'followup',
+    channel: 'whatsapp',
+    es: 'Hola Katharine, ¿me reenvías la cotización?',
+    en: 'Hi Katharine, could you resend the quotation?',
+  });
+  const dd = initTradeDashboard({ rfqStore: fakeDeskStore() });
+  dd.open();
+  try {
+    assert.equal(dd.refs.drafts.hidden, false, 'drafts strip visible');
+    const txt = dd.refs.drafts.textContent || '';
+    assert.ok(txt.includes('BORRADOR'), 'draft badge rendered in ES');
+    assert.ok(txt.includes('NO ENVIADO'), 'NOT SENT marker rendered');
+    assert.ok(txt.includes('Katharine'), 'draft text rendered');
+    dd.setLang('en');
+    dd.open();
+    const en = dd.refs.drafts.textContent || '';
+    assert.ok(en.includes('NOT SENT'), 'NOT SENT marker bilingual');
+  } finally {
+    dd.destroy();
+    resetFollowupDrafts();
+  }
+  assert.equal(d.status, 'draft');
+});
+
+test('dashboard: drawer shows broker economics and counterparties', () => {
+  const rfq = {
+    id: 'rfq-b1',
+    ref: 'BRK-001',
+    product: 'Broker widgets',
+    status: 'quoting',
+    quantity: 100,
+    unitCost: 10,
+    sellUnitPrice: 14,
+  };
+  const store = fakeDeskStore({
+    rfqs: [rfq],
+    counterparties: {
+      'rfq-b1': {
+        supplier: { name: 'Acme Metals', country: 'USA', verification: 'verified' },
+        buyer: { name: 'Cuba Buyer SA', country: 'Cuba', verification: '' },
+      },
+    },
+  });
+  const dd = initTradeDashboard({
+    rfqStore: store,
+    rfqEngine: fakeEngine({
+      brokerEconomics: () => ({
+        breakEvenUnit: 11,
+        spreadUnit: 3,
+        spreadTotal: 300,
+        commissionUnit: 0.7,
+        commissionTotal: 70,
+      }),
+    }),
+  });
+  dd.open();
+  try {
+    dd.openDrawer('rfq-b1');
+    assert.ok(dd.refs.drawer, 'drawer rendered');
+    const txt = dd.refs.drawer.textContent || '';
+    assert.ok(txt.includes('BROKER'), 'broker block rendered');
+    assert.ok(txt.includes('$3'), 'spread per unit rendered');
+    assert.ok(txt.includes('$300'), 'spread total rendered');
+    assert.ok(txt.includes('Acme Metals'), 'supplier counterparty rendered');
+    assert.ok(txt.includes('Cuba Buyer SA'), 'buyer counterparty rendered');
+    assert.ok(txt.includes('verificado: verified'), 'verification state rendered');
+  } finally {
+    dd.destroy();
+  }
+});

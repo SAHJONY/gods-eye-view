@@ -85,6 +85,8 @@ function fakeWorkforce() {
       { id: 'rfq-researcher', status: 'idle', lastAction: null },
       { id: 'logistics-analyst', status: 'idle', lastAction: null },
       { id: 'deal-coordinator', status: 'idle', lastAction: null },
+      { id: 'compliance', status: 'idle', lastAction: null },
+      { id: 'follow-up', status: 'idle', lastAction: null },
     ],
     feed: [
       {
@@ -140,6 +142,8 @@ test('tradeWorkforcePanel: AGENT_DEFS cover the trade roster', () => {
       'rfq-researcher',
       'logistics-analyst',
       'deal-coordinator',
+      'compliance',
+      'follow-up',
     ],
   );
   for (const def of AGENT_DEFS) {
@@ -153,6 +157,9 @@ test('tradeWorkforcePanel: AGENT_DEFS cover the trade roster', () => {
   assert.equal(AGENT_DEFS[0].name.en, 'Supplier Scout');
   assert.ok(AGENT_DEFS[1].desc.es.includes('diligencia de contrapartes'));
   assert.ok(AGENT_DEFS[2].desc.en.includes('Landed cost'));
+  assert.equal(AGENT_DEFS[4].name.es, 'Cumplimiento');
+  assert.equal(AGENT_DEFS[5].name.en, 'Follow-up');
+  assert.ok(AGENT_DEFS[5].desc.en.includes('never sends'));
   assert.ok(AGENT_DEFS[3].desc.es.includes('proveedores'));
 });
 
@@ -164,12 +171,12 @@ test('tradeWorkforcePanel: honest note uses the engine text verbatim', () => {
   assert.equal(WORKFORCE_NOTE.en, 'The workforce runs while the app is open.');
 });
 
-test('tradeWorkforcePanel: shows 4 trade agents with descriptions', () => {
+test('tradeWorkforcePanel: shows 6 trade agents with descriptions', () => {
   const wf = fakeWorkforce();
   const panel = initTradeWorkforcePanel({ workforce: wf });
   panel.open();
   try {
-    assert.equal(panel.refs.agentRows.length, 4);
+    assert.equal(panel.refs.agentRows.length, 6);
     const agents = panel.getAgents();
     assert.deepEqual(
       agents.map((a) => a.id),
@@ -178,6 +185,8 @@ test('tradeWorkforcePanel: shows 4 trade agents with descriptions', () => {
         'rfq-researcher',
         'logistics-analyst',
         'deal-coordinator',
+        'compliance',
+        'follow-up',
       ],
     );
     assert.ok(agents.every((a) => a.desc.es && a.desc.en));
@@ -333,13 +342,16 @@ test('tradeWorkforcePanel: queue depth via double shape', () => {
 test('tradeWorkforcePanel: no workforce → honest idle roster', () => {
   const panel = initTradeWorkforcePanel({});
   panel.open();
-  assert.equal(panel.refs.agentRows.length, 4);
-  assert.ok(
-    panel.refs.agentRows.every((r) => r.children[0].className.includes('idle')),
-  );
-  assert.ok(panel.getQueueDepth() === 0);
-  panel.setLang('en');
-  panel.destroy();
+  try {
+    assert.equal(panel.refs.agentRows.length, 6);
+    assert.ok(
+      panel.refs.agentRows.every((r) => r.children[0].className.includes('idle')),
+    );
+    assert.ok(panel.getQueueDepth() === 0);
+    panel.setLang('en');
+  } finally {
+    panel.destroy();
+  }
 });
 
 test('statusLabel: bilingual statuses', () => {
