@@ -50,6 +50,17 @@ import { initTankerMapLayer } from '../crude/tankerMapLayer.js';
 import { initCrudeDashboard } from '../crude/crudeDashboard.js';
 import { createWorkforce as createCrudeWorkforce } from '../agents/crudeWorkforce.js';
 import { initCrudeWorkforcePanel } from '../agents/crudeWorkforcePanel.js';
+// Energy desk (diesel/gasoline/LPG → Cuba): spec-sheet reference, dated +
+// sourced benchmark price log, Cuban receiving-port reference, compliance
+// gate with sanctions hard-stop, broker inquiry pipeline, 3D port pins,
+// AI workforce + panel. SAHJONY is a fee/spread broker — never the buyer
+// or seller of product, zero capital at risk.
+import * as energyEngine from '../energy/energyEngine.js';
+import * as energyStore from '../energy/energyStore.js';
+import { initEnergyPortLayer } from '../energy/energyMapLayer.js';
+import { initEnergyDashboard } from '../energy/energyDashboard.js';
+import { createWorkforce as createEnergyWorkforce } from '../agents/energyWorkforce.js';
+import { initEnergyWorkforcePanel } from '../agents/energyWorkforcePanel.js';
 // Insurance Command Center: shared coverage/claims store, pure insurance
 // engine, 3D state map, AI workforce, mission-control dashboard.
 import * as insuranceEngine from '../insurance/insuranceEngine.js';
@@ -646,6 +657,85 @@ export function createApplicationTools({
     if (window.__gevCrudeWorkforceUI) delete window.__gevCrudeWorkforceUI;
   });
   debug.crudeWorkforcePanel = crudeWorkforcePanel;
+  // --- Energy desk (diesel/gasoline/LPG → Cuba) ------------------------------
+  // One store (localStorage `sahjony.energy.v1`): broker product inquiries,
+  // dated + sourced benchmark price log (seeded ONLY with values verified
+  // via web search on 2026-09-17), static Cuban receiving-port reference,
+  // compliance-gate checklists, and the escalation queue. SANCTIONS HARD
+  // STOP: the only path past the compliance gate is advanceGate() with an
+  // all-yes checklist — any red flag or unknown answer escalates to Juan
+  // and forces the inquiry to awaiting-juan. Nothing proceeds without him.
+  const energyPortMap = initEnergyPortLayer({
+    viewer,
+    ports: energyStore,
+    signal,
+  });
+  defer(() => {
+    try {
+      energyPortMap.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevEnergyPorts) delete window.__gevEnergyPorts;
+  });
+  debug.energyPortMap = energyPortMap;
+  // AI agentic workforce (energy): spec-analyst, gate-keeper (hard-stop),
+  // economics-memo, logistics-checker, outreach-drafter (DRAFT only).
+  // Runs while the app is open; every output is a draft/note for review —
+  // it never sends, posts, contacts anyone, or answers sanctions questions.
+  const energyWorkforce = createEnergyWorkforce({
+    energyStore: energyStore.asWorkforceStore(),
+    energyEngine,
+    signal,
+  });
+  try {
+    energyWorkforce.setKnownPorts(energyStore.getPorts());
+  } catch {
+    /* no ports configured yet */
+  }
+  window.__gevEnergyWorkforce = energyWorkforce;
+  defer(() => {
+    try {
+      energyWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevEnergyWorkforce === energyWorkforce)
+      delete window.__gevEnergyWorkforce;
+  });
+  debug.energyWorkforce = energyWorkforce;
+  // Mission-control dashboard (energy): compliance gate (first-class),
+  // product spec sheets, benchmark log, inquiry pipeline with broker
+  // economics, logistics checklist, receiving-port reference.
+  const energyDashboard = initEnergyDashboard({
+    storeApi: energyStore,
+    engine: energyEngine,
+    workforce: energyWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      energyDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevEnergy) delete window.__gevEnergy;
+  });
+  debug.energy = energyDashboard;
+  // Energy workforce mission-control panel: agent roster + live activity
+  // feed with hard-stop escalations pinned to the top.
+  const energyWorkforcePanel = initEnergyWorkforcePanel({
+    workforce: energyWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      energyWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+  });
+  debug.energyWorkforcePanel = energyWorkforcePanel;
   // --- Insurance Command Center --------------------------------------------
   // One store (localStorage `sahjony_insurance_v1`, shared with the
   // standalone /insurance/ app on the same origin). Never invents data —
@@ -1207,6 +1297,40 @@ export function createApplicationTools({
       __crude_workforce_pause: () => {
         try {
           crudeWorkforce.pause();
+        } catch {
+          /* noop */
+        }
+      },
+      __energy_open: () => energyDashboard.toggle?.() ?? energyDashboard.open?.(),
+      __energy_specs: () => {
+        try {
+          energyDashboard.openSpecs?.('diesel');
+        } catch {
+          /* noop */
+        }
+      },
+      __energy_gate: () => {
+        try {
+          energyDashboard.openGate?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __energy_workforce_start: () => {
+        try {
+          energyWorkforce.start();
+        } catch {
+          /* noop */
+        }
+        try {
+          energyWorkforcePanel.open?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __energy_workforce_pause: () => {
+        try {
+          energyWorkforce.pause();
         } catch {
           /* noop */
         }
