@@ -224,3 +224,30 @@ test('parse: cuba-cash provider intent is disambiguated from generic supplier ph
     '__cubacash_providers',
   );
 });
+
+test('parse: cuba cars intents are bilingual', () => {
+  assert.equal(
+    parseSahjonyCommand('abre el panel de carros').action,
+    '__cars_open',
+  );
+  assert.equal(
+    parseSahjonyCommand('open the cars panel').action,
+    '__cars_open',
+  );
+  assert.equal(
+    parseSahjonyCommand('muéstrame el funnel de compradores').action,
+    '__cars_funnel',
+  );
+  assert.equal(
+    parseSahjonyCommand('show me the buyer funnel').action,
+    '__cars_funnel',
+  );
+  assert.equal(
+    parseSahjonyCommand('precios de competencia').action,
+    '__cars_prices',
+  );
+  assert.equal(
+    parseSahjonyCommand('show me competition prices').action,
+    '__cars_prices',
+  );
+});

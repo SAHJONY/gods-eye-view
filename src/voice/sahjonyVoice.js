@@ -795,6 +795,50 @@ export function parseSahjonyCommand(rawText) {
       },
     };
   }
+  // --- cuba cars (car market A–Z, module 3) ---
+  // Spanish-first buyer funnel + competition prices. Drafts only.
+  if (
+    /\b(modo carros|carros mode|abre carros|abre el panel de carros|open cars|open the cars panel|panel carros|panel de carros|cars panel|mercado de carros|mercado de autos|cuba cars|car market|compradores de carros|car buyers|carros cuba)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cars_open',
+      args: {},
+      say: {
+        es: 'Abriendo el panel de carros',
+        en: 'Opening the cars panel',
+      },
+    };
+  }
+  if (
+    /\b(funnel de compradores|embudo de compradores|buyer funnel|calificacion de compradores|calificación de compradores|lead funnel|funnel carros)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cars_funnel',
+      args: {},
+      say: {
+        es: 'Abriendo el funnel de compradores',
+        en: 'Opening the buyer funnel',
+      },
+    };
+  }
+  if (
+    /\b(precios de competencia|competition prices|precios carros|car prices|price watch carros|cuanto cobra la competencia|cuánto cobra la competencia)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cars_prices',
+      args: {},
+      say: {
+        es: 'Abriendo el panel de precios de competencia',
+        en: 'Opening the competition price panel',
+      },
+    };
+  }
   // --- map views ---
   if (
     /\b(vista satelite|vista satelital|satellite view|vista aerea)\b/.test(text)
