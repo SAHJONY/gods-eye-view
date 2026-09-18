@@ -14,6 +14,19 @@
  *   - All outputs are drafts, notes, and memos stored inside the RFQ record.
  *   - The UI decides what Juan sees; the engine only proposes.
  *
+ * Authority model: the shared workforce core (src/agents/workforceCore.js).
+ * The roster is registered with registerWorkforce('trade', …) under the
+ * core's AGENT_TIERS — there is NO execute tier. Agent actions are also
+ * recorded with the core's logAction(); sanctions/customs/embargo hits go
+ * through escalate('trade', 'sanctions', …) via SANCTIONS_HARD_STOP and are
+ * NEVER answered by the agent.
+ *
+ * Roster (6): supplier-scout (sourcing/DRAFT), rfq-researcher
+ * (counterparty-diligence/PROPOSE), logistics-analyst (pricing-economics/
+ * READ), deal-coordinator (outreach-drafting/DRAFT), compliance
+ * (READ + hard-stop escalation), follow-up (DRAFT only — drafts follow-up
+ * messages into the draft queue, never sends).
+ *
  * Injected collaborators:
  *   - rfqStore: { getAll(), get(id), update(id, patch), notes(id) }
  *     notes(id) → [{ t, agent, es, en }] (notes key `t`, like the crude
@@ -43,8 +56,24 @@
  *     verification: 'verified' | 'pending' | 'unverified' | 'flagged'.
  */
 
+import {
+  AGENT_TIERS,
+  registerWorkforce,
+  logAction,
+  escalate,
+  checkSanctions,
+  reviewDraft,
+} from './workforceCore.js';
+import * as defaultDraftStore from '../trade/followupDrafts.js';
+
 export const WORKFORCE_LOG_KEY = 'sahjony.workforce.trade.log.v1';
 export const LOG_CAP = 300;
+
+/** Module id used with the workforce core. */
+export const TRADE_MODULE_ID = 'trade';
+
+/** Cooldown between follow-up drafts for the same RFQ (20h). */
+export const FOLLOWUP_COOLDOWN_MS = 20 * 3_600_000;
 
 /** Honest framing — the workforce is active only while the app is open. */
 export const WORKFORCE_NOTE = {
@@ -73,7 +102,31 @@ const ROLE_DEFS = [
     name: { es: 'Coordinador de trato', en: 'Deal Coordinator' },
     role: 'dispositions',
   },
+  {
+    id: 'compliance',
+    name: { es: 'Cumplimiento', en: 'Compliance' },
+    role: 'compliance',
+  },
+  {
+    id: 'follow-up',
+    name: { es: 'Seguimiento', en: 'Follow-up' },
+    role: 'follow-up',
+  },
 ];
+
+/**
+ * Workforce-core tiers per agent. There is NO execute tier: the ceiling is
+ * PROPOSE (stage for Juan), and follow-up/compliance never go above
+ * DRAFT/READ. Drafts are never sent.
+ */
+export const AGENT_TIER_BY_ID = Object.freeze({
+  'supplier-scout': AGENT_TIERS.DRAFT,
+  'rfq-researcher': AGENT_TIERS.PROPOSE,
+  'logistics-analyst': AGENT_TIERS.READ,
+  'deal-coordinator': AGENT_TIERS.DRAFT,
+  compliance: AGENT_TIERS.READ,
+  'follow-up': AGENT_TIERS.DRAFT,
+});
 
 const QUEUE_STATUSES = ['prospect', 'contacted', 'quoting', 'negotiating'];
 
@@ -128,28 +181,39 @@ function missingTriageFields(rfq) {
   return missing;
 }
 
+/**
+ * Read the persisted audit trail (the core owns this key:
+ * `sahjony.workforce.trade.log.v1`) and project entries into the live
+ * feed shape { t, agent, kind, es, en, rfqId? }. Tolerates both the core
+ * shape and the legacy workforce shape.
+ */
 function readStoredLog() {
+  let raw = [];
   try {
     if (typeof localStorage === 'undefined') return [];
-    const raw = localStorage.getItem(WORKFORCE_LOG_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const text = localStorage.getItem(WORKFORCE_LOG_KEY);
+    if (!text) return [];
+    const parsed = JSON.parse(text);
+    raw = Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
-}
-
-function writeStoredLog(events) {
-  try {
-    if (typeof localStorage === 'undefined') return;
-    localStorage.setItem(
-      WORKFORCE_LOG_KEY,
-      JSON.stringify(events.slice(-LOG_CAP)),
-    );
-  } catch {
-    // Storage may be unavailable/private — the in-memory log still works.
-  }
+  return raw
+    .filter((e) => e && typeof e === 'object')
+    .map((e) => {
+      const projected = {
+        t: e.t ?? e.ts ?? 0,
+        agent: e.agent ?? '',
+        kind: e.kind ?? e.action ?? '',
+        es: e.es ?? e.action ?? '',
+        en: e.en ?? e.action ?? '',
+      };
+      if (e.rfqId !== undefined && e.rfqId !== null)
+        projected.rfqId = e.rfqId;
+      return projected;
+    })
+    .filter((e) => e.agent)
+    .slice(-LOG_CAP);
 }
 
 /** Read the workforce-store notes view, normalized to [{t, agent, es, en}]. */
@@ -191,6 +255,7 @@ export function createWorkforce(opts = {}) {
   const {
     rfqStore,
     rfqEngine,
+    draftStore = defaultDraftStore,
     signal,
     tickMs = 20000,
     staggerMs = 5000,
@@ -237,17 +302,32 @@ export function createWorkforce(opts = {}) {
       es: n.es,
       en: n.en,
     }));
-    rfqStore.update(rfq.id, {
-      ...current,
-      notes,
-      agentNotes,
-      updatedAt: Date.now(),
-    });
+    // Never clobber a human free-text `notes` string: the workforce's note
+    // array lives in `agentNotes`; a string `notes` field is preserved.
+    const patch = { ...current, agentNotes, updatedAt: Date.now() };
+    patch.notes = typeof current.notes === 'string' ? current.notes : notes;
+    rfqStore.update(rfq.id, patch);
     return note;
   }
 
   function setStatus(rfq, status) {
     rfqStore.update(rfq.id, { status, updatedAt: Date.now() });
+  }
+
+  // Register the roster with the shared workforce core (best-effort: the
+  // local feed below always works even if the core registry write fails).
+  try {
+    registerWorkforce(
+      TRADE_MODULE_ID,
+      agents.map((a) => ({
+        id: a.id,
+        role: a.role,
+        tier: AGENT_TIER_BY_ID[a.id] || AGENT_TIERS.READ,
+        lang: 'bilingual',
+      })),
+    );
+  } catch {
+    /* registry write is best-effort */
   }
 
   function emit(agentId, kind, es, en, rfqId) {
@@ -257,7 +337,17 @@ export function createWorkforce(opts = {}) {
     if (agent) agent.lastAction = event;
     log.push(event);
     if (log.length > LOG_CAP) log = log.slice(-LOG_CAP);
-    writeStoredLog(log);
+    // Persist through the workforce core: the core owns the audit key
+    // `sahjony.workforce.trade.log.v1` (single shape, capped at 500).
+    try {
+      logAction(
+        TRADE_MODULE_ID,
+        agentId,
+        `${kind}: ${String(en || es || '').slice(0, 280)}`,
+      );
+    } catch {
+      /* audit write is best-effort */
+    }
     for (const fn of listeners) {
       try {
         fn(event);
@@ -629,7 +719,170 @@ export function createWorkforce(opts = {}) {
     }
   }
 
-  const passes = [runScout, runResearcher, runAnalyst, runCoordinator];
+  // -- compliance: READ + hard-stop escalation --------------------------------
+  // Scans deal-originated text (product, the RFQ's own notes field, and
+  // human/non-agent notes) for sanctions/embargo/OFAC topics or customs
+  // questions. The workforce's own boilerplate notes are EXCLUDED from the
+  // scan (e.g. the diligence checklist mentions sanctions-screening as a
+  // manual process — that must not self-trigger).
+  // On a hit the agent NEVER answers — it escalates to Juan via the core's
+  // escalate('trade', 'sanctions', …) (SANCTIONS_HARD_STOP) and notes it.
+  const escalatedThisSession = new Set();
+  const ROSTER_AGENT_IDS = new Set([
+    ...ROLE_DEFS.map((d) => d.id),
+    'trade-deals-seed',
+  ]);
+
+  function noteTimeMs(value) {
+    if (value === undefined || value === null || value === '') return 0;
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    const ms = new Date(value).getTime();
+    return Number.isFinite(ms) ? ms : 0;
+  }
+
+  function runCompliance() {
+    for (const rfq of allRfqs()) {
+      if (rfq.status === 'lost') continue;
+      if (escalatedThisSession.has(rfq.id)) continue;
+      const notes = readNotes(rfqStore, rfq);
+      if (
+        notes.some(
+          (n) =>
+            n.agent === 'compliance' &&
+            /escalado|escalad/i.test(`${n.es || ''} ${n.en || ''}`),
+        )
+      ) {
+        continue;
+      }
+      const haystack = [
+        rfq.product || '',
+        rfq.notes || '',
+        ...notes
+          .filter((n) => !ROSTER_AGENT_IDS.has(n.agent))
+          .map((n) => `${n.es || ''}\n${n.en || ''}`),
+      ].join('\n');
+      let hit = false;
+      try {
+        hit = checkSanctions(haystack);
+      } catch {
+        hit = false;
+      }
+      if (!hit) continue;
+      escalatedThisSession.add(rfq.id);
+      try {
+        escalate(TRADE_MODULE_ID, 'sanctions', {
+          rfqId: rfq.id,
+          ref: rfq.ref || '',
+          excerpt: haystack.slice(0, 500),
+        });
+      } catch {
+        /* escalation queue write is best-effort; the note below persists */
+      }
+      addNote(
+        rfq,
+        'compliance',
+        'PARADA DE CUMPLIMIENTO: posible tema de sanciones/aduanas detectado — escalado a Juan (cola de escalamiento). El agente NO responde, NO asesora y NO busca cómo evitarlo.',
+        'COMPLIANCE HARD STOP: possible sanctions/customs topic detected — escalated to Juan (escalation queue). The agent does NOT answer, advise, or route around it.',
+      );
+      emit(
+        'compliance',
+        'escalated',
+        `Escalado a Juan: posible tema de sanciones (${rfq.ref || rfq.id})`,
+        `Escalated to Juan: possible sanctions topic (${rfq.ref || rfq.id})`,
+        rfq.id,
+      );
+    }
+  }
+
+  // -- follow-up: DRAFT only ---------------------------------------------------
+  // Drafts bilingual follow-up messages into the follow-up draft queue.
+  // Drafts wait for Juan's review — the agent NEVER sends anything.
+  // One open draft per RFQ max; cooldown between drafts per RFQ.
+  function buildFollowupDraft(rfq) {
+    const ref = rfq.ref || '(sin referencia)';
+    const product =
+      rfq.product || 'producto sin especificar / unspecified product';
+    const es =
+      `Hola [NOMBRE], te escribe [TU NOMBRE] de SAHJONY (bróker/intermediario, no somos el comprador final). ` +
+      `Te contacto por ${product} (ref ${ref}). ¿Tienes alguna novedad o un precio actualizado que puedas compartir? ` +
+      `Quedo atento, gracias.`;
+    const en =
+      `Hi [NAME], this is [YOUR NAME] from SAHJONY (broker/intermediary — we are not the end buyer). ` +
+      `Following up on ${product} (ref ${ref}). Any update or refreshed pricing you can share? ` +
+      `Standing by, thank you.`;
+    return { es, en };
+  }
+
+  function runFollowup() {
+    const drafts = draftStore;
+    for (const rfq of allRfqs()) {
+      if (!['contacted', 'quoting', 'negotiating'].includes(rfq.status))
+        continue;
+      let hasOpen = false;
+      try {
+        hasOpen = !!(drafts && drafts.openDraftForRfq(rfq.id));
+      } catch {
+        hasOpen = false;
+      }
+      if (hasOpen) continue;
+      const notes = readNotes(rfqStore, rfq);
+      const lastT = notes.reduce(
+        (m, n) => Math.max(m, noteTimeMs(n.t)),
+        0,
+      );
+      if (lastT > 0 && Date.now() - lastT < FOLLOWUP_COOLDOWN_MS) continue;
+      const { es, en } = buildFollowupDraft(rfq);
+      let review = { ok: true, flags: [] };
+      try {
+        review = reviewDraft({ es, en }) || review;
+      } catch {
+        /* oversight review is best-effort; the draft still waits for Juan */
+      }
+      let draft = null;
+      try {
+        draft = drafts.createDraft({
+          rfqId: rfq.id,
+          rfqRef: rfq.ref || '',
+          kind: 'followup',
+          channel: 'whatsapp',
+          es,
+          en,
+          flags: Array.isArray(review.flags) ? review.flags : [],
+        });
+      } catch {
+        draft = null;
+      }
+      if (!draft) continue;
+      const flagCodes = (Array.isArray(review.flags) ? review.flags : [])
+        .map((f) => f && f.code)
+        .filter(Boolean)
+        .join(', ');
+      addNote(
+        rfq,
+        'follow-up',
+        `Borrador de seguimiento creado para revisión de Juan (cola de borradores — NO enviado).` +
+          (flagCodes ? ` Marcas de supervisión: ${flagCodes}.` : ''),
+        `Follow-up draft created for Juan's review (draft queue — NOT sent).` +
+          (flagCodes ? ` Oversight flags: ${flagCodes}.` : ''),
+      );
+      emit(
+        'follow-up',
+        'draft',
+        `Borrador de seguimiento: ${rfq.ref || rfq.id}`,
+        `Follow-up draft: ${rfq.ref || rfq.id}`,
+        rfq.id,
+      );
+    }
+  }
+
+  const passes = [
+    runScout,
+    runResearcher,
+    runAnalyst,
+    runCoordinator,
+    runCompliance,
+    runFollowup,
+  ];
 
   function runAgentPass(agent) {
     if (destroyed) return;

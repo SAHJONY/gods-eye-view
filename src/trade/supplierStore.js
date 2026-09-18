@@ -202,6 +202,16 @@ function normalizeRfq(data = {}) {
     supplierId: asText(data.supplierId),
     buyerId: asText(data.buyerId),
     status: data.status ? coerceRfqStatus(data.status) : 'prospect',
+    // Intake & desk routing (see src/trade/tradeIntake.js). intakeAt is
+    // stamped at creation when missing; desk defaults to the worldwide
+    // 'trade' desk and is only 'cuba' when explicitly set.
+    intakeAt: asText(data.intakeAt),
+    desk: asText(data.desk) === 'cuba' ? 'cuba' : 'trade',
+    // Live-deal marker + provenance (real 2026 deals only; source names
+    // where each fact was verified — never invented).
+    liveDeal: data.liveDeal === true,
+    source: asText(data.source),
+    sourceDate: asText(data.sourceDate),
     notes: typeof data.notes === 'string' ? data.notes : '',
     agentNotes: Array.isArray(data.agentNotes)
       ? data.agentNotes.map((n) => ({ ...normalizeAgentNote(n) }))
@@ -209,6 +219,7 @@ function normalizeRfq(data = {}) {
     createdAt: data.createdAt || chicagoIso(),
     updatedAt: data.updatedAt || chicagoIso(),
   };
+  if (!rfq.intakeAt) rfq.intakeAt = rfq.createdAt;
   rfq.score =
     Number.isFinite(Number(data.score)) && data.score !== undefined
       ? Math.min(100, Math.max(0, Math.round(Number(data.score))))
@@ -349,6 +360,29 @@ class TradeStore {
     return this.db.rfqs.find((rfq) => normalizeName(rfq.ref) === ref) ?? null;
   }
 
+  /** RFQs flagged as live deals (seeded real 2026 deals), oldest first. */
+  listLiveDeals() {
+    return this.db.rfqs
+      .filter((r) => r && r.liveDeal === true)
+      .sort((a, b) => String(a.ref || '').localeCompare(String(b.ref || '')));
+  }
+
+  /** Resolve the linked supplier + buyer records for an RFQ. */
+  linkedCounterparties(rfqId) {
+    const rfq = this.getRfq(rfqId);
+    if (!rfq) return { supplier: null, buyer: null };
+    const byId = (id) =>
+      id ? this.db.suppliers.find((s) => s.id === id) ?? null : null;
+    return { supplier: byId(rfq.supplierId), buyer: byId(rfq.buyerId) };
+  }
+
+  /** Set a counterparty's verification state (validated). */
+  setVerification(id, verification) {
+    const supplier = this.getSupplier(id);
+    if (!supplier) return null;
+    return this.updateSupplier(id, { verification });
+  }
+
   createRfq(data = {}) {
     const existing = this.findDuplicateRfq(data);
     if (existing) return existing;
@@ -476,6 +510,17 @@ export const deleteRfq = (id) => store.deleteRfq(id);
 export const listRfqs = (filter) => store.listRfqs(filter);
 export const addRfqNote = (rfqId, agent, es, en) =>
   store.addRfqNote(rfqId, agent, es, en);
+
+/** Live-deal RFQs (seeded real 2026 deals). */
+export const listLiveDeals = () => store.listLiveDeals();
+
+/** Linked supplier + buyer records for an RFQ. */
+export const linkedCounterparties = (rfqId) =>
+  store.linkedCounterparties(rfqId);
+
+/** Set a counterparty's verification state (validated). */
+export const setVerification = (id, verification) =>
+  store.setVerification(id, verification);
 
 export const stats = () => store.stats();
 

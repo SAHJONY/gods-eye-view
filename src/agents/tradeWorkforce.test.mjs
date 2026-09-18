@@ -335,10 +335,10 @@ test('getSummary reports running, agents, and queueDepth', () => {
   const s1 = wf.getSummary();
   assert.equal(s1.running, false);
   assert.equal(s1.queueDepth, 2);
-  assert.equal(s1.agents.length, 4);
+  assert.equal(s1.agents.length, 6);
   assert.deepEqual(
     s1.agents.map((a) => a.id),
-    ['supplier-scout', 'rfq-researcher', 'logistics-analyst', 'deal-coordinator'],
+    ['supplier-scout', 'rfq-researcher', 'logistics-analyst', 'deal-coordinator', 'compliance', 'follow-up'],
   );
   for (const a of s1.agents) {
     assert.ok(['idle', 'working', 'paused'].includes(a.status));
