@@ -207,3 +207,146 @@ export const GRADE_PRESETS = Object.freeze([
 export const INCOTERMS = Object.freeze(['FOB', 'CIF', 'DAP']);
 
 export const VERDICT_TIERS = Object.freeze(['green', 'yellow', 'red', 'gray']);
+
+// ---------------------------------------------------------------------------
+// Deal economics v1 — per-barrel commission math, netback, cargo P&L summary.
+// All pure (no I/O, no DOM), defensive against junk input, bilingual labels.
+// Broker positioning: SAHJONY is a fee-only broker — commission per barrel
+// is SAHJONY's revenue; the deal P&L belongs to the counterparties.
+// ---------------------------------------------------------------------------
+
+/** Broker positioning copy — SAHJONY never takes title, zero capital at risk. */
+export const BROKER_BASIS = Object.freeze({
+  es: 'SAHJONY actúa como corredor por comisión: nunca toma título del cargamento ni arriesga capital. Ingreso = comisión por barril.',
+  en: 'SAHJONY acts as a commission broker: never takes title to the cargo and puts zero capital at risk. Revenue = per-barrel commission.',
+});
+
+/**
+ * Commission per barrel from a total commission: commissionTotal / volumeBbl.
+ * 0 when volume is missing/zero. Never throws.
+ */
+export function commissionPerBblFromTotal({ volumeBbl, commissionTotal } = {}) {
+  const volume = safeNum(volumeBbl);
+  if (volume <= 0) return 0;
+  return safeNum(commissionTotal) / volume;
+}
+
+/**
+ * Commission per barrel as a share of the spread (0..1+ ratio).
+ * 0 when the spread is missing/zero/negative. Never throws.
+ */
+export function commissionShareOfSpread({
+  commissionPerBbl,
+  buyPrice,
+  sellPrice,
+} = {}) {
+  const spread = safeNum(sellPrice) - safeNum(buyPrice);
+  if (spread <= 0) return 0;
+  return safeNum(commissionPerBbl) / spread;
+}
+
+const NETBACK_DEDUCTION_LABELS = {
+  freightPerBbl: { es: 'Flete', en: 'Freight' },
+  insurancePerBbl: { es: 'Seguro', en: 'Insurance' },
+  warRiskPerBbl: { es: 'Riesgo de guerra', en: 'War risk' },
+};
+
+/**
+ * Netback per barrel: benchmark price minus explicit per-barrel deductions.
+ * All deductions are explicit inputs — nothing is assumed.
+ * adjustments: [{ es, en, amountPerBbl }] extra named deductions.
+ * Returns { benchmarkPrice, deductions: [{es, en, amountPerBbl}],
+ *           totalDeductionsPerBbl, netbackPerBbl }.
+ */
+export function netback({
+  benchmarkPrice,
+  freightPerBbl = 0,
+  insurancePerBbl = 0,
+  warRiskPerBbl = 0,
+  adjustments = [],
+} = {}) {
+  const benchmark = safeNum(benchmarkPrice);
+  const deductions = [];
+  for (const key of ['freightPerBbl', 'insurancePerBbl', 'warRiskPerBbl']) {
+    const amount = safeNum({ freightPerBbl, insurancePerBbl, warRiskPerBbl }[key]);
+    if (amount > 0) {
+      deductions.push({
+        ...NETBACK_DEDUCTION_LABELS[key],
+        amountPerBbl: amount,
+      });
+    }
+  }
+  if (Array.isArray(adjustments)) {
+    for (const adj of adjustments) {
+      if (!adj || typeof adj !== 'object') continue;
+      const amount = safeNum(adj.amountPerBbl);
+      if (amount <= 0) continue;
+      deductions.push({
+        es:
+          typeof adj.es === 'string' && adj.es.trim()
+            ? adj.es
+            : typeof adj.label === 'string'
+              ? adj.label
+              : 'Ajuste',
+        en:
+          typeof adj.en === 'string' && adj.en.trim()
+            ? adj.en
+            : typeof adj.label === 'string'
+              ? adj.label
+              : 'Adjustment',
+        amountPerBbl: amount,
+      });
+    }
+  }
+  const totalDeductionsPerBbl = deductions.reduce(
+    (sum, d) => sum + d.amountPerBbl,
+    0,
+  );
+  return {
+    benchmarkPrice: benchmark,
+    deductions,
+    totalDeductionsPerBbl,
+    netbackPerBbl: benchmark - totalDeductionsPerBbl,
+  };
+}
+
+/**
+ * Cargo P&L summary (pure).
+ * - deal: the transaction economics (counterparties' side): gross spread,
+ *   costs, net total/per-bbl.
+ * - broker: SAHJONY's side — per-barrel commission only (basis note included).
+ * - netback: netback() result when cargo.netback carries a benchmark price,
+ *   else null.
+ * - missing: bilingual missing-fields report (never invents data).
+ */
+export function cargoPnL(cargo = {}) {
+  const c = cargo && typeof cargo === 'object' ? cargo : {};
+  const volumeBbl = safeNum(c.volumeBbl);
+  const buyPrice = safeNum(c.buyPrice);
+  const sellPrice = safeNum(c.sellPrice);
+  const spreadPerBbl = sellPrice - buyPrice;
+  const grossSpread = volumeBbl * spreadPerBbl;
+  const costsTotal = totalCosts(c.costs || {});
+  const netTotal = grossSpread - costsTotal;
+  const commissionPerBbl = safeNum(c.commissionPerBbl);
+  const nb = c.netback && typeof c.netback === 'object' ? c.netback : null;
+  return {
+    volumeBbl,
+    buyPrice,
+    sellPrice,
+    spreadPerBbl,
+    deal: {
+      grossSpread,
+      costsTotal,
+      netTotal,
+      netPerBbl: volumeBbl > 0 ? netTotal / volumeBbl : 0,
+    },
+    broker: {
+      commissionPerBbl,
+      commissionTotal: volumeBbl * commissionPerBbl,
+      basis: BROKER_BASIS,
+    },
+    netback: nb && safeNum(nb.benchmarkPrice) > 0 ? netback(nb) : null,
+    missing: missingFields(c),
+  };
+}

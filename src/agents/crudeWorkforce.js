@@ -28,8 +28,109 @@
  *     Engine calls are defensive: every call is wrapped in try/catch with
  *     'yellow'/0 fallbacks, so a throwing engine can never break the passes.
  *   - buyers are injected via setBuyers([...]) and ranked by dispositions.
- *     Buyer shape: { name, type, role, verification, country }
+ *     Buyer shape: { name, type, role, verification, country, diligence? }
+ *     (diligence is an optional checklist state from
+ *     src/crude/diligenceChecklist.js; any sanctions red flag triggers the
+ *     SANCTIONS_HARD_STOP escalation — the workforce never advises.)
+ *
+ * Workforce-core integration (src/agents/workforceCore.js, Module 6):
+ * the core may not exist yet, so it is imported defensively. When present,
+ * this module registers its agent roster and routes every logged action and
+ * every escalation through the core (logAction / escalate); when absent,
+ * the local log + local escalation record carry the same shape.
  */
+
+import {
+  SANCTIONS_HARD_STOP,
+  SANCTIONS_BANNER,
+  hasSanctionsFlag,
+  buildSanctionsEscalation,
+} from '../crude/diligenceChecklist.js';
+
+export { SANCTIONS_HARD_STOP };
+
+/** Defensive handle on the workforce core (Module 6) — null until it lands. */
+const workforceCore = await import('./workforceCore.js').catch(() => null);
+
+/**
+ * Agent roster in the workforce-core shape (registerWorkforce).
+ * Tiers follow the core spec: READ observe, DRAFT write internal drafts,
+ * PROPOSE stage in Juan's approval queue. There is NO execute tier.
+ */
+export const CRUDE_AGENT_ROSTER = Object.freeze([
+  { id: 'scout', role: 'sourcing', tier: 'read', lang: 'bilingual' },
+  {
+    id: 'researcher',
+    role: 'counterparty-diligence',
+    tier: 'propose',
+    lang: 'bilingual',
+  },
+  { id: 'analyst', role: 'pricing-economics', tier: 'read', lang: 'bilingual' },
+  {
+    id: 'dispositions',
+    role: 'outreach-drafting',
+    tier: 'draft',
+    lang: 'bilingual',
+  },
+]);
+
+/** Register this module's workforce with the core (no-op until the core lands). */
+export function registerCrudeWorkforce() {
+  try {
+    workforceCore?.registerWorkforce?.('crude', CRUDE_AGENT_ROSTER);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Best-effort registration at module load; callers may also call it directly.
+registerCrudeWorkforce();
+
+/**
+ * Route an action through the workforce core's logAction when available.
+ * The local activity log below is always written too.
+ */
+function coreLogAction(agentId, action) {
+  try {
+    const summary =
+      action && typeof action === 'object'
+        ? `${action.kind || 'action'}${action.cargoId ? ` cargo:${action.cargoId}` : ''}`
+        : String(action ?? '');
+    workforceCore?.logAction?.('crude', agentId, summary);
+  } catch {
+    /* core logging is best-effort */
+  }
+}
+
+/**
+ * Build a core-shaped escalation record:
+ * { ts, module, reason, payload, status: 'awaiting-juan' }.
+ */
+export function buildCrudeEscalation(reason, payload) {
+  return {
+    ts: Date.now(),
+    module: 'crude',
+    reason: typeof reason === 'string' ? reason : 'unknown',
+    payload: payload && typeof payload === 'object' ? payload : {},
+    status: 'awaiting-juan',
+  };
+}
+
+/**
+ * Escalate through the workforce core when available; always returns the
+ * local escalation record (status 'awaiting-juan'). Nothing is ever sent,
+ * posted, or acted on — the escalation waits for Juan.
+ */
+export function escalateCrude(reason, payload) {
+  const escalation = buildCrudeEscalation(reason, payload);
+  try {
+    workforceCore?.escalate?.('crude', reason, escalation.payload);
+  } catch {
+    /* core escalation is best-effort */
+  }
+  return escalation;
+}
 
 export const WORKFORCE_LOG_KEY = 'sahjony.crude.workforce.log.v1';
 const LOG_CAP = 300;
@@ -157,6 +258,17 @@ export function createWorkforce(opts = {}) {
   const listeners = new Set();
   let log = readStoredLog();
 
+  // Sanctions hold: cargo ids the researcher escalated under SANCTIONS_HARD_STOP.
+  // The analyst NEVER writes a memo or advances a held cargo — only Juan can
+  // release it (releaseSanctionsHold). Rehydrated from the stored log so the
+  // hold survives a page reload.
+  const sanctionsHold = new Set();
+  for (const e of log) {
+    if (e && e.kind === 'sanctions-escalation' && e.cargoId) {
+      sanctionsHold.add(e.cargoId);
+    }
+  }
+
   const agents = ROLE_DEFS.map((def) => ({
     id: def.id,
     name: { ...def.name },
@@ -180,14 +292,16 @@ export function createWorkforce(opts = {}) {
     cargoStore.update(cargo.id, { status });
   }
 
-  function emit(agentId, kind, es, en, cargoId) {
+  function emit(agentId, kind, es, en, cargoId, extra) {
     const agent = byId[agentId];
     const event = { t: Date.now(), agent: agentId, kind, es, en };
     if (cargoId !== undefined && cargoId !== null) event.cargoId = cargoId;
+    if (extra && typeof extra === 'object') Object.assign(event, extra);
     agent.lastAction = event;
     log.push(event);
     if (log.length > LOG_CAP) log = log.slice(-LOG_CAP);
     writeStoredLog(log);
+    coreLogAction(agentId, { kind, cargoId: event.cargoId ?? null });
     for (const fn of listeners) {
       try {
         fn(event);
@@ -359,6 +473,28 @@ export function createWorkforce(opts = {}) {
           `Flagged counterparty: ${name} (${cargo.ref})`,
           cargo.id,
         );
+      } else if (cp && hasSanctionsFlag(cp.diligence)) {
+        // SANCTIONS HARD STOP: any sanctions red flag → escalate-always.
+        // The workforce never advises on sanctions, never screens around
+        // them, and never advances the cargo. It escalates and waits.
+        const escalation = buildSanctionsEscalation(cp, cp.diligence);
+        const recorded = escalateCrude('sanctions', escalation.payload);
+        sanctionsHold.add(cargo.id);
+        const name = cp.name || '(sin nombre)';
+        addNote(
+          cargo,
+          'researcher',
+          `${SANCTIONS_BANNER.es}\nContraparte: «${name}». Banderas: ${recorded.payload.flaggedItems.join(', ') || '—'}. Escalado a Juan — el cargamento se queda en diligencia.`,
+          `${SANCTIONS_BANNER.en}\nCounterparty: "${name}". Flags: ${recorded.payload.flaggedItems.join(', ') || '—'}. Escalated to Juan — the cargo stays in diligence.`,
+        );
+        emit(
+          'researcher',
+          'sanctions-escalation',
+          `PARADA DE SANCIONES — escalado a Juan: ${name} (${cargo.ref})`,
+          `SANCTIONS HARD STOP — escalated to Juan: ${name} (${cargo.ref})`,
+          cargo.id,
+          { escalation: recorded },
+        );
       } else {
         emit(
           'researcher',
@@ -372,9 +508,20 @@ export function createWorkforce(opts = {}) {
   }
 
   // -- analyst: diligence → negotiating on green verdict ----------------------
+  // Never touches a cargo under sanctions hold (hard stop).
   function runAnalyst() {
     for (const cargo of allCargoes()) {
       if (cargo.status !== 'diligence') continue;
+      if (sanctionsHold.has(cargo.id)) {
+        emit(
+          'analyst',
+          'hold',
+          `Parada de sanciones vigente: ${cargo.ref || cargo.id} — sin memorando hasta que Juan la libere.`,
+          `Sanctions hold active: ${cargo.ref || cargo.id} — no memo until Juan releases it.`,
+          cargo.id,
+        );
+        continue;
+      }
       const hasEconomics =
         typeof cargo.buyPrice === 'number' &&
         cargo.buyPrice > 0 &&
@@ -643,6 +790,20 @@ export function createWorkforce(opts = {}) {
     processOnce,
     destroy,
     getSummary,
+    /** Cargo ids currently under sanctions hold (hard stop). */
+    getSanctionsHold() {
+      return [...sanctionsHold];
+    },
+    isSanctionsHeld(cargoId) {
+      return sanctionsHold.has(cargoId);
+    },
+    /**
+     * Release a sanctions hold — Juan's decision only. The UI calls this
+     * after his review; the workforce never calls it by itself.
+     */
+    releaseSanctionsHold(cargoId) {
+      return sanctionsHold.delete(cargoId);
+    },
     setBuyers(list) {
       buyers = Array.isArray(list) ? list : [];
     },

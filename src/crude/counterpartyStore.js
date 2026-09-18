@@ -5,6 +5,19 @@
 // never invented; names/contacts stay empty until Juan adds them.
 
 import { scoreCargo, brokerCommission } from './cargoEngine.js';
+import {
+  blankChecklist,
+  itemState,
+  evaluateDiligence,
+  DILIGENCE_ITEMS,
+} from './diligenceChecklist.js';
+import {
+  seedBenchmarkPayload,
+  hasSeed,
+  normalizeBenchmark,
+  latestBenchmark as latestBenchmarkEntry,
+  listBenchmarks as listBenchmarkEntries,
+} from './benchmarkLog.js';
 
 export const STORAGE_KEY = 'sahjony.crude.v1';
 
@@ -186,6 +199,23 @@ function normalizeCargo(data = {}) {
       inspection: asMoney(data.costs?.inspection),
       other: asMoney(data.costs?.other),
     },
+    // Netback inputs (explicit per-barrel deductions; benchmark from the
+    // benchmark log or typed by Juan). Empty until Juan adds them.
+    benchmarkPrice: asMoney(data.benchmarkPrice ?? data.netback?.benchmarkPrice),
+    freightPerBbl: asMoney(data.freightPerBbl ?? data.netback?.freightPerBbl),
+    insurancePerBbl: asMoney(
+      data.insurancePerBbl ?? data.netback?.insurancePerBbl,
+    ),
+    warRiskPerBbl: asMoney(data.warRiskPerBbl ?? data.netback?.warRiskPerBbl),
+    netbackAdjustments: Array.isArray(
+      data.netbackAdjustments ?? data.netback?.adjustments,
+    )
+      ? (data.netbackAdjustments ?? data.netback?.adjustments).map((a) => ({
+          es: typeof a?.es === 'string' ? a.es : '',
+          en: typeof a?.en === 'string' ? a.en : '',
+          amountPerBbl: asMoney(a?.amountPerBbl),
+        }))
+      : [],
     agentNotes: Array.isArray(data.agentNotes)
       ? data.agentNotes.map((n) => ({ ...n }))
       : [],
@@ -197,6 +227,22 @@ function normalizeCargo(data = {}) {
       ? Math.min(100, Math.max(0, Math.round(Number(data.score))))
       : scoreCargo(cargo);
   return cargo;
+}
+
+/** Normalize a diligence checklist state — unknown items dropped, gaps filled. */
+function normalizeDiligence(raw) {
+  const state = blankChecklist();
+  if (raw && typeof raw === 'object') {
+    for (const item of DILIGENCE_ITEMS) {
+      const st = itemState(raw, item.id);
+      state[item.id] = {
+        status: st.status,
+        ref: st.ref,
+        note: st.note,
+      };
+    }
+  }
+  return state;
 }
 
 function normalizeCounterparty(data = {}) {
@@ -212,6 +258,7 @@ function normalizeCounterparty(data = {}) {
       email: asText(data.contact?.email),
     },
     verification: coerceVerification(data.verification),
+    diligence: normalizeDiligence(data.diligence),
     notes: typeof data.notes === 'string' ? data.notes : '',
     agentNotes: Array.isArray(data.agentNotes)
       ? data.agentNotes.map((n) => ({ ...n }))
@@ -230,16 +277,18 @@ class CrudeStore {
   load() {
     try {
       const raw = this.backend.getItem(STORAGE_KEY);
-      if (!raw) return { cargoes: [], counterparties: [] };
+      if (!raw)
+        return { cargoes: [], counterparties: [], benchmarks: [] };
       const parsed = JSON.parse(raw);
       return {
         cargoes: Array.isArray(parsed.cargoes) ? parsed.cargoes : [],
         counterparties: Array.isArray(parsed.counterparties)
           ? parsed.counterparties
           : [],
+        benchmarks: Array.isArray(parsed.benchmarks) ? parsed.benchmarks : [],
       };
     } catch {
-      return { cargoes: [], counterparties: [] };
+      return { cargoes: [], counterparties: [], benchmarks: [] };
     }
   }
 
@@ -251,10 +300,89 @@ class CrudeStore {
     }
   }
 
-  /** Clear all cargoes and counterparties (used by tests). */
+  /** Clear all cargoes, counterparties and benchmarks (used by tests). */
   reset() {
-    this.db = { cargoes: [], counterparties: [] };
+    this.db = { cargoes: [], counterparties: [], benchmarks: [] };
     this.save();
+  }
+
+  // ---- Benchmarks (dated WTI/Brent entries; seed = verified 2026-09-17) ----
+  /** Idempotent seed of the verified 2026-09-17 benchmark values. */
+  seedBenchmarks() {
+    if (hasSeed(this.db.benchmarks)) return this.db.benchmarks;
+    this.db.benchmarks = [...this.db.benchmarks, ...seedBenchmarkPayload()];
+    this.save();
+    return this.db.benchmarks;
+  }
+
+  addBenchmark(entry) {
+    const normalized = normalizeBenchmark(entry);
+    if (!normalized) return null;
+    this.db.benchmarks.push(normalized);
+    this.save();
+    return normalized;
+  }
+
+  listBenchmarks(grade) {
+    return listBenchmarkEntries(this.db.benchmarks, grade);
+  }
+
+  latestBenchmark(grade) {
+    return latestBenchmarkEntry(this.db.benchmarks, grade);
+  }
+
+  // ---- Counterparty diligence ----
+  /**
+   * Set one diligence item's state on a counterparty.
+   * patch: { status: 'open'|'done'|'flagged', ref, note }.
+   * Returns the updated counterparty (with its evaluated diligence) or null.
+   */
+  setDiligenceItem(cpId, itemId, patch = {}) {
+    const cp = this.getCounterparty(cpId);
+    if (!cp) return null;
+    if (!DILIGENCE_ITEMS.some((item) => item.id === itemId)) return cp;
+    const current = normalizeDiligence(cp.diligence);
+    const prev = itemState(current, itemId);
+    const status =
+      patch.status && ['open', 'done', 'flagged'].includes(patch.status)
+        ? patch.status
+        : prev.status;
+    current[itemId] = {
+      status,
+      ref:
+        typeof patch.ref === 'string'
+          ? patch.ref
+          : typeof prev.ref === 'string'
+            ? prev.ref
+            : '',
+      note:
+        typeof patch.note === 'string'
+          ? patch.note
+          : typeof prev.note === 'string'
+            ? prev.note
+            : '',
+    };
+    cp.diligence = current;
+    cp.updatedAt = chicagoIso();
+    this.save();
+    return cp;
+  }
+
+  /** Replace a counterparty's whole diligence state (normalized). */
+  setDiligence(cpId, diligence) {
+    const cp = this.getCounterparty(cpId);
+    if (!cp) return null;
+    cp.diligence = normalizeDiligence(diligence);
+    cp.updatedAt = chicagoIso();
+    this.save();
+    return cp;
+  }
+
+  /** { score, status, sanctionsStop, flagged, gate } for a counterparty. */
+  getDiligenceEvaluation(cpId) {
+    const cp = this.getCounterparty(cpId);
+    if (!cp) return null;
+    return evaluateDiligence(cp.diligence);
   }
 
   // ---- Counterparties ----
@@ -461,6 +589,18 @@ export const deleteCounterparty = (id) => store.deleteCounterparty(id);
 export const listCounterparties = (filter) => store.listCounterparties(filter);
 export const addCounterpartyNote = (cpId, agent, es, en) =>
   store.addCounterpartyNote(cpId, agent, es, en);
+export const setDiligenceItem = (cpId, itemId, patch) =>
+  store.setDiligenceItem(cpId, itemId, patch);
+export const setDiligence = (cpId, diligence) =>
+  store.setDiligence(cpId, diligence);
+export const getDiligenceEvaluation = (cpId) =>
+  store.getDiligenceEvaluation(cpId);
+
+// ---- Benchmarks ----
+export const seedBenchmarks = () => store.seedBenchmarks();
+export const addBenchmark = (entry) => store.addBenchmark(entry);
+export const listBenchmarks = (grade) => store.listBenchmarks(grade);
+export const latestBenchmark = (grade) => store.latestBenchmark(grade);
 
 export const createCargo = (data) => store.createCargo(data);
 export const getCargo = (id) => store.getCargo(id);

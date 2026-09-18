@@ -50,6 +50,17 @@ import { initTankerMapLayer } from '../crude/tankerMapLayer.js';
 import { initCrudeDashboard } from '../crude/crudeDashboard.js';
 import { createWorkforce as createCrudeWorkforce } from '../agents/crudeWorkforce.js';
 import { initCrudeWorkforcePanel } from '../agents/crudeWorkforcePanel.js';
+// Energy desk (diesel/gasoline/LPG → Cuba): spec-sheet reference, dated +
+// sourced benchmark price log, Cuban receiving-port reference, compliance
+// gate with sanctions hard-stop, broker inquiry pipeline, 3D port pins,
+// AI workforce + panel. SAHJONY is a fee/spread broker — never the buyer
+// or seller of product, zero capital at risk.
+import * as energyEngine from '../energy/energyEngine.js';
+import * as energyStore from '../energy/energyStore.js';
+import { initEnergyPortLayer } from '../energy/energyMapLayer.js';
+import { initEnergyDashboard } from '../energy/energyDashboard.js';
+import { createWorkforce as createEnergyWorkforce } from '../agents/energyWorkforce.js';
+import { initEnergyWorkforcePanel } from '../agents/energyWorkforcePanel.js';
 // Insurance Command Center: shared coverage/claims store, pure insurance
 // engine, 3D state map, AI workforce, mission-control dashboard.
 import * as insuranceEngine from '../insurance/insuranceEngine.js';
@@ -85,6 +96,38 @@ import { initTradeDashboard } from '../trade/tradeDashboard.js';
 import { createWorkforce as createTradeWorkforce } from '../agents/tradeWorkforce.js';
 import { initTradeWorkforcePanel } from '../agents/tradeWorkforcePanel.js';
 import { initCubacashWorkforcePanel } from '../agents/cubacashWorkforcePanel.js';
+// Dedicated Cuba desk (import/export department, Module 2): Spanish-first
+// MIPYME sourcing-request desk. STRICTLY separate from the worldwide global
+// desk (trade): own localStorage key, own pipeline, own workforce track.
+import * as cubaEngine from '../cuba/cubaEngine.js';
+import {
+  createBuyer as cCreateBuyer,
+  getBuyer as cGetBuyer,
+  updateBuyer as cUpdateBuyer,
+  deleteBuyer as cDeleteBuyer,
+  listBuyers as cListBuyers,
+  addBuyerNote as cAddBuyerNote,
+  createRequest as cCreateRequest,
+  getRequest as cGetRequest,
+  updateRequest as cUpdateRequest,
+  moveRequest as cMoveRequest,
+  deleteRequest as cDeleteRequest,
+  listRequests as cListRequests,
+  addRequestNote as cAddRequestNote,
+  createPartner as cCreatePartner,
+  getPartner as cGetPartner,
+  updatePartner as cUpdatePartner,
+  deletePartner as cDeletePartner,
+  listPartners as cListPartners,
+  addPartnerNote as cAddPartnerNote,
+  asWorkforceStore as cAsWorkforceStore,
+  stats as cStats,
+} from '../cuba/cubaStore.js';
+import { parseCubaCsv as parseCubaCsv } from '../cuba/cubaImporter.js';
+import { initCubaMapLayer } from '../cuba/cubaMapLayer.js';
+import { initCubaDashboard } from '../cuba/cubaDashboard.js';
+import { createWorkforce as createCubaWorkforce } from '../agents/cubaWorkforce.js';
+import { initCubaWorkforcePanel } from '../agents/cubaWorkforcePanel.js';
 // Business launcher: one floating button opening the full-screen,
 // phone-first standalone screen for each business (wholesale, crude,
 // insurance, import/export, MY CUBA CASH).
@@ -646,6 +689,85 @@ export function createApplicationTools({
     if (window.__gevCrudeWorkforceUI) delete window.__gevCrudeWorkforceUI;
   });
   debug.crudeWorkforcePanel = crudeWorkforcePanel;
+  // --- Energy desk (diesel/gasoline/LPG → Cuba) ------------------------------
+  // One store (localStorage `sahjony.energy.v1`): broker product inquiries,
+  // dated + sourced benchmark price log (seeded ONLY with values verified
+  // via web search on 2026-09-17), static Cuban receiving-port reference,
+  // compliance-gate checklists, and the escalation queue. SANCTIONS HARD
+  // STOP: the only path past the compliance gate is advanceGate() with an
+  // all-yes checklist — any red flag or unknown answer escalates to Juan
+  // and forces the inquiry to awaiting-juan. Nothing proceeds without him.
+  const energyPortMap = initEnergyPortLayer({
+    viewer,
+    ports: energyStore,
+    signal,
+  });
+  defer(() => {
+    try {
+      energyPortMap.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevEnergyPorts) delete window.__gevEnergyPorts;
+  });
+  debug.energyPortMap = energyPortMap;
+  // AI agentic workforce (energy): spec-analyst, gate-keeper (hard-stop),
+  // economics-memo, logistics-checker, outreach-drafter (DRAFT only).
+  // Runs while the app is open; every output is a draft/note for review —
+  // it never sends, posts, contacts anyone, or answers sanctions questions.
+  const energyWorkforce = createEnergyWorkforce({
+    energyStore: energyStore.asWorkforceStore(),
+    energyEngine,
+    signal,
+  });
+  try {
+    energyWorkforce.setKnownPorts(energyStore.getPorts());
+  } catch {
+    /* no ports configured yet */
+  }
+  window.__gevEnergyWorkforce = energyWorkforce;
+  defer(() => {
+    try {
+      energyWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevEnergyWorkforce === energyWorkforce)
+      delete window.__gevEnergyWorkforce;
+  });
+  debug.energyWorkforce = energyWorkforce;
+  // Mission-control dashboard (energy): compliance gate (first-class),
+  // product spec sheets, benchmark log, inquiry pipeline with broker
+  // economics, logistics checklist, receiving-port reference.
+  const energyDashboard = initEnergyDashboard({
+    storeApi: energyStore,
+    engine: energyEngine,
+    workforce: energyWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      energyDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevEnergy) delete window.__gevEnergy;
+  });
+  debug.energy = energyDashboard;
+  // Energy workforce mission-control panel: agent roster + live activity
+  // feed with hard-stop escalations pinned to the top.
+  const energyWorkforcePanel = initEnergyWorkforcePanel({
+    workforce: energyWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      energyWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+  });
+  debug.energyWorkforcePanel = energyWorkforcePanel;
   // --- Insurance Command Center --------------------------------------------
   // One store (localStorage `sahjony_insurance_v1`, shared with the
   // standalone /insurance/ app on the same origin). Never invents data —
@@ -898,6 +1020,189 @@ export function createApplicationTools({
     if (window.__gevTradeWorkforceUI) delete window.__gevTradeWorkforceUI;
   });
   debug.tradeWorkforcePanel = tradeWorkforcePanel;
+  // --- Dedicated Cuba desk (import/export department, Module 2) --------------
+  // Spanish-first MIPYME sourcing desk. STRICT boundary: own localStorage
+  // key `sahjony.cuba.v1`, own pipeline, workforce track 'cuba'. A sourcing
+  // request is either Cuba-desk or worldwide global-desk — never both.
+  // Nothing here files into the global (trade) pipeline, and vice versa.
+  const cubaMutations = new Set();
+  const notifyCubaMutations = () => {
+    for (const fn of cubaMutations) {
+      try {
+        fn();
+      } catch {
+        /* map refresh is best-effort */
+      }
+    }
+  };
+  const cubaWorkforceRaw = cAsWorkforceStore();
+  const cubaStore = {
+    // Dashboard/map-layer shape (accepted as-is by the dashboard's
+    // adaptStore).
+    listRequests: (filter) => cListRequests(filter),
+    getRequest: (id) => cGetRequest(id),
+    createRequest: (data) => {
+      const req = cCreateRequest(data);
+      if (req) notifyCubaMutations();
+      return req;
+    },
+    updateRequest: (id, patch) => {
+      const req = cUpdateRequest(id, patch);
+      if (req) notifyCubaMutations();
+      return req;
+    },
+    moveRequest: (id, status) => {
+      const req = cMoveRequest(id, status);
+      if (req) notifyCubaMutations();
+      return req;
+    },
+    deleteRequest: (id) => {
+      const ok = cDeleteRequest(id);
+      if (ok) notifyCubaMutations();
+      return ok;
+    },
+    addRequestNote: (id, agent, es, en) => cAddRequestNote(id, agent, es, en),
+    listBuyers: (filter) => cListBuyers(filter),
+    getBuyer: (id) => cGetBuyer(id),
+    createBuyer: (data) => {
+      const buyer = cCreateBuyer(data);
+      if (buyer) notifyCubaMutations();
+      return buyer;
+    },
+    updateBuyer: (id, patch) => {
+      const buyer = cUpdateBuyer(id, patch);
+      if (buyer) notifyCubaMutations();
+      return buyer;
+    },
+    deleteBuyer: (id) => {
+      const ok = cDeleteBuyer(id);
+      if (ok) notifyCubaMutations();
+      return ok;
+    },
+    addBuyerNote: (id, agent, es, en) => cAddBuyerNote(id, agent, es, en),
+    listPartners: (filter) => cListPartners(filter),
+    getPartner: (id) => cGetPartner(id),
+    createPartner: (data) => {
+      const partner = cCreatePartner(data);
+      if (partner) notifyCubaMutations();
+      return partner;
+    },
+    updatePartner: (id, patch) => {
+      const partner = cUpdatePartner(id, patch);
+      if (partner) notifyCubaMutations();
+      return partner;
+    },
+    deletePartner: (id) => {
+      const ok = cDeletePartner(id);
+      if (ok) notifyCubaMutations();
+      return ok;
+    },
+    addPartnerNote: (id, agent, es, en) => cAddPartnerNote(id, agent, es, en),
+    stats: () => cStats(),
+    notes: (id) => cubaWorkforceRaw.notes(id),
+    onMutate: (fn) => {
+      if (typeof fn === 'function') cubaMutations.add(fn);
+      return () => cubaMutations.delete(fn);
+    },
+    // AI workforce engine shape. The engine writes notes under the `notes`
+    // key; the store persists them as `agentNotes` — normalized here so the
+    // dashboard/panel read the same notes the agents write.
+    getAll: () =>
+      cubaWorkforceRaw.getAll().map((r) => ({
+        ...r,
+        notes: cubaWorkforceRaw.notes(r.id),
+      })),
+    get: (id) => {
+      const r = cubaWorkforceRaw.get(id);
+      return r ? { ...r, notes: cubaWorkforceRaw.notes(id) } : null;
+    },
+    update: (id, patch) => {
+      const p = { ...(patch || {}) };
+      if (Array.isArray(p.notes)) {
+        p.agentNotes = p.notes.map((n) => ({
+          at: n.t ?? n.at ?? Date.now(),
+          agent: n.agent || '',
+          es: n.es || '',
+          en: n.en || '',
+        }));
+        delete p.notes;
+      }
+      const req = cubaWorkforceRaw.update(id, p);
+      if (req) notifyCubaMutations();
+      return req;
+    },
+  };
+  // 3D port map: pins for Mariel, La Habana, Santiago de Cuba, Cienfuegos —
+  // real public geography, Spanish-first labels.
+  const cubaMap = initCubaMapLayer({ viewer, signal });
+  defer(() => {
+    try {
+      cubaMap.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCubaMap) delete window.__gevCubaMap;
+  });
+  debug.cubaMap = cubaMap;
+  // AI agentic workforce (Cuba desk): triage, diligence, compliance
+  // (sanctions hard-stop → escalate), outreach/follow-up drafting,
+  // oversight. Browser-only, drafts-only — it never sends, posts,
+  // contacts anyone, or touches the worldwide global desk.
+  const cubaWorkforce = createCubaWorkforce({
+    requestStore: cubaStore,
+    cubaEngine,
+    signal,
+  });
+  try {
+    cubaWorkforce.setBuyers(cubaStore.listBuyers());
+  } catch {
+    /* no buyers configured yet */
+  }
+  window.__gevCubaWorkforce = cubaWorkforce;
+  defer(() => {
+    try {
+      cubaWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCubaWorkforce === cubaWorkforce)
+      delete window.__gevCubaWorkforce;
+  });
+  debug.cubaWorkforce = cubaWorkforce;
+  // Mission-control dashboard (Cuba desk): KPIs, Spanish sourcing-request
+  // intake + triage queue, MIPYME buyer directory (empty until real CRM
+  // records arrive — never invented), partner network, CSV import/export.
+  const cubaDashboard = initCubaDashboard({
+    cubaStore,
+    cubaEngine,
+    cubaMap,
+    workforce: cubaWorkforce,
+    signal,
+    parseCsv: parseCubaCsv,
+  });
+  defer(() => {
+    try {
+      cubaDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCuba) delete window.__gevCuba;
+  });
+  debug.cuba = cubaDashboard;
+  // Cuba-desk workforce mission-control panel: roster + live activity feed.
+  const cubaWorkforcePanel = initCubaWorkforcePanel({
+    workforce: cubaWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      cubaWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCubaWorkforceUI) delete window.__gevCubaWorkforceUI;
+  });
+  debug.cubaWorkforcePanel = cubaWorkforcePanel;
   // --- MY CUBA CASH ---------------------------------------------------------
   // One store (localStorage `sahjony.cubacash.v1`) spoken in the three shapes
   // its consumers expect: the dashboard/map-layer shape, and the AI workforce
@@ -1211,6 +1516,40 @@ export function createApplicationTools({
           /* noop */
         }
       },
+      __energy_open: () => energyDashboard.toggle?.() ?? energyDashboard.open?.(),
+      __energy_specs: () => {
+        try {
+          energyDashboard.openSpecs?.('diesel');
+        } catch {
+          /* noop */
+        }
+      },
+      __energy_gate: () => {
+        try {
+          energyDashboard.openGate?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __energy_workforce_start: () => {
+        try {
+          energyWorkforce.start();
+        } catch {
+          /* noop */
+        }
+        try {
+          energyWorkforcePanel.open?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __energy_workforce_pause: () => {
+        try {
+          energyWorkforce.pause();
+        } catch {
+          /* noop */
+        }
+      },
       __insurance_open: () =>
         insuranceDashboard.toggle?.() ?? insuranceDashboard.open?.(),
       __insurance_view: (args) => {
@@ -1297,6 +1636,34 @@ export function createApplicationTools({
           /* noop */
         }
       },
+      __cuba_open: () => cubaDashboard.toggle?.() ?? cubaDashboard.open?.(),
+      __cuba_analyze: () => {
+        try {
+          cubaWorkforce.processOnce();
+        } catch {
+          /* noop */
+        }
+        cubaDashboard.toggle?.() ?? cubaDashboard.open?.();
+      },
+      __cuba_workforce_start: () => {
+        try {
+          cubaWorkforce.start();
+        } catch {
+          /* noop */
+        }
+        try {
+          cubaWorkforcePanel.open?.();
+        } catch {
+          /* noop */
+        }
+      },
+      __cuba_workforce_pause: () => {
+        try {
+          cubaWorkforce.pause();
+        } catch {
+          /* noop */
+        }
+      },
       __cubacash_open: () =>
         cubacashDashboard.toggle?.() ?? cubacashDashboard.open?.(),
       __cubacash_providers: () =>
@@ -1376,9 +1743,154 @@ export function createApplicationTools({
     tradeWorkforce,
     trade: tradeDashboard,
     tradeWorkforcePanel,
+    cubaMap,
+    cubaWorkforce,
+    cuba: cubaDashboard,
+    cubaWorkforcePanel,
     corridorMap,
     cubacashWorkforce,
     cubacash: cubacashDashboard,
     cubacashWorkforcePanel,
   };
 }
+// Cuba car market A–Z: buyer qualification funnel, Rosmel gestor draft queue
+// (drafts only), competition price panel, deal pipeline with internal-only
+// economics. No public inventory; SAHJONY is a fee broker, never the seller.
+import * as carEngine from '../cars/carEngine.js';
+import {
+  createLead as carCreateLead,
+  getLead as carGetLead,
+  updateLead as carUpdateLead,
+  moveLead as carMoveLead,
+  deleteLead as carDeleteLead,
+  listLeads as carListLeads,
+  addLeadNote as carAddLeadNote,
+  createDeal as carCreateDeal,
+  getDeal as carGetDeal,
+  moveDeal as carMoveDeal,
+  deleteDeal as carDeleteDeal,
+  listDeals as carListDeals,
+  createDraft as carCreateDraft,
+  setDraftState as carSetDraftState,
+  listDrafts as carListDrafts,
+  addSnapshot as carAddSnapshot,
+  listSnapshots as carListSnapshots,
+  getOurPrices as carGetOurPrices,
+  setOurPrice as carSetOurPrice,
+  asWorkforceStore as carAsWorkforceStore,
+  stats as carStats,
+} from '../cars/carStore.js';
+import {
+  parseCompetitionCsv,
+  snapshotsToCsv,
+  sampleCsvTemplate,
+} from '../cars/carImporter.js';
+import { initCarDashboard } from '../cars/carDashboard.js';
+import { createWorkforce as createCarsWorkforce } from '../agents/carsWorkforce.js';
+import { initCarsWorkforcePanel } from '../agents/carsWorkforcePanel.js';
+  // --- CUBA CARS -----------------------------------------------------------
+  // One store (localStorage `sahjony.cars.v1`) spoken in the two shapes its
+  // consumers expect: the dashboard shape and the AI workforce engine shape.
+  // Buyer-facing data only: qualification funnel, Rosmel drafts (drafts
+  // only), competition price snapshots, deal pipeline. Internal economics
+  // live in carEngine's pure functions and are never rendered.
+  const carWorkforceStore = carAsWorkforceStore();
+  const carsStore = {
+    // Dashboard shape.
+    listLeads: (filter) => carListLeads(filter),
+    createLead: (data) => carCreateLead(data),
+    getLead: (id) => carGetLead(id),
+    updateLead: (id, patch) => carUpdateLead(id, patch),
+    moveLead: (id, stage) => carMoveLead(id, stage),
+    deleteLead: (id) => carDeleteLead(id),
+    addLeadNote: (leadId, text) => carAddLeadNote(leadId, text),
+    listDeals: (filter) => carListDeals(filter),
+    createDeal: (data) => carCreateDeal(data),
+    getDeal: (id) => carGetDeal(id),
+    moveDeal: (id, status) => carMoveDeal(id, status),
+    deleteDeal: (id) => carDeleteDeal(id),
+    listDrafts: (filter) => carListDrafts(filter),
+    createDraft: (data) => carCreateDraft(data),
+    setDraftState: (id, state) => carSetDraftState(id, state),
+    addSnapshot: (data) => carAddSnapshot(data),
+    listSnapshots: (filter) => carListSnapshots(filter),
+    getOurPrices: () => carGetOurPrices(),
+    setOurPrice: (model, price) => carSetOurPrice(model, price),
+    stats: () => carStats(),
+    // Workforce shape.
+    getAll: () => carWorkforceStore.getAll(),
+    get: (id) => carWorkforceStore.get(id),
+    update: (id, patch) => carWorkforceStore.update(id, patch),
+    notes: (id) => carWorkforceStore.notes(id),
+    listSnapshotsWs: () => carListSnapshots(),
+    getOurPricesWs: () => carGetOurPrices(),
+  };
+  // AI agentic workforce (Cuba cars): lead qualifier, price watcher, Rosmel
+  // drafter, oversight. Runs while the app is open; every output is a
+  // draft/note for review — it never sends, posts, or contacts anyone.
+  const carsWorkforce = createCarsWorkforce({
+    carStore: carsStore,
+    carEngine,
+    signal,
+  });
+  window.__gevCarsWorkforce = carsWorkforce;
+  defer(() => {
+    try {
+      carsWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCarsWorkforce === carsWorkforce)
+      delete window.__gevCarsWorkforce;
+  });
+  debug.carsWorkforce = carsWorkforce;
+  // Mission-control dashboard (Cuba cars): qualification funnel, Rosmel
+  // draft queue, competition price panel with undercut indicator, deal
+  // pipeline. Buyer prices only — internal economics never rendered.
+  const carParseAdapter = Object.assign(
+    (text) => parseCompetitionCsv(text),
+    {
+      csvTemplate: () => sampleCsvTemplate(),
+      toCsv: (snapshots) => snapshotsToCsv(snapshots),
+    },
+  );
+  const carsDashboard = initCarDashboard({
+    carStore: carsStore,
+    carEngine,
+    workforce: carsWorkforce,
+    signal,
+    parseCsv: carParseAdapter,
+  });
+  window.__gevCars = carsDashboard;
+  defer(() => {
+    try {
+      carsDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCars === carsDashboard) delete window.__gevCars;
+  });
+  debug.cars = carsDashboard;
+  // Cars workforce mission-control panel: agent roster + live activity feed.
+  const carsWorkforcePanel = initCarsWorkforcePanel({
+    workforce: carsWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      carsWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCarsWorkforceUI) delete window.__gevCarsWorkforceUI;
+  });
+  debug.carsWorkforcePanel = carsWorkforcePanel;
+      __cars_open: () => carsDashboard.toggle?.() ?? carsDashboard.open?.(),
+      __cars_funnel: () =>
+        carsDashboard.openSection?.('funnel') ??
+        carsDashboard.toggle?.() ??
+        carsDashboard.open?.(),
+      __cars_prices: () =>
+        carsDashboard.openSection?.('prices') ??
+        carsDashboard.toggle?.() ??
+        carsDashboard.open?.(),
