@@ -434,6 +434,38 @@ export function parseSahjonyCommand(rawText) {
       },
     };
   }
+  // --- dedicated cuba desk workforce phrases ---
+  // These MUST precede the generic workforce match below: the generic stem
+  // ("inicia los agentes" / "pausa los agentes") would otherwise shadow the
+  // Cuba-desk phrases.
+  if (
+    /\b(inicia los agentes de cuba|start the cuba workforce|start cuba agents|activa los agentes de cuba|inicia el equipo cuba|activate the cuba desk team)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cuba_workforce_start',
+      args: {},
+      say: {
+        es: 'Agentes de la mesa Cuba activados. A trabajar.',
+        en: 'Cuba desk workforce activated. Getting to work.',
+      },
+    };
+  }
+  if (
+    /\b(pausa los agentes de cuba|pause the cuba workforce|pause cuba agents|deten los agentes de cuba)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cuba_workforce_pause',
+      args: {},
+      say: {
+        es: 'Agentes de la mesa Cuba en pausa',
+        en: 'Cuba desk agents paused',
+      },
+    };
+  }
   if (
     /\b(inicia los agentes|enciende los agentes|start the workforce|start agents|activate agents|pon a trabajar)\b/.test(
       text,
@@ -727,6 +759,40 @@ export function parseSahjonyCommand(rawText) {
       action: '__trade_workforce_pause',
       args: {},
       say: { es: 'Agentes de comercio en pausa', en: 'Trade agents paused' },
+    };
+  }
+  // --- dedicated cuba desk (import/export department, module 2) ---
+  // Spanish-first MIPYME desk — separate from the worldwide trade desk.
+  // (Cuba workforce start/pause phrases live above the generic workforce
+  // match so the generic stem does not shadow them.)
+  // NOTE: analyze precedes open — "analiza la mesa cuba" contains the
+  // "mesa cuba" stem, and the more specific intent must win.
+  if (
+    /\b(analiza la mesa cuba|analiza cuba|analyze the cuba desk|analyze cuba|mejores solicitudes cuba|best cuba requests|revisar solicitudes cuba|review cuba requests)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cuba_analyze',
+      args: {},
+      say: {
+        es: 'Analizando las solicitudes de la mesa Cuba',
+        en: 'Analyzing the Cuba desk requests',
+      },
+    };
+  }
+  if (
+    /\b(modo cuba|cuba mode|mesa cuba|cuba desk|abre cuba|open cuba|panel cuba|cuba panel|solicitudes de cuba|cuba sourcing|triaje cuba|cuba triage)\b/.test(
+      text,
+    )
+  ) {
+    return {
+      action: '__cuba_open',
+      args: {},
+      say: {
+        es: 'Abriendo la mesa Cuba',
+        en: 'Opening the Cuba desk',
+      },
     };
   }
   // --- map views ---
