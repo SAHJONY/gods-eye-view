@@ -3,8 +3,9 @@
  *
  * Mission-control panel for the crude oil brokerage pipeline:
  * KPI row, status pipeline columns, cargo cards, editable detail drawer with
- * deal math (spread / margins / commission), a counterparty manager, CSV
- * import/export, and a bilingual in-panel commission draft that is NEVER
+ * deal math (spread / margins / commission / netback), a counterparty manager
+ * with a structured diligence checklist (sanctions red flags auto-escalate),
+ * CSV import/export, and a bilingual in-panel commission draft that is NEVER
  * sent anywhere.
  *
  * Pure helpers (STATUSES, parseCargoesCsv, cargoesToCsv, csvTemplate,
@@ -13,6 +14,21 @@
  * lives in initCrudeDashboard(). This module intentionally does NOT touch
  * Cesium — the map layer owns the 3D entities.
  */
+
+import {
+  cargoPnL,
+  formatMoney as engineFormatMoney,
+  formatBbl as engineFormatBbl,
+} from './cargoEngine.js';
+import {
+  DILIGENCE_ITEMS,
+  DILIGENCE_CATEGORIES,
+  CATEGORY_LABELS,
+  DILIGENCE_STATUS_LABELS,
+  evaluateDiligence,
+  SANCTIONS_BANNER,
+} from './diligenceChecklist.js';
+import { stalenessLabel } from './benchmarkLog.js';
 
 export const STATUSES = [
   { id: 'prospect', es: 'Prospectos', en: 'Prospects' },
@@ -86,6 +102,143 @@ export function statusPillClass(status) {
 function round2(n) {
   const v = Number(n) || 0;
   return Math.round(v * 100) / 100;
+}
+
+/** CSS pill class from a diligence status: clear|pending|escalate. */
+export function diligencePillClass(status) {
+  const s = String(status || '').toLowerCase();
+  if (s === 'clear') return 'green';
+  if (s === 'escalate') return 'red';
+  return 'yellow';
+}
+
+/** Bilingual diligence status label. */
+export function diligenceLabel(status, lang = 'es') {
+  const entry = DILIGENCE_STATUS_LABELS[String(status || '').toLowerCase()];
+  if (!entry) return lang === 'es' ? 'Diligencia pendiente' : 'Diligence pending';
+  return lang === 'es' ? entry.es : entry.en;
+}
+
+/**
+ * Economics drawer rows for one cargo (pure, uses the engine's cargoPnL).
+ * Returns { commission: [{label, value}], netback: null | {rows, deductions} }
+ * with bilingual labels. Netback rows only when a benchmark price exists.
+ */
+export function economicsRows(cargo = {}, lang = 'es', money = null) {
+  const L = lang === 'es';
+  const fmt =
+    typeof money === 'function'
+      ? money
+      : (n) => engineFormatMoney(n);
+  const pnl = cargoPnL(cargo);
+  const perBbl = (n) => {
+    const v = Number(n);
+    const shown = Number.isFinite(v) ? v : 0;
+    return `$${shown.toFixed(2)}`;
+  };
+  const commission = [
+    {
+      es: 'Comisión ($/bbl)',
+      en: 'Commission ($/bbl)',
+      value: perBbl(pnl.broker.commissionPerBbl),
+    },
+    {
+      es: 'Comisión total (bróker)',
+      en: 'Commission total (broker)',
+      value: fmt(pnl.broker.commissionTotal),
+    },
+  ];
+  let netback = null;
+  if (pnl.netback) {
+    const nb = pnl.netback;
+    netback = {
+      title: L ? 'NETBACK ($/bbl)' : 'NETBACK ($/bbl)',
+      benchmark: {
+        es: 'Precio referencia',
+        en: 'Benchmark price',
+        value: perBbl(nb.benchmarkPrice),
+      },
+      deductions: nb.deductions.map((d) => ({
+        es: d.es,
+        en: d.en,
+        value: perBbl(d.amountPerBbl),
+      })),
+      totalDeductions: {
+        es: 'Deducciones totales',
+        en: 'Total deductions',
+        value: perBbl(nb.totalDeductionsPerBbl),
+      },
+      netbackPerBbl: {
+        es: 'Netback por barril',
+        en: 'Netback per barrel',
+        value: perBbl(nb.netbackPerBbl),
+      },
+    };
+  }
+  return { commission, netback };
+}
+
+/** Today's date (YYYY-MM-DD) in America/Chicago. */
+export function todayChicago() {
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Chicago',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+    const get = (t) => parts.find((p) => p.type === t)?.value ?? '00';
+    return `${get('year')}-${get('month')}-${get('day')}`;
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
+/**
+ * The dashboard speaks two cargo shapes: the real store (volumeBbl, buyPrice,
+ * sellPrice, costs object) and the memory/CSV shape (volume, buy, sell,
+ * costs number). Alias map keeps the drawer reading/writing both.
+ */
+export const FIELD_ALIASES = Object.freeze({
+  volume: 'volumeBbl',
+  buy: 'buyPrice',
+  sell: 'sellPrice',
+});
+
+/** Read a drawer field from either cargo shape. */
+export function cargoFieldValue(cargo = {}, key) {
+  if (!cargo || typeof cargo !== 'object') return undefined;
+  if (cargo[key] !== undefined && cargo[key] !== null) return cargo[key];
+  const alias = FIELD_ALIASES[key];
+  if (alias && cargo[alias] !== undefined && cargo[alias] !== null)
+    return cargo[alias];
+  return undefined;
+}
+
+/**
+ * Normalize any drawer cargo to the engine shape (pure).
+ * Costs may be a single number (memory shape) or a bucket object.
+ */
+export function toEngineCargo(cargo = {}) {
+  const c = cargo && typeof cargo === 'object' ? cargo : {};
+  const costs =
+    typeof c.costs === 'number'
+      ? { freight: 0, insurance: 0, inspection: 0, other: c.costs }
+      : c.costs || {};
+  return {
+    ...c,
+    volumeBbl: c.volumeBbl ?? c.volume,
+    buyPrice: c.buyPrice ?? c.buy,
+    sellPrice: c.sellPrice ?? c.sell,
+    costs,
+    netback: {
+      benchmarkPrice: c.benchmarkPrice,
+      freightPerBbl: c.freightPerBbl,
+      insurancePerBbl: c.insurancePerBbl,
+      warRiskPerBbl: c.warRiskPerBbl,
+      adjustments: c.netbackAdjustments || [],
+    },
+  };
 }
 
 /**
@@ -472,6 +625,42 @@ export function adaptStore(raw) {
     }
     return null;
   };
+  const seedBenchmarks = () => {
+    try {
+      if (typeof raw.seedBenchmarks === 'function') return raw.seedBenchmarks();
+    } catch {
+      /* noop */
+    }
+    return [];
+  };
+  const latestBenchmark = (grade) => {
+    try {
+      seedBenchmarks();
+      if (typeof raw.latestBenchmark === 'function')
+        return raw.latestBenchmark(grade) || null;
+    } catch {
+      /* noop */
+    }
+    return null;
+  };
+  const setDiligenceItem = (cpId, itemId, patch) => {
+    try {
+      if (typeof raw.setDiligenceItem === 'function')
+        return raw.setDiligenceItem(cpId, itemId, patch);
+    } catch {
+      /* noop */
+    }
+    return null;
+  };
+  const getDiligenceEvaluation = (cpId) => {
+    try {
+      if (typeof raw.getDiligenceEvaluation === 'function')
+        return raw.getDiligenceEvaluation(cpId);
+    } catch {
+      /* noop */
+    }
+    return null;
+  };
   return {
     list,
     byId,
@@ -521,6 +710,10 @@ export function adaptStore(raw) {
     counterpartyById,
     addCounterparty,
     updateCounterparty,
+    seedBenchmarks,
+    latestBenchmark,
+    setDiligenceItem,
+    getDiligenceEvaluation,
     addCounterpartyNote(id, text) {
       try {
         if (typeof raw.addCounterpartyNote === 'function')
@@ -722,6 +915,20 @@ const CC_CSS = `
 #gev-crude-counterparties .cprow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;color:#c8d4e4;border-bottom:1px solid rgba(255,180,84,.08)}
 #gev-crude-counterparties .cpform{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
 #gev-crude-counterparties input,#gev-crude-counterparties select{background:rgba(255,255,255,.05);border:1px solid rgba(255,180,84,.3);border-radius:8px;color:#fff;padding:6px 8px;font-size:11px;font-family:inherit;min-width:0}
+/* Module 4 v1 — phone-first overrides: 16px inputs, 44px touch targets */
+#gev-crude-drawer input,#gev-crude-drawer select,#gev-crude-drawer textarea{font-size:16px;min-height:44px}
+#gev-crude-drawer .ccp-btn{min-height:44px}
+#gev-crude-drawer .bhint{font-size:10px;color:#9fb0c9;margin:-2px 0 6px}
+#gev-crude-counterparties input,#gev-crude-counterparties select{font-size:16px;min-height:44px}
+#gev-crude-counterparties .ccp-btn{min-height:44px}
+#gev-crude-counterparties .dlg{border-top:1px solid rgba(255,180,84,.15);margin-top:6px;padding-top:6px}
+#gev-crude-counterparties .dlg-cat{font-size:10px;font-weight:800;letter-spacing:.08em;color:#ffb454;margin:10px 0 2px}
+#gev-crude-counterparties .dlg-item{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
+#gev-crude-counterparties .dlg-label{flex:1;font-size:11px;color:#c8d4e4;padding-top:10px}
+#gev-crude-counterparties .dlg-toggle{min-height:44px;padding:8px 12px;border-radius:9px;border:1px solid rgba(255,180,84,.4);background:rgba(255,180,84,.08);color:#ffe9c9;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+#gev-crude-counterparties .dlg-toggle.done{background:rgba(52,211,153,.15);border-color:rgba(52,211,153,.5);color:#34d399}
+#gev-crude-counterparties .dlg-toggle.flagged{background:rgba(248,113,113,.18);border-color:rgba(248,113,113,.6);color:#f87171}
+#gev-crude-counterparties .dlg-banner{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.5);border-radius:10px;padding:10px;font-size:11px;color:#fca5a5;margin:8px 0}
 `;
 
 function injectStyles() {
@@ -774,6 +981,7 @@ export function initCrudeDashboard({
   let btnEl = null;
   let selectedId = null;
   let editingCpId = null;
+  let openDiligenceId = null;
   const t = (es, en) => (lang === 'es' ? es : en);
   const refs = {
     kpis: null,
@@ -884,6 +1092,30 @@ export function initCrudeDashboard({
     }
   }
 
+  /** Read-only hint under the benchmark input: latest log entries + staleness. */
+  function benchmarkHint() {
+    const hint = document.createElement('div');
+    hint.className = 'bhint';
+    const today = todayChicago();
+    const parts = [];
+    for (const grade of ['WTI', 'Brent']) {
+      try {
+        const b = store.latestBenchmark(grade);
+        if (b) {
+          parts.push(
+            `${b.grade} $${Number(b.price).toFixed(2)} · ${b.date || '—'} (${stalenessLabel(b, today, lang)})`,
+          );
+        }
+      } catch {
+        /* best-effort */
+      }
+    }
+    hint.textContent = parts.length
+      ? `${t('Registro:', 'Log:')} ${parts.join('  |  ')}`
+      : t('Sin registros de precio', 'No price entries logged');
+    return hint;
+  }
+
   function renderCounterparties() {
     const box = panelEl?.querySelector('#gev-crude-counterparties');
     if (!box) return;
@@ -934,6 +1166,16 @@ export function initCrudeDashboard({
       const vpill = document.createElement('span');
       vpill.className = `pill ${verificationPill(cp.verification)}`;
       vpill.textContent = verificationLabel(cp.verification, lang);
+      const { pill: dpill } = diligencePillFor(cp);
+      const dlgBtn = document.createElement('button');
+      dlgBtn.className = 'ccp-btn';
+      dlgBtn.type = 'button';
+      dlgBtn.style.padding = '4px 8px';
+      dlgBtn.textContent = t('Diligencia', 'Diligence');
+      dlgBtn.addEventListener('click', () => {
+        openDiligenceId = openDiligenceId === cp.id ? null : cp.id;
+        renderCounterparties();
+      });
       const editBtn = document.createElement('button');
       editBtn.className = 'ccp-btn';
       editBtn.type = 'button';
@@ -941,10 +1183,22 @@ export function initCrudeDashboard({
       editBtn.textContent = t('Editar', 'Edit');
       editBtn.addEventListener('click', () => startEditCounterparty(cp.id));
       right.appendChild(vpill);
+      right.appendChild(dpill);
+      right.appendChild(dlgBtn);
       right.appendChild(editBtn);
       row.appendChild(left);
       row.appendChild(right);
       list.appendChild(row);
+      if (openDiligenceId === cp.id) {
+        // Re-fetch so the editor sees the latest normalized diligence state.
+        let fresh = cp;
+        try {
+          fresh = store.counterpartyById(cp.id) || cp;
+        } catch {
+          /* keep cp */
+        }
+        renderDiligenceEditor(fresh, list);
+      }
     }
     box.appendChild(list);
     renderCpForm(box);
@@ -1049,6 +1303,105 @@ export function initCrudeDashboard({
     renderCounterparties();
   }
 
+  /** Diligence evaluation for a counterparty, via the store or the pure module. */
+  function diligenceEvalFor(cp) {
+    try {
+      const fromStore = store.getDiligenceEvaluation(cp?.id);
+      if (fromStore) return fromStore;
+    } catch {
+      /* fall through to pure evaluation */
+    }
+    return evaluateDiligence(cp?.diligence || {});
+  }
+
+  function diligencePillFor(cp) {
+    const ev = diligenceEvalFor(cp);
+    const pill = document.createElement('span');
+    pill.className = `pill ${diligencePillClass(ev.status)}`;
+    pill.textContent = `${diligenceLabel(ev.status, lang)} · ${ev.score}%`;
+    return { pill, ev };
+  }
+
+  /** Toggle-button label for one checklist item state. */
+  function diligenceToggleLabel(item, st) {
+    if (item.kind === 'redflag') {
+      return st.status === 'flagged'
+        ? t('🚩 Marcada', '🚩 Flagged')
+        : t('Marcar bandera', 'Flag red flag');
+    }
+    return st.status === 'done'
+      ? t('✓ Hecho', '✓ Done')
+      : t('Marcar hecho', 'Mark done');
+  }
+
+  /** Inline diligence checklist editor for one counterparty. */
+  function renderDiligenceEditor(cp, container) {
+    const wrap = document.createElement('div');
+    wrap.className = 'dlg';
+    const ev = diligenceEvalFor(cp);
+    if (ev.status === 'escalate') {
+      const banner = document.createElement('div');
+      banner.className = 'dlg-banner';
+      banner.textContent = t(SANCTIONS_BANNER.es, SANCTIONS_BANNER.en);
+      wrap.appendChild(banner);
+    }
+    for (const cat of DILIGENCE_CATEGORIES) {
+      const catLabel = CATEGORY_LABELS[cat];
+      const catEl = document.createElement('div');
+      catEl.className = 'dlg-cat';
+      catEl.textContent = t(catLabel.es, catLabel.en).toUpperCase();
+      wrap.appendChild(catEl);
+      for (const item of DILIGENCE_ITEMS.filter((i) => i.category === cat)) {
+        const st = (cp.diligence && cp.diligence[item.id]) || {
+          status: 'open',
+          ref: '',
+          note: '',
+        };
+        const row = document.createElement('div');
+        row.className = 'dlg-item';
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = `dlg-toggle ${st.status}`;
+        toggle.textContent = diligenceToggleLabel(item, st);
+        toggle.addEventListener('click', () => {
+          let next;
+          if (item.kind === 'redflag') {
+            next = st.status === 'flagged' ? 'open' : 'flagged';
+          } else {
+            next = st.status === 'done' ? 'open' : 'done';
+          }
+          store.setDiligenceItem(cp.id, item.id, { status: next });
+          refresh();
+        });
+        const label = document.createElement('div');
+        label.className = 'dlg-label';
+        label.textContent = t(item.es, item.en);
+        row.appendChild(toggle);
+        row.appendChild(label);
+        if (item.kind === 'ref') {
+          const refInput = document.createElement('input');
+          refInput.type = 'text';
+          refInput.placeholder = t('Referencia…', 'Reference…');
+          refInput.value = st.ref || '';
+          refInput.addEventListener('change', () => {
+            store.setDiligenceItem(cp.id, item.id, {
+              ref: refInput.value,
+              status: refInput.value.trim() ? 'done' : st.status,
+            });
+            refresh();
+          });
+          const refWrap = document.createElement('div');
+          refWrap.style.cssText = 'flex-basis:100%;margin-top:-4px';
+          refWrap.appendChild(refInput);
+          row.appendChild(refWrap);
+          row.style.flexWrap = 'wrap';
+        }
+        wrap.appendChild(row);
+      }
+    }
+    container.appendChild(wrap);
+  }
+
   function renderDrawerBody() {
     const drawer = refs.drawer;
     if (!drawer) return;
@@ -1099,6 +1452,10 @@ export function initCrudeDashboard({
         'number',
       ],
       ['costs', t('Costos ($)', 'Costs ($)'), 'number'],
+      ['benchmarkPrice', t('Precio referencia ($/bbl)', 'Benchmark ($/bbl)'), 'number'],
+      ['freightPerBbl', t('Flete ($/bbl)', 'Freight ($/bbl)'), 'number'],
+      ['insurancePerBbl', t('Seguro ($/bbl)', 'Insurance ($/bbl)'), 'number'],
+      ['warRiskPerBbl', t('Riesgo de guerra ($/bbl)', 'War risk ($/bbl)'), 'number'],
       ['incoterms', 'Incoterms', 'text'],
       ['laycan', 'Laycan', 'text'],
       ['loadPort', t('Puerto de carga', 'Load port'), 'text'],
@@ -1141,13 +1498,16 @@ export function initCrudeDashboard({
       } else {
         input = document.createElement('input');
         input.type = kind === 'number' ? 'number' : 'text';
-        input.value = cargo[key] ?? '';
+        input.value = cargoFieldValue(cargo, key) ?? '';
       }
       input.dataset.field = key;
       input.addEventListener('change', () => {
         const patch = {};
         if (kind === 'number') patch[key] = Number(input.value) || 0;
         else patch[key] = input.value;
+        // Keep both cargo shapes in sync (real store uses volumeBbl/…).
+        const alias = FIELD_ALIASES[key];
+        if (alias) patch[alias] = patch[key];
         if (key === 'status') store.move(selectedId, patch[key]);
         else store.update(selectedId, patch);
         refresh();
@@ -1156,6 +1516,9 @@ export function initCrudeDashboard({
       drawer.appendChild(input);
       refs.drawerFields = refs.drawerFields || {};
       refs.drawerFields[key] = input;
+      if (key === 'benchmarkPrice') {
+        drawer.appendChild(benchmarkHint());
+      }
     }
 
     const math = document.createElement('div');
@@ -1188,6 +1551,68 @@ export function initCrudeDashboard({
       math.appendChild(r);
     }
     drawer.appendChild(math);
+
+    // Broker economics + netback (engine shape, both cargo shapes supported).
+    const econ = economicsRows(toEngineCargo(cargo), lang, fmtMoney);
+    const broker = document.createElement('div');
+    broker.className = 'math';
+    const bTitle = document.createElement('div');
+    bTitle.style.cssText =
+      'font-size:10px;font-weight:800;letter-spacing:.08em;color:#ffb454;margin-bottom:6px';
+    bTitle.textContent = t('ECONOMÍA DEL BRÓKER', 'BROKER ECONOMICS');
+    broker.appendChild(bTitle);
+    for (const row of econ.commission) {
+      const r = document.createElement('div');
+      r.className = 'mrow';
+      const lab = document.createElement('span');
+      lab.textContent = t(row.es, row.en);
+      const b = document.createElement('b');
+      b.textContent = row.value;
+      r.appendChild(lab);
+      r.appendChild(b);
+      broker.appendChild(r);
+    }
+    const basis = document.createElement('div');
+    basis.style.cssText = 'font-size:10px;color:#9fb0c9;margin-top:6px';
+    basis.textContent = t(
+      'SAHJONY = corredor por comisión: nunca toma título ni arriesga capital.',
+      'SAHJONY = commission broker: never takes title, zero capital at risk.',
+    );
+    broker.appendChild(basis);
+    if (econ.netback) {
+      const nb = econ.netback;
+      const nbTitle = document.createElement('div');
+      nbTitle.style.cssText =
+        'font-size:10px;font-weight:800;letter-spacing:.08em;color:#ffb454;margin:10px 0 6px';
+      nbTitle.textContent = t(nb.title, nb.title);
+      broker.appendChild(nbTitle);
+      const nbRows = [
+        nb.benchmark,
+        ...nb.deductions,
+        nb.totalDeductions,
+        nb.netbackPerBbl,
+      ];
+      for (const row of nbRows) {
+        const r = document.createElement('div');
+        r.className = 'mrow';
+        const lab = document.createElement('span');
+        lab.textContent = t(row.es, row.en);
+        const b = document.createElement('b');
+        b.textContent = row.value;
+        r.appendChild(lab);
+        r.appendChild(b);
+        broker.appendChild(r);
+      }
+    } else {
+      const nbEmpty = document.createElement('div');
+      nbEmpty.style.cssText = 'font-size:10px;color:#5b6b82;margin-top:8px';
+      nbEmpty.textContent = t(
+        'Sin precio de referencia — el netback aparece cuando lo agregas arriba.',
+        'No benchmark price — netback appears once you add it above.',
+      );
+      broker.appendChild(nbEmpty);
+    }
+    drawer.appendChild(broker);
 
     const notesTitle = document.createElement('div');
     notesTitle.style.cssText =
