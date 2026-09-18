@@ -1753,3 +1753,144 @@ export function createApplicationTools({
     cubacashWorkforcePanel,
   };
 }
+// Cuba car market A–Z: buyer qualification funnel, Rosmel gestor draft queue
+// (drafts only), competition price panel, deal pipeline with internal-only
+// economics. No public inventory; SAHJONY is a fee broker, never the seller.
+import * as carEngine from '../cars/carEngine.js';
+import {
+  createLead as carCreateLead,
+  getLead as carGetLead,
+  updateLead as carUpdateLead,
+  moveLead as carMoveLead,
+  deleteLead as carDeleteLead,
+  listLeads as carListLeads,
+  addLeadNote as carAddLeadNote,
+  createDeal as carCreateDeal,
+  getDeal as carGetDeal,
+  moveDeal as carMoveDeal,
+  deleteDeal as carDeleteDeal,
+  listDeals as carListDeals,
+  createDraft as carCreateDraft,
+  setDraftState as carSetDraftState,
+  listDrafts as carListDrafts,
+  addSnapshot as carAddSnapshot,
+  listSnapshots as carListSnapshots,
+  getOurPrices as carGetOurPrices,
+  setOurPrice as carSetOurPrice,
+  asWorkforceStore as carAsWorkforceStore,
+  stats as carStats,
+} from '../cars/carStore.js';
+import {
+  parseCompetitionCsv,
+  snapshotsToCsv,
+  sampleCsvTemplate,
+} from '../cars/carImporter.js';
+import { initCarDashboard } from '../cars/carDashboard.js';
+import { createWorkforce as createCarsWorkforce } from '../agents/carsWorkforce.js';
+import { initCarsWorkforcePanel } from '../agents/carsWorkforcePanel.js';
+  // --- CUBA CARS -----------------------------------------------------------
+  // One store (localStorage `sahjony.cars.v1`) spoken in the two shapes its
+  // consumers expect: the dashboard shape and the AI workforce engine shape.
+  // Buyer-facing data only: qualification funnel, Rosmel drafts (drafts
+  // only), competition price snapshots, deal pipeline. Internal economics
+  // live in carEngine's pure functions and are never rendered.
+  const carWorkforceStore = carAsWorkforceStore();
+  const carsStore = {
+    // Dashboard shape.
+    listLeads: (filter) => carListLeads(filter),
+    createLead: (data) => carCreateLead(data),
+    getLead: (id) => carGetLead(id),
+    updateLead: (id, patch) => carUpdateLead(id, patch),
+    moveLead: (id, stage) => carMoveLead(id, stage),
+    deleteLead: (id) => carDeleteLead(id),
+    addLeadNote: (leadId, text) => carAddLeadNote(leadId, text),
+    listDeals: (filter) => carListDeals(filter),
+    createDeal: (data) => carCreateDeal(data),
+    getDeal: (id) => carGetDeal(id),
+    moveDeal: (id, status) => carMoveDeal(id, status),
+    deleteDeal: (id) => carDeleteDeal(id),
+    listDrafts: (filter) => carListDrafts(filter),
+    createDraft: (data) => carCreateDraft(data),
+    setDraftState: (id, state) => carSetDraftState(id, state),
+    addSnapshot: (data) => carAddSnapshot(data),
+    listSnapshots: (filter) => carListSnapshots(filter),
+    getOurPrices: () => carGetOurPrices(),
+    setOurPrice: (model, price) => carSetOurPrice(model, price),
+    stats: () => carStats(),
+    // Workforce shape.
+    getAll: () => carWorkforceStore.getAll(),
+    get: (id) => carWorkforceStore.get(id),
+    update: (id, patch) => carWorkforceStore.update(id, patch),
+    notes: (id) => carWorkforceStore.notes(id),
+    listSnapshotsWs: () => carListSnapshots(),
+    getOurPricesWs: () => carGetOurPrices(),
+  };
+  // AI agentic workforce (Cuba cars): lead qualifier, price watcher, Rosmel
+  // drafter, oversight. Runs while the app is open; every output is a
+  // draft/note for review — it never sends, posts, or contacts anyone.
+  const carsWorkforce = createCarsWorkforce({
+    carStore: carsStore,
+    carEngine,
+    signal,
+  });
+  window.__gevCarsWorkforce = carsWorkforce;
+  defer(() => {
+    try {
+      carsWorkforce.pause();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCarsWorkforce === carsWorkforce)
+      delete window.__gevCarsWorkforce;
+  });
+  debug.carsWorkforce = carsWorkforce;
+  // Mission-control dashboard (Cuba cars): qualification funnel, Rosmel
+  // draft queue, competition price panel with undercut indicator, deal
+  // pipeline. Buyer prices only — internal economics never rendered.
+  const carParseAdapter = Object.assign(
+    (text) => parseCompetitionCsv(text),
+    {
+      csvTemplate: () => sampleCsvTemplate(),
+      toCsv: (snapshots) => snapshotsToCsv(snapshots),
+    },
+  );
+  const carsDashboard = initCarDashboard({
+    carStore: carsStore,
+    carEngine,
+    workforce: carsWorkforce,
+    signal,
+    parseCsv: carParseAdapter,
+  });
+  window.__gevCars = carsDashboard;
+  defer(() => {
+    try {
+      carsDashboard.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCars === carsDashboard) delete window.__gevCars;
+  });
+  debug.cars = carsDashboard;
+  // Cars workforce mission-control panel: agent roster + live activity feed.
+  const carsWorkforcePanel = initCarsWorkforcePanel({
+    workforce: carsWorkforce,
+    signal,
+  });
+  defer(() => {
+    try {
+      carsWorkforcePanel.destroy();
+    } catch {
+      /* noop */
+    }
+    if (window.__gevCarsWorkforceUI) delete window.__gevCarsWorkforceUI;
+  });
+  debug.carsWorkforcePanel = carsWorkforcePanel;
+      __cars_open: () => carsDashboard.toggle?.() ?? carsDashboard.open?.(),
+      __cars_funnel: () =>
+        carsDashboard.openSection?.('funnel') ??
+        carsDashboard.toggle?.() ??
+        carsDashboard.open?.(),
+      __cars_prices: () =>
+        carsDashboard.openSection?.('prices') ??
+        carsDashboard.toggle?.() ??
+        carsDashboard.open?.(),

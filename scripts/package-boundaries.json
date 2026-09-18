@@ -2750,3 +2750,10 @@
     "external": []
   }
 }
+      "src/cars/carTime.js",
+      "src/cars/carEngine.js",
+      "src/cars/carStore.js",
+      "src/cars/carImporter.js",
+      "src/cars/carDashboard.js",
+      "src/agents/carsWorkforce.js",
+      "src/agents/carsWorkforcePanel.js",
