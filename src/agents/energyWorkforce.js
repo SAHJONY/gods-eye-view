@@ -26,10 +26,9 @@
  *   - All outputs are drafts, notes, and memos stored inside the inquiry
  *     record. The UI decides what Juan sees; the engine only proposes.
  *
- * This module is self-contained on the workforce-core spec (the shared
- * src/agents/workforceCore.js lands on the trade-platform-workforce branch):
- * AGENT_TIERS, SANCTIONS_HARD_STOP, escalate(), logAction(), classifyTrack()
- * keep the exact core semantics so the later refactor is behavior-preserving.
+ * This module imports the shared workforce core (src/agents/workforceCore.js):
+ * AGENT_TIERS comes from the core's single source of truth; SANCTIONS_HARD_STOP,
+ * escalate(), logAction(), classifyTrack() keep the exact core semantics.
  *
  * Injected collaborators:
  *   - energyStore: { getAll(), get(id), update(id, patch), notes(id) }
@@ -51,12 +50,10 @@ export const WORKFORCE_LOG_KEY = 'sahjony.workforce.energy.log.v1';
 export const ESCALATION_LOG_KEY = 'sahjony.workforce.energy.escalations.v1';
 export const LOG_CAP = 300;
 
-/** Authority tiers — there is NO execute tier. Nothing external without Juan. */
-export const AGENT_TIERS = Object.freeze({
-  READ: 'read',
-  DRAFT: 'draft',
-  PROPOSE: 'propose',
-});
+/** Authority tiers — single source of truth in the workforce core.
+ *  There is NO execute tier. Nothing external without Juan. */
+import { AGENT_TIERS } from './workforceCore.js';
+export { AGENT_TIERS };
 
 /** Any sanctions/customs/embargo content → escalate always, never answer. */
 export const SANCTIONS_HARD_STOP = Object.freeze({
