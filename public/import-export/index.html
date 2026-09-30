@@ -108,6 +108,15 @@ r_supplier:"Supplier",r_buyer:"Buyer",r_both:"Both",
 ver_unverified:"Unverified",ver_in_review:"In review",ver_verified:"Verified",ver_flagged:"Flagged",
 export:"Export backup",import:"Import backup",badfile:"Bad file — import cancelled.",
 impreplace:"Importing replaces all RFQs and suppliers on this device. Continue?",
+tmi:"📊 Market Intel",
+mi_updated:"Owner screen · data as of 2026-09-30 · refreshed by the 24/7 scan",
+mi_ranking:"🇨🇺 Cuba demand ranking",mi_channel:"Channel",mi_price:"Last price",
+mi_sighted:"sighted",mi_estimated:"estimated — not quotable",mi_none:"No price sighting yet",
+mi_cargo:"🚢 Cargo inbound",mi_flow:"US→Cuba flow",mi_vessels:"Confirmed vessels (Sep 2026)",
+mi_fuel:"⛽ Fuel — special case",mi_fuelnote:"Excluded from the demand ranking (legal flag).",
+mi_scp:"Legal flag: US fuel is OWN-USE ONLY under the BIS SCP exception (Feb 2026) — resale prohibited. SAHJONY brokers fuel for own-use buyers only, never retail.",
+mi_alert:"⚠️ Logistics alert",mi_dir:"📇 Sourcing directory",mi_where:"Where to buy",
+mi_contact:"Contacts",mi_viaweb:"via official website",
 missing:"Missing",
 disclaimer:"Broker-for-a-fee tool: SAHJONY never takes custody of goods or funds. Verify every counterparty, contract term, and price independently before committing. Nothing here is legal or financial advice."},
 es:{appsub:"Pipeline de RFQs + proveedores del negocio de importación/exportación. SAHJONY actúa como bróker por comisión — nunca es el comprador final.",
@@ -139,6 +148,15 @@ r_supplier:"Proveedor",r_buyer:"Comprador",r_both:"Ambos",
 ver_unverified:"Sin verificar",ver_in_review:"En revisión",ver_verified:"Verificado",ver_flagged:"Marcado",
 export:"Exportar respaldo",import:"Importar respaldo",badfile:"Archivo inválido — importación cancelada.",
 impreplace:"Importar reemplaza todos los RFQs y proveedores en este dispositivo. ¿Continuar?",
+tmi:"📊 Mercado",
+mi_updated:"Pantalla del dueño · datos al 30/sep/2026 · se refrescan con el escaneo 24/7",
+mi_ranking:"🇨🇺 Ranking de demanda Cuba",mi_channel:"Canal",mi_price:"Último precio",
+mi_sighted:"avistado",mi_estimated:"estimado — no cotizable",mi_none:"Sin avistamiento de precio aún",
+mi_cargo:"🚢 Carga en camino",mi_flow:"Flujo EE.UU.→Cuba",mi_vessels:"Buques confirmados (sep 2026)",
+mi_fuel:"⛽ Combustible — caso especial",mi_fuelnote:"Fuera del ranking de demanda (bandera legal).",
+mi_scp:"Bandera legal: el combustible de EE.UU. es SOLO para uso propio bajo la excepción SCP de BIS (feb 2026) — reventa prohibida. SAHJONY solo intermedia combustible para consumo propio, nunca retail.",
+mi_alert:"⚠️ Alerta logística",mi_dir:"📇 Directorio de compras",mi_where:"Dónde se compra",
+mi_contact:"Contactos",mi_viaweb:"vía web oficial",
 missing:"Faltan",
 disclaimer:"Herramienta de bróker por comisión: SAHJONY nunca toma custodia de mercancías ni fondos. Verifique cada contraparte, término contractual y precio de forma independiente antes de comprometerse. Nada aquí es asesoría legal o financiera."}};
 let lang="en"; const t=k=>T[lang][k]||k;
@@ -187,7 +205,7 @@ function verdict(r){
 }
 function money(n){const v=Number(n)||0;return "$"+v.toLocaleString("en-US",{maximumFractionDigits:2})}
 /* ============ hash routing ============ */
-const VIEWS={rfqs:"rfqs",suppliers:"suppliers",add:"add"};
+const VIEWS={rfqs:"rfqs",suppliers:"suppliers",add:"add",mercado:"mercado"};
 let view="rfqs";
 function applyHash(){const h=String(location.hash||"").replace("#","").toLowerCase();view=VIEWS[h]||"rfqs";render();return true}
 if(typeof window!=="undefined")window.addEventListener("hashchange",applyHash);
@@ -203,11 +221,11 @@ function render(){
  [["/",t("nav_home")],["/insurance/index.html",t("nav_ins")],["/wholesale/index.html",t("nav_who")],["/crude/index.html",t("nav_cru")],["/cubacash/index.html",t("nav_cc")]].forEach(([u,l])=>{
   const a=document.createElement("a");a.className="xlink";a.href=u;a.textContent=l;xl.appendChild(a)});
  const vt=document.getElementById("viewtabs");vt.innerHTML="";
- [["rfqs",t("trfqs")],["suppliers",t("tsup")],["add",t("tadd")]].forEach(([v,l])=>{
+ [["rfqs",t("trfqs")],["suppliers",t("tsup")],["add",t("tadd")],["mercado",t("tmi")]].forEach(([v,l])=>{
   const b=document.createElement("button");b.className="viewtab"+(view===v?" on":"");b.textContent=l;
   b.onclick=()=>{location.hash=v};vt.appendChild(b)});
  const m=document.getElementById("main");
- if(view==="suppliers")renderSuppliers(m);else if(view==="add")renderAddRfq(m);else renderRfqs(m);
+ if(view==="suppliers")renderSuppliers(m);else if(view==="add")renderAddRfq(m);else if(view==="mercado")renderMercado(m);else renderRfqs(m);
 }
 function kpiCards(){
  const open=S.rfqs.filter(r=>OPEN.includes(r.status));
@@ -400,6 +418,165 @@ function importData(){
   S=d;save();render();
  }catch(e){alert(t("badfile"))}};r.readAsText(i.files[0])};
  i.click();
+}
+/* ============ Market Intel (owner screen) ============
+   Embedded snapshot from the 24/7 Cuba demand scan (2026-09-30).
+   Internal sighting prices are fine here — owner screen only, never client-facing.
+   SAHJONY acts as broker for a fee — never the end buyer, zero capital at risk. */
+const MI_RANK=[
+{n:"Pollo congelado (cuartos/muslos)",en:"Frozen chicken (leg quarters)",s:34,ch:"Contenedor 40' reefer ≈ 25 TM",px:"$0.70/lb FAS Gulfport",src:"deal propio SAHJONY · 23/sep/2026",ty:"s"},
+{n:"Aceite vegetal (soya/girasol)",en:"Vegetable oil (soy/sunflower)",s:33,ch:"Contenedor 40' dry ≈ 24,000 L",px:"Coamo 900ml: $3.70/botella (mín. 100 cajas)",src:"avistamiento interno · sep 2026",ty:"s"},
+{n:"Arroz (grano largo 50kg)",en:"Rice (long grain 50kg)",s:33,ch:"Contenedor 40' dry ≈ 26–28 TM",px:"$46/saco ($45 × contenedor de 600)",src:'FB "MIPYMES de ORIENTE" · 16/sep/2026',ty:"s"},
+{n:"Azúcar (parda/blanca 50kg)",en:"Sugar (brown/white 50kg)",s:32,ch:"Contenedor 40' dry ≈ 25 TM",px:"$68/saco · CIF Mariel $0.96/kg",src:"avistamiento interno · sep 2026",ty:"s"},
+{n:"Refresco en polvo (Zuko/Lual)",en:"Powdered drink (Zuko/Lual)",s:32,ch:"Contenedor 40' dry (cajas)",px:"Zuko $0.18/sobre · Lual $96,600/contenedor",src:"avistamiento interno · sep 2026",ty:"s"},
+{n:"Leche en polvo (25kg/1kg)",en:"Powdered milk (25kg/1kg)",s:31,ch:"Contenedor 40' dry ≈ 25 TM",px:"FOB ~$3.5–4.0/kg",src:"benchmark · sin avistamiento",ty:"e"},
+{n:"Salchichas / embutidos",en:"Sausages",s:30,ch:"Contenedor 40' reefer ≈ 25 TM",px:null,src:"",ty:"e"},
+{n:"Frijoles (negros/colorados)",en:"Beans (black/red)",s:30,ch:"Contenedor 40' dry ≈ 25 TM",px:"$60/saco (frijol negro)",src:"avistamiento interno · sep 2026",ty:"s"},
+{n:"Pastas alimenticias",en:"Pasta",s:29,ch:"Contenedor 40' dry ≈ 20–24 TM",px:null,src:"",ty:"e"},
+{n:"Carne de cerdo congelada",en:"Frozen pork",s:29,ch:"Contenedor 40' reefer ≈ 25 TM",px:null,src:"",ty:"e"},
+{n:"Huevos",en:"Eggs",s:29,ch:"40' reefer (frágil)",px:"Cartón 30 ≈ $11 USD",src:"avistamiento interno · sep 2026",ty:"s"},
+{n:"Detergente / aseo",en:"Detergent & hygiene",s:29,ch:"Contenedor 40' dry ≈ 20 TM",px:null,src:"",ty:"e"},
+{n:"Harina de trigo",en:"Wheat flour",s:27,ch:"Contenedor 40' dry ≈ 25 TM",px:null,src:"",ty:"e"},
+{n:"Café",en:"Coffee",s:26,ch:"Contenedor 40' dry",px:null,src:"",ty:"e"}];
+const MI_FLOW={es:"Exportaciones EE.UU.→Cuba ene–jul 2026: US$674M (+61.8% vs 2025); julio récord US$148.9M. Composición: socorro US$126.6M, pollo US$118M, derivados del petróleo US$117.1M, vehículos US$34.9M.",en:"US→Cuba exports Jan–Jul 2026: US$674M (+61.8% vs 2025); July record US$148.9M. Mix: relief goods US$126.6M, chicken US$118M, petroleum products US$117.1M, vehicles US$34.9M."};
+const MI_VESSELS=[
+{es:"Regula (Crowley) — viaje #18 a Mariel (principios de sep); 45,000 TM en 2026; pollo/puerco congelado, lácteos, freezers, vehículos y tanques de gasolina/diésel",en:"Regula (Crowley) — voyage #18 to Mariel (early Sep); 45,000 MT in 2026; frozen chicken/pork, dairy, freezers, vehicles, gasoline/diesel container-tanks"},
+{es:"Quetzal (Crowley) — zarpó de Port Everglades con tanques de gasolina/diésel el 3 y el 18 de sep",en:"Quetzal (Crowley) — sailed Port Everglades with gasoline/diesel tanks on Sep 3 and 18"},
+{es:"Seaboard Ranger — 3 rotaciones entre fines de ago y mediados de sep",en:"Seaboard Ranger — 3 round trips late Aug to mid Sep"},
+{es:"Ultramarine — ruta Port Everglades↔Mariel con escala en Santiago de Cuba",en:"Ultramarine — Port Everglades↔Mariel route with a Santiago de Cuba call"},
+{es:"Crowley: 4 salidas FCL/mes (Wilmington NC, Jacksonville, Port Everglades → Mariel) + LCL semanal Miami→Mariel (sábado→sábado), tránsito ~16h",en:"Crowley: 4 FCL sailings/month (Wilmington NC, Jacksonville, Port Everglades → Mariel) + weekly LCL Miami→Mariel (Sat→Sat), ~16h transit"},
+{es:"Caribe Cargo (nuestro): 3 salidas/semana Miami→Mariel · $1.30/lb a puerta",en:"Caribe Cargo (ours): 3 sailings/week Miami→Mariel · $1.30/lb door-to-door"},
+{es:"Seaboard Marine: solo FCL (contacto Daniela Pena)",en:"Seaboard Marine: FCL-only (contact Daniela Pena)"}];
+const MI_FUEL=[
+{es:"Gasolina/diésel EE.UU.: US$156.88M ene–jul 2026 (vs US$311k todo 2025); junio récord ~778,000 barriles; llega en tanques tamaño-contenedor/ISO sobre Crowley",en:"US gasoline/diesel: US$156.88M Jan–Jul 2026 (vs US$311k all 2025); June record ~778,000 barrels; arrives in container-size/ISO tanks via Crowley"},
+{es:"Anatoly Kolodkin (Rusia, ~730,000 barriles de crudo): llegó a Matanzas a fines de sep — solo 2 tanqueros en todo 2026",en:"Anatoly Kolodkin (Russia, ~730,000 bbl crude): arrived Matanzas late Sep — only 2 tankers all 2026"},
+{es:"Sea Horse (~190k barriles diésel) y Universal (270k barriles): desviados/negados por sanciones — sin ETA",en:"Sea Horse (~190k bbl diesel) and Universal (270k bbl): diverted/denied by sanctions — no ETA"},
+{es:"GLP: el buque Eugenia Gas cargó en José (Venezuela) tras 2 meses buscando; precio 35 CUP/kg; sin canal EE.UU. verificado",en:"LPG: vessel Eugenia Gas loaded at José (Venezuela) after 2 months searching; price 35 CUP/kg; no verified US channel"}];
+const MI_ALERT={es:"~7,000 contenedores varados en Jamaica, Panamá y Colombia con alimentos y medicinas; Hapag-Lloyd suspendió y CMA CGM limitó sus servicios a Cuba por temor a sanciones (movían ~la mitad de las importaciones). Escasez de capacidad = ventana de pricing para quien tenga buque garantizado.",en:"~7,000 containers stranded in Jamaica, Panama and Colombia with food and medicine; Hapag-Lloyd suspended and CMA CGM limited Cuba services over sanctions fears (they moved ~half of imports). Scarce capacity = pricing window for whoever has guaranteed vessel space."};
+const MI_DIR=[
+{n:"Pollo congelado",en:"Frozen chicken",buy:"Plantas empacadoras y distribuidores del Golfo de EE.UU.",buy_en:"US Gulf packing plants and distributors",px:"$0.70/lb FAS Gulfport",src:"deal propio SAHJONY · 23/sep/2026",ty:"s",c:[
+ {n:"Mountaire Farms",ph:"(302) 934-1100",web:"mountaire.com"},
+ {n:"Tyson Foods",ph:"1-800-233-6332",web:"tysonfoods.com"},
+ {n:"Pilgrim's Pride",web:"pilgrims.com"},
+ {n:"Wayne-Sanderson Farms",web:"waynesandersonfarms.com"},
+ {n:"Koch Foods",web:"kochfoods.com"},
+ {n:"Amick Farms",web:"amickfarms.com"}]},
+{n:"Aceite vegetal",en:"Vegetable oil",buy:"Refinerías y traders: Cargill GEOS, ADM, Bunge",buy_en:"Refiners and traders: Cargill GEOS, ADM, Bunge",px:"Coamo 900ml: $3.70/botella (mín. 100 cajas)",src:"avistamiento interno · sep 2026",ty:"s",c:[
+ {n:"Cargill (GEOS)",ph:"1-800-644-6465",web:"cargill.com"},
+ {n:"ADM",web:"adm.com"},
+ {n:"Bunge",web:"bunge.com"},
+ {n:"Coamo (Cuba-inside)",ph:"55021481"},
+ {n:"Maceo Saray — Coamo 900ml ~$3.50/botella, La Habana",nt:"precio Mariel pendiente"}]},
+{n:"Arroz",en:"Rice",buy:"Molinos: Nand Persaud (Guyana), Vinafood (Vietnam), LT Foods / Rice Master (India)",buy_en:"Mills: Nand Persaud (Guyana), Vinafood (Vietnam), LT Foods / Rice Master (India)",px:"$46/saco 50kg ($45 × contenedor de 600)",src:'FB "MIPYMES de ORIENTE" · 16/sep/2026',ty:"s",c:[
+ {n:"Nand Persaud (Guyana)",ph:"(592) 325-3563",em:"info@nandpersaudgroup.com",web:"nandpersaudgroup.com"},
+ {n:"Vinafood II (Vietnam)",web:"vinafood2.com.vn",nt:"teléfono de directorio de terceros — verificar en sitio oficial"},
+ {n:"LT Foods (India)",em:"info@ltfoods.com",nt:"RFQ enviado 26/sep"},
+ {n:"Rice Master Global (India)",em:"Info@ricemasterglobal.com",nt:"RFQ enviado 26/sep"}]},
+{n:"Azúcar",en:"Sugar",buy:"Traders FOB Santos (Brasil): Copersucar, Raízen",buy_en:"FOB Santos (Brazil) traders: Copersucar, Raízen",px:"$68/saco 50kg · CIF Mariel $0.96/kg",src:"avistamiento interno · sep 2026",ty:"s",c:[
+ {n:"Copersucar",ph:"+55 11 2618-8166",web:"copersucar.com.br"},
+ {n:"Raízen",ph:"+55 11 2573-3000",web:"raizen.com",nt:"reestructuración de deuda 2025–2026 — validar capacidad comercial"},
+ {n:"Azúcar/arroz (Cuba-inside)",ph:"58983203",nt:"WhatsApp"}]},
+{n:"Refresco en polvo",en:"Powdered drink",buy:"Tresmontes Lucchetti (Zuko, Chile — Grupo Nutresa)",buy_en:"Tresmontes Lucchetti (Zuko, Chile — Grupo Nutresa)",px:"Zuko $0.18/sobre · Lual $96,600/contenedor",src:"avistamiento interno · sep 2026",ty:"s",c:[
+ {n:"Tresmontes Lucchetti (Zuko)",web:"tmluc.com",nt:"teléfono de ficha de terceros — verificar en sitio oficial"},
+ {n:"Zuko (Cuba-inside)",ph:"52400779"}]},
+{n:"Leche en polvo",en:"Powdered milk",buy:"Fonterra NZMP (Nueva Zelanda) · importadoras estatales ITH, CARIBEX",buy_en:"Fonterra NZMP (New Zealand) · state importers ITH, CARIBEX",px:"FOB ~$3.5–4.0/kg (estimado) · evaporada $1.20/lata",src:"avistamiento interno · sep 2026",ty:"m",c:[
+ {n:"Fonterra NZMP",web:"fonterra.com"},
+ {n:"ITH",ph:"(+53) 7831-0426 ext 5228",em:"arley@ith.cu",web:"ith.cu"},
+ {n:"CARIBEX",ph:"(+53) 78644135",em:"rcasanova@caribex.cu",web:"caribex.cu"},
+ {n:"Leche evaporada (Cuba-inside)",ph:"58983203"}]},
+{n:"Salchichas / embutidos",en:"Sausages",buy:"Smithfield, Seaboard Foods, JBS (EE.UU.) · Cibao (NJ, mercado hispano)",buy_en:"Smithfield, Seaboard Foods, JBS (US) · Cibao (NJ, Hispanic market)",px:null,src:"",ty:"e",c:[
+ {n:"Smithfield Foods",web:"smithfieldfoods.com"},
+ {n:"Seaboard Foods",web:"seaboardfoods.com"},
+ {n:"JBS USA",web:"jbssa.com"},
+ {n:"Cibao Meat Products",ph:"+1 862-278-1089",web:"cibaomeat.com",nt:"su web indica que NO hace envíos internacionales — referencia interna, no prometer disponibilidad"}]},
+{n:"Frijoles",en:"Beans",buy:"US Dry Bean Council (directorio) · Freeland Bean and Grain (Michigan)",buy_en:"US Dry Bean Council (directory) · Freeland Bean and Grain (Michigan)",px:"$60/saco (frijol negro)",src:"avistamiento interno · sep 2026",ty:"s",c:[
+ {n:"Freeland Bean and Grain",ph:"1 989 695 9131",em:"FBG@tm.net",web:"freelandbeanandgrain.com",nt:"email de directorio 2010 — verificar vigencia"},
+ {n:"US Dry Bean Council",web:"usdrybeans.com"}]},
+{n:"Pastas alimenticias",en:"Pasta",buy:"Mutlu Makarna (Turquía — exporta a 100+ países)",buy_en:"Mutlu Makarna (Turkey — exports to 100+ countries)",px:null,src:"",ty:"e",c:[
+ {n:"Mutlu Makarna",ph:"+90 342 337 18 84",em:"info@mutlumakarna.com.tr",web:"mutlumakarna.com.tr"}]},
+{n:"Carne de cerdo",en:"Pork",buy:"Triumph Foods, Clemens Food Group, Smithfield, Seaboard, JBS",buy_en:"Triumph Foods, Clemens Food Group, Smithfield, Seaboard, JBS",px:null,src:"",ty:"e",c:[
+ {n:"Triumph Foods",ph:"+1 816-396-2700",web:"triumphfoods.com"},
+ {n:"Clemens Food Group",ph:"+1 215-368-2500",web:"clemensfoodgroup.com"},
+ {n:"Resto (plantas EE.UU.)",web:"vía web oficial"}]},
+{n:"Huevos",en:"Eggs",buy:"Cal-Maine Foods, Rose Acre Farms (EE.UU.)",buy_en:"Cal-Maine Foods, Rose Acre Farms (US)",px:"Cartón 30 ≈ $11 USD",src:"avistamiento interno · sep 2026",ty:"s",c:[
+ {n:"Cal-Maine Foods",ph:"(601) 948-6813",web:"calmainefoods.com"},
+ {n:"Rose Acre Farms",ph:"812-497-2559 x207",web:"goodegg.com"},
+ {n:"Huevos (Cuba-inside) — Dayana",ph:"+53 63893138"}]},
+{n:"Detergente / aseo",en:"Detergent & hygiene",buy:"Church & Dwight (Arm & Hammer), Henkel (EE.UU.)",buy_en:"Church & Dwight (Arm & Hammer), Henkel (US)",px:null,src:"",ty:"e",c:[
+ {n:"Church & Dwight",web:"churchdwight.com"},
+ {n:"Henkel",web:"henkel.com"}]},
+{n:"Harina de trigo",en:"Wheat flour",buy:"Ardent Mills (Denver, CO)",buy_en:"Ardent Mills (Denver, CO)",px:null,src:"",ty:"e",c:[
+ {n:"Ardent Mills",ph:"(888) 680-0013",em:"info@ardentmills.com",web:"ardentmills.com"}]},
+{n:"Café",en:"Coffee",buy:"Café La Llave (Miami, FL)",buy_en:"Café La Llave (Miami, FL)",px:null,src:"",ty:"e",c:[
+ {n:"Café La Llave",ph:"+1 305-477-4070",web:"cafelallave.com"}]},
+{n:"⛽ Combustible (caso especial)",en:"⛽ Fuel (special case)",buy:"Spot del Golfo de EE.UU. en tanques ISO sobre Crowley · Caribbean Fuels (bunkering) · importadoras designadas QUIMIMPORT / MAPRINTER",buy_en:"US Gulf spot in ISO tanks via Crowley · Caribbean Fuels (bunkering) · designated importers QUIMIMPORT / MAPRINTER",px:null,src:"",ty:"e",scp:1,c:[
+ {n:"Caribbean Fuels",ph:"+1 305-925-9988",em:"bunkers@caribbeanfuels.com",web:"caribbeanfuels.com"},
+ {n:"Crowley",web:"crowley.com"},
+ {n:"QUIMIMPORT",ph:"(+53) 78362617",em:"ventasfgne@quimimport.cu"},
+ {n:"MAPRINTER",ph:"(+53) 78360701",em:"ventasfgne@maprinter.cu"}],
+ nt:"Tropical Fuel: NO verificado — no usar hasta verificar."},
+{n:"🏛️ Importadoras estatales (canal alimentos)",en:"🏛️ State importers (food channel)",buy:"ITH, CARIBEX, CUBAEXPORT, CÍTRICOS CARIBE, ALCONA — La Habana",buy_en:"ITH, CARIBEX, CUBAEXPORT, CÍTRICOS CARIBE, ALCONA — Havana",px:null,src:"",ty:"e",c:[
+ {n:"ITH",ph:"(+53) 7831-0426 ext 5228",em:"arley@ith.cu",web:"ith.cu"},
+ {n:"CARIBEX",ph:"(+53) 78644135",em:"rcasanova@caribex.cu",web:"caribex.cu"},
+ {n:"CUBAEXPORT",ph:"(+53) 78380589 ext 103",em:"ventasfgne@cubaexport.cu"},
+ {n:"CÍTRICOS CARIBE",ph:"(+53) 78820122 ext 103",em:"direccion@ccaribe.co.cu"},
+ {n:"ALCONA",ph:"(+53) 72277167",em:"export.fgne@alconasa.cu"}]},
+{n:"🚚 Flete / logística",en:"🚚 Freight / logistics",buy:"Caribe Cargo (3 salidas/sem Miami→Mariel) · Crowley · Seaboard Marine",buy_en:"Caribe Cargo (3 sailings/wk Miami→Mariel) · Crowley · Seaboard Marine",px:null,src:"",ty:"e",c:[
+ {n:"Caribe Cargo — Frank",nt:"teléfono pendiente (registros internos) · almacén Miami · $1.30/lb a puerta (interno) · 3 salidas/semana"},
+ {n:"Crowley",web:"crowley.com"},
+ {n:"Seaboard Marine — Daniela Pena",nt:"solo FCL"}]}];
+function miTyPill(ty){
+ if(ty==="s")return '<span class="pill green">'+t("mi_sighted")+'</span>';
+ if(ty==="m")return '<span class="pill green">'+t("mi_sighted")+'</span> <span class="pill yellow">'+t("mi_estimated")+'</span>';
+ return '<span class="pill yellow">'+t("mi_estimated")+'</span>';
+}
+function miContact(c){
+ let h='<div class="kv"><span>'+esc(c.n)+'</span><b>';
+ const parts=[];
+ if(c.ph)parts.push('<a style="color:var(--acc);text-decoration:none" href="tel:'+esc(c.ph.replace(/[^\d+]/g,""))+'">'+esc(c.ph)+'</a>');
+ if(c.em)parts.push('<a style="color:var(--acc);text-decoration:none" href="mailto:'+esc(c.em)+'">'+esc(c.em)+'</a>');
+ if(c.web)parts.push(esc(c.web));
+ h+=parts.length?parts.join('<br>'):('<span class="mut">'+t("mi_viaweb")+'</span>');
+ h+='</b></div>';
+ if(c.nt)h+='<div class="mut">⚠️ '+esc(c.nt)+'</div>';
+ return h;
+}
+function renderMercado(m){
+ let h='<div class="mut" style="margin:12px 0">'+t("mi_updated")+'</div>';
+ h+='<div class="sthead">'+t("mi_ranking")+'</div>';
+ MI_RANK.forEach((r,i)=>{
+  h+='<div class="card"><h3>'+(i+1)+'. '+esc(lang==="es"?r.n:r.en)+'</h3>'
+  +'<div class="mut">'+t("mi_channel")+': '+esc(r.ch)+'</div>'
+  +'<div class="mut">'+t("score")+': <b style="color:var(--txt)">'+r.s+'</b></div>'
+  +'<div class="scorebar"><i style="width:'+Math.round(r.s/40*100)+'%"></i></div>';
+  if(r.px)h+='<div class="mut" style="margin-top:8px">'+t("mi_price")+': <b style="color:var(--txt)">'+esc(r.px)+'</b> '+miTyPill(r.ty)+'<br>'+esc(r.src)+'</div>';
+  else h+='<div class="mut" style="margin-top:8px">'+t("mi_none")+' '+miTyPill("e")+'</div>';
+  h+='</div>';
+ });
+ h+='<div class="card"><h3>'+t("mi_fuel")+'</h3><div class="mut">'+t("mi_fuelnote")+'</div></div>';
+ h+='<div class="sthead">'+t("mi_cargo")+'</div>';
+ h+='<div class="card"><h3>'+t("mi_flow")+'</h3><div class="mut">'+esc(lang==="es"?MI_FLOW.es:MI_FLOW.en)+'</div></div>';
+ h+='<div class="card"><h3>'+t("mi_vessels")+'</h3>';
+ MI_VESSELS.forEach(v=>{h+='<div class="mut" style="margin:8px 0">• '+esc(lang==="es"?v.es:v.en)+'</div>'});
+ h+='</div>';
+ h+='<div class="card"><h3>'+t("mi_fuel")+'</h3>';
+ MI_FUEL.forEach(f=>{h+='<div class="mut" style="margin:8px 0">• '+esc(lang==="es"?f.es:f.en)+'</div>'});
+ h+='<div class="mut" style="margin-top:10px">⚖️ '+t("mi_scp")+'</div></div>';
+ h+='<div class="card"><h3>'+t("mi_alert")+'</h3><div class="mut">'+esc(lang==="es"?MI_ALERT.es:MI_ALERT.en)+'</div></div>';
+ h+='<div class="sthead">'+t("mi_dir")+'</div>';
+ MI_DIR.forEach(d=>{
+  h+='<div class="card"><h3>'+esc(lang==="es"?d.n:d.en)+'</h3>'
+  +'<div class="mut"><b style="color:var(--txt)">'+t("mi_where")+':</b> '+esc(lang==="es"?d.buy:d.buy_en)+'</div>';
+  if(d.px)h+='<div class="mut" style="margin-top:8px"><b style="color:var(--txt)">'+t("mi_price")+':</b> '+esc(d.px)+' '+miTyPill(d.ty)+'<br>'+esc(d.src||'')+'</div>';
+  if(d.scp)h+='<div class="mut" style="margin-top:8px">⚖️ '+t("mi_scp")+'</div>';
+  if(d.c&&d.c.length){
+   h+='<div class="mut" style="margin:10px 0 2px;font-weight:800;color:var(--acc)">'+t("mi_contact")+'</div>';
+   d.c.forEach(c=>{h+=miContact(c)});
+  }
+  if(d.nt)h+='<div class="mut" style="margin-top:8px">⚠️ '+esc(d.nt)+'</div>';
+  h+='</div>';
+ });
+ m.innerHTML=h;
 }
 /* ============ helpers ============ */
 function openSheet(h){document.getElementById("sheet").innerHTML=h;document.getElementById("modal").classList.add("open")}
