@@ -79,11 +79,24 @@
   .info .row:last-child { border-bottom:0; }
   .info .k { color:var(--muted); flex:0 0 auto; }
   .info .v { text-align:right; }
-  #mapWrap { background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:12px; }
-  #map { width:100%; height:320px; display:block; touch-action:pan-x pan-y; }
-  .mapbar { display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); flex-wrap:wrap; align-items:center; }
+  #mapWrap { background:#060d16; border:1px solid rgba(120,180,255,.14); border-radius:18px; overflow:hidden; margin-bottom:12px;
+             box-shadow:0 18px 50px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05); position:relative; }
+  #map { width:100%; height:340px; display:block; touch-action:pan-x pan-y; }
+  .mapbar { display:flex; gap:8px; padding:10px 12px; border-top:1px solid rgba(120,180,255,.12); flex-wrap:wrap; align-items:center;
+            background:rgba(6,13,22,.85); backdrop-filter:blur(6px); }
   .mapbar label { font-size:13px; color:var(--muted); display:flex; gap:6px; align-items:center; cursor:pointer; }
-  .mapbar .fresh { margin-left:auto; font-size:12px; color:var(--muted); }
+  .mapbar .fresh { margin-left:auto; font-size:12px; color:#7fe0ab; display:flex; align-items:center; gap:6px; }
+  .mapbar .fresh::before { content:""; width:8px; height:8px; border-radius:50%; background:#2f9e6e;
+            box-shadow:0 0 8px #2f9e6e; animation:blink 2s infinite; }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+  /* floating vessel badge — cinematic HUD */
+  #vesselBadge { position:absolute; top:12px; left:0; right:0; display:none;
+                 pointer-events:none; text-align:center; }
+  #vesselBadge .hud { display:inline-block; background:rgba(6,13,22,.72); border:1px solid rgba(120,180,255,.22);
+                 border-radius:12px; padding:8px 14px; backdrop-filter:blur(8px);
+                 box-shadow:0 8px 24px rgba(0,0,0,.5); }
+  #vesselBadge .hud .vn { font-size:14px; font-weight:800; letter-spacing:.5px; color:#fff; }
+  #vesselBadge .hud .vs { font-size:11px; color:#7fe0ab; letter-spacing:1.5px; font-weight:700; margin-top:2px; }
   .notice { background:rgba(157,180,198,.08); border:1px dashed var(--muted); border-radius:14px;
             padding:18px; font-size:14px; color:var(--muted); text-align:center; margin-bottom:12px; }
   .banner-done { background:rgba(47,158,110,.12); border:1px solid var(--accent); border-radius:14px;
@@ -159,6 +172,7 @@
       <div class="info" id="dInfo"></div>
       <div id="mapWrap" style="display:none">
         <canvas id="map"></canvas>
+        <div id="vesselBadge"><div class="hud"><div class="vn" id="hudName"></div><div class="vs" id="hudStatus"></div></div></div>
         <div class="mapbar">
           <label><input type="checkbox" id="tglCyclones" checked> Tormentas</label>
           <label><input type="checkbox" id="tglTrack" checked> Recorrido</label>
@@ -538,8 +552,8 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   location.href = '/portal/';
 });
 
-/* ---------- vessel map (unchanged) ---------- */
-function stopVesselTimer() { if (vesselTimer) { clearInterval(vesselTimer); vesselTimer = null; } }
+/* ---------- vessel map (cinematic) ---------- */
+function stopVesselTimer() { if (vesselTimer) { clearInterval(vesselTimer); vesselTimer = null; } stopMapAnim(); }
 async function refreshVessel() {
   if (!currentId) return;
   const data = await api(`/shipments/${encodeURIComponent(currentId)}/vessel`);
@@ -556,90 +570,335 @@ function relTime(d) {
   const m = Math.round(s / 60);
   return m < 60 ? `hace ${m} min` : `hace ${Math.round(m / 60)} h`;
 }
-/* ---- lightweight canvas route map (no heavy globe bundle) ---- */
-function drawMap(data) {
+/* ---- cinematic vessel map — ultra-premium render ----
+   Deep cinematic ocean, great-circle glowing route, golden AIS trail,
+   rotating storm swirls, beacon ports, sonar-pulsing ship, vignette.
+   Animation runs on its own rAF loop while the detail view is open
+   (the 30s AIS refresh keeps feeding it fresh positions). */
+let mapAnim = null, mapState = null;
+function stopMapAnim() { if (mapAnim) { cancelAnimationFrame(mapAnim); mapAnim = null; } }
+
+/** Great-circle route between two lat/lon points — smooth cinematic arc. */
+function greatCircleRoute(a, b, n) {
+  const r = (d) => (d * Math.PI) / 180, deg = (x) => (x * 180) / Math.PI;
+  const la1 = r(a.lat), lo1 = r(a.lon), la2 = r(b.lat), lo2 = r(b.lon);
+  const P1 = [Math.cos(la1) * Math.cos(lo1), Math.cos(la1) * Math.sin(lo1), Math.sin(la1)];
+  const P2 = [Math.cos(la2) * Math.cos(lo2), Math.cos(la2) * Math.sin(lo2), Math.sin(la2)];
+  const dot = Math.min(1, Math.max(-1, P1[0] * P2[0] + P1[1] * P2[1] + P1[2] * P2[2]));
+  const omega = Math.acos(dot), so = Math.sin(omega);
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const f = i / n;
+    const A = Math.sin((1 - f) * omega) / so, B = Math.sin(f * omega) / so;
+    const x = A * P1[0] + B * P2[0], y = A * P1[1] + B * P2[1], z = A * P1[2] + B * P2[2];
+    pts.push({ lat: deg(Math.asin(z)), lon: deg(Math.atan2(y, x)) });
+  }
+  return pts;
+}
+
+/** Draw one full cinematic frame. `t` = animation timestamp (ms). */
+function paintMap(t) {
+  const st = mapState;
+  if (!st) return;
   const canvas = document.getElementById('map');
+  if (!canvas || !canvas.clientWidth) return;
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const w = canvas.clientWidth, h = canvas.clientHeight;
-  canvas.width = w * dpr; canvas.height = h * dpr;
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+  }
   const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  const pts = [];
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const { minLat, maxLat, minLon, maxLon } = st.bounds;
+  const X = (lon) => ((lon - minLon) / (maxLon - minLon)) * w;
+  const Y = (lat) => ((maxLat - lat) / (maxLat - minLat)) * h;
+
+  /* 1 · deep cinematic ocean: depth gradient + center glow + drifting currents */
+  const depth = ctx.createLinearGradient(0, 0, 0, h);
+  depth.addColorStop(0, '#0a1c30');
+  depth.addColorStop(0.55, '#071223');
+  depth.addColorStop(1, '#040a14');
+  ctx.fillStyle = depth;
+  ctx.fillRect(0, 0, w, h);
+  const glow = ctx.createRadialGradient(w / 2, h * 0.42, 10, w / 2, h * 0.42, Math.max(w, h) * 0.7);
+  glow.addColorStop(0, 'rgba(46,110,190,.16)');
+  glow.addColorStop(1, 'rgba(46,110,190,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, w, h);
+  // faint drifting current lines
+  ctx.strokeStyle = 'rgba(110,170,235,.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    const yy = (((t / 90) + i * 97) % (h + 160)) - 80;
+    ctx.beginPath();
+    for (let x = 0; x <= w; x += 24) {
+      const y = yy + Math.sin(x / 70 + i * 2.1 + t / 2400) * 14;
+      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  // fine grid, barely there
+  ctx.strokeStyle = 'rgba(120,170,220,.05)';
+  for (let i = 1; i < 6; i++) {
+    ctx.beginPath(); ctx.moveTo((w / 6) * i, 0); ctx.lineTo((w / 6) * i, h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, (h / 6) * i); ctx.lineTo(w, (h / 6) * i); ctx.stroke();
+  }
+
+  const routePts = st.routePts;
+  const proj = (p) => [X(p.lon), Y(p.lat)];
+
+  /* 2 · great-circle route: soft halo under, gradient ribbon over, flowing dashes */
+  if (routePts.length > 1) {
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    const [x0, y0] = proj(routePts[0]);
+    const [x1, y1] = proj(routePts[routePts.length - 1]);
+    const ribbon = ctx.createLinearGradient(x0, y0, x1, y1);
+    ribbon.addColorStop(0, 'rgba(52,222,150,.95)');
+    ribbon.addColorStop(0.6, 'rgba(120,200,255,.85)');
+    ribbon.addColorStop(1, 'rgba(255,120,120,.95)');
+    const trace = () => {
+      ctx.beginPath();
+      routePts.forEach((p, i) => { const [x, y] = proj(p); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+    };
+    // halo
+    ctx.strokeStyle = 'rgba(80,200,255,.10)'; ctx.lineWidth = 9;
+    trace(); ctx.stroke();
+    // ribbon
+    ctx.strokeStyle = ribbon; ctx.lineWidth = 2.6; ctx.setLineDash([]);
+    trace(); ctx.stroke();
+    // sailing dashes flowing toward destination
+    ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2.6;
+    ctx.setLineDash([2, 20]); ctx.lineDashOffset = -((t / 28) % 22);
+    trace(); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  /* 3 · recent AIS track — warm golden trail behind the vessel */
+  const track = st.showTrack ? st.track : [];
+  if (track.length > 1) {
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    for (let i = 1; i < track.length; i++) {
+      const f = i / track.length; // fade from tail to head
+      ctx.strokeStyle = 'rgba(255,196,110,' + (0.08 + f * 0.75).toFixed(3) + ')';
+      ctx.lineWidth = 1 + f * 3;
+      ctx.beginPath();
+      const [ax, ay] = proj(track[i - 1]), [bx, by] = proj(track[i]);
+      ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+    }
+  }
+
+  /* 4 · storm swirls — rotating spiral, cinematic */
+  if (st.showCyclones) {
+    for (const c of st.cyclones) {
+      const [x, y] = proj(c);
+      const rot = t / 1400;
+      const sg = ctx.createRadialGradient(x, y, 2, x, y, 30);
+      sg.addColorStop(0, 'rgba(255,170,60,.28)');
+      sg.addColorStop(1, 'rgba(255,170,60,0)');
+      ctx.fillStyle = sg;
+      ctx.beginPath(); ctx.arc(x, y, 30, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,190,90,.85)'; ctx.lineWidth = 2;
+      for (let arm = 0; arm < 3; arm++) {
+        ctx.beginPath();
+        for (let a = 0; a <= Math.PI * 2.4; a += 0.22) {
+          const rr = 3 + a * 3.4;
+          const px = x + Math.cos(a + rot + (arm * Math.PI * 2) / 3) * rr;
+          const py = y + Math.sin(a + rot + (arm * Math.PI * 2) / 3) * rr;
+          if (a === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#ffd9a0'; ctx.font = '600 11px system-ui';
+      ctx.fillText('🌀 ' + (c.name || ''), x + 22, y - 12);
+    }
+  }
+
+  const chip = (x, y, text, accent) => {
+    ctx.font = '700 11px system-ui';
+    const tw = ctx.measureText(text).width;
+    const pw = 10, ph = 20;
+    let bx = x + 14;
+    if (bx + tw + pw * 2 > w - 6) bx = x - 14 - tw - pw * 2; // keep chip on screen
+    ctx.fillStyle = 'rgba(4,10,18,.78)';
+    ctx.strokeStyle = accent;
+    ctx.globalAlpha = 0.85; ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(bx, y - ph - 6, tw + pw * 2, ph, 10);
+    else ctx.rect(bx, y - ph - 6, tw + pw * 2, ph);
+    ctx.fill(); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#f2f7fc';
+    ctx.fillText(text, bx + pw, y - 12);
+  };
+
+  /* 5 · origin port — emerald beacon */
+  if (st.origin) {
+    const [x, y] = proj(st.origin);
+    const og = ctx.createRadialGradient(x, y, 1, x, y, 22);
+    og.addColorStop(0, 'rgba(52,222,150,.55)');
+    og.addColorStop(1, 'rgba(52,222,150,0)');
+    ctx.fillStyle = og;
+    ctx.beginPath(); ctx.arc(x, y, 22, 0, 7); ctx.fill();
+    ctx.fillStyle = '#0b2e20';
+    ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 7); ctx.fill();
+    ctx.fillStyle = '#34de96';
+    ctx.beginPath(); ctx.arc(x, y, 5.5, 0, 7); ctx.fill();
+    ctx.strokeStyle = 'rgba(52,222,150,.9)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 7); ctx.stroke();
+    chip(x, y, st.origin.name || 'Origen', 'rgba(52,222,150,.4)');
+  }
+
+  /* 6 · destination port — warm red beacon */
+  if (st.destination) {
+    const [x, y] = proj(st.destination);
+    const dg = ctx.createRadialGradient(x, y, 1, x, y, 22);
+    dg.addColorStop(0, 'rgba(255,110,110,.55)');
+    dg.addColorStop(1, 'rgba(255,110,110,0)');
+    ctx.fillStyle = dg;
+    ctx.beginPath(); ctx.arc(x, y, 22, 0, 7); ctx.fill();
+    ctx.fillStyle = '#3a1414';
+    ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 7); ctx.fill();
+    ctx.fillStyle = '#ff7b7b';
+    ctx.beginPath(); ctx.arc(x, y, 5.5, 0, 7); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,123,123,.9)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 7); ctx.stroke();
+    chip(x, y, st.destination.name || 'Destino', 'rgba(255,123,123,.4)');
+  }
+
+  /* 7 · vessel — glowing ship with sonar pulse + heading wedge */
+  const v = st.vessel;
+  if (v) {
+    const [x, y] = proj(v);
+    const pulse = (t % 2400) / 2400; // sonar ring
+    ctx.strokeStyle = 'rgba(120,190,255,' + (0.55 * (1 - pulse)).toFixed(3) + ')';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, y, 10 + pulse * 34, 0, 7); ctx.stroke();
+    const pulse2 = ((t + 1200) % 2400) / 2400;
+    ctx.strokeStyle = 'rgba(120,190,255,' + (0.3 * (1 - pulse2)).toFixed(3) + ')';
+    ctx.beginPath(); ctx.arc(x, y, 10 + pulse2 * 34, 0, 7); ctx.stroke();
+    // halo
+    const vg = ctx.createRadialGradient(x, y, 2, x, y, 26);
+    vg.addColorStop(0, 'rgba(140,200,255,.5)');
+    vg.addColorStop(1, 'rgba(140,200,255,0)');
+    ctx.fillStyle = vg;
+    ctx.beginPath(); ctx.arc(x, y, 26, 0, 7); ctx.fill();
+    // heading wedge (course over ground)
+    if (st.heading != null) {
+      const a = (st.heading * Math.PI) / 180;
+      ctx.fillStyle = 'rgba(140,200,255,.28)';
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.arc(x, y, 20, a - 0.35, a + 0.35);
+      ctx.closePath(); ctx.fill();
+    }
+    // ship glyph — hull seen from above
+    ctx.save();
+    ctx.translate(x, y);
+    if (st.heading != null) ctx.rotate((st.heading * Math.PI) / 180);
+    ctx.fillStyle = '#eaf4ff';
+    ctx.strokeStyle = 'rgba(20,60,110,.9)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, -11);          // bow
+    ctx.lineTo(5.5, -4);
+    ctx.lineTo(5.5, 8);
+    ctx.quadraticCurveTo(5.5, 11, 0, 11);   // stern
+    ctx.quadraticCurveTo(-5.5, 11, -5.5, 8);
+    ctx.lineTo(-5.5, -4);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#1d4e89';  // deck stripe
+    ctx.fillRect(-3.4, -2, 6.8, 7);
+    ctx.restore();
+    // name plate above the vessel
+    ctx.font = '800 12px system-ui';
+    const nm = v.name || v.mmsi || 'BUQUE';
+    const nw = ctx.measureText(nm).width;
+    const bw = nw + 22;
+    const bx = Math.min(Math.max(x - bw / 2, 6), w - bw - 6);
+    ctx.fillStyle = 'rgba(4,10,18,.82)';
+    ctx.strokeStyle = 'rgba(140,200,255,.45)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(bx, y - 46, bw, 24, 12);
+    else ctx.rect(bx, y - 46, bw, 24, 12);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#dff0ff';
+    ctx.fillText(nm, bx + 11, y - 30);
+  }
+
+  /* 8 · vignette — cinematic frame */
+  const vg2 = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.42, w / 2, h / 2, Math.max(w, h) * 0.75);
+  vg2.addColorStop(0, 'rgba(0,0,0,0)');
+  vg2.addColorStop(1, 'rgba(0,0,0,.5)');
+  ctx.fillStyle = vg2;
+  ctx.fillRect(0, 0, w, h);
+}
+
+function mapLoop(t) {
+  paintMap(t);
+  mapAnim = requestAnimationFrame(mapLoop);
+}
+
+/** Rebuild map state from fresh API data, then (re)start the render loop. */
+function drawMap(data) {
   const R = data.route || {};
-  if (R.origin) pts.push({ ...R.origin, kind: 'origin' });
-  if (R.destination) pts.push({ ...R.destination, kind: 'dest' });
   const v = data.vessel;
-  if (v && isFinite(v.lat) && isFinite(v.lon)) pts.push({ lat: +v.lat, lon: +v.lon, kind: 'vessel' });
-  const track = (data.track || []).filter((p) => isFinite(p.lat) && isFinite(p.lon));
-  const showTrack = document.getElementById('tglTrack').checked;
-  const all = pts.concat(showTrack ? track : []);
+  const track = ((data.track || []).filter((p) => isFinite(p.lat) && isFinite(p.lon)))
+    .map((p) => ({ lat: +p.lat, lon: +p.lon }));
+  const origin = R.origin && isFinite(R.origin.lat)
+    ? { lat: +R.origin.lat, lon: +R.origin.lon, name: R.origin.name } : null;
+  const destination = R.destination && isFinite(R.destination.lat)
+    ? { lat: +R.destination.lat, lon: +R.destination.lon, name: R.destination.name } : null;
+  const vessel = v && isFinite(v.lat) && isFinite(v.lon)
+    ? { lat: +v.lat, lon: +v.lon, name: v.name, mmsi: v.mmsi } : null;
+
+  const all = [];
+  if (origin) all.push(origin);
+  if (destination) all.push(destination);
+  if (vessel) all.push(vessel);
+  all.push(...track);
   if (!all.length) return;
   let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
   for (const p of all) {
     minLat = Math.min(minLat, p.lat); maxLat = Math.max(maxLat, p.lat);
     minLon = Math.min(minLon, p.lon); maxLon = Math.max(maxLon, p.lon);
   }
-  const padLat = Math.max((maxLat - minLat) * 0.25, 2), padLon = Math.max((maxLon - minLon) * 0.25, 2);
-  minLat -= padLat; maxLat += padLat; minLon -= padLon; maxLon += padLon;
-  const X = (lon) => ((lon - minLon) / (maxLon - minLon)) * w;
-  const Y = (lat) => ((maxLat - lat) / (maxLat - minLat)) * h;
-  // ocean
-  const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, '#10273c'); g.addColorStop(1, '#0b1a2a');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-  ctx.strokeStyle = 'rgba(120,160,200,.12)'; ctx.lineWidth = 1;
-  for (let i = 1; i < 5; i++) {
-    ctx.beginPath(); ctx.moveTo((w / 5) * i, 0); ctx.lineTo((w / 5) * i, h); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, (h / 5) * i); ctx.lineTo(w, (h / 5) * i); ctx.stroke();
+  const padLat = Math.max((maxLat - minLat) * 0.28, 2.2);
+  const padLon = Math.max((maxLon - minLon) * 0.28, 2.2);
+  const showCyclones = document.getElementById('tglCyclones').checked;
+  const showTrack = document.getElementById('tglTrack').checked;
+  const inView = cyclones.filter((c) =>
+    c.lat >= minLat - padLat && c.lat <= maxLat + padLat &&
+    c.lon >= minLon - padLon && c.lon <= maxLon + padLon);
+
+  // heading from last track segment (course over ground)
+  let heading = null;
+  if (vessel && track.length) {
+    const last = track[track.length - 1];
+    const dLon = vessel.lon - last.lon, dLat = vessel.lat - last.lat;
+    if (Math.abs(dLon) + Math.abs(dLat) > 1e-6) heading = (Math.atan2(dLon, dLat) * 180) / Math.PI;
   }
-  // route origin → destination
-  if (R.origin && R.destination) {
-    ctx.strokeStyle = 'rgba(47,158,110,.65)'; ctx.lineWidth = 2; ctx.setLineDash([7, 6]);
-    ctx.beginPath(); ctx.moveTo(X(R.origin.lon), Y(R.origin.lat)); ctx.lineTo(X(R.destination.lon), Y(R.destination.lat)); ctx.stroke();
-    ctx.setLineDash([]);
-  }
-  // recent track
-  if (showTrack && track.length > 1) {
-    ctx.strokeStyle = 'rgba(130,190,255,.5)'; ctx.lineWidth = 2;
-    ctx.beginPath();
-    track.forEach((p, i) => { const x = X(p.lon), y = Y(p.lat); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
-    ctx.stroke();
-  }
-  const label = (p, text, color) => {
-    ctx.fillStyle = color; ctx.font = '11px system-ui';
-    ctx.fillText(text, X(p.lon) + 9, Y(p.lat) - 8);
+
+  mapState = {
+    bounds: { minLat: minLat - padLat, maxLat: maxLat + padLat, minLon: minLon - padLon, maxLon: maxLon + padLon },
+    origin, destination, vessel, track,
+    routePts: origin && destination ? greatCircleRoute(origin, destination, 72) : [],
+    cyclones: inView, showCyclones, showTrack, heading,
   };
-  if (R.origin) {
-    const p = R.origin;
-    ctx.fillStyle = '#2f9e6e'; ctx.beginPath(); ctx.arc(X(p.lon), Y(p.lat), 6, 0, 7); ctx.fill();
-    label(p, p.name || 'Origen', '#7fe0ab');
+
+  // HUD badge — vessel identity like a movie title card
+  const badge = document.getElementById('vesselBadge');
+  if (vessel) {
+    document.getElementById('hudName').textContent = '🚢 ' + (vessel.name || vessel.mmsi || 'BUQUE');
+    document.getElementById('hudStatus').textContent = 'EN TRÁNSITO · SEÑAL AIS EN VIVO';
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
   }
-  if (R.destination) {
-    const p = R.destination;
-    ctx.fillStyle = '#e05d5d'; ctx.beginPath(); ctx.arc(X(p.lon), Y(p.lat), 6, 0, 7); ctx.fill();
-    label(p, p.name || 'Destino', '#f3b0b0');
-  }
-  // cyclones
-  if (document.getElementById('tglCyclones').checked) {
-    ctx.strokeStyle = '#e8a13d'; ctx.lineWidth = 2;
-    for (const c of cyclones) {
-      if (c.lat < minLat || c.lat > maxLat || c.lon < minLon || c.lon > maxLon) continue;
-      const x = X(c.lon), y = Y(c.lat);
-      ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.stroke();
-      ctx.beginPath(); ctx.arc(x, y, 4, 0, 7); ctx.stroke();
-      label({ lat: c.lat, lon: c.lon }, '🌀 ' + (c.name || ''), '#f5c87e');
-    }
-  }
-  // vessel (pulsing)
-  if (v && isFinite(v.lat) && isFinite(v.lon)) {
-    const x = X(+v.lon), y = Y(+v.lat), t = (Date.now() % 2000) / 2000;
-    ctx.fillStyle = 'rgba(90,170,255,.25)';
-    ctx.beginPath(); ctx.arc(x, y, 8 + t * 10, 0, 7); ctx.fill();
-    ctx.fillStyle = '#5aaaff';
-    ctx.beginPath(); ctx.arc(x, y, 7, 0, 7); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.font = 'bold 11px system-ui';
-    ctx.fillText(v.name || v.mmsi || '', x + 11, y + 4);
-  }
+
+  stopMapAnim();
+  mapLoop(performance.now());
 }
 async function loadCyclones() {
   try {
