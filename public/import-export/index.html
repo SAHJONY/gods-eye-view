@@ -440,9 +440,9 @@ function contactActions(s){
  const wa=waDigits(c.phone,s.country);
  let h="";
  if(c.phone&&wa){
-  h+='<a class="btn sec" onclick="event.stopPropagation()" href="tel:+\'+wa+\'">'+t("call")+"</a>";
+  h+='<a class="btn sec" onclick="event.stopPropagation()" href="tel:+' + wa + '">'+t("call")+"</a>";
   h+='<a class="btn sec" onclick="event.stopPropagation()" target="_blank" rel="noopener" href="https://wa.me/'+wa+'">WhatsApp</a>';
-  h+='<a class="btn sec" onclick="event.stopPropagation()" href="sms:+\'+wa+\'">'+t("sms")+"</a>";
+  h+='<a class="btn sec" onclick="event.stopPropagation()" href="sms:+' + wa + '">'+t("sms")+"</a>";
  }
  if(c.email)h+='<a class="btn sec" onclick="event.stopPropagation()" href="mailto:'+esc(c.email)+'">'+t("mail")+"</a>";
  return h?'<div class="row">'+h+"</div>":"";
@@ -646,7 +646,7 @@ function miContact(c){
  const wa=miWa(c);
  if(c.ph&&wa){
   parts.push('<a style="color:var(--acc);text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/'+wa+'">WhatsApp</a>');
-  parts.push('<a style="color:var(--acc);text-decoration:none" href="sms:+\'+wa+\'">SMS</a>');
+  parts.push('<a style="color:var(--acc);text-decoration:none" href="sms:+' + wa + '">SMS</a>');
  }
  if(c.em)parts.push('<a style="color:var(--acc);text-decoration:none" href="mailto:'+esc(c.em)+'">'+esc(c.em)+'</a>');
  if(c.web)parts.push(esc(c.web));
