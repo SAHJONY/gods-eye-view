@@ -10,6 +10,13 @@ export function createBrowserViteConfig({
   host = 'localhost',
   port = 4173,
 } = {}) {
+  // Extra hostnames allowed through vite's dev-server host check, via the
+  // VITE_ALLOWED_HOSTS env var (comma-separated). Lets the app sit behind a
+  // reverse proxy (nginx) that forwards the public domain as Host.
+  const extraAllowedHosts = String(process.env.VITE_ALLOWED_HOSTS || '')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
   return {
     plugins: [cesium(), applicationHtmlPlugin(), ...plugins],
     ...(publicDir === undefined ? {} : { publicDir }),
@@ -19,7 +26,7 @@ export function createBrowserViteConfig({
       allowedHosts:
         host === '0.0.0.0' || host === '::'
           ? true
-          : ['localhost', '127.0.0.1', '.local'],
+          : ['localhost', '127.0.0.1', '.local', ...extraAllowedHosts],
       fs: {
         deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', '**/ENVIRONMENT'],
       },
