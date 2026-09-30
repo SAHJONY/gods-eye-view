@@ -39,6 +39,7 @@ main{padding:6px 14px}
 .btn.sec{background:var(--card2);color:var(--txt);border:2px solid var(--brd)}
 .btn.dgr{background:#3b1114;color:var(--red);border:1px solid var(--red)}
 .btn.grn{background:#0d2b1a;color:var(--grn);border:1px solid var(--grn)}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 input,select,textarea{width:100%;min-height:52px;border-radius:12px;border:2px solid var(--brd);background:#0b1220;color:var(--txt);font-size:16px;padding:10px 12px;margin:6px 0}
 textarea{min-height:110px;resize:vertical}
 label{font-size:14px;color:var(--mut);font-weight:700}
@@ -102,6 +103,7 @@ econ:"DEAL ECONOMICS",landed:"Landed cost / unit",netmargin:"Net margin",netpct:
 agentnotes:"AGENT NOTES",created:"Created",
 newsup:"New supplier",editsup:"Edit supplier",addsup:"Add supplier",
 seeddir:"📇 Import verified directory",seedok:" verified supplier contacts added to your Suppliers",
+call:"📞 Call",sms:"💬 Text",mail:"✉️ Email",
 s_name:"Name *",s_type:"Type",s_role:"Role",s_country:"Country",s_ver:"Verification",
 s_cname:"Contact name",s_cphone:"Contact phone",s_cemail:"Contact email",
 t_manufacturer:"Manufacturer",t_distributor:"Distributor",t_trader:"Trader",t_logistics:"Logistics",
@@ -143,6 +145,7 @@ econ:"ECONOMÍA DEL TRATO",landed:"Costo landed / unidad",netmargin:"Margen neto
 agentnotes:"NOTAS DEL AGENTE",created:"Creado",
 newsup:"Nuevo proveedor",editsup:"Editar proveedor",addsup:"Agregar proveedor",
 seeddir:"📇 Importar directorio verificado",seedok:" contactos verificados agregados a tus Proveedores",
+call:"📞 Llamar",sms:"💬 SMS",mail:"✉️ Email",
 s_name:"Nombre *",s_type:"Tipo",s_role:"Rol",s_country:"País",s_ver:"Verificación",
 s_cname:"Contacto (nombre)",s_cphone:"Contacto (teléfono)",s_cemail:"Contacto (email)",
 t_manufacturer:"Fabricante",t_distributor:"Distribuidor",t_trader:"Comercializadora",t_logistics:"Logística",
@@ -422,6 +425,28 @@ function seedVerifiedSuppliers(){
  save();render();
  alert(added+t("seedok"));
 }
+/* one-tap contact actions: call / WhatsApp / SMS / email (replies arrive in the native apps) */
+const CC_MAP={USA:"1",Cuba:"53",Guyana:"592",Brasil:"55","Turquía":"90",Turquia:"90",Chile:"56",Vietnam:"84",India:"91",Alemania:"49","Alemania/EE.UU.":"1","Nueva Zelanda":"64"};
+function waDigits(p,country){
+ const m=String(p||"").match(/\+?[\d][\d\s\-\.\(\)]{5,}[\d]/);
+ if(!m)return "";
+ let d=m[0].replace(/\D/g,"");
+ const cc=CC_MAP[country]||"1";
+ if(d.indexOf(cc)!==0)d=cc+d;
+ return d;
+}
+function contactActions(s){
+ const c=s.contact||{};
+ const wa=waDigits(c.phone,s.country);
+ let h="";
+ if(c.phone&&wa){
+  h+='<a class="btn sec" onclick="event.stopPropagation()" href="tel:+\'+wa+\'">'+t("call")+"</a>";
+  h+='<a class="btn sec" onclick="event.stopPropagation()" target="_blank" rel="noopener" href="https://wa.me/'+wa+'">WhatsApp</a>';
+  h+='<a class="btn sec" onclick="event.stopPropagation()" href="sms:+\'+wa+\'">'+t("sms")+"</a>";
+ }
+ if(c.email)h+='<a class="btn sec" onclick="event.stopPropagation()" href="mailto:'+esc(c.email)+'">'+t("mail")+"</a>";
+ return h?'<div class="row">'+h+"</div>":"";
+}
 function renderSuppliers(m){
  let h="";
  if(!S.suppliers.length)h+='<div class="empty">'+t("nosup")+"</div>";
@@ -433,6 +458,7 @@ function renderSuppliers(m){
   +(s.contact&&s.contact.name?'<div class="mut">'+esc(s.contact.name)+"</div>":"")
   +(s.contact&&s.contact.phone?'<div class="mut"><a style="color:var(--acc);font-weight:700" href="tel:'+esc(String(s.contact.phone).replace(/[^\d+]/g,""))+'">'+esc(s.contact.phone)+"</a></div>":"")
   +(s.contact&&s.contact.email?'<div class="mut"><a style="color:var(--acc)" href="mailto:'+esc(s.contact.email)+'">'+esc(s.contact.email)+"</a></div>":"")
+  +contactActions(s)
   +(s.notes?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(s.notes)+"</div>":"")
   +'<div class="row"><button class="btn sec" onclick="event.stopPropagation();editSupplier(\''+s.id+"')\">"+t("edit")+'</button><button class="btn dgr" onclick="event.stopPropagation();delSupplier(\''+s.id+"')\">"+t("del")+"</button></div></div>";
  });
@@ -598,10 +624,30 @@ function miTyPill(ty){
  if(ty==="m")return '<span class="pill green">'+t("mi_sighted")+'</span> <span class="pill yellow">'+t("mi_estimated")+'</span>';
  return '<span class="pill yellow">'+t("mi_estimated")+'</span>';
 }
+/* country-code guess for Mercado directory WhatsApp links (data rows carry no country field) */
+const MI_CC_GUESS=[["persaud","592"],["vinafood","84"],["copersucar","55"],["raízen","55"],["raizen","55"],["mutlu","90"],["lucchetti","56"],["cuba-inside","53"],["\\bith\\b","53"],["caribex","53"],["cubaexport","53"],["caribe","53"],["alcona","53"],["coamo","53"],["dayana","53"],["zuko","56"],["58983203","53"],["52400779","53"],["55021481","53"],["63893138","53"]];
+function miWa(c){
+ const n=(String(c.n||"")+" "+String(c.ph||"")).toLowerCase();
+ let cc="1";
+ for(const pair of MI_CC_GUESS){
+  if(new RegExp(pair[0]).test(n)){cc=pair[1];break}
+ }
+ let d;
+ const m0=String(c.ph||"").match(/\+?[\d][\d\s\-\.\(\)]{5,}[\d]/);
+ if(!m0)return "";
+ d=m0[0].replace(/\D/g,"");
+ if(d.indexOf(cc)!==0)d=cc+d;
+ return d;
+}
 function miContact(c){
  let h='<div class="kv"><span>'+esc(c.n)+'</span><b>';
  const parts=[];
  if(c.ph)parts.push('<a style="color:var(--acc);text-decoration:none" href="tel:'+esc(c.ph.replace(/[^\d+]/g,""))+'">'+esc(c.ph)+'</a>');
+ const wa=miWa(c);
+ if(c.ph&&wa){
+  parts.push('<a style="color:var(--acc);text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/'+wa+'">WhatsApp</a>');
+  parts.push('<a style="color:var(--acc);text-decoration:none" href="sms:+\'+wa+\'">SMS</a>');
+ }
  if(c.em)parts.push('<a style="color:var(--acc);text-decoration:none" href="mailto:'+esc(c.em)+'">'+esc(c.em)+'</a>');
  if(c.web)parts.push(esc(c.web));
  h+=parts.length?parts.join('<br>'):('<span class="mut">'+t("mi_viaweb")+'</span>');
