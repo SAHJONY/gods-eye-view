@@ -104,6 +104,7 @@ agentnotes:"AGENT NOTES",created:"Created",
 newsup:"New supplier",editsup:"Edit supplier",addsup:"Add supplier",
 seeddir:"📇 Import verified directory",seedok:" verified supplier contacts added to your Suppliers",
 call:"📞 Call",sms:"💬 Text",mail:"✉️ Email",
+s_products:"Products (comma separated)",sup_all:"All products",
 s_name:"Name *",s_type:"Type",s_role:"Role",s_country:"Country",s_ver:"Verification",
 s_cname:"Contact name",s_cphone:"Contact phone",s_cemail:"Contact email",
 t_manufacturer:"Manufacturer",t_distributor:"Distributor",t_trader:"Trader",t_logistics:"Logistics",
@@ -146,6 +147,7 @@ agentnotes:"NOTAS DEL AGENTE",created:"Creado",
 newsup:"Nuevo proveedor",editsup:"Editar proveedor",addsup:"Agregar proveedor",
 seeddir:"📇 Importar directorio verificado",seedok:" contactos verificados agregados a tus Proveedores",
 call:"📞 Llamar",sms:"💬 SMS",mail:"✉️ Email",
+s_products:"Productos (separados por coma)",sup_all:"Todos los productos",
 s_name:"Nombre *",s_type:"Tipo",s_role:"Rol",s_country:"País",s_ver:"Verificación",
 s_cname:"Contacto (nombre)",s_cphone:"Contacto (teléfono)",s_cemail:"Contacto (email)",
 t_manufacturer:"Fabricante",t_distributor:"Distribuidor",t_trader:"Comercializadora",t_logistics:"Logística",
@@ -361,54 +363,54 @@ const SUP_VERS=["unverified","in-review","verified","flagged"];
 function verPillClass(v){if(v==="verified")return "green";if(v==="in-review")return "yellow";if(v==="flagged")return "red";return "gray"}
 /* ============ verified supplier directory seed (research 2026-09-30 — real public contacts only) ============ */
 const VERIFIED_SEED_SUPPLIERS=[
-["Mountaire Farms","manufacturer","supplier","USA","(302) 934-1100","","Web: mountaire.com\nProducto: pollo — cuartos y cortes.\nDepto. de exportación confirmado, 80+ países."],
-["Tyson Foods","manufacturer","supplier","USA","1-800-233-6332","","Web: tyson.com\nProducto: pollo, res, cerdo.\nDivisión internacional confirmada."],
-["Pilgrim's Pride","manufacturer","supplier","USA","","","Web: pilgrims.com\nProducto: pollo.\nContacto comercial vía web oficial."],
-["Wayne-Sanderson Farms","manufacturer","supplier","USA","","","Web: wayne-sanderson.com\nProducto: pollo.\nPlantas en el sureste, cerca de puertos del Golfo."],
-["Perdue Farms","manufacturer","supplier","USA","","","Web: perdue.com\nProducto: pollo, pavo.\nContacto comercial vía web oficial."],
-["Koch Foods","manufacturer","supplier","USA","","","Web: kochfoods.com\nProducto: pollo.\nContacto comercial vía web oficial."],
-["Peco Foods","manufacturer","supplier","USA","","","Web: pecofoods.com\nProducto: pollo.\nPlantas en el sureste."],
-["Amick Farms","manufacturer","supplier","USA","","","Web: amickfarms.com\nProducto: pollo, orientado a exportación."],
-["Smithfield Foods","manufacturer","supplier","USA","","","Web: smithfieldfoods.com\nProducto: cerdo.\nCoordinadores de exportación confirmados."],
-["Seaboard Foods","manufacturer","supplier","USA","","","Web: seaboardfoods.com\nProducto: cerdo.\nFuerte en ventas internacionales."],
-["JBS USA (Swift)","manufacturer","supplier","USA","","","Web: jbssa.com\nProducto: cerdo y res.\nContacto comercial vía web oficial."],
-["Triumph Foods","manufacturer","supplier","USA","+1 816-396-2700","","Web: triumphfoods.com\nDir: 5302 Stockyards Expy, St. Joseph MO 64504.\nProducto: cerdo."],
-["Clemens Food Group","manufacturer","supplier","USA","+1 215-368-2500","","Web: clemensfoodgroup.com\nDir: 2700 Clemens Road, Hatfield PA 19440.\nProducto: cerdo."],
-["Cibao Meat Products","manufacturer","supplier","USA","+1 862-278-1089","","Web: cibaomeat.com\nDir: 92 Green Pond Rd, Rockaway NJ 07866.\nEmail de contacto publicado en su sitio oficial.\nADVERTENCIA: su propio sitio dice que NO hace envíos internacionales — referencia interna, no prometer disponibilidad a compradores."],
-["Cargill","manufacturer","supplier","USA","1-800-644-6465","","Web: cargill.com\nDir: 15407 McGinty Rd W, Wayzata MN 55391.\nProducto: aceite vegetal/soya a granel (hoja GEOS publicada).\nPara ventas comerciales, contacto vía web oficial."],
-["ADM (Archer Daniels Midland)","manufacturer","supplier","USA","","","Web: adm.com\nDir: Chicago, IL.\nProducto: aceite de cocina / agro.\nNo publica teléfono de ventas de exportación — contacto vía web oficial."],
-["Bunge","manufacturer","supplier","USA","","","Web: bunge.com\nDir: St. Louis, MO.\nProducto: aceite de cocina / agro.\nNo publica teléfono de ventas de exportación — contacto vía web oficial."],
-["Nand Persaud Group","manufacturer","supplier","Guyana","(592) 325-3563","info@nandpersaudgroup.com","Web: nandpersaudgroup.com\nDir: No. 36 Village Corentyne, Berbice.\nEmail alterno: export@nandpersaud.com.\nProducto: arroz. Uno de los mayores exportadores de Guyana (fuente GRDB)."],
-["Vinafood II (Vietnam Southern Food Corp.)","manufacturer","supplier","Vietnam","028 3837 0025 / 028 3837 0026","","Web: vinafood2.com.vn\nDir: 333 Tran Hung Dao, Cau Kho Ward, District 1, Ho Chi Minh City.\nProducto: arroz (~2.8–3.0M TM/año procesamiento y exportación).\nTeléfono publicado en directorio de terceros — VERIFICAR en el sitio oficial antes de usar."],
-["Vinafood I (Vietnam Northern Food Corp.)","manufacturer","supplier","Vietnam","","","Web: vinafood1.com.vn\nDir: Hanói.\nProducto: arroz — mayor exportador del norte (1.26M TM en 2024)."],
-["LT Foods (Daawat)","manufacturer","supplier","India","","info@ltfoods.com","Producto: arroz IR64 parbolizado.\nRFQ de SAHJONY enviado 26/sep/2026 — respuesta pendiente."],
-["Rice Master Global","trader","supplier","India","","Info@ricemasterglobal.com","Producto: arroz IR64 5% partido.\nRFQ de SAHJONY enviado 26/sep/2026 — respuesta pendiente."],
-["Copersucar","trader","supplier","Brasil","+55 11 2618-8166","","Web: copersucar.com.br\nDir: Av. Paulista 287, São Paulo.\nProducto: azúcar FOB Santos. Mayor exportador de Brasil."],
-["Raízen S.A.","manufacturer","supplier","Brasil","+55 11 2573-3000","","Web: raizen.com\nDir: Av. Juscelino Kubitschek 1.909, Vila Nova Conceição, São Paulo (oficinas comerciales Av. Brigadeiro Faria Lima 4100).\nProducto: azúcar/etanol (Shell + Cosan).\nBANDERA DE RIESGO 2025–2026: programa de reducción de deuda, venta/cierre de plantas (12 mil millones de reales en activos; planta Santa Elisa cerrada) — validar capacidad comercial actual antes de cualquier compromiso."],
-["Freeland Bean and Grain","manufacturer","supplier","USA","1 989 695 9131","FBG@tm.net","Web: freelandbeanandgrain.com\nDir: 1000 E. Washington St, PO Box 515, Freeland MI 48623.\nProducto: frijoles negros.\nEmail del directorio US Dry Bean Council (documento 2010) — verificar vigencia.\nExporter of the Year MDARD 2026: exporta a Colombia, Costa Rica, RD, Guatemala, México, Panamá y Perú."],
-["US Dry Bean Council (directorio)","trader","supplier","USA","","","Web: usdrybeans.com\nDirectorio sectorial oficial para cotizar frijoles (negros, pintos, kidneys, navy) por contenedor — no es proveedor directo."],
-["Cal-Maine Foods","manufacturer","supplier","USA","(601) 948-6813","","Web: calmainefoods.com\nDir: Ridgeland, MS.\nProducto: huevos. Mayor productor de EE.UU."],
-["Rose Acre Farms","manufacturer","supplier","USA","812-497-2557 / ventas: 812-497-2559 x207","","Web: goodegg.com\nDir: Seymour, IN.\nProducto: huevos — programa de ventas internacionales publicado en su sitio."],
-["Ardent Mills","manufacturer","supplier","USA","(888) 680-0013","info@ardentmills.com","Web: ardentmills.com\nDir: Denver, CO.\nProducto: harina de trigo."],
-["Mutlu Makarna","manufacturer","supplier","Turquía","+90 342 337 18 84","info@mutlumakarna.com.tr","Web: mutlumakarna.com.tr\nDir: Gaziantep.\nProducto: pastas — exporta a 100+ países (sitio oficial)."],
-["Tresmontes Lucchetti (Zuko)","manufacturer","supplier","Chile","56 2 2586 5700","","Web: tmluc.com (Grupo Nutresa)\nDir: Los Conquistadores 2345, Providencia, Santiago.\nProducto: refresco en polvo Zuko.\nTeléfono publicado en ficha de proveedor de terceros (Dimerc) — VERIFICAR en tmluc.com antes de usar."],
-["Fonterra NZMP","manufacturer","supplier","Nueva Zelanda","","","Web: fonterra.com\nProducto: leche en polvo — división B2B de ingredientes lácteos NZMP.\nContacto comercial vía formulario web de NZMP."],
-["Café La Llave","manufacturer","supplier","USA","+1 305-477-4070","","Web: cafelallave.com\nDir: Medley / Miami, FL.\nProducto: café."],
-["Church & Dwight (Arm & Hammer)","manufacturer","supplier","USA","","","Web: churchdwight.com\nDir: Ewing, NJ.\nProducto: detergente.\nNo publica teléfono de ventas de exportación — contacto vía web oficial."],
-["Henkel (Persil, all, Purex)","manufacturer","supplier","Alemania/EE.UU.","","","Web: henkel.com\nDir: Düsseldorf; EE.UU.: One Henkel Way, Rocky Hill, CT 06067.\nProducto: detergente.\nEl teléfono público (800) 457-8739 es atención al consumidor EE.UU., no ventas de exportación — contacto vía web oficial."],
-["Caribbean Fuels","distributor","supplier","USA","+1 305-925-9988","bunkers@caribbeanfuels.com","Web: caribbeanfuels.com\nDir: Boca Raton, FL.\nProducto: combustible / bunkering marino en el Caribe.\nNOTA LEGAL: excepción SCP de BIS (feb 2026) — combustible EE.UU. solo para consumo propio de la contraparte cubana, REVENTA PROHIBIDA."],
-["Crowley","logistics","supplier","USA","","","Web: crowley.com\nDir: Jacksonville, FL.\nFlete Cuba: 4 FCL/mes + LCL semanal Miami→Mariel.\nSus divisiones de combustible al detalle son de Alaska (no aplica al Caribe).\nContacto comercial vía web oficial."],
-["Seaboard Marine","logistics","supplier","USA","","","Web: seaboardmarine.com\nFlete FCL-only a Cuba (sin LCL).\nContacto comercial vía web oficial.","in-review","Daniela Pena"],
-["Caribe Cargo","logistics","supplier","USA","","","Flete: 3 salidas/semana Miami→Mariel, $1.30/lb a puerta (tarifa interna), tránsito 21–35 días.\nTeléfono pendiente — Frank lo envía.","in-review","Frank"],
-["ITH, S.A.","distributor","buyer","Cuba","+53 7831-0426 ext. 5228","arley@ith.cu","Web: ith.cu\nImportadora estatal: carnes, pollo, lácteos, cereales, pastas."],
-["CARIBEX","distributor","buyer","Cuba","+53 78644135","rcasanova@caribex.cu","Web: caribex.cu\nImportadora estatal: alimentos, bebidas, café."],
-["CUBAEXPORT","distributor","buyer","Cuba","+53 78380589","ventasfgne@cubaexport.cu","Importadora estatal autorizada."],
-["CÍTRICOS CARIBE, S.A.","distributor","buyer","Cuba","+53 78820122 ext. 103","direccion@ccaribe.co.cu","Importadora agroalimentos."],
-["ALCONA, S.A.","distributor","buyer","Cuba","+53 72277167","export.fgne@alconasa.cu","Importadora: insumos agro, industria de embutidos."],
-["Coamo — aceite (Cuba-inside)","distributor","supplier","Cuba","55021481","","Aceite Coamo 900 ml ~$3.50/botella, La Habana.\nAvistamiento interno sep 2026 — precio Mariel pendiente.","unverified","Maceo Saray"],
-["Azúcar/arroz (Cuba-inside)","distributor","supplier","Cuba","58983203","","Contacto WhatsApp Cuba-inside.\nReferencia de precio techo (NO proveedor verificado).","unverified",""],
-["Zuko (Cuba-inside)","distributor","supplier","Cuba","52400779","","Refresco en polvo Zuko — contacto Cuba-inside.\nAvistamiento interno sep 2026.","unverified",""],
-["Dayana — azúcar/huevos (Cuba-inside)","distributor","supplier","Cuba","+53 63893138","","Sourcing de azúcar y huevos — registros internos sep 2026.\nAvistamiento interno, no verificado como proveedor.","unverified","Dayana"]
+["Mountaire Farms","manufacturer","supplier","USA","(302) 934-1100","","Web: mountaire.com\nProducto: pollo — cuartos y cortes.\nDepto. de exportación confirmado, 80+ países.","in-review","","pollo"],
+["Tyson Foods","manufacturer","supplier","USA","1-800-233-6332","","Web: tyson.com\nProducto: pollo, res, cerdo.\nDivisión internacional confirmada.","in-review","","pollo"],
+["Pilgrim's Pride","manufacturer","supplier","USA","","","Web: pilgrims.com\nProducto: pollo.\nContacto comercial vía web oficial.","in-review","","pollo"],
+["Wayne-Sanderson Farms","manufacturer","supplier","USA","","","Web: wayne-sanderson.com\nProducto: pollo.\nPlantas en el sureste, cerca de puertos del Golfo.","in-review","","pollo"],
+["Perdue Farms","manufacturer","supplier","USA","","","Web: perdue.com\nProducto: pollo, pavo.\nContacto comercial vía web oficial.","in-review","","pollo"],
+["Koch Foods","manufacturer","supplier","USA","","","Web: kochfoods.com\nProducto: pollo.\nContacto comercial vía web oficial.","in-review","","pollo"],
+["Peco Foods","manufacturer","supplier","USA","","","Web: pecofoods.com\nProducto: pollo.\nPlantas en el sureste.","in-review","","pollo"],
+["Amick Farms","manufacturer","supplier","USA","","","Web: amickfarms.com\nProducto: pollo, orientado a exportación.","in-review","","pollo"],
+["Smithfield Foods","manufacturer","supplier","USA","","","Web: smithfieldfoods.com\nProducto: cerdo.\nCoordinadores de exportación confirmados.","in-review","","cerdo"],
+["Seaboard Foods","manufacturer","supplier","USA","","","Web: seaboardfoods.com\nProducto: cerdo.\nFuerte en ventas internacionales.","in-review","","cerdo"],
+["JBS USA (Swift)","manufacturer","supplier","USA","","","Web: jbssa.com\nProducto: cerdo y res.\nContacto comercial vía web oficial.","in-review","","cerdo"],
+["Triumph Foods","manufacturer","supplier","USA","+1 816-396-2700","","Web: triumphfoods.com\nDir: 5302 Stockyards Expy, St. Joseph MO 64504.\nProducto: cerdo.","in-review","","cerdo"],
+["Clemens Food Group","manufacturer","supplier","USA","+1 215-368-2500","","Web: clemensfoodgroup.com\nDir: 2700 Clemens Road, Hatfield PA 19440.\nProducto: cerdo.","in-review","","cerdo"],
+["Cibao Meat Products","manufacturer","supplier","USA","+1 862-278-1089","","Web: cibaomeat.com\nDir: 92 Green Pond Rd, Rockaway NJ 07866.\nEmail de contacto publicado en su sitio oficial.\nADVERTENCIA: su propio sitio dice que NO hace envíos internacionales — referencia interna, no prometer disponibilidad a compradores.","in-review","","embutidos"],
+["Cargill","manufacturer","supplier","USA","1-800-644-6465","","Web: cargill.com\nDir: 15407 McGinty Rd W, Wayzata MN 55391.\nProducto: aceite vegetal/soya a granel (hoja GEOS publicada).\nPara ventas comerciales, contacto vía web oficial.","in-review","","aceite"],
+["ADM (Archer Daniels Midland)","manufacturer","supplier","USA","","","Web: adm.com\nDir: Chicago, IL.\nProducto: aceite de cocina / agro.\nNo publica teléfono de ventas de exportación — contacto vía web oficial.","in-review","","aceite"],
+["Bunge","manufacturer","supplier","USA","","","Web: bunge.com\nDir: St. Louis, MO.\nProducto: aceite de cocina / agro.\nNo publica teléfono de ventas de exportación — contacto vía web oficial.","in-review","","aceite"],
+["Nand Persaud Group","manufacturer","supplier","Guyana","(592) 325-3563","info@nandpersaudgroup.com","Web: nandpersaudgroup.com\nDir: No. 36 Village Corentyne, Berbice.\nEmail alterno: export@nandpersaud.com.\nProducto: arroz. Uno de los mayores exportadores de Guyana (fuente GRDB).","in-review","","arroz"],
+["Vinafood II (Vietnam Southern Food Corp.)","manufacturer","supplier","Vietnam","028 3837 0025 / 028 3837 0026","","Web: vinafood2.com.vn\nDir: 333 Tran Hung Dao, Cau Kho Ward, District 1, Ho Chi Minh City.\nProducto: arroz (~2.8–3.0M TM/año procesamiento y exportación).\nTeléfono publicado en directorio de terceros — VERIFICAR en el sitio oficial antes de usar.","in-review","","arroz"],
+["Vinafood I (Vietnam Northern Food Corp.)","manufacturer","supplier","Vietnam","","","Web: vinafood1.com.vn\nDir: Hanói.\nProducto: arroz — mayor exportador del norte (1.26M TM en 2024).","in-review","","arroz"],
+["LT Foods (Daawat)","manufacturer","supplier","India","","info@ltfoods.com","Producto: arroz IR64 parbolizado.\nRFQ de SAHJONY enviado 26/sep/2026 — respuesta pendiente.","in-review","","arroz"],
+["Rice Master Global","trader","supplier","India","","Info@ricemasterglobal.com","Producto: arroz IR64 5% partido.\nRFQ de SAHJONY enviado 26/sep/2026 — respuesta pendiente.","in-review","","arroz"],
+["Copersucar","trader","supplier","Brasil","+55 11 2618-8166","","Web: copersucar.com.br\nDir: Av. Paulista 287, São Paulo.\nProducto: azúcar FOB Santos. Mayor exportador de Brasil.","in-review","","azúcar"],
+["Raízen S.A.","manufacturer","supplier","Brasil","+55 11 2573-3000","","Web: raizen.com\nDir: Av. Juscelino Kubitschek 1.909, Vila Nova Conceição, São Paulo (oficinas comerciales Av. Brigadeiro Faria Lima 4100).\nProducto: azúcar/etanol (Shell + Cosan).\nBANDERA DE RIESGO 2025–2026: programa de reducción de deuda, venta/cierre de plantas (12 mil millones de reales en activos; planta Santa Elisa cerrada) — validar capacidad comercial actual antes de cualquier compromiso.","in-review","","azúcar"],
+["Freeland Bean and Grain","manufacturer","supplier","USA","1 989 695 9131","FBG@tm.net","Web: freelandbeanandgrain.com\nDir: 1000 E. Washington St, PO Box 515, Freeland MI 48623.\nProducto: frijoles negros.\nEmail del directorio US Dry Bean Council (documento 2010) — verificar vigencia.\nExporter of the Year MDARD 2026: exporta a Colombia, Costa Rica, RD, Guatemala, México, Panamá y Perú.","in-review","","frijoles"],
+["US Dry Bean Council (directorio)","trader","supplier","USA","","","Web: usdrybeans.com\nDirectorio sectorial oficial para cotizar frijoles (negros, pintos, kidneys, navy) por contenedor — no es proveedor directo.","in-review","","frijoles"],
+["Cal-Maine Foods","manufacturer","supplier","USA","(601) 948-6813","","Web: calmainefoods.com\nDir: Ridgeland, MS.\nProducto: huevos. Mayor productor de EE.UU.","in-review","","huevos"],
+["Rose Acre Farms","manufacturer","supplier","USA","812-497-2557 / ventas: 812-497-2559 x207","","Web: goodegg.com\nDir: Seymour, IN.\nProducto: huevos — programa de ventas internacionales publicado en su sitio.","in-review","","huevos"],
+["Ardent Mills","manufacturer","supplier","USA","(888) 680-0013","info@ardentmills.com","Web: ardentmills.com\nDir: Denver, CO.\nProducto: harina de trigo.","in-review","","harina"],
+["Mutlu Makarna","manufacturer","supplier","Turquía","+90 342 337 18 84","info@mutlumakarna.com.tr","Web: mutlumakarna.com.tr\nDir: Gaziantep.\nProducto: pastas — exporta a 100+ países (sitio oficial).","in-review","","pastas"],
+["Tresmontes Lucchetti (Zuko)","manufacturer","supplier","Chile","56 2 2586 5700","","Web: tmluc.com (Grupo Nutresa)\nDir: Los Conquistadores 2345, Providencia, Santiago.\nProducto: refresco en polvo Zuko.\nTeléfono publicado en ficha de proveedor de terceros (Dimerc) — VERIFICAR en tmluc.com antes de usar.","in-review","","refresco en polvo"],
+["Fonterra NZMP","manufacturer","supplier","Nueva Zelanda","","","Web: fonterra.com\nProducto: leche en polvo — división B2B de ingredientes lácteos NZMP.\nContacto comercial vía formulario web de NZMP.","in-review","","leche en polvo"],
+["Café La Llave","manufacturer","supplier","USA","+1 305-477-4070","","Web: cafelallave.com\nDir: Medley / Miami, FL.\nProducto: café.","in-review","","café"],
+["Church & Dwight (Arm & Hammer)","manufacturer","supplier","USA","","","Web: churchdwight.com\nDir: Ewing, NJ.\nProducto: detergente.\nNo publica teléfono de ventas de exportación — contacto vía web oficial.","in-review","","aseo"],
+["Henkel (Persil, all, Purex)","manufacturer","supplier","Alemania/EE.UU.","","","Web: henkel.com\nDir: Düsseldorf; EE.UU.: One Henkel Way, Rocky Hill, CT 06067.\nProducto: detergente.\nEl teléfono público (800) 457-8739 es atención al consumidor EE.UU., no ventas de exportación — contacto vía web oficial.","in-review","","aseo"],
+["Caribbean Fuels","distributor","supplier","USA","+1 305-925-9988","bunkers@caribbeanfuels.com","Web: caribbeanfuels.com\nDir: Boca Raton, FL.\nProducto: combustible / bunkering marino en el Caribe.\nNOTA LEGAL: excepción SCP de BIS (feb 2026) — combustible EE.UU. solo para consumo propio de la contraparte cubana, REVENTA PROHIBIDA.","in-review","","combustible"],
+["Crowley","logistics","supplier","USA","","","Web: crowley.com\nDir: Jacksonville, FL.\nFlete Cuba: 4 FCL/mes + LCL semanal Miami→Mariel.\nSus divisiones de combustible al detalle son de Alaska (no aplica al Caribe).\nContacto comercial vía web oficial.","in-review","","flete"],
+["Seaboard Marine","logistics","supplier","USA","","","Web: seaboardmarine.com\nFlete FCL-only a Cuba (sin LCL).\nContacto comercial vía web oficial.","in-review","Daniela Pena","flete"],
+["Caribe Cargo","logistics","supplier","USA","","","Flete: 3 salidas/semana Miami→Mariel, $1.30/lb a puerta (tarifa interna), tránsito 21–35 días.\nTeléfono pendiente — Frank lo envía.","in-review","Frank","flete"],
+["ITH, S.A.","distributor","buyer","Cuba","+53 7831-0426 ext. 5228","arley@ith.cu","Web: ith.cu\nImportadora estatal: carnes, pollo, lácteos, cereales, pastas.","in-review","","varios"],
+["CARIBEX","distributor","buyer","Cuba","+53 78644135","rcasanova@caribex.cu","Web: caribex.cu\nImportadora estatal: alimentos, bebidas, café.","in-review","","varios"],
+["CUBAEXPORT","distributor","buyer","Cuba","+53 78380589","ventasfgne@cubaexport.cu","Importadora estatal autorizada.","in-review","","varios"],
+["CÍTRICOS CARIBE, S.A.","distributor","buyer","Cuba","+53 78820122 ext. 103","direccion@ccaribe.co.cu","Importadora agroalimentos.","in-review","","varios"],
+["ALCONA, S.A.","distributor","buyer","Cuba","+53 72277167","export.fgne@alconasa.cu","Importadora: insumos agro, industria de embutidos.","in-review","","varios"],
+["Coamo — aceite (Cuba-inside)","distributor","supplier","Cuba","55021481","","Aceite Coamo 900 ml ~$3.50/botella, La Habana.\nAvistamiento interno sep 2026 — precio Mariel pendiente.","unverified","Maceo Saray","aceite"],
+["Azúcar/arroz (Cuba-inside)","distributor","supplier","Cuba","58983203","","Contacto WhatsApp Cuba-inside.\nReferencia de precio techo (NO proveedor verificado).","unverified","","azúcar, arroz"],
+["Zuko (Cuba-inside)","distributor","supplier","Cuba","52400779","","Refresco en polvo Zuko — contacto Cuba-inside.\nAvistamiento interno sep 2026.","unverified","","refresco en polvo"],
+["Dayana — azúcar/huevos (Cuba-inside)","distributor","supplier","Cuba","+53 63893138","","Sourcing de azúcar y huevos — registros internos sep 2026.\nAvistamiento interno, no verificado como proveedor.","unverified","Dayana","azúcar, huevos"]
 ];
 function seedVerifiedSuppliers(){
  const have=new Set(S.suppliers.map(s=>String(s.name||"").trim().toLowerCase()));
@@ -418,6 +420,7 @@ function seedVerifiedSuppliers(){
   if(have.has(nm))return;
   have.add(nm);
   S.suppliers.push({id:uid(),name:a[0],type:a[1],role:a[2],country:a[3],verification:a[7]||"in-review",
+   products:a[9]||"",
    contact:{name:a[8]||"",phone:a[4]||"",email:a[5]||""},notes:a[6]||"",
    agentNotes:[],createdAt:nowIso(),updatedAt:nowIso()});
   added++;
@@ -447,14 +450,25 @@ function contactActions(s){
  if(c.email)h+='<a class="btn sec" onclick="event.stopPropagation()" href="mailto:'+esc(c.email)+'">'+t("mail")+"</a>";
  return h?'<div class="row">'+h+"</div>":"";
 }
+let SUP_PROD_FILTER="all";
+function supProductList(){const set={};S.suppliers.forEach(s=>String(s.products||"").split(",").forEach(p=>{p=p.trim();if(p)set[p]=1}));return Object.keys(set).sort((a,b)=>a.localeCompare(b))}
 function renderSuppliers(m){
  let h="";
- if(!S.suppliers.length)h+='<div class="empty">'+t("nosup")+"</div>";
- S.suppliers.forEach(s=>{
+ const plist=supProductList();
+ if(plist.length){
+  h+='<select id="sup_prodfilter" style="margin-bottom:10px" onchange="SUP_PROD_FILTER=this.value;render()">'
+  +'<option value="all">'+t("sup_all")+"</option>"
+  +plist.map(p=>'<option value="'+esc(p)+'"'+(SUP_PROD_FILTER===p?" selected":"")+">"+esc(p)+"</option>").join("")
+  +"</select>";
+ }
+ const list=S.suppliers.filter(s=>SUP_PROD_FILTER==="all"||String(s.products||"").split(",").map(x=>x.trim()).includes(SUP_PROD_FILTER));
+ if(!list.length)h+='<div class="empty">'+t("nosup")+"</div>";
+ list.forEach(s=>{
   h+='<div class="card tap" onclick="editSupplier(\''+s.id+'\')">'
   +'<h3>'+esc(s.name||t("none"))+'</h3>'
   +'<span class="pill '+verPillClass(s.verification)+'">'+t("ver_"+String(s.verification).replace("-","_"))+"</span>"
   +'<div class="mut">'+t("t_"+s.type)+" · "+t("r_"+s.role)+(s.country?" · "+esc(s.country):"")+"</div>"
+  +(s.products?'<div class="mut">📦 <b style="color:var(--txt)">'+esc(s.products)+"</b></div>":"")
   +(s.contact&&s.contact.name?'<div class="mut">'+esc(s.contact.name)+"</div>":"")
   +(s.contact&&s.contact.phone?'<div class="mut"><a style="color:var(--acc);font-weight:700" href="tel:'+esc(String(s.contact.phone).replace(/[^\d+]/g,""))+'">'+esc(s.contact.phone)+"</a></div>":"")
   +(s.contact&&s.contact.email?'<div class="mut"><a style="color:var(--acc)" href="mailto:'+esc(s.contact.email)+'">'+esc(s.contact.email)+"</a></div>":"")
@@ -467,7 +481,7 @@ function renderSuppliers(m){
 }
 function editSupplier(id){
  const s=id?S.suppliers.find(x=>x.id===id):null;
- const f=s||{name:"",type:"manufacturer",role:"supplier",country:"",verification:"unverified",contact:{},notes:""};
+ const f=s||{name:"",type:"manufacturer",role:"supplier",country:"",verification:"unverified",products:"",contact:{},notes:""};
  const c=f.contact||{};
  const typeOpts=SUP_TYPES.map(v=>'<option value="'+v+'"'+(f.type===v?" selected":"")+">"+t("t_"+v)+"</option>").join("");
  const roleOpts=SUP_ROLES.map(v=>'<option value="'+v+'"'+(f.role===v?" selected":"")+">"+t("r_"+v)+"</option>").join("");
@@ -477,6 +491,7 @@ function editSupplier(id){
  +'<label>'+t("s_type")+'</label><select id="s_type">'+typeOpts+"</select>"
  +'<label>'+t("s_role")+'</label><select id="s_role">'+roleOpts+"</select>"
  +'<label>'+t("s_country")+'</label><input id="s_country" value="'+esc(f.country||'')+'">'
+ +'<label>'+t("s_products")+'</label><input id="s_products" placeholder="pollo, arroz" value="'+esc(f.products||'')+'">'
  +'<label>'+t("s_ver")+'</label><select id="s_verification">'+verOpts+"</select>"
  +'<label>'+t("s_cname")+'</label><input id="s_cname" value="'+esc(c.name||'')+'">'
  +'<label>'+t("s_cphone")+'</label><input id="s_cphone" value="'+esc(c.phone||'')+'">'
@@ -487,7 +502,7 @@ function editSupplier(id){
 function saveSupplier(id){
  const g=i=>document.getElementById(i)?document.getElementById(i).value.trim():"";
  const rec={name:g("s_name"),type:g("s_type")||"manufacturer",role:g("s_role")||"supplier",
-  country:g("s_country"),verification:g("s_verification")||"unverified",
+  country:g("s_country"),verification:g("s_verification")||"unverified",products:g("s_products"),
   contact:{name:g("s_cname"),phone:g("s_cphone"),email:g("s_cemail")},notes:g("s_notes")};
  if(!SUP_TYPES.includes(rec.type))rec.type="manufacturer";
  if(!SUP_ROLES.includes(rec.role))rec.role="supplier";
