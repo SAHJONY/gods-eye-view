@@ -101,6 +101,7 @@ supplier:"Supplier",buyer:"Buyer",status:"Status",notes:"Notes",none:"—",
 econ:"DEAL ECONOMICS",landed:"Landed cost / unit",netmargin:"Net margin",netpct:"Net margin (%)",comm:"Est. commission",
 agentnotes:"AGENT NOTES",created:"Created",
 newsup:"New supplier",editsup:"Edit supplier",addsup:"Add supplier",
+seeddir:"📇 Import verified directory",seedok:" verified supplier contacts added to your Suppliers",
 s_name:"Name *",s_type:"Type",s_role:"Role",s_country:"Country",s_ver:"Verification",
 s_cname:"Contact name",s_cphone:"Contact phone",s_cemail:"Contact email",
 t_manufacturer:"Manufacturer",t_distributor:"Distributor",t_trader:"Trader",t_logistics:"Logistics",
@@ -141,6 +142,7 @@ supplier:"Proveedor",buyer:"Comprador",status:"Estado",notes:"Notas",none:"—",
 econ:"ECONOMÍA DEL TRATO",landed:"Costo landed / unidad",netmargin:"Margen neto",netpct:"Margen neto (%)",comm:"Comisión estimada",
 agentnotes:"NOTAS DEL AGENTE",created:"Creado",
 newsup:"Nuevo proveedor",editsup:"Editar proveedor",addsup:"Agregar proveedor",
+seeddir:"📇 Importar directorio verificado",seedok:" contactos verificados agregados a tus Proveedores",
 s_name:"Nombre *",s_type:"Tipo",s_role:"Rol",s_country:"País",s_ver:"Verificación",
 s_cname:"Contacto (nombre)",s_cphone:"Contacto (teléfono)",s_cemail:"Contacto (email)",
 t_manufacturer:"Fabricante",t_distributor:"Distribuidor",t_trader:"Comercializadora",t_logistics:"Logística",
@@ -354,6 +356,58 @@ const SUP_TYPES=["manufacturer","distributor","trader","logistics"];
 const SUP_ROLES=["supplier","buyer","both"];
 const SUP_VERS=["unverified","in-review","verified","flagged"];
 function verPillClass(v){if(v==="verified")return "green";if(v==="in-review")return "yellow";if(v==="flagged")return "red";return "gray"}
+/* ============ verified supplier directory seed (research 2026-09-30 — real public contacts only) ============ */
+const VERIFIED_SEED_SUPPLIERS=[
+["Mountaire Farms","manufacturer","supplier","USA","(302) 934-1100","","Pollo — cuartos y cortes. Depto. de exportación confirmado, 80+ países."],
+["Tyson Foods","manufacturer","supplier","USA","1-800-233-6332","","Pollo/res/cerdo. División internacional."],
+["Pilgrim's Pride","manufacturer","supplier","USA","","","Pollo. Contacto vía web oficial."],
+["Wayne-Sanderson Farms","manufacturer","supplier","USA","","","Pollo. Plantas en el sureste, cerca de puertos del Golfo."],
+["Perdue Farms","manufacturer","supplier","USA","","","Pollo/pavo. Contacto vía web oficial."],
+["Koch Foods","manufacturer","supplier","USA","","","Pollo. Contacto vía web oficial."],
+["Peco Foods","manufacturer","supplier","USA","","","Pollo. Plantas en el sureste."],
+["Amick Farms","manufacturer","supplier","USA","","","Pollo, orientado a exportación."],
+["Smithfield Foods","manufacturer","supplier","USA","","","Cerdo. Coordinadores de exportación confirmados."],
+["Seaboard Foods","manufacturer","supplier","USA","","","Cerdo. Fuerte en ventas internacionales."],
+["JBS USA (Swift)","manufacturer","supplier","USA","","","Cerdo y res. Contacto vía web oficial."],
+["Triumph Foods","manufacturer","supplier","USA","+1 816-396-2700","","Cerdo."],
+["Clemens Food Group","manufacturer","supplier","USA","+1 215-368-2500","","Cerdo."],
+["Cargill","manufacturer","supplier","USA","1-800-644-6465","","Aceite vegetal/soya a granel."],
+["Nand Persaud Group","manufacturer","supplier","Guyana","(592) 325-3563","info@nandpersaudgroup.com","Arroz. Exportador guyanés."],
+["LT Foods (Daawat)","manufacturer","supplier","India","","info@ltfoods.com","Arroz IR64 parbolizado. RFQ enviado 26/sep/2026."],
+["Rice Master Global","trader","supplier","India","","Info@ricemasterglobal.com","Arroz IR64 5% partido. RFQ enviado 26/sep/2026."],
+["Copersucar","trader","supplier","Brasil","+55 11 2618-8166","","Azúcar FOB Santos."],
+["Raízen","manufacturer","supplier","Brasil","","","Azúcar. BANDERA DE RIESGO: en reestructuración de deuda 2025-26 — validar capacidad antes de comprometer."],
+["Freeland Bean and Grain","manufacturer","supplier","USA","1 989 695 9131","","Frijoles. Exporter of the Year MDARD 2026."],
+["Cal-Maine Foods","manufacturer","supplier","USA","(601) 948-6813","","Huevos."],
+["Rose Acre Farms","manufacturer","supplier","USA","812-497-2559 x207","","Huevos. Ventas de exportación."],
+["Ardent Mills","manufacturer","supplier","USA","(888) 680-0013","info@ardentmills.com","Harina de trigo."],
+["Mutlu Makarna","manufacturer","supplier","Turquía","+90 342 337 18 84","info@mutlumakarna.com.tr","Pastas. Exporta a 100+ países."],
+["Café La Llave","manufacturer","supplier","USA","+1 305-477-4070","","Café."],
+["Caribbean Fuels","distributor","supplier","USA","+1 305-925-9988","bunkers@caribbeanfuels.com","Combustible. NOTA LEGAL: excepción SCP — solo consumo propio, reventa prohibida."],
+["Crowley","logistics","supplier","USA","","","Flete Cuba: 4 FCL/mes + LCL semanal Miami→Mariel. Contacto vía web oficial."],
+["Seaboard Marine","logistics","supplier","USA","","","Flete FCL-only. Contacto: Daniela Pena. Vía web oficial."],
+["Caribe Cargo","logistics","supplier","USA","","","Flete 3 salidas/semana Miami→Mariel, $1.30/lb a puerta (interno). Contacto: Frank — teléfono pendiente."],
+["ITH, S.A.","distributor","buyer","Cuba","+53 7831-0426 ext. 5228","arley@ith.cu","Importadora estatal: carnes, pollo, lácteos, cereales, pastas."],
+["CARIBEX","distributor","buyer","Cuba","+53 78644135","rcasanova@caribex.cu","Importadora estatal: alimentos, bebidas, café."],
+["CUBAEXPORT","distributor","buyer","Cuba","+53 78380589","ventasfgne@cubaexport.cu","Importadora estatal autorizada."],
+["CÍTRICOS CARIBE, S.A.","distributor","buyer","Cuba","+53 78820122 ext. 103","direccion@ccaribe.co.cu","Importadora agroalimentos."],
+["ALCONA, S.A.","distributor","buyer","Cuba","+53 72277167","export.fgne@alconasa.cu","Importadora: insumos agro, industria de embutidos."]
+];
+function seedVerifiedSuppliers(){
+ const have=new Set(S.suppliers.map(s=>String(s.name||"").trim().toLowerCase()));
+ let added=0;
+ VERIFIED_SEED_SUPPLIERS.forEach(a=>{
+  const nm=String(a[0]).trim().toLowerCase();
+  if(have.has(nm))return;
+  have.add(nm);
+  S.suppliers.push({id:uid(),name:a[0],type:a[1],role:a[2],country:a[3],verification:"in-review",
+   contact:{name:"",phone:a[4]||"",email:a[5]||""},notes:a[6]||"",
+   agentNotes:[],createdAt:nowIso(),updatedAt:nowIso()});
+  added++;
+ });
+ save();render();
+ alert(added+t("seedok"));
+}
 function renderSuppliers(m){
  let h="";
  if(!S.suppliers.length)h+='<div class="empty">'+t("nosup")+"</div>";
@@ -363,12 +417,12 @@ function renderSuppliers(m){
   +'<span class="pill '+verPillClass(s.verification)+'">'+t("ver_"+String(s.verification).replace("-","_"))+"</span>"
   +'<div class="mut">'+t("t_"+s.type)+" · "+t("r_"+s.role)+(s.country?" · "+esc(s.country):"")+"</div>"
   +(s.contact&&s.contact.name?'<div class="mut">'+esc(s.contact.name)+"</div>":"")
-  +(s.contact&&s.contact.phone?'<div class="mut">'+esc(s.contact.phone)+"</div>":"")
-  +(s.contact&&s.contact.email?'<div class="mut">'+esc(s.contact.email)+"</div>":"")
+  +(s.contact&&s.contact.phone?'<div class="mut"><a style="color:var(--acc);font-weight:700" href="tel:'+esc(String(s.contact.phone).replace(/[^\d+]/g,""))+'">'+esc(s.contact.phone)+"</a></div>":"")
+  +(s.contact&&s.contact.email?'<div class="mut"><a style="color:var(--acc)" href="mailto:'+esc(s.contact.email)+'">'+esc(s.contact.email)+"</a></div>":"")
   +(s.notes?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(s.notes)+"</div>":"")
   +'<div class="row"><button class="btn sec" onclick="event.stopPropagation();editSupplier(\''+s.id+"')\">"+t("edit")+'</button><button class="btn dgr" onclick="event.stopPropagation();delSupplier(\''+s.id+"')\">"+t("del")+"</button></div></div>";
  });
- h+='<div class="row"><button class="btn" onclick="editSupplier(\'\')">'+t("addsup")+"</button></div>";
+ h+='<div class="row"><button class="btn" onclick="editSupplier(\'\')">'+t("addsup")+'</button><button class="btn grn" onclick="seedVerifiedSuppliers()">'+t("seeddir")+"</button></div>";
  m.innerHTML=h;
 }
 function editSupplier(id){
