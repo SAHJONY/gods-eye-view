@@ -203,3 +203,22 @@ test('gate item template is bilingual and has the sanctions-screen item', () => 
   assert.ok(item, 'sanctions screening item present');
   assert.ok(item.es.includes('Juan') && item.en.includes('Juan'));
 });
+
+test('parcelEconomics: brokerTotal = totalSpread + flatFee; missing fields reported', () => {
+  const e = parcelEconomics({
+    product: 'diesel',
+    unit: 'MT',
+    volumeMt: 50,
+    buyPerUnit: 700,
+    sellPerUnit: 720,
+    feePerUnit: 2,
+  });
+  assert.equal(e.brokerTotal, e.totalSpread + e.flatFee);
+  assert.equal(e.totalSpread, 1000);
+  assert.equal(e.flatFee, 100);
+  assert.deepEqual(e.missing, []);
+  const e2 = parcelEconomics({ product: 'diesel', unit: 'MT' });
+  assert.ok(e2.missing.some((m) => m.field === 'buyPerUnit'), 'missing buyPerUnit reported');
+  assert.ok(e2.missing.some((m) => m.field === 'volumeMt'), 'missing volumeMt reported');
+  assert.ok(e2.missing[0].es && e2.missing[0].en, 'bilingual labels');
+});

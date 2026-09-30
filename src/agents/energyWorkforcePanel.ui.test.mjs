@@ -11,6 +11,7 @@ const {
   sortFeedNewest,
   isHardStopEvent,
   adaptWorkforce,
+  escalationReasonLabel,
 } = await import('./energyWorkforcePanel.js');
 
 function makeEl() {
@@ -181,4 +182,12 @@ test('setLang switches ES/EN', () => {
   panel.setLang('en');
   assert.equal(panel.getLang(), 'en');
   panel.destroy();
+});
+
+test('escalationReasonLabel is bilingual and passes unknown reasons through', () => {
+  assert.equal(escalationReasonLabel('sanctions', 'es'), 'Sanciones (hard-stop)');
+  assert.equal(escalationReasonLabel('sanctions', 'en'), 'Sanctions (hard-stop)');
+  assert.equal(escalationReasonLabel('compliance', 'es'), 'Cumplimiento');
+  assert.equal(escalationReasonLabel('missing-data', 'en'), 'Missing data');
+  assert.equal(escalationReasonLabel('other', 'es'), 'other');
 });

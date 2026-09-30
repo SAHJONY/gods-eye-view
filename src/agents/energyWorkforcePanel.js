@@ -96,6 +96,21 @@ export function tierLabel(tier, lang = 'es') {
   }
 }
 
+/** Bilingual label for an escalation reason. Unknown reasons pass through. */
+export function escalationReasonLabel(reason, lang = 'es') {
+  const L = lang === 'es';
+  switch (reason) {
+    case 'sanctions':
+      return L ? 'Sanciones (hard-stop)' : 'Sanctions (hard-stop)';
+    case 'compliance':
+      return L ? 'Cumplimiento' : 'Compliance';
+    case 'missing-data':
+      return L ? 'Datos faltantes' : 'Missing data';
+    default:
+      return String(reason ?? '');
+  }
+}
+
 /** Normalize a raw agent state object against the known roster. */
 export function normalizeAgents(raw = []) {
   const byId = new Map((raw || []).map((a) => [a?.id, a]));
@@ -329,7 +344,7 @@ export function initEnergyWorkforcePanel({ workforce = null, signal = null } = {
     sec.appendChild(el('h2', null, t('⛔ Escalaciones (hard-stop)', '⛔ Escalations (hard-stop)')));
     for (const e of esc.slice(-10).reverse()) {
       const card = el('div', 'gev-energy-wf-feed hardstop');
-      card.appendChild(el('div', null, t('Motivo', 'Reason') + `: ${e.reason || ''}`));
+      card.appendChild(el('div', null, t('Motivo', 'Reason') + `: ${escalationReasonLabel(e.reason, lang)}`));
       card.appendChild(el('div', 'meta', String(e.ts || '')));
       root.appendChild(sec);
       sec.appendChild(card);

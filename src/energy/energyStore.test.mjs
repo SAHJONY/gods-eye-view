@@ -64,17 +64,18 @@ test('status labels are bilingual for every status', () => {
   }
 });
 
-test('Cuban fuel ports: exactly Mariel, Havana, Santiago, Cienfuegos with coords', () => {
+test('Cuban fuel ports: Mariel, Havana, Santiago, Cienfuegos, Nuevitas with coords + product capabilities', () => {
   clean();
   const ports = getPorts();
-  assert.equal(ports.length, 4);
+  assert.equal(ports.length, 5);
   const ids = ports.map((p) => p.id).sort();
-  assert.deepEqual(ids, ['cienfuegos', 'havana', 'mariel', 'santiago']);
+  assert.deepEqual(ids, ['cienfuegos', 'havana', 'mariel', 'nuevitas', 'santiago']);
   for (const p of ports) {
     assert.ok(Number.isFinite(p.lat) && Number.isFinite(p.lng), p.id);
     assert.ok(p.lat >= 18 && p.lat <= 24, `${p.id} lat in Cuba`);
     assert.ok(p.lng >= -86 && p.lng <= -74, `${p.id} lng in Cuba`);
     assert.ok(p.name.es && p.name.en, 'bilingual name');
+    assert.ok(Array.isArray(p.products) && p.products.length > 0, `${p.id} product capabilities`);
   }
 });
 
@@ -231,4 +232,12 @@ test('asWorkforceStore: notes shaped {t, agent, es, en}', () => {
   assert.equal(notes.length, 1);
   assert.equal(notes[0].agent, 'economics-memo');
   assert.ok(notes[0].t, 'note has t timestamp');
+});
+
+test('createInquiry auto-generates a ref when none is given', () => {
+  clean();
+  const inq = createInquiry({ product: 'diesel', volumeMt: 10 });
+  assert.match(inq.ref, /^ENQ-\d{8}-[A-Z0-9]{4}$/);
+  const inq2 = createInquiry({ ref: 'MY-REF', product: 'diesel' });
+  assert.equal(inq2.ref, 'MY-REF');
 });

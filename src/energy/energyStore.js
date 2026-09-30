@@ -56,6 +56,7 @@ export const CUBAN_FUEL_PORTS = Object.freeze([
     name: { es: 'Mariel', en: 'Mariel' },
     lat: 23.0267,
     lng: -82.7736,
+    products: ['diesel', 'gasoline', 'lpg'],
     note: {
       es: 'Terminal de contenedores y graneles. Referencia estática.',
       en: 'Container and bulk terminal. Static reference.',
@@ -66,6 +67,7 @@ export const CUBAN_FUEL_PORTS = Object.freeze([
     name: { es: 'La Habana', en: 'Havana' },
     lat: 23.1433,
     lng: -82.3458,
+    products: ['diesel', 'gasoline'],
     note: {
       es: 'Puerto principal. Referencia estática.',
       en: 'Main port. Static reference.',
@@ -76,6 +78,7 @@ export const CUBAN_FUEL_PORTS = Object.freeze([
     name: { es: 'Santiago de Cuba', en: 'Santiago de Cuba' },
     lat: 19.9972,
     lng: -75.875,
+    products: ['diesel', 'gasoline', 'lpg'],
     note: {
       es: 'Puerto del oriente. Referencia estática.',
       en: 'Eastern port. Static reference.',
@@ -86,9 +89,21 @@ export const CUBAN_FUEL_PORTS = Object.freeze([
     name: { es: 'Cienfuegos', en: 'Cienfuegos' },
     lat: 22.1464,
     lng: -80.4542,
+    products: ['diesel', 'lpg'],
     note: {
       es: 'Refinería y terminal de combustibles. Referencia estática.',
       en: 'Refinery and fuel terminal. Static reference.',
+    },
+  },
+  {
+    id: 'nuevitas',
+    name: { es: 'Nuevitas', en: 'Nuevitas' },
+    lat: 21.54,
+    lng: -77.26,
+    products: ['diesel'],
+    note: {
+      es: 'Puerto de Camagüey; graneles y carga general. Referencia estática.',
+      en: 'Camagüey port; bulk and general cargo. Static reference.',
     },
   },
 ]);
@@ -266,7 +281,7 @@ function coerceProduct(product) {
 }
 
 function normalizeInquiry(data = {}) {
-  return {
+  const inquiry = {
     id: typeof data.id === 'string' && data.id ? data.id : makeId(),
     ref: asText(data.ref),
     product: coerceProduct(data.product),
@@ -294,6 +309,12 @@ function normalizeInquiry(data = {}) {
     createdAt: data.createdAt || chicagoIso(),
     updatedAt: data.updatedAt || chicagoIso(),
   };
+  // Auto-reference for inquiries created without one (stable, human-readable).
+  if (!inquiry.ref) {
+    const stamp = chicagoIso().slice(0, 10).replace(/-/g, '');
+    inquiry.ref = `ENQ-${stamp}-${inquiry.id.slice(0, 4).toUpperCase()}`;
+  }
+  return inquiry;
 }
 
 function normalizeBenchmark(data = {}) {
@@ -619,7 +640,12 @@ export const resolveEscalation = (id) => store.resolveEscalation(id);
 export const stats = () => store.stats();
 
 export function getPorts() {
-  return CUBAN_FUEL_PORTS.map((p) => ({ ...p, name: { ...p.name }, note: { ...p.note } }));
+  return CUBAN_FUEL_PORTS.map((p) => ({
+    ...p,
+    name: { ...p.name },
+    note: { ...p.note },
+    products: [...(p.products || [])],
+  }));
 }
 
 /**

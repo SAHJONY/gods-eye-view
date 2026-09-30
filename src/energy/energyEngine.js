@@ -293,7 +293,31 @@ export function parcelEconomics(inq = {}) {
       volumeUnits,
       feePerUnit: inq.feePerUnit,
     }),
+    brokerTotal:
+      totalSpread({ perUnitSpread: perUnit, volumeUnits }) +
+      brokerFee({ volumeUnits, feePerUnit: inq.feePerUnit }),
+    missing: missingPriceFields(inq),
   };
+}
+
+const PRICE_FIELD_LABELS = [
+  { field: 'buyPerUnit', es: 'Precio de compra / unidad', en: 'Buy price / unit' },
+  { field: 'sellPerUnit', es: 'Precio de venta / unidad', en: 'Sell price / unit' },
+  { field: 'volumeMt', es: 'Volumen (MT)', en: 'Volume (MT)' },
+];
+
+/**
+ * Report which core pricing fields are missing/invalid, as bilingual
+ * entries. Missing data is reported, never invented.
+ */
+export function missingPriceFields(inq = {}) {
+  const d = inq && typeof inq === 'object' ? inq : {};
+  const missing = [];
+  for (const { field, es, en } of PRICE_FIELD_LABELS) {
+    const v = Number(d[field]);
+    if (!Number.isFinite(v) || v <= 0) missing.push({ field, es, en });
+  }
+  return missing;
 }
 
 // ---------------------------------------------------------------------------

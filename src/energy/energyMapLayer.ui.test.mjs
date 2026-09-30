@@ -69,11 +69,11 @@ test('refresh dedupes and drops stale ports', () => {
   const ports = [...CUBAN_FUEL_PORTS];
   const layer = initEnergyPortLayer({ viewer, ports });
   layer.refresh();
-  assert.equal(layer._count(), 4);
+  assert.equal(layer._count(), CUBAN_FUEL_PORTS.length);
   ports.pop();
   const out = layer.refresh();
   assert.equal(out.removed, 1);
-  assert.equal(layer._count(), 3);
+  assert.equal(layer._count(), CUBAN_FUEL_PORTS.length - 1);
   layer.destroy();
 });
 
@@ -102,7 +102,7 @@ test('setVisible toggles entity show flags; destroy is safe', () => {
   const layer = initEnergyPortLayer({ viewer, ports: CUBAN_FUEL_PORTS });
   layer.refresh();
   layer.setVisible(false);
-  assert.equal(layer._count(), 4);
+  assert.equal(layer._count(), CUBAN_FUEL_PORTS.length);
   layer.setVisible(true);
   layer.destroy();
   assert.equal(layer._count(), 0);
