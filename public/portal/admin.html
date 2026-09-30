@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Consola del dueño · Portal SAHJONY LLC</title>
+<style>
+  :root { --bg:#0b1622; --card:#132433; --accent:#2f9e6e; --text:#eef4f8; --muted:#9db4c6;
+          --line:#23405a; --warn:#e8a13d; --danger:#e05d5d; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  header { padding:14px 16px; background:#0d1a28; border-bottom:1px solid var(--line); }
+  header .brand { font-size:12px; letter-spacing:2px; color:var(--muted); }
+  header h1 { font-size:18px; margin:4px 0 0; }
+  main { max-width:860px; margin:0 auto; padding:16px 16px 48px; }
+  .tabs { display:flex; gap:8px; margin-bottom:16px; }
+  .tabs button { flex:1; padding:13px; font-size:15px; border-radius:10px; border:1px solid var(--line);
+                 background:var(--card); color:var(--text); cursor:pointer; }
+  .tabs button.on { background:var(--accent); color:#06281b; font-weight:700; border-color:var(--accent); }
+  .pane { display:none; } .pane.on { display:block; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px; }
+  .card h3 { margin:0 0 10px; font-size:16px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:10px 0 4px; }
+  input, select { width:100%; padding:12px; font-size:15px; border-radius:10px; border:1px solid #2c4a66;
+                  background:#0d1a28; color:var(--text); }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0 12px; }
+  button.act { margin-top:14px; padding:13px 18px; font-size:15px; font-weight:700; border:0; border-radius:10px;
+               background:var(--accent); color:#06281b; cursor:pointer; }
+  button.ghost { background:transparent; border:1px solid var(--line); color:var(--text); font-weight:400;
+                 padding:9px 12px; font-size:13px; margin:6px 6px 0 0; border-radius:9px; cursor:pointer; }
+  button.danger { border-color:var(--danger); color:#f3b0b0; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:9px 6px; border-bottom:1px solid rgba(35,64,90,.6); vertical-align:top; }
+  th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:1px; }
+  .pill { display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+  .pill.en_transito { background:rgba(47,158,110,.15); color:#7fe0ab; }
+  .pill.en_puerto { background:rgba(232,161,61,.15); color:#f5c87e; }
+  .pill.pendiente { background:rgba(157,180,198,.15); color:var(--muted); }
+  .pill.entregado { background:rgba(47,158,110,.3); color:#bff0d4; }
+  .off { opacity:.55; }
+  #keyGate { max-width:420px; margin:60px auto; }
+  .msg { margin-top:10px; font-size:13px; color:var(--muted); }
+  .mono { font-family:ui-monospace,monospace; font-size:12px; word-break:break-all; }
+</style>
+</head>
+<body>
+<header><div class="brand">SAHJONY LLC · USO INTERNO</div><h1>Consola del dueño — Portal de clientes</h1></header>
+<main>
+  <div id="keyGate" class="card">
+    <h3>Clave del dueño</h3>
+    <label for="ownerKey">PORTAL_OWNER_KEY</label>
+    <input id="ownerKey" type="password" autocomplete="off" placeholder="••••••••">
+    <button class="act" id="keyGo">Entrar</button>
+    <div class="msg">Se guarda solo en esta pestaña (sessionStorage). Nunca sale de este navegador salvo hacia el servidor.</div>
+  </div>
+  <div id="app" style="display:none">
+    <div class="tabs">
+      <button data-pane="pClients" class="on">Clientes</button>
+      <button data-pane="pShips">Embarques</button>
+      <button data-pane="pQuotes">Cotizaciones</button>
+      <button data-pane="pWatch">Vigilante AIS</button>
+    </div>
+    <section id="pClients" class="pane on">
+      <div class="card"><h3>Nuevo cliente</h3>
+        <label>Empresa</label><input id="cCompany">
+        <label>Contacto</label><input id="cContact">
+        <label>Email (usuario)</label><input id="cEmail" type="email">
+        <label>Contraseña inicial (mín. 8)</label><input id="cPass" type="text" autocomplete="off">
+        <label>Servicio de interés</label><select id="cSvc"><option value="">—</option><option>Comprar mercancía</option><option>Enviar contenedor completo</option><option>Enviar carga por pallet</option><option>Enviar paquetería</option><option>Varios servicios</option></select>
+        <button class="act" id="cCreate">Crear cliente</button><div class="msg" id="cMsg"></div>
+      </div>
+      <div class="card"><h3>Clientes</h3><div id="cList">…</div></div>
+    </section>
+    <section id="pShips" class="pane">
+      <div class="card"><h3>Nuevo embarque</h3>
+        <label>Cliente</label><select id="sClient"></select>
+        <div class="grid2">
+          <div><label>MMSI del buque</label><input id="sMmsi" inputmode="numeric" placeholder="244780354"></div>
+          <div><label>Nombre del buque</label><input id="sVessel"></div>
+        </div>
+        <div class="grid2">
+          <div><label>Puerto origen</label><input id="sOrigin" placeholder="Houston"></div>
+          <div><label>Puerto destino</label><input id="sDest" placeholder="Mariel"></div>
+        </div>
+        <div class="grid2">
+          <div><label>Lat origen</label><input id="sOLat" inputmode="decimal" placeholder="29.72"></div>
+          <div><label>Lon origen</label><input id="sOLon" inputmode="decimal" placeholder="-95.08"></div>
+        </div>
+        <div class="grid2">
+          <div><label>Lat destino</label><input id="sDLat" inputmode="decimal" placeholder="23.01"></div>
+          <div><label>Lon destino</label><input id="sDLon" inputmode="decimal" placeholder="-82.75"></div>
+        </div>
+        <label>Descripción de la carga (lo que ve el cliente)</label><input id="sCargo" placeholder="Contenedor 40ft — alimentos">
+        <div class="grid2">
+          <div><label>Nº de contenedor (opcional)</label><input id="sCnum" placeholder="MSKU 1234567"></div>
+          <div><label>Nivel de servicio</label><select id="sTier"><option value="">—</option><option>Comprar mercancía</option><option>Enviar contenedor completo</option><option>Enviar carga por pallet</option><option>Enviar paquetería</option><option>Varios servicios</option></select></div>
+        </div>
+        <div class="grid2">
+          <div><label>Estado inicial</label><select id="sStatus">
+            <option value="pendiente">Pendiente</option><option value="en_transito">En tránsito</option>
+            <option value="en_puerto">En puerto</option><option value="entregado">Entregado</option></select></div>
+          <div><label>Llegada estimada</label><input id="sEta" placeholder="2026-10-12"></div>
+        </div>
+        <button class="act" id="sCreate">Crear embarque</button><div class="msg" id="sMsg"></div>
+      </div>
+      <div class="card"><h3>Embarques</h3><div id="sList">…</div></div>
+    </section>
+    <section id="pQuotes" class="pane">
+      <div class="card"><h3>Cotizaciones <span class="msg" id="qCount"></span></h3><div id="qList">…</div></div>
+    </section>
+    <section id="pWatch" class="pane">
+      <div class="card"><h3>Vigilante AIS</h3>
+        <div id="wStatus">…</div>
+        <button class="act" id="wTick">Ejecutar ahora</button>
+        <div class="msg">Evalúa cada 60 s automáticamente: salida del geofence de origen (~15 km) o velocidad sostenida &gt; 3 nudos → <b>en tránsito</b>; entrada al geofence de destino → <b>en puerto</b>. <b>Entregado</b> siempre es manual.</div>
+        <div id="wTrans" style="margin-top:12px"></div>
+      </div>
+    </section>
+  </div>
+</main>
+<script>
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let KEY = sessionStorage.getItem('portal_owner_key') || '';
+async function admin(path, method='GET', body) {
+  const res = await fetch('/api/portal/admin' + path, {
+    method,
+    headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + KEY },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { status: res.status, data };
+}
+function unlock() {
+  document.getElementById('keyGate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  refreshAll();
+}
+/* tabs */
+document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach((x) => x.classList.remove('on'));
+  document.querySelectorAll('.pane').forEach((x) => x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById(b.dataset.pane).classList.add('on');
+}));
+/* key gate */
+const keyInput = document.getElementById('ownerKey');
+document.getElementById('keyGo').addEventListener('click', async () => {
+  KEY = keyInput.value.trim();
+  if (!KEY) return;
+  const { status } = await admin('/clients');
+  if (status === 401) { alert('Clave incorrecta.'); return; }
+  sessionStorage.setItem('portal_owner_key', KEY);
+  unlock();
+});
+if (KEY) { keyInput.value = KEY; document.getElementById('keyGo').click(); }
+/* clients */
+async function loadClients() {
+  const { status, data } = await admin('/clients');
+  if (status === 401) { sessionStorage.removeItem('portal_owner_key'); location.reload(); return; }
+  const list = data.clients || [];
+  document.getElementById('cList').innerHTML = list.length ? `<table><tr><th>Empresa</th><th>Email</th><th>Estado</th><th></th></tr>${list.map((c) => `
+    <tr class="${c.active ? '' : 'off'}"><td>${esc(c.companyName)}<br><span class="mono">${esc(c.id)}</span></td>
+    <td>${esc(c.email)}${c.phone ? '<br>' + esc(c.phone) : ''}${c.serviceInterest ? '<br><i>Interés: ' + esc(c.serviceInterest) + '</i>' : ''}</td>
+    <td>${c.status === 'pending' ? '<b>Pendiente</b>' : c.status === 'rejected' ? 'Rechazado' : c.active ? 'Activo' : 'Inactivo'}</td>
+    <td>${c.status === 'pending' ? `<button class="ghost" data-act="approve" data-id="${esc(c.id)}">Aprobar</button><button class="ghost danger" data-act="reject" data-id="${esc(c.id)}">Rechazar</button>` : ''}
+    <button class="ghost" data-act="toggle" data-id="${esc(c.id)}" data-on="${c.active ? 1 : 0}">${c.active ? 'Desactivar' : 'Activar'}</button><button class="ghost" data-act="pw" data-id="${esc(c.id)}">Nueva clave</button></td></tr>`).join('')}</table>` : 'Sin clientes.';
+  document.getElementById('sClient').innerHTML = list.filter((c) => c.active).map((c) =>
+    `<option value="${esc(c.id)}">${esc(c.companyName)}</option>`).join('');
+  document.querySelectorAll('#cList [data-act]').forEach((b) => b.addEventListener('click', async () => {
+    if (b.dataset.act === 'toggle') {
+      await admin(`/clients/${b.dataset.id}`, 'PATCH', { active: b.dataset.on === '1' ? false : true });
+    } else if (b.dataset.act === 'approve') {
+      await admin(`/clients/${b.dataset.id}/approve`, 'POST');
+    } else if (b.dataset.act === 'reject') {
+      if (confirm('¿Rechazar este registro?')) await admin(`/clients/${b.dataset.id}/reject`, 'POST');
+    } else {
+      const pw = prompt('Nueva contraseña (mín. 8 caracteres):');
+      if (pw) await admin(`/clients/${b.dataset.id}/password`, 'POST', { password: pw });
+    }
+    loadClients();
+  }));
+}
+document.getElementById('cCreate').addEventListener('click', async () => {
+  const body = { companyName: document.getElementById('cCompany').value, contactName: document.getElementById('cContact').value,
+    email: document.getElementById('cEmail').value, password: document.getElementById('cPass').value,
+    serviceInterest: document.getElementById('cSvc').value || undefined };
+  const { status, data } = await admin('/clients', 'POST', body);
+  document.getElementById('cMsg').textContent = status === 201 ? 'Cliente creado: ' + data.client.id : 'Error: ' + (data.error || status);
+  if (status === 201) loadClients();
+});
+/* shipments */
+const ST_OPTS = ['pendiente','en_transito','en_puerto','entregado'].map((s) => `<option value="${s}">${s}</option>`).join('');
+async function loadShips() {
+  const { data } = await admin('/shipments');
+  const list = data.shipments || [];
+  document.getElementById('sList').innerHTML = list.length ? `<table><tr><th>Carga</th><th>Ruta</th><th>Estado</th><th></th></tr>${list.map((s) => `
+    <tr><td>${esc(s.cargoLabel)}<br><span class="mono">${esc(s.id)} · MMSI ${esc(s.vesselMmsi)}</span>${s.containerNumber ? '<br><span class="mono">Cont. ' + esc(s.containerNumber) + '</span>' : ''}${s.serviceTier ? '<br><i>' + esc(s.serviceTier) + '</i>' : ''}</td>
+    <td>${esc(s.origin)} → ${esc(s.destination)}</td>
+    <td><span class="pill ${esc(s.status)}">${esc(s.status)}</span><br><select data-sid="${esc(s.id)}" class="stSel">${ST_OPTS.replace(`value="${s.status}"`, `value="${s.status}" selected`)}</select></td>
+    <td><button class="ghost danger" data-del="${esc(s.id)}">Borrar</button></td></tr>`).join('')}</table>` : 'Sin embarques.';
+  document.querySelectorAll('.stSel').forEach((sel) => sel.addEventListener('change', async () => {
+    await admin(`/shipments/${sel.dataset.sid}`, 'PATCH', { status: sel.value });
+    loadShips();
+  }));
+  document.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', async () => {
+    if (confirm('¿Borrar este embarque?')) { await admin(`/shipments/${b.dataset.del}`, 'DELETE'); loadShips(); }
+  }));
+}
+const numOrUndef = (id) => { const v = document.getElementById(id).value.trim(); return v === '' ? undefined : Number(v); };
+document.getElementById('sCreate').addEventListener('click', async () => {
+  const body = { clientId: document.getElementById('sClient').value, vesselMmsi: document.getElementById('sMmsi').value,
+    vesselName: document.getElementById('sVessel').value, origin: document.getElementById('sOrigin').value,
+    destination: document.getElementById('sDest').value, cargoLabel: document.getElementById('sCargo').value,
+    status: document.getElementById('sStatus').value, eta: document.getElementById('sEta').value,
+    containerNumber: document.getElementById('sCnum').value || undefined,
+    serviceTier: document.getElementById('sTier').value || undefined,
+    originLat: numOrUndef('sOLat'), originLon: numOrUndef('sOLon'), destLat: numOrUndef('sDLat'), destLon: numOrUndef('sDLon') };
+  const { status, data } = await admin('/shipments', 'POST', body);
+  document.getElementById('sMsg').textContent = status === 201 ? 'Embarque creado: ' + data.shipment.id : 'Error: ' + (data.error || status);
+  if (status === 201) loadShips();
+});
+/* quotes */
+const Q_LABEL = { pending:'Pendiente', done:'Atendida', rejected:'Rechazada' };
+async function loadQuotes() {
+  const { data } = await admin('/quotes');
+  const list = data.quotes || [];
+  const pend = list.filter((q) => q.status === 'pending').length;
+  document.getElementById('qCount').textContent = pend ? `· ${pend} pendiente(s)` : '';
+  document.getElementById('qList').innerHTML = list.length ? `<table><tr><th>Cliente</th><th>Solicitud</th><th>Contacto</th><th>Estado</th><th></th></tr>${list.map((q) => `
+    <tr class="${q.status === 'pending' ? '' : 'off'}">
+      <td>${esc(q.companyName || q.clientId)}<br><span class="mono">${esc(q.createdAt || '').slice(0, 10)}</span></td>
+      <td><b>${esc(q.serviceTier)}</b>${q.containerSize ? ` · ${esc(q.containerSize)}` : ''}${q.origin || q.destination ? `<br>${esc(q.origin)} → ${esc(q.destination)}` : ''}<br>${esc(q.cargoDescription)}</td>
+      <td>${esc(q.contactName)}<br>${esc(q.contactPhone)}${q.contactEmail ? '<br>' + esc(q.contactEmail) : ''}</td>
+      <td>${esc(Q_LABEL[q.status] || q.status)}</td>
+      <td>${q.status === 'pending' ? `<button class="ghost" data-q="done" data-id="${esc(q.id)}">Atendida</button><button class="ghost danger" data-q="rejected" data-id="${esc(q.id)}">Rechazar</button>` : ''}</td>
+    </tr>`).join('')}</table>` : 'Sin cotizaciones.';
+  document.querySelectorAll('#qList [data-q]').forEach((b) => b.addEventListener('click', async () => {
+    await admin(`/quotes/${b.dataset.id}`, 'PATCH', { status: b.dataset.q });
+    loadQuotes();
+  }));
+}
+/* watcher */
+async function loadWatcher() {  const { data } = await admin('/watcher/status');
+  document.getElementById('wStatus').innerHTML =
+    `<div class="mono">running: ${data.running} · cada ${data.tickMs / 1000}s · geofence ${data.geofenceKm} km · &gt;${data.speedKn} nudos × ${data.sustainedTicks}<br>último tick: ${esc(data.lastTickAt || '—')}</div>`;
+}
+document.getElementById('wTick').addEventListener('click', async () => {
+  const { data } = await admin('/watcher/tick', 'POST');
+  const t = data.transitions || [];
+  document.getElementById('wTrans').innerHTML = t.length
+    ? '<b>Transiciones:</b><br>' + t.map((x) => `<div class="mono">${esc(x.shipmentId)}: ${esc(x.from)} → ${esc(x.to)} (${esc(x.reason)})</div>`).join('')
+    : 'Sin cambios.';
+  loadWatcher();
+});
+function refreshAll() { loadClients(); loadShips(); loadQuotes(); loadWatcher(); }
+</script>
+</body>
+</html>

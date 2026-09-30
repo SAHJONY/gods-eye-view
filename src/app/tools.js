@@ -1730,74 +1730,6 @@ export function createApplicationTools({
   } catch {
     document.getElementById('gev-voice-control')?.remove();
   }
-  return {
-    sceneDirector,
-    annotations,
-    voiceCommands,
-    sahjonyVoice,
-    streetView,
-    drive,
-    leadMap,
-    workforce,
-    wholesale: dashboard,
-    workforcePanel,
-    tankerMap,
-    crudeWorkforce,
-    crude: crudeDashboard,
-    crudeWorkforcePanel,
-    insuranceStateMap,
-    insuranceWorkforce,
-    insurance: insuranceDashboard,
-    insuranceWorkforcePanel,
-    shippingMap,
-    tradeWorkforce,
-    trade: tradeDashboard,
-    tradeWorkforcePanel,
-    cubaMap,
-    cubaWorkforce,
-    cuba: cubaDashboard,
-    cubaWorkforcePanel,
-    corridorMap,
-    cubacashWorkforce,
-    cubacash: cubacashDashboard,
-    cubacashWorkforcePanel,
-  };
-}
-// Cuba car market A–Z: buyer qualification funnel, Rosmel gestor draft queue
-// (drafts only), competition price panel, deal pipeline with internal-only
-// economics. No public inventory; SAHJONY is a fee broker, never the seller.
-import * as carEngine from '../cars/carEngine.js';
-import {
-  createLead as carCreateLead,
-  getLead as carGetLead,
-  updateLead as carUpdateLead,
-  moveLead as carMoveLead,
-  deleteLead as carDeleteLead,
-  listLeads as carListLeads,
-  addLeadNote as carAddLeadNote,
-  createDeal as carCreateDeal,
-  getDeal as carGetDeal,
-  moveDeal as carMoveDeal,
-  deleteDeal as carDeleteDeal,
-  listDeals as carListDeals,
-  createDraft as carCreateDraft,
-  setDraftState as carSetDraftState,
-  listDrafts as carListDrafts,
-  addSnapshot as carAddSnapshot,
-  listSnapshots as carListSnapshots,
-  getOurPrices as carGetOurPrices,
-  setOurPrice as carSetOurPrice,
-  asWorkforceStore as carAsWorkforceStore,
-  stats as carStats,
-} from '../cars/carStore.js';
-import {
-  parseCompetitionCsv,
-  snapshotsToCsv,
-  sampleCsvTemplate,
-} from '../cars/carImporter.js';
-import { initCarDashboard } from '../cars/carDashboard.js';
-import { createWorkforce as createCarsWorkforce } from '../agents/carsWorkforce.js';
-import { initCarsWorkforcePanel } from '../agents/carsWorkforcePanel.js';
   // --- CUBA CARS -----------------------------------------------------------
   // One store (localStorage `sahjony.cars.v1`) spoken in the two shapes its
   // consumers expect: the dashboard shape and the AI workforce engine shape.
@@ -1895,6 +1827,37 @@ import { initCarsWorkforcePanel } from '../agents/carsWorkforcePanel.js';
     if (window.__gevCarsWorkforceUI) delete window.__gevCarsWorkforceUI;
   });
   debug.carsWorkforcePanel = carsWorkforcePanel;
+  return {
+    sceneDirector,
+    annotations,
+    voiceCommands,
+    sahjonyVoice,
+    streetView,
+    drive,
+    leadMap,
+    workforce,
+    wholesale: dashboard,
+    workforcePanel,
+    tankerMap,
+    crudeWorkforce,
+    crude: crudeDashboard,
+    crudeWorkforcePanel,
+    insuranceStateMap,
+    insuranceWorkforce,
+    insurance: insuranceDashboard,
+    insuranceWorkforcePanel,
+    shippingMap,
+    tradeWorkforce,
+    trade: tradeDashboard,
+    tradeWorkforcePanel,
+    cubaMap,
+    cubaWorkforce,
+    cuba: cubaDashboard,
+    cubaWorkforcePanel,
+    corridorMap,
+    cubacashWorkforce,
+    cubacash: cubacashDashboard,
+    cubacashWorkforcePanel,
       __cars_open: () => carsDashboard.toggle?.() ?? carsDashboard.open?.(),
       __cars_funnel: () =>
         carsDashboard.openSection?.('funnel') ??
@@ -1904,3 +1867,40 @@ import { initCarsWorkforcePanel } from '../agents/carsWorkforcePanel.js';
         carsDashboard.openSection?.('prices') ??
         carsDashboard.toggle?.() ??
         carsDashboard.open?.(),
+  };
+}
+// Cuba car market A–Z: buyer qualification funnel, Rosmel gestor draft queue
+// (drafts only), competition price panel, deal pipeline with internal-only
+// economics. No public inventory; SAHJONY is a fee broker, never the seller.
+import * as carEngine from '../cars/carEngine.js';
+import {
+  createLead as carCreateLead,
+  getLead as carGetLead,
+  updateLead as carUpdateLead,
+  moveLead as carMoveLead,
+  deleteLead as carDeleteLead,
+  listLeads as carListLeads,
+  addLeadNote as carAddLeadNote,
+  createDeal as carCreateDeal,
+  getDeal as carGetDeal,
+  moveDeal as carMoveDeal,
+  deleteDeal as carDeleteDeal,
+  listDeals as carListDeals,
+  createDraft as carCreateDraft,
+  setDraftState as carSetDraftState,
+  listDrafts as carListDrafts,
+  addSnapshot as carAddSnapshot,
+  listSnapshots as carListSnapshots,
+  getOurPrices as carGetOurPrices,
+  setOurPrice as carSetOurPrice,
+  asWorkforceStore as carAsWorkforceStore,
+  stats as carStats,
+} from '../cars/carStore.js';
+import {
+  parseCompetitionCsv,
+  snapshotsToCsv,
+  sampleCsvTemplate,
+} from '../cars/carImporter.js';
+import { initCarDashboard } from '../cars/carDashboard.js';
+import { createWorkforce as createCarsWorkforce } from '../agents/carsWorkforce.js';
+import { initCarsWorkforcePanel } from '../agents/carsWorkforcePanel.js';

@@ -49,8 +49,13 @@ import {
 
 export { SANCTIONS_HARD_STOP };
 
-/** Defensive handle on the workforce core (Module 6) — null until it lands. */
-const workforceCore = await import('./workforceCore.js').catch(() => null);
+/** Defensive handle on the workforce core (Module 6) — null until it loads. */
+const workforceCoreHolder = { current: null };
+import('./workforceCore.js')
+  .then((mod) => {
+    workforceCoreHolder.current = mod;
+  })
+  .catch(() => null);
 
 /**
  * Agent roster in the workforce-core shape (registerWorkforce).
@@ -77,7 +82,7 @@ export const CRUDE_AGENT_ROSTER = Object.freeze([
 /** Register this module's workforce with the core (no-op until the core lands). */
 export function registerCrudeWorkforce() {
   try {
-    workforceCore?.registerWorkforce?.('crude', CRUDE_AGENT_ROSTER);
+    workforceCoreHolder.current?.registerWorkforce?.('crude', CRUDE_AGENT_ROSTER);
     return true;
   } catch {
     return false;
@@ -97,7 +102,7 @@ function coreLogAction(agentId, action) {
       action && typeof action === 'object'
         ? `${action.kind || 'action'}${action.cargoId ? ` cargo:${action.cargoId}` : ''}`
         : String(action ?? '');
-    workforceCore?.logAction?.('crude', agentId, summary);
+    workforceCoreHolder.current?.logAction?.('crude', agentId, summary);
   } catch {
     /* core logging is best-effort */
   }
@@ -125,7 +130,7 @@ export function buildCrudeEscalation(reason, payload) {
 export function escalateCrude(reason, payload) {
   const escalation = buildCrudeEscalation(reason, payload);
   try {
-    workforceCore?.escalate?.('crude', reason, escalation.payload);
+    workforceCoreHolder.current?.escalate?.('crude', reason, escalation.payload);
   } catch {
     /* core escalation is best-effort */
   }

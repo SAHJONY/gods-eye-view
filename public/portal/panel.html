@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portal del cliente · SAHJONY LLC</title>
+<style>
+  :root { --bg:#0b1622; --card:#132433; --accent:#2f9e6e; --text:#eef4f8; --muted:#9db4c6;
+          --line:#23405a; --warn:#e8a13d; --danger:#e05d5d; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  header { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px;
+           padding:12px 16px; background:#0d1a28; border-bottom:1px solid var(--line); }
+  header .back { padding:10px 14px; font-size:16px; border-radius:10px; border:1px solid var(--line);
+                 background:transparent; color:var(--text); cursor:pointer; min-width:48px; }
+  header .brand { font-size:12px; letter-spacing:2px; color:var(--muted); }
+  header .who { font-size:15px; font-weight:600; }
+  header .headtxt { flex:1; min-width:0; }
+  main { max-width:720px; margin:0 auto; padding:16px 16px 120px; }
+  h2 { font-size:19px; margin:8px 0 14px; }
+  .tab { display:none; } .tab.on { display:block; }
+  /* bottom tab bar (mobile-first) */
+  #tabbar { position:fixed; left:0; right:0; bottom:0; z-index:10; display:flex;
+            background:#0d1a28; border-top:1px solid var(--line);
+            padding:6px 4px calc(6px + env(safe-area-inset-bottom)); }
+  #tabbar button { flex:1; background:none; border:0; color:var(--muted); cursor:pointer;
+                   font-size:11px; padding:8px 2px; border-radius:10px;
+                   display:flex; flex-direction:column; align-items:center; gap:3px; min-height:56px; }
+  #tabbar button .ico { font-size:21px; }
+  #tabbar button.on { color:var(--accent); font-weight:700; }
+  #tabbar button:active { background:rgba(47,158,110,.12); }
+  @media (min-width:760px) {
+    #tabbar { position:static; border-top:0; border-bottom:1px solid var(--line);
+              padding:8px 16px; max-width:720px; margin:0 auto; }
+    #tabbar button { flex-direction:row; font-size:14px; gap:8px; min-height:44px;
+                     justify-content:center; }
+    #tabbar button .ico { font-size:17px; }
+    main { padding-bottom:48px; }
+  }
+  /* cards */
+  .ship-card { background:var(--card); border:1px solid var(--line); border-radius:14px;
+               padding:16px; margin-bottom:12px; }
+  .ship-card .cargo { font-size:16px; font-weight:700; margin-bottom:6px; }
+  .ship-card .route { font-size:14px; color:var(--muted); margin-bottom:10px; }
+  .ship-card .cnum { font-size:13px; color:var(--muted); margin:8px 0 2px; }
+  .ship-card .cnum b { color:var(--text); }
+  .ship-card .rowbtns { display:flex; gap:10px; margin-top:12px; }
+  .btn { display:inline-block; padding:13px 20px; font-size:15px; font-weight:700; border:0;
+         border-radius:12px; background:var(--accent); color:#06281b; cursor:pointer; text-decoration:none; }
+  .btn.ghost { background:transparent; border:1px solid var(--line); color:var(--text); font-weight:400; }
+  .btn.big { width:100%; padding:15px; font-size:16px; }
+  .pill { display:inline-block; padding:6px 12px; border-radius:999px; font-size:13px; font-weight:700; }
+  .pill.pendiente { background:rgba(157,180,198,.15); color:var(--muted); border:1px solid var(--muted); }
+  .pill.en_transito { background:rgba(47,158,110,.15); color:#7fe0ab; border:1px solid var(--accent); }
+  .pill.en_puerto { background:rgba(232,161,61,.15); color:#f5c87e; border:1px solid var(--warn); }
+  .pill.entregado { background:rgba(47,158,110,.3); color:#bff0d4; border:1px solid var(--accent); }
+  .tier { display:inline-block; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700;
+          background:rgba(90,170,255,.12); color:#9cc8ff; border:1px solid rgba(90,170,255,.4); margin-left:8px; }
+  .eta { font-size:13px; color:var(--muted); margin-top:8px; }
+  /* filter chips */
+  .chips { display:flex; gap:8px; overflow-x:auto; padding:2px 0 12px; }
+  .chips button { flex:0 0 auto; padding:10px 16px; font-size:14px; border-radius:999px;
+                  border:1px solid var(--line); background:transparent; color:var(--muted); cursor:pointer; }
+  .chips button.on { background:var(--accent); border-color:var(--accent); color:#06281b; font-weight:700; }
+  /* detail */
+  .timeline { display:flex; margin:18px 0; }
+  .step { flex:1; text-align:center; position:relative; font-size:11px; color:var(--muted); }
+  .step .dot { width:26px; height:26px; border-radius:50%; margin:0 auto 6px; border:2px solid var(--muted);
+               background:var(--bg); position:relative; z-index:1; }
+  .step.done .dot { background:var(--accent); border-color:var(--accent); }
+  .step.done { color:var(--text); }
+  .step::before { content:""; position:absolute; top:13px; left:-50%; width:100%; height:2px; background:var(--line); }
+  .step:first-child::before { display:none; }
+  .step.done::before { background:var(--accent); }
+  .info { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px; }
+  .info .row { display:flex; justify-content:space-between; gap:12px; padding:7px 0; font-size:14px;
+               border-bottom:1px solid rgba(35,64,90,.5); }
+  .info .row:last-child { border-bottom:0; }
+  .info .k { color:var(--muted); flex:0 0 auto; }
+  .info .v { text-align:right; }
+  #mapWrap { background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:12px; }
+  #map { width:100%; height:320px; display:block; touch-action:pan-x pan-y; }
+  .mapbar { display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); flex-wrap:wrap; align-items:center; }
+  .mapbar label { font-size:13px; color:var(--muted); display:flex; gap:6px; align-items:center; cursor:pointer; }
+  .mapbar .fresh { margin-left:auto; font-size:12px; color:var(--muted); }
+  .notice { background:rgba(157,180,198,.08); border:1px dashed var(--muted); border-radius:14px;
+            padding:18px; font-size:14px; color:var(--muted); text-align:center; margin-bottom:12px; }
+  .banner-done { background:rgba(47,158,110,.12); border:1px solid var(--accent); border-radius:14px;
+                 padding:16px; font-size:15px; text-align:center; margin-bottom:12px; }
+  .loading, .empty { text-align:center; color:var(--muted); padding:40px 16px; font-size:15px; }
+  .empty .btn { margin-top:14px; }
+  .demo-banner { background:#3a2a10; border-bottom:2px solid var(--warn); color:#f5c87e;
+                 text-align:center; font-size:13px; font-weight:700; letter-spacing:1px; padding:10px 16px; }
+  .pill.demo-pill { background:rgba(232,161,61,.15); color:#f5c87e; border:1px solid var(--warn); margin-left:8px; }
+  /* forms */
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:12px; }
+  label.f { display:block; font-size:13px; color:var(--muted); margin:14px 0 4px; }
+  input.f, select.f, textarea.f { width:100%; padding:13px; font-size:16px; border-radius:10px;
+                  border:1px solid #2c4a66; background:#0d1a28; color:var(--text); }
+  textarea.f { min-height:96px; resize:vertical; }
+  .radios { display:flex; gap:10px; margin-top:6px; }
+  .radios label { flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+                  padding:14px; border:1px solid var(--line); border-radius:12px; font-size:16px;
+                  color:var(--muted); cursor:pointer; }
+  .radios input { width:18px; height:18px; accent-color:var(--accent); }
+  .radios label:has(input:checked) { border-color:var(--accent); color:var(--text); font-weight:700; }
+  .form-msg { margin-top:12px; font-size:14px; }
+  .form-msg.ok { color:#7fe0ab; } .form-msg.err { color:#f3b0b0; }
+  .cta { background:var(--card); border:1px solid var(--accent); border-radius:16px; padding:24px 20px;
+         margin-top:28px; text-align:center; }
+  .cta h2 { font-size:20px; margin:0 0 6px; }
+  .cta .brandline { font-size:12px; letter-spacing:2px; color:var(--muted); margin-bottom:14px; }
+  .cta ol { text-align:left; margin:0 auto 20px; max-width:420px; padding-left:22px; font-size:15px; }
+  .cta ol li { margin:10px 0; }
+  .cta .k { color:var(--muted); font-size:13px; }
+  .wa-btn { display:inline-block; padding:15px 28px; font-size:17px; font-weight:700; border-radius:12px;
+            background:var(--accent); color:#06281b; text-decoration:none; letter-spacing:1px; }
+  .quick { display:flex; gap:10px; margin:12px 0; }
+  .quick .btn { flex:1; text-align:center; }
+</style>
+</head>
+<body>
+<div class="demo-banner" id="demoBanner" hidden>DEMOSTRACIÓN · Datos de muestra — vista de prospecto</div>
+<header>
+  <button class="back" id="backBtn" aria-label="Atrás">←</button>
+  <div class="headtxt"><div class="brand">SAHJONY LLC</div><div class="who" id="who">…</div></div>
+</header>
+<nav id="tabbar" aria-label="Navegación principal">
+  <button data-tab="inicio" class="on"><span class="ico">🏠</span>Inicio</button>
+  <button data-tab="envios"><span class="ico">🚢</span>Mis envíos</button>
+  <button data-tab="cotizar"><span class="ico">💰</span>Cotizar</button>
+  <button data-tab="paquetes"><span class="ico">📦</span>Paquetes</button>
+  <button data-tab="cuenta"><span class="ico">👤</span>Cuenta</button>
+</nav>
+<main>
+  <!-- 1 · INICIO -->
+  <section class="tab on" id="tab-inicio">
+    <h2 id="homeTitle">Inicio</h2>
+    <div id="homeNotices"></div>
+    <div id="homeShips"><div class="loading">Cargando…</div></div>
+    <div class="quick">
+      <button class="btn ghost" data-goto="cotizar">💰 Cotizar</button>
+      <button class="btn ghost" data-goto="envios">🚢 Mis envíos</button>
+    </div>
+  </section>
+
+  <!-- 2 · MIS ENVÍOS -->
+  <section class="tab" id="tab-envios">
+    <div id="shipListView">
+      <h2>Mis envíos</h2>
+      <div class="chips" id="tierChips"></div>
+      <div id="ships"><div class="loading">Cargando…</div></div>
+    </div>
+    <div id="shipDetail" style="display:none">
+      <h2 id="dCargo"></h2>
+      <div id="dTimeline" class="timeline"></div>
+      <div id="dBanner"></div>
+      <div class="info" id="dInfo"></div>
+      <div id="mapWrap" style="display:none">
+        <canvas id="map"></canvas>
+        <div class="mapbar">
+          <label><input type="checkbox" id="tglCyclones" checked> Tormentas</label>
+          <label><input type="checkbox" id="tglTrack" checked> Recorrido</label>
+          <span class="fresh" id="fresh"></span>
+        </div>
+      </div>
+      <div class="notice" id="dPending" style="display:none">
+        Próximo embarque — el seguimiento en vivo se activa automáticamente cuando el buque zarpe del puerto de origen.
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · COTIZAR -->
+  <section class="tab" id="tab-cotizar">
+    <h2>Solicitar cotización</h2>
+    <div class="notice" id="demoQuoteNote" hidden>
+      Vista de demostración — <a href="/portal/registro" style="color:#f5c87e">regístrese aquí</a>
+      para solicitar cotizaciones reales.
+    </div>
+    <form class="card" id="quoteForm">
+      <label class="f" for="qTier">¿Qué servicio le interesa?</label>
+      <select class="f" id="qTier" required>
+        <option value="">— Seleccione —</option>
+        <option>Comprar mercancía</option>
+        <option>Enviar contenedor completo</option>
+        <option>Enviar carga por pallet</option>
+        <option>Enviar paquetería</option>
+        <option>Varios servicios</option>
+      </select>
+      <div id="containerFields" hidden>
+        <label class="f">Tamaño del contenedor</label>
+        <div class="radios">
+          <label><input type="radio" name="qSize" value="20ft"> 20 ft</label>
+          <label><input type="radio" name="qSize" value="40ft"> 40 ft</label>
+        </div>
+        <label class="f" for="qOrigin">Puerto de origen</label>
+        <input class="f" id="qOrigin" placeholder="Miami">
+        <label class="f" for="qDest">Puerto de destino</label>
+        <input class="f" id="qDest" placeholder="Mariel">
+      </div>
+      <label class="f" for="qDesc">Descripción de la carga</label>
+      <textarea class="f" id="qDesc" required placeholder="Ej.: 500 cajas de pollo congelado, 10 toneladas"></textarea>
+      <label class="f" for="qName">Nombre de contacto</label>
+      <input class="f" id="qName" required autocomplete="name">
+      <label class="f" for="qPhone">Teléfono</label>
+      <input class="f" id="qPhone" required inputmode="tel" autocomplete="tel">
+      <label class="f" for="qEmail">Correo</label>
+      <input class="f" id="qEmail" type="email" autocomplete="email">
+      <div style="margin-top:16px"><button class="btn big" type="submit" id="qSubmit">Solicitar cotización</button></div>
+      <div class="form-msg" id="qMsg"></div>
+    </form>
+  </section>
+
+  <!-- 4 · PAQUETES -->
+  <section class="tab" id="tab-paquetes">
+    <h2>Paquetes</h2>
+    <div class="card" style="text-align:center; padding:40px 20px">
+      <div style="font-size:48px; margin-bottom:12px">📦</div>
+      <h3 style="margin:0 0 8px">Próximamente</h3>
+      <p style="color:var(--muted); font-size:15px; margin:0">
+        El rastreo por paquete con código QR llega en la fase 2b.<br>
+        Por ahora siga sus embarques en «Mis envíos».
+      </p>
+      <div style="margin-top:18px"><button class="btn ghost" data-goto="envios">Ir a Mis envíos</button></div>
+    </div>
+  </section>
+
+  <!-- 5 · CUENTA -->
+  <section class="tab" id="tab-cuenta">
+    <h2>Mi cuenta</h2>
+    <div class="card">
+      <h3 style="margin:0 0 4px; font-size:16px">Perfil</h3>
+      <div class="info" id="profileInfo" style="margin-bottom:0"></div>
+    </div>
+    <div class="card" id="pwCard">
+      <h3 style="margin:0 0 4px; font-size:16px">Cambiar contraseña</h3>
+      <form id="pwForm">
+        <label class="f" for="pwCur">Contraseña actual</label>
+        <input class="f" id="pwCur" type="password" required autocomplete="current-password">
+        <label class="f" for="pwNew">Nueva contraseña (mín. 8 caracteres)</label>
+        <input class="f" id="pwNew" type="password" required autocomplete="new-password">
+        <label class="f" for="pwNew2">Repita la nueva contraseña</label>
+        <input class="f" id="pwNew2" type="password" required autocomplete="new-password">
+        <div style="margin-top:16px"><button class="btn big" type="submit">Actualizar contraseña</button></div>
+        <div class="form-msg" id="pwMsg"></div>
+      </form>
+    </div>
+    <button class="btn ghost big" id="logoutBtn">Cerrar sesión</button>
+  </section>
+
+  <!-- demo registration CTA (end of page) -->
+  <section class="cta" id="cta" hidden>
+    <div class="brandline">SAHJONY LLC</div>
+    <h2>¿Quiere este seguimiento para su carga?</h2>
+    <ol>
+      <li><span class="k">Paso 1 —</span> Le activamos su acceso de cliente.</li>
+      <li><span class="k">Paso 2 —</span> Mueva su carga con nosotros.</li>
+      <li><span class="k">Paso 3 —</span> El seguimiento se activa solo cuando su contenedor esté a bordo.</li>
+    </ol>
+    <a class="wa-btn" href="/portal/registro">REGÍSTRESE AQUÍ</a>
+  </section>
+</main>
+<script>
+const STATUS_LABEL = { pendiente:'Pendiente', en_transito:'En tránsito', en_puerto:'En puerto', entregado:'Entregado' };
+const STATUS_ORDER = ['pendiente','en_transito','en_puerto','entregado'];
+const TIER_SHORT = {
+  'Comprar mercancía':'Compra',
+  'Enviar contenedor completo':'Contenedor',
+  'Enviar carga por pallet':'Pallet',
+  'Enviar paquetería':'Paquetería',
+  'Varios servicios':'Varios',
+};
+const TIER_FILTERS = ['Todos','Contenedor','Pallet','Paquetería','Compra','Varios'];
+const CONTAINER_TIER = 'Enviar contenedor completo';
+const TABS = ['inicio','envios','cotizar','paquetes','cuenta'];
+let me = null, shipments = [], currentId = null, vesselTimer = null, cyclones = [];
+let currentTab = 'inicio', tierFilter = 'Todos';
+
+async function api(path, opts={}) {
+  const res = await fetch('/api/portal' + path, opts);
+  if (res.status === 401) { location.href = '/portal/'; return null; }
+  return res.json().catch(() => ({}));
+}
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const post = (path, body) => api(path, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+
+async function init() {
+  // Shareable demo link (/portal/demo) injects window.__PORTAL_AUTODEMO:
+  // start the rate-limited, view-only demo session — no login screen.
+  if (window.__PORTAL_AUTODEMO === true) {
+    try {
+      const r = await fetch('/api/portal/demo', { method: 'POST' });
+      if (!r.ok) throw new Error('demo unavailable');
+    } catch {
+      document.getElementById('homeShips').innerHTML =
+        '<div class="empty">La demostración no está disponible en este momento.<br>Intente más tarde.</div>';
+      return;
+    }
+  }
+  const meRes = await api('/me');
+  if (!meRes) return;
+  me = meRes.client;
+  document.getElementById('who').textContent = me.companyName;
+  if (me.demo === true) {
+    document.getElementById('demoBanner').hidden = false;
+    document.getElementById('cta').hidden = false;
+    document.getElementById('demoQuoteNote').hidden = false;
+    document.getElementById('quoteForm').style.display = 'none';
+    document.getElementById('pwCard').style.display = 'none';
+  }
+  const listRes = await api('/shipments');
+  if (!listRes) return;
+  shipments = listRes.shipments || [];
+  buildChips();
+  renderHome();
+  renderList();
+  renderProfile();
+  prefillQuoteContact();
+  loadCyclones();
+}
+
+/* ---------- navigation ---------- */
+function showTab(name) {
+  if (!TABS.includes(name)) return;
+  stopVesselTimer();
+  if (currentTab === 'envios') closeDetail(true);
+  currentTab = name;
+  document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('on', t.id === 'tab-' + name));
+  document.querySelectorAll('#tabbar button').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
+  window.scrollTo(0, 0);
+}
+/** One tap to live tracking, from anywhere: card button or tab. */
+function trackShipment(id) { showTab('envios'); openDetail(id); }
+function goBack() {
+  if (currentTab === 'envios' && currentId) { closeDetail(); return; }
+  if (currentTab !== 'inicio') { showTab('inicio'); return; }
+  window.scrollTo(0, 0);
+}
+document.getElementById('backBtn').addEventListener('click', goBack);
+document.querySelectorAll('#tabbar button').forEach((b) =>
+  b.addEventListener('click', () => showTab(b.dataset.tab)));
+document.querySelectorAll('[data-goto]').forEach((b) =>
+  b.addEventListener('click', () => showTab(b.dataset.goto)));
+document.addEventListener('click', (ev) => {
+  const t = ev.target.closest('[data-track]');
+  if (t) { ev.stopPropagation(); trackShipment(t.dataset.track); }
+});
+
+/* ---------- shared card ---------- */
+function tierPill(s) {
+  const short = TIER_SHORT[s.serviceTier];
+  return short ? `<span class="tier">${esc(short)}</span>` : '';
+}
+function shipCard(s) {
+  return `
+  <div class="ship-card" data-id="${esc(s.id)}">
+    <div class="cargo">${esc(s.cargoLabel)}${tierPill(s)}</div>
+    <div class="route">${esc(s.origin)} → ${esc(s.destination)}</div>
+    <span class="pill ${esc(s.status)}">${esc(STATUS_LABEL[s.status] || s.status)}</span>
+    ${s.demo ? '<span class="pill demo-pill">DEMOSTRACIÓN</span>' : ''}
+    ${s.containerNumber ? `<div class="cnum">Contenedor Nº <b>${esc(s.containerNumber)}</b></div>` : ''}
+    ${s.eta ? `<div class="eta">Llegada estimada: ${esc(s.eta)}</div>` : ''}
+    <div class="rowbtns">
+      <button class="btn" data-track="${esc(s.id)}">📍 Rastrear</button>
+      <button class="btn ghost" data-open="${esc(s.id)}">Detalles</button>
+    </div>
+  </div>`;
+}
+document.addEventListener('click', (ev) => {
+  if (ev.target.closest('[data-track]')) return; // handled by the tracker listener
+  const o = ev.target.closest('[data-open]');
+  if (o) { openDetail(o.dataset.open); return; }
+  const card = ev.target.closest('.ship-card');
+  if (card && card.dataset.id) openDetail(card.dataset.id);
+});
+
+/* ---------- 1 · INICIO ---------- */
+function renderHome() {
+  document.getElementById('homeTitle').textContent = `Hola, ${me.companyName}`;
+  const active = shipments.filter((s) => s.status !== 'entregado');
+  const pending = shipments.filter((s) => s.status === 'pendiente');
+  document.getElementById('homeNotices').innerHTML = pending.length
+    ? `<div class="notice">Tiene ${pending.length} embarque(s) pendiente(s) de activación — el seguimiento en vivo comienza cuando el buque zarpe.</div>` : '';
+  const box = document.getElementById('homeShips');
+  if (!active.length) {
+    box.innerHTML = `<div class="empty">Aún no tienes envíos activos — cotiza aquí.<br>
+      <button class="btn" data-goto="cotizar" style="margin-top:14px">💰 Cotizar ahora</button></div>`;
+    box.querySelector('[data-goto]').addEventListener('click', (e) => showTab(e.target.closest('[data-goto]').dataset.goto));
+    return;
+  }
+  box.innerHTML = `<h2 style="font-size:16px">En curso (${active.length})</h2>` + active.map(shipCard).join('');
+}
+
+/* ---------- 2 · MIS ENVÍOS ---------- */
+function buildChips() {
+  const box = document.getElementById('tierChips');
+  box.innerHTML = TIER_FILTERS.map((f) =>
+    `<button data-f="${esc(f)}" class="${f === tierFilter ? 'on' : ''}">${esc(f)}</button>`).join('');
+  box.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+    tierFilter = b.dataset.f;
+    box.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+    renderList();
+  }));
+}
+function filteredShips() {
+  if (tierFilter === 'Todos') return shipments;
+  return shipments.filter((s) => TIER_SHORT[s.serviceTier] === tierFilter);
+}
+function renderList() {
+  const box = document.getElementById('ships');
+  const list = filteredShips();
+  if (!shipments.length) {
+    box.innerHTML = `<div class="empty">Aún no tienes envíos registrados — cotiza aquí.<br>
+      <button class="btn" data-goto="cotizar" style="margin-top:14px">💰 Cotizar ahora</button></div>`;
+  } else if (!list.length) {
+    box.innerHTML = `<div class="empty">No tienes envíos de este tipo.<br>Cambie el filtro para ver otros.</div>`;
+  } else {
+    box.innerHTML = list.map(shipCard).join('');
+  }
+  box.querySelectorAll('[data-goto]').forEach((b) =>
+    b.addEventListener('click', () => showTab(b.dataset.goto)));
+}
+function renderTimeline(status) {
+  const idx = STATUS_ORDER.indexOf(status);
+  document.getElementById('dTimeline').innerHTML = STATUS_ORDER.map((st, i) => `
+    <div class="step ${i <= idx ? 'done' : ''}"><div class="dot"></div>${STATUS_LABEL[st]}</div>`).join('');
+}
+async function openDetail(id) {
+  currentId = id;
+  const s = shipments.find((x) => x.id === id);
+  if (!s) return;
+  if (currentTab !== 'envios') showTab('envios');
+  document.getElementById('shipListView').style.display = 'none';
+  const detail = document.getElementById('shipDetail');
+  detail.style.display = 'block';
+  document.getElementById('dCargo').textContent = s.cargoLabel;
+  renderTimeline(s.status);
+  const banner = document.getElementById('dBanner');
+  banner.innerHTML = s.status === 'entregado'
+    ? '<div class="banner-done">✓ Mercancía entregada. Gracias por confiar en SAHJONY LLC.</div>' : '';
+  const tierRow = s.serviceTier
+    ? `<div class="row"><span class="k">Nivel de servicio</span><span class="v">${esc(s.serviceTier)}</span></div>` : '';
+  const cnumRow = s.containerNumber
+    ? `<div class="row"><span class="k">Contenedor Nº</span><span class="v"><b>${esc(s.containerNumber)}</b></span></div>` : '';
+  document.getElementById('dInfo').innerHTML = `
+    <div class="row"><span class="k">Buque</span><span class="v">${esc(s.vesselName || '—')}</span></div>
+    ${cnumRow}${tierRow}
+    <div class="row"><span class="k">Origen</span><span class="v">${esc(s.origin)}</span></div>
+    <div class="row"><span class="k">Destino</span><span class="v">${esc(s.destination)}</span></div>
+    <div class="row"><span class="k">Estado</span><span class="v">${esc(STATUS_LABEL[s.status] || s.status)}</span></div>
+    <div class="row"><span class="k">Llegada estimada</span><span class="v">${esc(s.eta || '—')}</span></div>`;
+  const live = s.status === 'en_transito' || s.status === 'en_puerto';
+  document.getElementById('mapWrap').style.display = live ? 'block' : 'none';
+  document.getElementById('dPending').style.display = s.status === 'pendiente' ? 'block' : 'none';
+  stopVesselTimer();
+  if (live) { await refreshVessel(); vesselTimer = setInterval(refreshVessel, 30000); }
+  window.scrollTo(0, 0);
+}
+function closeDetail(silent) {
+  stopVesselTimer(); currentId = null;
+  document.getElementById('shipDetail').style.display = 'none';
+  document.getElementById('shipListView').style.display = 'block';
+  if (!silent) window.scrollTo(0, 0);
+}
+
+/* ---------- 3 · COTIZAR ---------- */
+function prefillQuoteContact() {
+  document.getElementById('qName').value = me.contactName || '';
+  document.getElementById('qPhone').value = me.phone || '';
+  document.getElementById('qEmail').value = me.email || '';
+  if (me.serviceInterest) {
+    const sel = document.getElementById('qTier');
+    if ([...sel.options].some((o) => o.value === me.serviceInterest)) sel.value = me.serviceInterest;
+  }
+  onTierChange();
+}
+/** The container-size selector is shown ONLY for the full-container tier. */
+function onTierChange() {
+  const show = document.getElementById('qTier').value === CONTAINER_TIER;
+  document.getElementById('containerFields').hidden = !show;
+}
+document.getElementById('qTier').addEventListener('change', onTierChange);
+document.getElementById('quoteForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const msg = document.getElementById('qMsg');
+  const sizeEl = document.querySelector('input[name="qSize"]:checked');
+  const body = {
+    serviceTier: document.getElementById('qTier').value,
+    containerSize: sizeEl ? sizeEl.value : '',
+    cargoDescription: document.getElementById('qDesc').value,
+    origin: document.getElementById('qOrigin').value,
+    destination: document.getElementById('qDest').value,
+    contactName: document.getElementById('qName').value,
+    contactPhone: document.getElementById('qPhone').value,
+    contactEmail: document.getElementById('qEmail').value,
+  };
+  msg.className = 'form-msg'; msg.textContent = 'Enviando…';
+  const data = await post('/quotes', body);
+  if (!data) return;
+  if (data.ok) {
+    msg.className = 'form-msg ok'; msg.textContent = '✓ Cotización recibida. Le contactaremos pronto.';
+    document.getElementById('qDesc').value = '';
+    onTierChange();
+  } else {
+    msg.className = 'form-msg err'; msg.textContent = data.message || 'No se pudo enviar. Intente de nuevo.';
+  }
+});
+
+/* ---------- 5 · CUENTA ---------- */
+function renderProfile() {
+  document.getElementById('profileInfo').innerHTML = `
+    <div class="row"><span class="k">Empresa</span><span class="v">${esc(me.companyName)}</span></div>
+    <div class="row"><span class="k">Contacto</span><span class="v">${esc(me.contactName || '—')}</span></div>
+    <div class="row"><span class="k">Correo</span><span class="v">${esc(me.email || '—')}</span></div>
+    <div class="row"><span class="k">Teléfono</span><span class="v">${esc(me.phone || '—')}</span></div>
+    <div class="row"><span class="k">Servicio de interés</span><span class="v">${esc(me.serviceInterest || '—')}</span></div>`;
+}
+document.getElementById('pwForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const msg = document.getElementById('pwMsg');
+  const cur = document.getElementById('pwCur').value;
+  const nw = document.getElementById('pwNew').value;
+  const nw2 = document.getElementById('pwNew2').value;
+  if (nw !== nw2) { msg.className = 'form-msg err'; msg.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
+  msg.className = 'form-msg'; msg.textContent = 'Actualizando…';
+  const data = await post('/account/password', { currentPassword: cur, newPassword: nw });
+  if (!data) return;
+  if (data.ok) {
+    msg.className = 'form-msg ok'; msg.textContent = '✓ Contraseña actualizada.';
+    ev.target.reset();
+  } else {
+    msg.className = 'form-msg err'; msg.textContent = data.message || 'No se pudo actualizar.';
+  }
+});
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await fetch('/api/portal/logout', { method: 'POST' });
+  location.href = '/portal/';
+});
+
+/* ---------- vessel map (unchanged) ---------- */
+function stopVesselTimer() { if (vesselTimer) { clearInterval(vesselTimer); vesselTimer = null; } }
+async function refreshVessel() {
+  if (!currentId) return;
+  const data = await api(`/shipments/${encodeURIComponent(currentId)}/vessel`);
+  if (!data || !data.vessel) { document.getElementById('fresh').textContent = 'sin señal AIS'; return; }
+  const v = data.vessel;
+  const when = v.last_position_UTC || v.last_position_at || null;
+  document.getElementById('fresh').textContent = when
+    ? 'actualizado ' + relTime(new Date(when)) : 'en vivo';
+  drawMap(data);
+}
+function relTime(d) {
+  const s = Math.max(0, Math.round((Date.now() - d.getTime()) / 1000));
+  if (s < 60) return `hace ${s} s`;
+  const m = Math.round(s / 60);
+  return m < 60 ? `hace ${m} min` : `hace ${Math.round(m / 60)} h`;
+}
+/* ---- lightweight canvas route map (no heavy globe bundle) ---- */
+function drawMap(data) {
+  const canvas = document.getElementById('map');
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const pts = [];
+  const R = data.route || {};
+  if (R.origin) pts.push({ ...R.origin, kind: 'origin' });
+  if (R.destination) pts.push({ ...R.destination, kind: 'dest' });
+  const v = data.vessel;
+  if (v && isFinite(v.lat) && isFinite(v.lon)) pts.push({ lat: +v.lat, lon: +v.lon, kind: 'vessel' });
+  const track = (data.track || []).filter((p) => isFinite(p.lat) && isFinite(p.lon));
+  const showTrack = document.getElementById('tglTrack').checked;
+  const all = pts.concat(showTrack ? track : []);
+  if (!all.length) return;
+  let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+  for (const p of all) {
+    minLat = Math.min(minLat, p.lat); maxLat = Math.max(maxLat, p.lat);
+    minLon = Math.min(minLon, p.lon); maxLon = Math.max(maxLon, p.lon);
+  }
+  const padLat = Math.max((maxLat - minLat) * 0.25, 2), padLon = Math.max((maxLon - minLon) * 0.25, 2);
+  minLat -= padLat; maxLat += padLat; minLon -= padLon; maxLon += padLon;
+  const X = (lon) => ((lon - minLon) / (maxLon - minLon)) * w;
+  const Y = (lat) => ((maxLat - lat) / (maxLat - minLat)) * h;
+  // ocean
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, '#10273c'); g.addColorStop(1, '#0b1a2a');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(120,160,200,.12)'; ctx.lineWidth = 1;
+  for (let i = 1; i < 5; i++) {
+    ctx.beginPath(); ctx.moveTo((w / 5) * i, 0); ctx.lineTo((w / 5) * i, h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, (h / 5) * i); ctx.lineTo(w, (h / 5) * i); ctx.stroke();
+  }
+  // route origin → destination
+  if (R.origin && R.destination) {
+    ctx.strokeStyle = 'rgba(47,158,110,.65)'; ctx.lineWidth = 2; ctx.setLineDash([7, 6]);
+    ctx.beginPath(); ctx.moveTo(X(R.origin.lon), Y(R.origin.lat)); ctx.lineTo(X(R.destination.lon), Y(R.destination.lat)); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  // recent track
+  if (showTrack && track.length > 1) {
+    ctx.strokeStyle = 'rgba(130,190,255,.5)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    track.forEach((p, i) => { const x = X(p.lon), y = Y(p.lat); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+    ctx.stroke();
+  }
+  const label = (p, text, color) => {
+    ctx.fillStyle = color; ctx.font = '11px system-ui';
+    ctx.fillText(text, X(p.lon) + 9, Y(p.lat) - 8);
+  };
+  if (R.origin) {
+    const p = R.origin;
+    ctx.fillStyle = '#2f9e6e'; ctx.beginPath(); ctx.arc(X(p.lon), Y(p.lat), 6, 0, 7); ctx.fill();
+    label(p, p.name || 'Origen', '#7fe0ab');
+  }
+  if (R.destination) {
+    const p = R.destination;
+    ctx.fillStyle = '#e05d5d'; ctx.beginPath(); ctx.arc(X(p.lon), Y(p.lat), 6, 0, 7); ctx.fill();
+    label(p, p.name || 'Destino', '#f3b0b0');
+  }
+  // cyclones
+  if (document.getElementById('tglCyclones').checked) {
+    ctx.strokeStyle = '#e8a13d'; ctx.lineWidth = 2;
+    for (const c of cyclones) {
+      if (c.lat < minLat || c.lat > maxLat || c.lon < minLon || c.lon > maxLon) continue;
+      const x = X(c.lon), y = Y(c.lat);
+      ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, 4, 0, 7); ctx.stroke();
+      label({ lat: c.lat, lon: c.lon }, '🌀 ' + (c.name || ''), '#f5c87e');
+    }
+  }
+  // vessel (pulsing)
+  if (v && isFinite(v.lat) && isFinite(v.lon)) {
+    const x = X(+v.lon), y = Y(+v.lat), t = (Date.now() % 2000) / 2000;
+    ctx.fillStyle = 'rgba(90,170,255,.25)';
+    ctx.beginPath(); ctx.arc(x, y, 8 + t * 10, 0, 7); ctx.fill();
+    ctx.fillStyle = '#5aaaff';
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 11px system-ui';
+    ctx.fillText(v.name || v.mmsi || '', x + 11, y + 4);
+  }
+}
+async function loadCyclones() {
+  try {
+    const res = await fetch('/api/cyclones');
+    if (!res.ok) return;
+    const data = await res.json();
+    const storms = data.storms || data.activeStorms || [];
+    cyclones = storms.map((s) => ({
+      name: s.name || '',
+      lat: +((s.position && s.position.lat) ?? s.lat),
+      lon: +((s.position && s.position.lon) ?? s.lon),
+    })).filter((c) => isFinite(c.lat) && isFinite(c.lon));
+  } catch { /* overlay is best-effort */ }
+}
+document.getElementById('tglCyclones').addEventListener('change', () => currentId && refreshVessel());
+document.getElementById('tglTrack').addEventListener('change', () => currentId && refreshVessel());
+init();
+</script>
+</body>
+</html>
