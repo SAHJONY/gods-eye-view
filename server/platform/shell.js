@@ -2,10 +2,11 @@
  * SAHJONY Trade & Energy Platform — shell plugin (Phase 1).
  *
  * Vite plugin (dev + preview; production runs `vite dev`) that serves:
- * - GET /owner (exact path) → the unified owner shell page
+ * - GET /platform (exact path) → the unified owner shell page
  *   (public/owner/index.html) with the module registry injected as
- *   window.__PLATFORM_MODULES. Everything else under /owner/* falls through
- *   to static files.
+ *   window.__PLATFORM_MODULES. Everything else under /platform/* falls
+ *   through to static files.
+ *   (Path is /platform — /owner* is owned by legacy prune redirects.)
  * - GET /api/platform/modules → the registry as JSON (single source of
  *   truth for future consumers: voice, other shells, phase 2 modules).
  *
@@ -23,7 +24,7 @@ export function platformModulesPayload() {
   return { modules: listModules() };
 }
 
-/** Owner shell page: GET /owner (exact path only). No auth required. */
+/** Owner shell page: GET /platform (exact path only). No auth required. */
 export function ownerShellHtml(sourceRoot = defaultSourceRoot) {
   const file = path.join(sourceRoot, 'public', 'owner', 'index.html');
   const html = fs.readFileSync(file, 'utf8');
@@ -78,11 +79,11 @@ export function ownerPageMiddleware(sourceRoot = defaultSourceRoot) {
 export function platformShellPlugin() {
   const install = (middlewares) => {
     middlewares.use('/api/platform/modules', platformModulesMiddleware());
-    // Exact /owner (and /owner/) serves the shell. Registered so that
-    // /owner/index.html and any future /owner/* assets fall through to static.
-    middlewares.use('/owner', (req, res, next) => {
+    // Exact /platform (and /platform/) serves the shell. Registered so that
+    // /platform/index.html and any future /platform/* assets fall through to static.
+    middlewares.use('/platform', (req, res, next) => {
       const full = String(req.originalUrl || req.url || '').split('?')[0];
-      if (full !== '/owner' && full !== '/owner/') return next();
+      if (full !== '/platform' && full !== '/platform/') return next();
       return ownerPageMiddleware()(req, res, next);
     });
   };
