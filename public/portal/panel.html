@@ -153,7 +153,7 @@
             box-shadow:0 0 8px #34de96; animation:blink 2s infinite; }
   @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.35; } }
   /* floating vessel badge — cinematic HUD */
-  #vesselBadge { position:absolute; top:12px; left:0; right:0; display:none;
+  #vesselBadge { position:absolute; top:12px; left:64px; right:56px; display:none;
                  pointer-events:none; text-align:center; }
   #vesselBadge .hud { display:inline-block; background:rgba(6,13,22,.72); border:1px solid rgba(120,180,255,.22);
                  border-radius:12px; padding:8px 14px; backdrop-filter:blur(8px);
@@ -228,8 +228,10 @@
   .leaflet-container .leaflet-control-attribution { background:rgba(4,10,18,.62); color:#5a7186;
           font-size:9px; padding:1px 6px; }
   .leaflet-container .leaflet-control-attribution a { color:#7d95ab; }
-  .leaflet-bar a { background:rgba(10,20,34,.92); color:#dfe9f2; border-color:rgba(140,190,255,.2); }
-  .leaflet-bar a:hover { background:rgba(30,52,78,.95); color:#fff; }
+  .leaflet-bar { border:1px solid rgba(233,196,106,.3) !important; border-radius:10px !important; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,.5) !important; }
+  .leaflet-bar a { background:rgba(10,18,32,.94) !important; color:#e9c46a !important; border-bottom:1px solid rgba(233,196,106,.16) !important; width:34px !important; height:34px !important; line-height:34px !important; font-size:18px !important; }
+  .leaflet-bar a:hover { background:rgba(233,196,106,.2) !important; color:#ffe9b0 !important; }
+  .leaflet-bar a:last-child { border-bottom:0 !important; }
   #mapWrap::after { content:""; position:absolute; inset:0; z-index:650; pointer-events:none;
           background:radial-gradient(115% 92% at 50% 42%, transparent 58%, rgba(0,0,0,.5) 100%); }
   #vesselBadge { z-index:700; }
@@ -242,9 +244,10 @@
   @keyframes sonar { 0% { transform:scale(.45); opacity:1; } 100% { transform:scale(1.4); opacity:0; } }
   .vmk .hull { position:absolute; left:50%; top:50%; width:26px; height:26px; margin:-13px 0 0 -13px;
           filter:drop-shadow(0 0 7px rgba(52,222,150,.95)); }
-  /* beacon ports */
-  .port { position:relative; width:120px; height:48px; text-align:center; }
-  .port .beacon { display:block; width:14px; height:14px; margin:2px auto 0; border-radius:50%;
+  /* beacon ports — origin label above the beacon, dest label below, so they never collide */
+  .port { position:relative; width:120px; height:48px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; }
+  .port.p-origin { flex-direction:column-reverse; justify-content:flex-end; }
+  .port .beacon { display:block; width:14px; height:14px; border-radius:50%;
           animation:beaconpulse 2s ease-in-out infinite; }
   .port.p-origin .beacon { background:#34de96; box-shadow:0 0 12px #34de96; }
   .port.p-dest .beacon { background:#ff5d5d; box-shadow:0 0 12px #ff5d5d; }
@@ -710,9 +713,9 @@ function relTime(d) {
   return m < 60 ? `hace ${m} min` : `hace ${Math.round(m / 60)} h`;
 }
 /* ---- real global map (Leaflet + cinematic dark tiles) ----
-   A true world map like the God's Eye View globe: dark CARTO basemap,
-   great-circle route with flowing light dashes, golden AIS trail,
-   rotating storm swirls, beacon ports, sonar-pulsing vessel marker.
+   A true world map like the God's Eye View globe: Esri dark-gray basemap
+   (key-free), great-circle route with flowing light dashes, golden AIS
+   trail, rotating storm swirls, beacon ports, sonar-pulsing vessel marker.
    Leaflet renders; CSS keyframes animate. The 30s AIS refresh rebuilds. */
 let leafMap = null;
 let leafRoute = null, leafTrail = null, leafStorms = null, leafMarks = null;
@@ -720,11 +723,11 @@ function stopMapAnim() { /* canvas loop retired — CSS handles the motion */ }
 
 function ensureLeafMap() {
   if (leafMap) return leafMap;
-  leafMap = L.map('map', { scrollWheelZoom: false, worldCopyJump: true });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 19,
+  leafMap = L.map('map', { scrollWheelZoom: false, worldCopyJump: true, zoomControl: false });
+  L.control.zoom({ position: 'topright' }).addTo(leafMap);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+    maxZoom: 16,
   }).addTo(leafMap);
   leafRoute = L.layerGroup().addTo(leafMap);
   leafTrail = L.layerGroup().addTo(leafMap);
@@ -759,7 +762,7 @@ function portMarker(p, kind) {
       className: 'port-wrap',
       html: `<div class="port ${cls}"><span class="beacon"></span><span class="plabel">${esc(label)}</span></div>`,
       iconSize: [120, 48],
-      iconAnchor: [60, 12],
+      iconAnchor: kind === 'origin' ? [60, 40] : [60, 12],
     }),
     zIndexOffset: 400,
   }).addTo(leafMarks);
@@ -846,7 +849,8 @@ function drawMap(data) {
     boundsPts.push([vessel.lat, vessel.lon]);
   }
 
-  if (boundsPts.length) map.fitBounds(L.latLngBounds(boundsPts).pad(0.22));
+  if (boundsPts.length) map.fitBounds(L.latLngBounds(boundsPts).pad(0.22),
+    { paddingTopLeft: L.point(24, 76), paddingBottomRight: L.point(24, 24) });
   setTimeout(() => map.invalidateSize(), 60);
 
   // HUD badge — vessel identity like a movie title card
