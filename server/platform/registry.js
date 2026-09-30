@@ -98,6 +98,19 @@ export const PLATFORM_MODULES = Object.freeze([
     audience: 'both',
     adminPath: '/portal/admin.html',
   },
+  {
+    id: 'insurance',
+    path: '/insurance/',
+    icon: '🛡️',
+    name: { es: 'Seguros', en: 'Insurance' },
+    tagline: {
+      es: 'Ajuste público + ventas: reclamos, pipeline, códigos y fuerza laboral IA.',
+      en: 'Public adjusting + sales: claims, pipeline, industry codes and AI workforce.',
+    },
+    phase: '2c',
+    status: 'live',
+    audience: 'owner',
+  },
 ]);
 
 function copyModule(m) {
