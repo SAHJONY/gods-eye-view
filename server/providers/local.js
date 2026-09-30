@@ -21,6 +21,7 @@ import { openAiRealtimeProxy } from './openai.js';
 import { googlePlacesContextProxy } from './places.js';
 import { keySetupEndpoint } from '../standalone/key-setup.js';
 import { portalApiPlugin } from '../portal/routes.js';
+import { platformShellPlugin } from '../platform/shell.js';
 
 /** Construct the local provider plugins in their established order. */
 function localProviderPlugins() {
@@ -48,6 +49,7 @@ function localProviderPlugins() {
     googlePlacesContextProxy(),
     keySetupEndpoint(),
     portalApiPlugin(),
+    platformShellPlugin(),
   ];
 }
 
