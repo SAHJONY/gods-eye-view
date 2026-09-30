@@ -222,8 +222,54 @@
   .wa-btn:active { transform:translateY(1px); }
   .quick { display:flex; gap:10px; margin:12px 0; }
   .quick .btn { flex:1; text-align:center; }
+
+  /* ---- real global map (Leaflet) — cinematic overrides ---- */
+  .leaflet-container { background:#04090f; font:inherit; }
+  .leaflet-container .leaflet-control-attribution { background:rgba(4,10,18,.62); color:#5a7186;
+          font-size:9px; padding:1px 6px; }
+  .leaflet-container .leaflet-control-attribution a { color:#7d95ab; }
+  .leaflet-bar a { background:rgba(10,20,34,.92); color:#dfe9f2; border-color:rgba(140,190,255,.2); }
+  .leaflet-bar a:hover { background:rgba(30,52,78,.95); color:#fff; }
+  #mapWrap::after { content:""; position:absolute; inset:0; z-index:650; pointer-events:none;
+          background:radial-gradient(115% 92% at 50% 42%, transparent 58%, rgba(0,0,0,.5) 100%); }
+  #vesselBadge { z-index:700; }
+  .vessel-wrap, .port-wrap, .storm-wrap { background:none; border:0; }
+  /* sonar-pulsing vessel marker */
+  .vmk { position:relative; width:56px; height:56px; }
+  .vmk .ring { position:absolute; inset:8px; border-radius:50%; border:2px solid rgba(52,222,150,.7);
+          animation:sonar 2.4s ease-out infinite; }
+  .vmk .ring.r2 { animation-delay:1.2s; }
+  @keyframes sonar { 0% { transform:scale(.45); opacity:1; } 100% { transform:scale(1.4); opacity:0; } }
+  .vmk .hull { position:absolute; left:50%; top:50%; width:26px; height:26px; margin:-13px 0 0 -13px;
+          filter:drop-shadow(0 0 7px rgba(52,222,150,.95)); }
+  /* beacon ports */
+  .port { position:relative; width:120px; height:48px; text-align:center; }
+  .port .beacon { display:block; width:14px; height:14px; margin:2px auto 0; border-radius:50%;
+          animation:beaconpulse 2s ease-in-out infinite; }
+  .port.p-origin .beacon { background:#34de96; box-shadow:0 0 12px #34de96; }
+  .port.p-dest .beacon { background:#ff5d5d; box-shadow:0 0 12px #ff5d5d; }
+  @keyframes beaconpulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.5); opacity:.55; } }
+  .port .plabel { display:inline-block; margin-top:5px; font-size:11px; font-weight:700; color:#e8f1f8;
+          background:rgba(4,10,18,.82); border:1px solid rgba(140,190,255,.3); border-radius:8px;
+          padding:3px 9px; white-space:nowrap; }
+  /* rotating storm swirls */
+  .storm { position:relative; width:44px; height:44px; }
+  .storm .swirl { position:absolute; inset:5px; border-radius:50%;
+          background:conic-gradient(rgba(255,110,110,.95), rgba(255,110,110,.12) 32%, transparent 55%,
+                     rgba(255,110,110,.55) 78%, rgba(255,110,110,.95));
+          -webkit-mask:radial-gradient(circle, transparent 30%, #000 32%);
+          mask:radial-gradient(circle, transparent 30%, #000 32%);
+          animation:stormspin 5s linear infinite;
+          filter:drop-shadow(0 0 7px rgba(255,110,110,.7)); }
+  @keyframes stormspin { to { transform:rotate(360deg); } }
+  .storm .sname { position:absolute; top:100%; left:50%; transform:translateX(-50%);
+          font-size:10px; font-weight:700; color:#ffb3b3; white-space:nowrap; text-shadow:0 1px 4px #000; }
+  /* flowing light dashes along the route */
+  .route-flow { stroke-dasharray:9 9; animation:routedash 1.1s linear infinite; }
+  @keyframes routedash { to { stroke-dashoffset:-18; } }
 </style>
 
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 </head>
 <body>
 <div class="demo-banner" id="demoBanner" hidden>DEMOSTRACIÓN · Datos de muestra — vista de prospecto</div>
@@ -263,7 +309,7 @@
       <div id="dBanner"></div>
       <div class="info" id="dInfo"></div>
       <div id="mapWrap" style="display:none">
-        <canvas id="map"></canvas>
+        <div id="map"></div>
         <div id="vesselBadge"><div class="hud"><div class="vn" id="hudName"></div><div class="vs" id="hudStatus"></div></div></div>
         <div class="mapbar">
           <label><input type="checkbox" id="tglCyclones" checked> Tormentas</label>
@@ -367,6 +413,7 @@
     <a class="wa-btn" href="/portal/registro">REGÍSTRESE AQUÍ</a>
   </section>
 </main>
+<script src="vendor/leaflet/leaflet.js"></script>
 <script>
 const STATUS_LABEL = { pendiente:'Pendiente', en_transito:'En tránsito', en_puerto:'En puerto', entregado:'Entregado' };
 const STATUS_ORDER = ['pendiente','en_transito','en_puerto','entregado'];
@@ -662,13 +709,29 @@ function relTime(d) {
   const m = Math.round(s / 60);
   return m < 60 ? `hace ${m} min` : `hace ${Math.round(m / 60)} h`;
 }
-/* ---- cinematic vessel map — ultra-premium render ----
-   Deep cinematic ocean, great-circle glowing route, golden AIS trail,
-   rotating storm swirls, beacon ports, sonar-pulsing ship, vignette.
-   Animation runs on its own rAF loop while the detail view is open
-   (the 30s AIS refresh keeps feeding it fresh positions). */
-let mapAnim = null, mapState = null;
-function stopMapAnim() { if (mapAnim) { cancelAnimationFrame(mapAnim); mapAnim = null; } }
+/* ---- real global map (Leaflet + cinematic dark tiles) ----
+   A true world map like the God's Eye View globe: dark CARTO basemap,
+   great-circle route with flowing light dashes, golden AIS trail,
+   rotating storm swirls, beacon ports, sonar-pulsing vessel marker.
+   Leaflet renders; CSS keyframes animate. The 30s AIS refresh rebuilds. */
+let leafMap = null;
+let leafRoute = null, leafTrail = null, leafStorms = null, leafMarks = null;
+function stopMapAnim() { /* canvas loop retired — CSS handles the motion */ }
+
+function ensureLeafMap() {
+  if (leafMap) return leafMap;
+  leafMap = L.map('map', { scrollWheelZoom: false, worldCopyJump: true });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19,
+  }).addTo(leafMap);
+  leafRoute = L.layerGroup().addTo(leafMap);
+  leafTrail = L.layerGroup().addTo(leafMap);
+  leafStorms = L.layerGroup().addTo(leafMap);
+  leafMarks = L.layerGroup().addTo(leafMap);
+  return leafMap;
+}
 
 /** Great-circle route between two lat/lon points — smooth cinematic arc. */
 function greatCircleRoute(a, b, n) {
@@ -688,251 +751,21 @@ function greatCircleRoute(a, b, n) {
   return pts;
 }
 
-/** Draw one full cinematic frame. `t` = animation timestamp (ms). */
-function paintMap(t) {
-  const st = mapState;
-  if (!st) return;
-  const canvas = document.getElementById('map');
-  if (!canvas || !canvas.clientWidth) return;
-  const dpr = Math.min(2, window.devicePixelRatio || 1);
-  const w = canvas.clientWidth, h = canvas.clientHeight;
-  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
-    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
-  }
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const { minLat, maxLat, minLon, maxLon } = st.bounds;
-  const X = (lon) => ((lon - minLon) / (maxLon - minLon)) * w;
-  const Y = (lat) => ((maxLat - lat) / (maxLat - minLat)) * h;
-
-  /* 1 · deep cinematic ocean: depth gradient + center glow + drifting currents */
-  const depth = ctx.createLinearGradient(0, 0, 0, h);
-  depth.addColorStop(0, '#0a1c30');
-  depth.addColorStop(0.55, '#071223');
-  depth.addColorStop(1, '#040a14');
-  ctx.fillStyle = depth;
-  ctx.fillRect(0, 0, w, h);
-  const glow = ctx.createRadialGradient(w / 2, h * 0.42, 10, w / 2, h * 0.42, Math.max(w, h) * 0.7);
-  glow.addColorStop(0, 'rgba(46,110,190,.16)');
-  glow.addColorStop(1, 'rgba(46,110,190,0)');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, w, h);
-  // faint drifting current lines
-  ctx.strokeStyle = 'rgba(110,170,235,.06)';
-  ctx.lineWidth = 1;
-  for (let i = 0; i < 4; i++) {
-    const yy = (((t / 90) + i * 97) % (h + 160)) - 80;
-    ctx.beginPath();
-    for (let x = 0; x <= w; x += 24) {
-      const y = yy + Math.sin(x / 70 + i * 2.1 + t / 2400) * 14;
-      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
-  // fine grid, barely there
-  ctx.strokeStyle = 'rgba(120,170,220,.05)';
-  for (let i = 1; i < 6; i++) {
-    ctx.beginPath(); ctx.moveTo((w / 6) * i, 0); ctx.lineTo((w / 6) * i, h); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, (h / 6) * i); ctx.lineTo(w, (h / 6) * i); ctx.stroke();
-  }
-
-  const routePts = st.routePts;
-  const proj = (p) => [X(p.lon), Y(p.lat)];
-
-  /* 2 · great-circle route: soft halo under, gradient ribbon over, flowing dashes */
-  if (routePts.length > 1) {
-    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    const [x0, y0] = proj(routePts[0]);
-    const [x1, y1] = proj(routePts[routePts.length - 1]);
-    const ribbon = ctx.createLinearGradient(x0, y0, x1, y1);
-    ribbon.addColorStop(0, 'rgba(52,222,150,.95)');
-    ribbon.addColorStop(0.6, 'rgba(120,200,255,.85)');
-    ribbon.addColorStop(1, 'rgba(255,120,120,.95)');
-    const trace = () => {
-      ctx.beginPath();
-      routePts.forEach((p, i) => { const [x, y] = proj(p); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
-    };
-    // halo
-    ctx.strokeStyle = 'rgba(80,200,255,.10)'; ctx.lineWidth = 9;
-    trace(); ctx.stroke();
-    // ribbon
-    ctx.strokeStyle = ribbon; ctx.lineWidth = 2.6; ctx.setLineDash([]);
-    trace(); ctx.stroke();
-    // sailing dashes flowing toward destination
-    ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2.6;
-    ctx.setLineDash([2, 20]); ctx.lineDashOffset = -((t / 28) % 22);
-    trace(); ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  /* 3 · recent AIS track — warm golden trail behind the vessel */
-  const track = st.showTrack ? st.track : [];
-  if (track.length > 1) {
-    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    for (let i = 1; i < track.length; i++) {
-      const f = i / track.length; // fade from tail to head
-      ctx.strokeStyle = 'rgba(255,196,110,' + (0.08 + f * 0.75).toFixed(3) + ')';
-      ctx.lineWidth = 1 + f * 3;
-      ctx.beginPath();
-      const [ax, ay] = proj(track[i - 1]), [bx, by] = proj(track[i]);
-      ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-    }
-  }
-
-  /* 4 · storm swirls — rotating spiral, cinematic */
-  if (st.showCyclones) {
-    for (const c of st.cyclones) {
-      const [x, y] = proj(c);
-      const rot = t / 1400;
-      const sg = ctx.createRadialGradient(x, y, 2, x, y, 30);
-      sg.addColorStop(0, 'rgba(255,170,60,.28)');
-      sg.addColorStop(1, 'rgba(255,170,60,0)');
-      ctx.fillStyle = sg;
-      ctx.beginPath(); ctx.arc(x, y, 30, 0, 7); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,190,90,.85)'; ctx.lineWidth = 2;
-      for (let arm = 0; arm < 3; arm++) {
-        ctx.beginPath();
-        for (let a = 0; a <= Math.PI * 2.4; a += 0.22) {
-          const rr = 3 + a * 3.4;
-          const px = x + Math.cos(a + rot + (arm * Math.PI * 2) / 3) * rr;
-          const py = y + Math.sin(a + rot + (arm * Math.PI * 2) / 3) * rr;
-          if (a === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-        }
-        ctx.stroke();
-      }
-      ctx.fillStyle = '#ffd9a0'; ctx.font = '600 11px system-ui';
-      ctx.fillText('🌀 ' + (c.name || ''), x + 22, y - 12);
-    }
-  }
-
-  const chip = (x, y, text, accent) => {
-    ctx.font = '700 11px system-ui';
-    const tw = ctx.measureText(text).width;
-    const pw = 10, ph = 20;
-    let bx = x + 14;
-    if (bx + tw + pw * 2 > w - 6) bx = x - 14 - tw - pw * 2; // keep chip on screen
-    ctx.fillStyle = 'rgba(4,10,18,.78)';
-    ctx.strokeStyle = accent;
-    ctx.globalAlpha = 0.85; ctx.lineWidth = 1;
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(bx, y - ph - 6, tw + pw * 2, ph, 10);
-    else ctx.rect(bx, y - ph - 6, tw + pw * 2, ph);
-    ctx.fill(); ctx.stroke();
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = '#f2f7fc';
-    ctx.fillText(text, bx + pw, y - 12);
-  };
-
-  /* 5 · origin port — emerald beacon */
-  if (st.origin) {
-    const [x, y] = proj(st.origin);
-    const og = ctx.createRadialGradient(x, y, 1, x, y, 22);
-    og.addColorStop(0, 'rgba(52,222,150,.55)');
-    og.addColorStop(1, 'rgba(52,222,150,0)');
-    ctx.fillStyle = og;
-    ctx.beginPath(); ctx.arc(x, y, 22, 0, 7); ctx.fill();
-    ctx.fillStyle = '#0b2e20';
-    ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 7); ctx.fill();
-    ctx.fillStyle = '#34de96';
-    ctx.beginPath(); ctx.arc(x, y, 5.5, 0, 7); ctx.fill();
-    ctx.strokeStyle = 'rgba(52,222,150,.9)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 7); ctx.stroke();
-    chip(x, y, st.origin.name || 'Origen', 'rgba(52,222,150,.4)');
-  }
-
-  /* 6 · destination port — warm red beacon */
-  if (st.destination) {
-    const [x, y] = proj(st.destination);
-    const dg = ctx.createRadialGradient(x, y, 1, x, y, 22);
-    dg.addColorStop(0, 'rgba(255,110,110,.55)');
-    dg.addColorStop(1, 'rgba(255,110,110,0)');
-    ctx.fillStyle = dg;
-    ctx.beginPath(); ctx.arc(x, y, 22, 0, 7); ctx.fill();
-    ctx.fillStyle = '#3a1414';
-    ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 7); ctx.fill();
-    ctx.fillStyle = '#ff7b7b';
-    ctx.beginPath(); ctx.arc(x, y, 5.5, 0, 7); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,123,123,.9)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 7); ctx.stroke();
-    chip(x, y, st.destination.name || 'Destino', 'rgba(255,123,123,.4)');
-  }
-
-  /* 7 · vessel — glowing ship with sonar pulse + heading wedge */
-  const v = st.vessel;
-  if (v) {
-    const [x, y] = proj(v);
-    const pulse = (t % 2400) / 2400; // sonar ring
-    ctx.strokeStyle = 'rgba(120,190,255,' + (0.55 * (1 - pulse)).toFixed(3) + ')';
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(x, y, 10 + pulse * 34, 0, 7); ctx.stroke();
-    const pulse2 = ((t + 1200) % 2400) / 2400;
-    ctx.strokeStyle = 'rgba(120,190,255,' + (0.3 * (1 - pulse2)).toFixed(3) + ')';
-    ctx.beginPath(); ctx.arc(x, y, 10 + pulse2 * 34, 0, 7); ctx.stroke();
-    // halo
-    const vg = ctx.createRadialGradient(x, y, 2, x, y, 26);
-    vg.addColorStop(0, 'rgba(140,200,255,.5)');
-    vg.addColorStop(1, 'rgba(140,200,255,0)');
-    ctx.fillStyle = vg;
-    ctx.beginPath(); ctx.arc(x, y, 26, 0, 7); ctx.fill();
-    // heading wedge (course over ground)
-    if (st.heading != null) {
-      const a = (st.heading * Math.PI) / 180;
-      ctx.fillStyle = 'rgba(140,200,255,.28)';
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.arc(x, y, 20, a - 0.35, a + 0.35);
-      ctx.closePath(); ctx.fill();
-    }
-    // ship glyph — hull seen from above
-    ctx.save();
-    ctx.translate(x, y);
-    if (st.heading != null) ctx.rotate((st.heading * Math.PI) / 180);
-    ctx.fillStyle = '#eaf4ff';
-    ctx.strokeStyle = 'rgba(20,60,110,.9)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(0, -11);          // bow
-    ctx.lineTo(5.5, -4);
-    ctx.lineTo(5.5, 8);
-    ctx.quadraticCurveTo(5.5, 11, 0, 11);   // stern
-    ctx.quadraticCurveTo(-5.5, 11, -5.5, 8);
-    ctx.lineTo(-5.5, -4);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#1d4e89';  // deck stripe
-    ctx.fillRect(-3.4, -2, 6.8, 7);
-    ctx.restore();
-    // name plate above the vessel
-    ctx.font = '800 12px system-ui';
-    const nm = v.name || v.mmsi || 'BUQUE';
-    const nw = ctx.measureText(nm).width;
-    const bw = nw + 22;
-    const bx = Math.min(Math.max(x - bw / 2, 6), w - bw - 6);
-    ctx.fillStyle = 'rgba(4,10,18,.82)';
-    ctx.strokeStyle = 'rgba(140,200,255,.45)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(bx, y - 46, bw, 24, 12);
-    else ctx.rect(bx, y - 46, bw, 24, 12);
-    ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#dff0ff';
-    ctx.fillText(nm, bx + 11, y - 30);
-  }
-
-  /* 8 · vignette — cinematic frame */
-  const vg2 = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.42, w / 2, h / 2, Math.max(w, h) * 0.75);
-  vg2.addColorStop(0, 'rgba(0,0,0,0)');
-  vg2.addColorStop(1, 'rgba(0,0,0,.5)');
-  ctx.fillStyle = vg2;
-  ctx.fillRect(0, 0, w, h);
+function portMarker(p, kind) {
+  const cls = kind === 'origin' ? 'p-origin' : 'p-dest';
+  const label = p.name || (kind === 'origin' ? 'Origen' : 'Destino');
+  L.marker([p.lat, p.lon], {
+    icon: L.divIcon({
+      className: 'port-wrap',
+      html: `<div class="port ${cls}"><span class="beacon"></span><span class="plabel">${esc(label)}</span></div>`,
+      iconSize: [120, 48],
+      iconAnchor: [60, 12],
+    }),
+    zIndexOffset: 400,
+  }).addTo(leafMarks);
 }
 
-function mapLoop(t) {
-  paintMap(t);
-  mapAnim = requestAnimationFrame(mapLoop);
-}
-
-/** Rebuild map state from fresh API data, then (re)start the render loop. */
+/** Rebuild the live map from fresh API data (every 30s AIS refresh). */
 function drawMap(data) {
   const R = data.route || {};
   const v = data.vessel;
@@ -945,39 +778,76 @@ function drawMap(data) {
   const vessel = v && isFinite(v.lat) && isFinite(v.lon)
     ? { lat: +v.lat, lon: +v.lon, name: v.name, mmsi: v.mmsi } : null;
 
-  const all = [];
-  if (origin) all.push(origin);
-  if (destination) all.push(destination);
-  if (vessel) all.push(vessel);
-  all.push(...track);
-  if (!all.length) return;
-  let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
-  for (const p of all) {
-    minLat = Math.min(minLat, p.lat); maxLat = Math.max(maxLat, p.lat);
-    minLon = Math.min(minLon, p.lon); maxLon = Math.max(maxLon, p.lon);
-  }
-  const padLat = Math.max((maxLat - minLat) * 0.28, 2.2);
-  const padLon = Math.max((maxLon - minLon) * 0.28, 2.2);
-  const showCyclones = document.getElementById('tglCyclones').checked;
-  const showTrack = document.getElementById('tglTrack').checked;
-  const inView = cyclones.filter((c) =>
-    c.lat >= minLat - padLat && c.lat <= maxLat + padLat &&
-    c.lon >= minLon - padLon && c.lon <= maxLon + padLon);
+  const map = ensureLeafMap();
+  leafRoute.clearLayers();
+  leafTrail.clearLayers();
+  leafStorms.clearLayers();
+  leafMarks.clearLayers();
+  const boundsPts = [];
 
-  // heading from last track segment (course over ground)
-  let heading = null;
-  if (vessel && track.length) {
-    const last = track[track.length - 1];
-    const dLon = vessel.lon - last.lon, dLat = vessel.lat - last.lat;
-    if (Math.abs(dLon) + Math.abs(dLat) > 1e-6) heading = (Math.atan2(dLon, dLat) * 180) / Math.PI;
+  // 1 · great-circle route: emerald glow underlay + flowing light dashes
+  if (origin && destination) {
+    const rp = greatCircleRoute(origin, destination, 72).map((p) => [p.lat, p.lon]);
+    L.polyline(rp, { color: '#34de96', weight: 8, opacity: 0.16, lineCap: 'round' }).addTo(leafRoute);
+    L.polyline(rp, { color: '#8ff0b8', weight: 2.5, opacity: 0.95, lineCap: 'round', className: 'route-flow' }).addTo(leafRoute);
+    boundsPts.push(...rp);
   }
 
-  mapState = {
-    bounds: { minLat: minLat - padLat, maxLat: maxLat + padLat, minLon: minLon - padLon, maxLon: maxLon + padLon },
-    origin, destination, vessel, track,
-    routePts: origin && destination ? greatCircleRoute(origin, destination, 72) : [],
-    cyclones: inView, showCyclones, showTrack, heading,
-  };
+  // 2 · golden AIS trail, fading with age
+  if (document.getElementById('tglTrack').checked && track.length > 1) {
+    for (let i = 1; i < track.length; i++) {
+      const f = i / track.length;
+      L.polyline(
+        [[track[i - 1].lat, track[i - 1].lon], [track[i].lat, track[i].lon]],
+        { color: '#e8b34a', weight: 3, opacity: 0.12 + 0.68 * f, lineCap: 'round' }
+      ).addTo(leafTrail);
+    }
+    boundsPts.push(...track.map((p) => [p.lat, p.lon]));
+  }
+
+  // 3 · rotating storm swirls
+  if (document.getElementById('tglCyclones').checked) {
+    for (const c of cyclones) {
+      L.marker([c.lat, c.lon], {
+        icon: L.divIcon({
+          className: 'storm-wrap',
+          html: `<div class="storm"><span class="swirl"></span>${c.name ? `<span class="sname">${esc(c.name)}</span>` : ''}</div>`,
+          iconSize: [44, 44],
+          iconAnchor: [22, 22],
+        }),
+        interactive: false,
+      }).addTo(leafStorms);
+    }
+  }
+
+  // 4 · beacon ports
+  if (origin) { portMarker(origin, 'origin'); boundsPts.push([origin.lat, origin.lon]); }
+  if (destination) { portMarker(destination, 'dest'); boundsPts.push([destination.lat, destination.lon]); }
+
+  // 5 · vessel: sonar-pulsing marker, hull rotated to course over ground
+  if (vessel) {
+    let heading = 0;
+    if (track.length) {
+      const last = track[track.length - 1];
+      const dLon = vessel.lon - last.lon, dLat = vessel.lat - last.lat;
+      if (Math.abs(dLon) + Math.abs(dLat) > 1e-9) heading = (Math.atan2(dLon, dLat) * 180) / Math.PI;
+    }
+    L.marker([vessel.lat, vessel.lon], {
+      icon: L.divIcon({
+        className: 'vessel-wrap',
+        html: `<div class="vmk"><span class="ring"></span><span class="ring r2"></span>`
+          + `<svg class="hull" viewBox="0 0 24 24" style="transform:rotate(${heading}deg)">`
+          + `<path d="M12 2 L19 21 L12 16 L5 21 Z" fill="#ffffff" stroke="#34de96" stroke-width="1.6"/></svg></div>`,
+        iconSize: [56, 56],
+        iconAnchor: [28, 28],
+      }),
+      zIndexOffset: 500,
+    }).addTo(leafMarks);
+    boundsPts.push([vessel.lat, vessel.lon]);
+  }
+
+  if (boundsPts.length) map.fitBounds(L.latLngBounds(boundsPts).pad(0.22));
+  setTimeout(() => map.invalidateSize(), 60);
 
   // HUD badge — vessel identity like a movie title card
   const badge = document.getElementById('vesselBadge');
@@ -988,10 +858,8 @@ function drawMap(data) {
   } else {
     badge.style.display = 'none';
   }
-
-  stopMapAnim();
-  mapLoop(performance.now());
 }
+
 async function loadCyclones() {
   try {
     const res = await fetch('/api/cyclones');
@@ -1005,8 +873,14 @@ async function loadCyclones() {
     })).filter((c) => isFinite(c.lat) && isFinite(c.lon));
   } catch { /* overlay is best-effort */ }
 }
-document.getElementById('tglCyclones').addEventListener('change', () => currentId && refreshVessel());
-document.getElementById('tglTrack').addEventListener('change', () => currentId && refreshVessel());
+document.getElementById('tglCyclones').addEventListener('change', (e) => {
+  if (!leafMap) return;
+  e.target.checked ? leafMap.addLayer(leafStorms) : leafMap.removeLayer(leafStorms);
+});
+document.getElementById('tglTrack').addEventListener('change', (e) => {
+  if (!leafMap) return;
+  e.target.checked ? leafMap.addLayer(leafTrail) : leafMap.removeLayer(leafTrail);
+});
 init();
 </script>
 </body>
