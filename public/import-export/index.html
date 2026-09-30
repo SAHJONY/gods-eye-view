@@ -410,7 +410,11 @@ const VERIFIED_SEED_SUPPLIERS=[
 ["Coamo — aceite (Cuba-inside)","distributor","supplier","Cuba","55021481","","Aceite Coamo 900 ml ~$3.50/botella, La Habana.\nAvistamiento interno sep 2026 — precio Mariel pendiente.","unverified","Maceo Saray","aceite"],
 ["Azúcar/arroz (Cuba-inside)","distributor","supplier","Cuba","58983203","","Contacto WhatsApp Cuba-inside.\nReferencia de precio techo (NO proveedor verificado).","unverified","","azúcar, arroz"],
 ["Zuko (Cuba-inside)","distributor","supplier","Cuba","52400779","","Refresco en polvo Zuko — contacto Cuba-inside.\nAvistamiento interno sep 2026.","unverified","","refresco en polvo"],
-["Dayana — azúcar/huevos (Cuba-inside)","distributor","supplier","Cuba","+53 63893138","","Sourcing de azúcar y huevos — registros internos sep 2026.\nAvistamiento interno, no verificado como proveedor.","unverified","Dayana","azúcar, huevos"]
+["Dayana — azúcar/huevos (Cuba-inside)","distributor","supplier","Cuba","+53 63893138","","Sourcing de azúcar y huevos — registros internos sep 2026.\nAvistamiento interno, no verificado como proveedor.","unverified","Dayana","azúcar, huevos"],
+["AJC International","trader","supplier","USA","+1 404 252 6750","","Web: ajcfood.com\nProducto: carne congelada (pollo, bovino, cerdo).\nNombrado exportador a Cuba (cubatrade 2026).","in-review","","picadillo, hamburguesas"],
+["Intervision Foods","trader","supplier","USA","+1 404 814 1282","","Web: ivfoods.com\nProducto: proteína animal congelada.\nNombrado exportador a Cuba (cubatrade 2026).","in-review","","picadillo, hamburguesas"],
+["Thai Binh Investment Trading Corp.","manufacturer","supplier","Vietnam","","","Web: thaibinhcorp.vn (mencionado en prensa, NO verificado)\nProducto: pañales, toallas sanitarias.\nFábrica en ZED Mariel desde nov 2019.","in-review","","pañales, toallas sanitarias"],
+["Servimundo","manufacturer","supplier","Indonesia","","","Fabricante de manteca vegetal Gold SMF-2.\nRFQ SAHJONY enviado 29/sep/2026 — cotización pendiente.\nContacto en hilo interno de Lazarito.","in-review","","manteca"]
 ];
 function seedVerifiedSuppliers(){
  const have=new Set(S.suppliers.map(s=>String(s.name||"").trim().toLowerCase()));
@@ -536,17 +540,45 @@ const MI_RANK=[
 {n:"Pollo congelado (cuartos/muslos)",en:"Frozen chicken (leg quarters)",s:34,ch:"Contenedor 40' reefer ≈ 25 TM",px:"$0.70/lb FAS Gulfport",src:"deal propio SAHJONY · 23/sep/2026",ty:"s"},
 {n:"Aceite vegetal (soya/girasol)",en:"Vegetable oil (soy/sunflower)",s:33,ch:"Contenedor 40' dry ≈ 24,000 L",px:"Coamo 900ml: $3.70/botella (mín. 100 cajas)",src:"avistamiento interno · sep 2026",ty:"s"},
 {n:"Arroz (grano largo 50kg)",en:"Rice (long grain 50kg)",s:33,ch:"Contenedor 40' dry ≈ 26–28 TM",px:"$46/saco ($45 × contenedor de 600)",src:'FB "MIPYMES de ORIENTE" · 16/sep/2026',ty:"s"},
+{n:"Pañales desechables",en:"Disposable diapers",s:33,ch:"40' dry/HC ≈ 8–12 TM (voluminoso)",px:"FOB estimado ~US$0.08–0.15/u · retail MLC agotado con frecuencia",src:"Cubadebate · directoriocubano · sep 2026",ty:"e"},
 {n:"Azúcar (parda/blanca 50kg)",en:"Sugar (brown/white 50kg)",s:32,ch:"Contenedor 40' dry ≈ 25 TM",px:"$68/saco · CIF Mariel $0.96/kg",src:"avistamiento interno · sep 2026",ty:"s"},
 {n:"Refresco en polvo (Zuko/Lual)",en:"Powdered drink (Zuko/Lual)",s:32,ch:"Contenedor 40' dry (cajas)",px:"Zuko $0.18/sobre · Lual $96,600/contenedor",src:"avistamiento interno · sep 2026",ty:"s"},
+{n:"Puré y conservas de tomate",en:"Tomato purée & canned tomato",s:32,ch:"40' dry ≈ 25–27 TM",px:"FOB estimado ~US$0.80–1.20/kg",src:"MINCIN Res. 16/2026 (prioridad oficial)",ty:"e"},
+{n:"Jabón de baño",en:"Bath soap",s:32,ch:"40' dry ≈ 20–25 TM",px:"150 CUP/u (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e"},
+{n:"Crema dental",en:"Toothpaste",s:32,ch:"40' dry ≈ 20 TM",px:"480 CUP/tubo (retail La Habana)",src:"directoriocubano · 28/sep/2026",ty:"s"},
 {n:"Leche en polvo (25kg/1kg)",en:"Powdered milk (25kg/1kg)",s:31,ch:"Contenedor 40' dry ≈ 25 TM",px:"FOB ~$3.5–4.0/kg",src:"benchmark · sin avistamiento",ty:"e"},
+{n:"Queso",en:"Cheese",s:31,ch:"40' reefer ≈ 20–25 TM",px:"1,100 CUP/libra queso blanco (retail)",src:"directoriocubano · sep 2026",ty:"s"},
+{n:"Papel sanitario",en:"Toilet paper",s:31,ch:"40' HC ≈ 10–15 TM (voluminoso)",px:"150 CUP/rollo (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e"},
+{n:"Desodorante",en:"Deodorant",s:31,ch:"40' dry ≈ 15–20 TM",px:"600 CUP/u (retail La Habana)",src:"directoriocubano · 28/sep/2026",ty:"s"},
+{n:"Champú",en:"Shampoo",s:31,ch:"40' dry ≈ 20 TM",px:"500 CUP/frasco (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e"},
+{n:"Toallas sanitarias",en:"Sanitary pads",s:31,ch:"40' dry ≈ 10–15 TM",px:"250 CUP/paq (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e"},
 {n:"Salchichas / embutidos",en:"Sausages",s:30,ch:"Contenedor 40' reefer ≈ 25 TM",px:null,src:"",ty:"e"},
 {n:"Frijoles (negros/colorados)",en:"Beans (black/red)",s:30,ch:"Contenedor 40' dry ≈ 25 TM",px:"$60/saco (frijol negro)",src:"avistamiento interno · sep 2026",ty:"s"},
+{n:"Leche fluida UHT y crema",en:"UHT milk & cream",s:30,ch:"40' dry ≈ 25–26 TM",px:"EE.UU. exportó US$1.575M a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s"},
+{n:"Sopa instantánea",en:"Instant soup",s:30,ch:"40' dry ≈ 15–20 TM",px:"300 CUP/paq (retail La Habana)",src:"directoriocubano · 28/sep/2026",ty:"s"},
+{n:"Garbanzos",en:"Chickpeas",s:30,ch:"40' dry ≈ 25–27 TM",px:"US$1.50/400 g enlatado (retail)",src:"envioscuba · sep 2026",ty:"s"},
+{n:"Manteca vegetal",en:"Vegetable shortening",s:30,ch:"40' dry ≈ 20–25 TM",px:"RFQ en curso — comprador pidió contenedor completo",src:"demanda interna SAHJONY · sep 2026",ty:"e"},
 {n:"Pastas alimenticias",en:"Pasta",s:29,ch:"Contenedor 40' dry ≈ 20–24 TM",px:null,src:"",ty:"e"},
 {n:"Carne de cerdo congelada",en:"Frozen pork",s:29,ch:"Contenedor 40' reefer ≈ 25 TM",px:null,src:"",ty:"e"},
 {n:"Huevos",en:"Eggs",s:29,ch:"40' reefer (frágil)",px:"Cartón 30 ≈ $11 USD",src:"avistamiento interno · sep 2026",ty:"s"},
 {n:"Detergente / aseo",en:"Detergent & hygiene",s:29,ch:"Contenedor 40' dry ≈ 20 TM",px:null,src:"",ty:"e"},
+{n:"Galletas dulces",en:"Sweet biscuits",s:29,ch:"40' dry ≈ 20–25 TM",px:"EE.UU. exportó US$1.275M a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s"},
+{n:"Jugos y néctares",en:"Fruit & vegetable juices",s:29,ch:"40' dry ≈ 22–25 TM",px:"EE.UU. exportó US$867K a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s"},
+{n:"Bebidas no alcohólicas",en:"Non-alcoholic beverages",s:29,ch:"40' dry ≈ 20–24 TM",px:"EE.UU. exportó US$601K a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s"},
+{n:"Picadillo",en:"Ground meat",s:29,ch:"40' reefer ≈ 25–27 TM",px:"FOB estimado ~US$2.50–3.80/kg",src:"MINCIN Res. 16/2026 (prioridad)",ty:"e"},
+{n:"Atún enlatado",en:"Canned tuna",s:29,ch:"40' dry ≈ 25–28 TM",px:"US$2.99–4.74/lata 160–190 g (retail)",src:"envioscuba · sep 2026",ty:"s"},
+{n:"Sardinas enlatadas",en:"Canned sardines",s:29,ch:"40' dry ≈ 25 TM",px:"US$2.19–2.49/lata 113–125 g (retail)",src:"envioscuba · sep 2026",ty:"s"},
+{n:"Mantequilla",en:"Butter",s:28,ch:"40' reefer ≈ 25 TM",px:"FOB estimado ~US$5.00–7.00/kg",src:"agrolatam · sep 2026 (embarques)",ty:"e"},
+{n:"Hamburguesas",en:"Burger patties",s:28,ch:"40' reefer ≈ 25 TM",px:"FOB estimado ~US$3.00–4.50/kg",src:"MINCIN Res. 16/2026 (prioridad)",ty:"e"},
+{n:"Carne enlatada",en:"Canned meat",s:28,ch:"40' dry ≈ 25 TM",px:"albóndigas US$3.22/415 g · fiambre US$3.64/400 g (retail)",src:"envioscuba · sep 2026",ty:"s"},
+{n:"Lentejas",en:"Lentils",s:28,ch:"40' dry ≈ 25–27 TM",px:"US$1.56/345 g enlatadas (retail)",src:"envioscuba · sep 2026",ty:"s"},
+{n:"Malta",en:"Malt beverage",s:28,ch:"40' dry ≈ 20–24 TM",px:"30 CUP/lata (tope oficial 2019 — referencia histórica)",src:"evidencia 2019 — revalidar",ty:"e"},
 {n:"Harina de trigo",en:"Wheat flour",s:27,ch:"Contenedor 40' dry ≈ 25 TM",px:null,src:"",ty:"e"},
-{n:"Café",en:"Coffee",s:26,ch:"Contenedor 40' dry",px:null,src:"",ty:"e"}];
+{n:"Yogur",en:"Yogurt",s:27,ch:"40' reefer ≈ 20–24 TM",px:"FOB estimado ~US$1.00–1.60/kg",src:"agrolatam · sep 2026 (embarques)",ty:"e"},
+{n:"Maíz",en:"Corn",s:27,ch:"40' dry ≈ 25 TM",px:"US$2.12/340 g enlatado (retail)",src:"envioscuba · sep 2026",ty:"s"},
+{n:"Café",en:"Coffee",s:26,ch:"Contenedor 40' dry",px:null,src:"",ty:"e"},
+{n:"Pescado congelado",en:"Frozen fish",s:26,ch:"40' reefer ≈ 25 TM",px:"FOB estimado ~US$2.00–3.50/kg",src:"MINCIN Res. 16/2026 (prioridad)",ty:"e"},
+{n:"Sal fina",en:"Table salt",s:23,ch:"40' dry ≈ 27 TM",px:"100 CUP/libra (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e"}];
 const MI_FLOW={es:"Exportaciones EE.UU.→Cuba ene–jul 2026: US$674M (+61.8% vs 2025); julio récord US$148.9M. Composición: socorro US$126.6M, pollo US$118M, derivados del petróleo US$117.1M, vehículos US$34.9M.",en:"US→Cuba exports Jan–Jul 2026: US$674M (+61.8% vs 2025); July record US$148.9M. Mix: relief goods US$126.6M, chicken US$118M, petroleum products US$117.1M, vehicles US$34.9M."};
 const MI_VESSELS=[
 {es:"Regula (Crowley) — viaje #18 a Mariel (principios de sep); 45,000 TM en 2026; pollo/puerco congelado, lácteos, freezers, vehículos y tanques de gasolina/diésel",en:"Regula (Crowley) — voyage #18 to Mariel (early Sep); 45,000 MT in 2026; frozen chicken/pork, dairy, freezers, vehicles, gasoline/diesel container-tanks"},
@@ -633,14 +665,52 @@ const MI_DIR=[
 {n:"🚚 Flete / logística",en:"🚚 Freight / logistics",buy:"Caribe Cargo (3 salidas/sem Miami→Mariel) · Crowley · Seaboard Marine",buy_en:"Caribe Cargo (3 sailings/wk Miami→Mariel) · Crowley · Seaboard Marine",px:null,src:"",ty:"e",c:[
  {n:"Caribe Cargo — Frank",nt:"teléfono pendiente (registros internos) · almacén Miami · $1.30/lb a puerta (interno) · 3 salidas/semana"},
  {n:"Crowley",web:"crowley.com"},
- {n:"Seaboard Marine — Daniela Pena",nt:"solo FCL"}]}];
+ {n:"Seaboard Marine — Daniela Pena",nt:"solo FCL"}]},
+{n:"Pañales desechables",en:"Disposable diapers",buy:"Thai Binh Investment Trading Corp. (fábrica en ZED Mariel) · fabricantes Vietnam/China/EE.UU./Turquía",buy_en:"Thai Binh Investment Trading Corp. (Mariel FTZ plant) · Vietnam/China/US/Turkey makers",px:"FOB estimado ~US$0.08–0.15/u · retail MLC agotado con frecuencia",src:"Cubadebate · directoriocubano · sep 2026",ty:"e",c:[
+ {n:"Thai Binh Investment Trading Corp.",web:"thaibinhcorp.vn",nt:"fábrica en ZED Mariel (pañales + toallas) — sitio mencionado en prensa, NO verificado; verificar antes de contactar"}]},
+{n:"Puré y conservas de tomate",en:"Tomato purée & canned tomato",buy:"España, Italia, EE.UU., Chile, China",buy_en:"Spain, Italy, US, Chile, China",px:"FOB estimado ~US$0.80–1.20/kg",src:"MINCIN Res. 16/2026 (prioridad oficial)",ty:"e",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Jabón de baño",en:"Bath soap",buy:"México, EE.UU., Turquía, China, Vietnam",buy_en:"Mexico, US, Turkey, China, Vietnam",px:"150 CUP/u (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Crema dental",en:"Toothpaste",buy:"México, EE.UU., China, España",buy_en:"Mexico, US, China, Spain",px:"480 CUP/tubo (retail La Habana)",src:"directoriocubano · 28/sep/2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Queso",en:"Cheese",buy:"Países Bajos, España, EE.UU., Uruguay · traders de lácteos del directorio verificado",buy_en:"Netherlands, Spain, US, Uruguay · dairy traders in the verified directory",px:"1,100 CUP/libra queso blanco (retail)",src:"directoriocubano · sep 2026",ty:"s",c:[
+ {n:"Fonterra NZMP",web:"fonterra.com",nt:"vía directorio verificado de lácteos"}]},
+{n:"Papel sanitario",en:"Toilet paper",buy:"China, EE.UU., México, Turquía",buy_en:"China, US, Mexico, Turkey",px:"150 CUP/rollo (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Desodorante",en:"Deodorant",buy:"México, EE.UU., España, China",buy_en:"Mexico, US, Spain, China",px:"600 CUP/u (retail La Habana)",src:"directoriocubano · 28/sep/2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Champú",en:"Shampoo",buy:"México, EE.UU., España, China",buy_en:"Mexico, US, Spain, China",px:"500 CUP/frasco (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Toallas sanitarias",en:"Sanitary pads",buy:"China, Vietnam, EE.UU., Turquía · Thai Binh (ZED Mariel)",buy_en:"China, Vietnam, US, Turkey · Thai Binh (Mariel FTZ)",px:"250 CUP/paq (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e",c:[
+ {n:"Thai Binh Investment Trading Corp.",web:"thaibinhcorp.vn",nt:"capacidad anunciada 150M u/año — no cubre demanda; verificar sitio antes de contactar"}]},
+{n:"Leche fluida UHT y crema",en:"UHT milk & cream",buy:"EE.UU., España, Alemania, Uruguay",buy_en:"US, Spain, Germany, Uruguay",px:"EE.UU. exportó US$1.575M a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s",c:[
+ {n:"Fonterra NZMP",web:"fonterra.com",nt:"vía directorio verificado de lácteos"}]},
+{n:"Sopa instantánea",en:"Instant soup",buy:"Vietnam, China, EE.UU., México",buy_en:"Vietnam, China, US, Mexico",px:"300 CUP/paq (retail La Habana)",src:"directoriocubano · 28/sep/2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Garbanzos",en:"Chickpeas",buy:"Canadá, EE.UU., Argentina, México",buy_en:"Canada, US, Argentina, Mexico",px:"US$1.50/400 g enlatado (retail)",src:"envioscuba · sep 2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Manteca vegetal",en:"Vegetable shortening",buy:"Servimundo (Indonesia, fabricante Gold SMF-2) · Malasia",buy_en:"Servimundo (Indonesia, Gold SMF-2 maker) · Malaysia",px:"RFQ en curso — comprador pidió contenedor completo",src:"demanda interna SAHJONY · sep 2026",ty:"e",c:[
+ {n:"Servimundo (Indonesia)",nt:"fabricante de Gold SMF-2 — RFQ SAHJONY enviado 29/sep/2026, cotización pendiente; contacto en hilo interno de Lazarito"}]},
+{n:"Galletas dulces",en:"Sweet biscuits",buy:"EE.UU., México, España, Brasil",buy_en:"US, Mexico, Spain, Brazil",px:"EE.UU. exportó US$1.275M a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Jugos y néctares",en:"Fruit & vegetable juices",buy:"EE.UU., Brasil, México, España",buy_en:"US, Brazil, Mexico, Spain",px:"EE.UU. exportó US$867K a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Bebidas no alcohólicas",en:"Non-alcoholic beverages",buy:"EE.UU., México, Panamá",buy_en:"US, Mexico, Panama",px:"EE.UU. exportó US$601K a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Picadillo",en:"Ground meat",buy:"AJC International, Intervision Foods (Atlanta, EE.UU.) · Brasil, Canadá",buy_en:"AJC International, Intervision Foods (Atlanta, US) · Brazil, Canada",px:"FOB estimado ~US$2.50–3.80/kg",src:"MINCIN Res. 16/2026 (prioridad)",ty:"e",c:[
+ {n:"AJC International",ph:"+1 404 252 6750",web:"ajcfood.com",nt:"trader de carne congelada, nombrado exportador a Cuba (cubatrade 2026)"},
+ {n:"Intervision Foods",ph:"+1 404 814 1282",web:"ivfoods.com",nt:"proteína animal congelada, nombrado exportador a Cuba (cubatrade 2026)"}]},
+{n:"Atún enlatado",en:"Canned tuna",buy:"Ecuador, Tailandia, China, España",buy_en:"Ecuador, Thailand, China, Spain",px:"US$2.99–4.74/lata 160–190 g (retail)",src:"envioscuba · sep 2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Sardinas enlatadas",en:"Canned sardines",buy:"Marruecos, Tailandia, China, Ecuador",buy_en:"Morocco, Thailand, China, Ecuador",px:"US$2.19–2.49/lata 113–125 g (retail)",src:"envioscuba · sep 2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Mantequilla",en:"Butter",buy:"EE.UU., Países Bajos, Uruguay, Nueva Zelanda",buy_en:"US, Netherlands, Uruguay, New Zealand",px:"FOB estimado ~US$5.00–7.00/kg",src:"agrolatam · sep 2026 (embarques)",ty:"e",c:[
+ {n:"Fonterra NZMP",web:"fonterra.com",nt:"vía directorio verificado de lácteos"}]},
+{n:"Hamburguesas",en:"Burger patties",buy:"EE.UU., Brasil, Canadá · AJC International, Intervision Foods",buy_en:"US, Brazil, Canada · AJC International, Intervision Foods",px:"FOB estimado ~US$3.00–4.50/kg",src:"MINCIN Res. 16/2026 (prioridad)",ty:"e",c:[
+ {n:"AJC International",ph:"+1 404 252 6750",web:"ajcfood.com"},
+ {n:"Intervision Foods",ph:"+1 404 814 1282",web:"ivfoods.com"}]},
+{n:"Carne enlatada",en:"Canned meat",buy:"España, EE.UU., Brasil, China",buy_en:"Spain, US, Brazil, China",px:"albóndigas US$3.22/415 g · fiambre US$3.64/400 g (retail)",src:"envioscuba · sep 2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Lentejas",en:"Lentils",buy:"Canadá, EE.UU., Argentina",buy_en:"Canada, US, Argentina",px:"US$1.56/345 g enlatadas (retail)",src:"envioscuba · sep 2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Malta",en:"Malt beverage",buy:"República Dominicana, Panamá, Alemania",buy_en:"Dominican Republic, Panama, Germany",px:"30 CUP/lata (tope oficial 2019 — referencia histórica)",src:"evidencia 2019 — revalidar",ty:"e",c:[],nt:"evidencia fechada — revalidar antes de ofertar"},
+{n:"Yogur",en:"Yogurt",buy:"España, EE.UU., México",buy_en:"Spain, US, Mexico",px:"FOB estimado ~US$1.00–1.60/kg",src:"agrolatam · sep 2026 (embarques)",ty:"e",c:[],nt:"requiere cadena de frío continua — validar antes de ofrecer"},
+{n:"Maíz",en:"Corn",buy:"EE.UU., Argentina, Brasil",buy_en:"US, Argentina, Brazil",px:"US$2.12/340 g enlatado (retail)",src:"envioscuba · sep 2026",ty:"s",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Pescado congelado",en:"Frozen fish",buy:"China, Vietnam, Ecuador, EE.UU.",buy_en:"China, Vietnam, Ecuador, US",px:"FOB estimado ~US$2.00–3.50/kg",src:"MINCIN Res. 16/2026 (prioridad)",ty:"e",c:[],nt:"sin contacto verificado en esta pasada — RFQ pendiente"},
+{n:"Sal fina",en:"Table salt",buy:"México, EE.UU., Colombia",buy_en:"Mexico, US, Colombia",px:"100 CUP/libra (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e",c:[],nt:"producto de volumen, no de margen — útil como relleno de contenedor mixto"}];
 function miTyPill(ty){
  if(ty==="s")return '<span class="pill green">'+t("mi_sighted")+'</span>';
  if(ty==="m")return '<span class="pill green">'+t("mi_sighted")+'</span> <span class="pill yellow">'+t("mi_estimated")+'</span>';
  return '<span class="pill yellow">'+t("mi_estimated")+'</span>';
 }
 /* country-code guess for Mercado directory WhatsApp links (data rows carry no country field) */
-const MI_CC_GUESS=[["persaud","592"],["vinafood","84"],["copersucar","55"],["raízen","55"],["raizen","55"],["mutlu","90"],["lucchetti","56"],["cuba-inside","53"],["\\bith\\b","53"],["caribex","53"],["cubaexport","53"],["caribe","53"],["alcona","53"],["coamo","53"],["dayana","53"],["zuko","56"],["58983203","53"],["52400779","53"],["55021481","53"],["63893138","53"]];
+const MI_CC_GUESS=[["persaud","592"],["vinafood","84"],["copersucar","55"],["raízen","55"],["raizen","55"],["mutlu","90"],["lucchetti","56"],["cuba-inside","53"],["\\bith\\b","53"],["caribex","53"],["cubaexport","53"],["caribe","53"],["alcona","53"],["coamo","53"],["dayana","53"],["zuko","56"],["58983203","53"],["52400779","53"],["55021481","53"],["63893138","53"],["ajc","1"],["intervision","1"],["thai binh","84"],["thaibinh","84"],["servimundo","62"]];
 function miWa(c){
  const n=(String(c.n||"")+" "+String(c.ph||"")).toLowerCase();
  let cc="1";
