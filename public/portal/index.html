@@ -5,32 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Portal del Cliente · SAHJONY LLC</title>
 <style>
-  :root { --bg:#0b1622; --card:#132433; --accent:#2f9e6e; --text:#eef4f8; --muted:#9db4c6; --danger:#e05d5d; }
+  /* ===== SAHJONY cinematic — auth screens ===== */
+  :root { --bg:#03070d; --accent:#2f9e6e; --emerald:#34de96; --gold:#d8b26a; --gold-hi:#f4e3b2;
+          --text:#f2f6fb; --muted:#93a9c0; --danger:#e05d5d; --line:rgba(140,190,255,.14); }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  ::selection { background:rgba(216,178,106,.32); }
+  html { -webkit-font-smoothing:antialiased; }
   body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
-         background:radial-gradient(1200px 800px at 50% -10%, #16324a 0%, var(--bg) 60%);
+         background:
+           radial-gradient(900px 480px at 50% -90px, rgba(64,130,200,.16), transparent 62%),
+           radial-gradient(700px 500px at 88% 112%, rgba(216,178,106,.06), transparent 60%),
+           linear-gradient(180deg,#050b14 0%, #03070d 100%);
+         background-attachment:fixed;
          color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; padding:20px; }
-  .card { width:100%; max-width:400px; background:var(--card); border:1px solid #23405a;
-          border-radius:16px; padding:28px 24px; box-shadow:0 12px 40px rgba(0,0,0,.45); }
-  .brand { text-align:center; margin-bottom:6px; font-size:13px; letter-spacing:3px; color:var(--muted); }
-  h1 { text-align:center; font-size:22px; margin:4px 0 2px; }
+  body::after { content:""; position:fixed; inset:0; pointer-events:none;
+         background:radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.42) 100%); }
+  .card { position:relative; overflow:hidden; width:100%; max-width:400px;
+          background:linear-gradient(165deg, rgba(30,52,78,.94), rgba(11,21,34,.96));
+          border:1px solid var(--line); border-radius:20px; padding:32px 26px;
+          box-shadow:0 24px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.07); }
+  .card::before { content:""; position:absolute; top:0; left:10%; right:10%; height:1px;
+          background:linear-gradient(90deg, transparent, rgba(216,178,106,.65), transparent); }
+  .brand { text-align:center; margin-bottom:8px; font-size:13px; font-weight:800; letter-spacing:4px;
+           background:linear-gradient(90deg,var(--gold),var(--gold-hi));
+           -webkit-background-clip:text; background-clip:text; color:transparent; }
+  h1 { text-align:center; font-size:24px; margin:4px 0 2px; letter-spacing:.3px;
+       background:linear-gradient(180deg,#fff 30%, #d9e6f5 100%);
+       -webkit-background-clip:text; background-clip:text; color:transparent; }
   p.sub { text-align:center; color:var(--muted); font-size:14px; margin:0 0 22px; }
-  label { display:block; font-size:13px; color:var(--muted); margin:14px 0 6px; }
-  input { width:100%; padding:14px; font-size:16px; border-radius:10px; border:1px solid #2c4a66;
-          background:#0d1a28; color:var(--text); }
-  input:focus { outline:none; border-color:var(--accent); }
-  button { width:100%; margin-top:22px; padding:15px; font-size:17px; font-weight:700; border:0;
-           border-radius:12px; background:var(--accent); color:#06281b; cursor:pointer; }
+  label { display:block; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+          color:var(--muted); margin:16px 0 6px; }
+  input { width:100%; padding:14px; font-size:16px; border-radius:12px;
+          border:1px solid rgba(140,190,255,.2); background:rgba(4,10,18,.72); color:var(--text);
+          transition:border-color .2s, box-shadow .2s; }
+  input:focus { outline:none; border-color:rgba(216,178,106,.65); box-shadow:0 0 0 3px rgba(216,178,106,.14); }
+  button { width:100%; margin-top:24px; padding:15px; font-size:17px; font-weight:800; letter-spacing:1px;
+           border:0; border-radius:14px; cursor:pointer;
+           background:linear-gradient(180deg,#3ddc92,#1f9d63); color:#04170e;
+           box-shadow:0 10px 26px rgba(47,200,130,.35), inset 0 1px 0 rgba(255,255,255,.4);
+           transition:transform .12s; }
+  button:active { transform:translateY(1px); }
   button:disabled { opacity:.6; }
-  .error { display:none; margin-top:14px; padding:12px; border-radius:10px; font-size:14px;
-           background:rgba(224,93,93,.12); border:1px solid var(--danger); color:#f3b0b0; }
-  .foot { text-align:center; margin-top:18px; font-size:12px; color:var(--muted); }
-  .divider { display:flex; align-items:center; gap:10px; margin:20px 0 0; color:var(--muted); font-size:13px; }
-  .divider::before, .divider::after { content:""; flex:1; height:1px; background:#23405a; }
-  .demo-btn { width:100%; margin-top:14px; padding:14px; font-size:16px; font-weight:600; border-radius:12px;
-              border:1px solid #2c4a66; background:transparent; color:var(--text); cursor:pointer; }
-  .demo-note { text-align:center; font-size:12px; color:var(--muted); margin:8px 0 0; }
+  .error { display:none; margin-top:14px; padding:12px; border-radius:12px; font-size:14px;
+           background:rgba(224,93,93,.1); border:1px solid rgba(224,93,93,.5); color:#f3b0b0; }
+  .foot { text-align:center; margin-top:20px; font-size:12.5px; color:var(--muted); }
+  .foot a { color:var(--emerald); }
+  .divider { display:flex; align-items:center; gap:10px; margin:22px 0 0; color:var(--muted); font-size:13px; }
+  .divider::before, .divider::after { content:""; flex:1; height:1px; background:rgba(140,190,255,.16); }
+  .demo-btn { width:100%; margin-top:14px; padding:14px; font-size:16px; font-weight:700; border-radius:14px;
+              border:1px solid rgba(216,178,106,.4); background:rgba(216,178,106,.06);
+              color:var(--gold-hi); cursor:pointer; letter-spacing:.5px;
+              box-shadow:none; transition:background .2s; }
+  .demo-btn:active { background:rgba(216,178,106,.14); }
+  .demo-note { text-align:center; font-size:12px; color:var(--muted); margin:10px 0 0; }
+  .done { text-align:center; }
+  .done h2 { font-size:20px; margin:6px 0 4px; }
+  .done .ok { font-size:44px; filter:drop-shadow(0 0 12px rgba(52,222,150,.6)); }
+  .done ol { text-align:left; max-width:340px; margin:18px auto; padding-left:22px; font-size:15px; }
+  .done ol li { margin:12px 0; }
+  .done ol li::marker { color:var(--gold); font-weight:800; }
+  .done .k { color:var(--gold); font-size:13px; font-weight:700; }
+  fieldset { border:0; padding:0; margin:14px 0 0; }
+  fieldset legend { font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+                    color:var(--muted); padding:0; margin-bottom:8px; }
+  .svc { display:block; margin-bottom:10px; padding:14px; border:1px solid rgba(140,190,255,.2);
+         border-radius:12px; background:rgba(4,10,18,.5); font-size:16px; cursor:pointer; transition:all .2s; }
+  .svc:has(input:checked) { border-color:rgba(52,222,150,.6); background:rgba(52,222,150,.07);
+         box-shadow:0 0 14px rgba(52,222,150,.14); }
+  .svc input { width:auto; margin-right:10px; accent-color:var(--emerald); }
 </style>
+
 </head>
 <body>
   <main class="card">
