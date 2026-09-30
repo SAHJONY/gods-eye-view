@@ -680,6 +680,11 @@ export function registerPageHtml(sourceRoot = defaultSourceRoot) {
   return portalPageFile(sourceRoot, 'registro.html', '');
 }
 
+/** Client login page: GET /portal (exact path only). No auth required. */
+export function loginPageHtml(sourceRoot = defaultSourceRoot) {
+  return portalPageFile(sourceRoot, 'index.html', '');
+}
+
 /** Connect-style middleware serving one portal page on GET (no auth). */
 export function portalPageMiddleware(pageFn, sourceRoot = defaultSourceRoot) {
   return (req, res, next) => {
@@ -715,6 +720,14 @@ export function portalApiPlugin() {
   const install = (middlewares) => {
     middlewares.use('/portal/demo', portalPageMiddleware(demoPageHtml));
     middlewares.use('/portal/registro', portalPageMiddleware(registerPageHtml));
+    // Exact /portal (and /portal/) serves the client login page. Registered
+    // after the specific routes above; the exact-path guard lets everything
+    // else (/portal/panel.html, /portal/vendor/*, …) fall through to static.
+    middlewares.use('/portal', (req, res, next) => {
+      const full = String(req.originalUrl || req.url || '').split('?')[0];
+      if (full !== '/portal' && full !== '/portal/') return next();
+      return portalPageMiddleware(loginPageHtml)(req, res, next);
+    });
     middlewares.use('/api/portal', (req, res, next) => {
       ensure().handler(req, res, next);
     });
