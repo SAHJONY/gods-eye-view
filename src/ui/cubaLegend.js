@@ -14,10 +14,12 @@ function legendCss() {
     #${LEGEND_ID} {
       position: fixed;
       left: 12px;
-      bottom: 12px;
+      /* Raised above the Cesium credit/attribution bar (~30px) so the
+         logo never covers the legend text. */
+      bottom: 54px;
       z-index: 40;
       max-width: 230px;
-      background: rgba(6, 18, 28, 0.88);
+      background: rgba(6, 18, 28, 0.92);
       border: 1px solid rgba(57, 213, 255, 0.35);
       border-radius: 10px;
       padding: 8px 10px 9px;
@@ -72,7 +74,7 @@ function legendCss() {
     @media (max-width: 640px) {
       #${LEGEND_ID} {
         left: 8px;
-        bottom: 8px;
+        bottom: 48px;
         max-width: 196px;
         padding: 7px 8px 8px;
       }
