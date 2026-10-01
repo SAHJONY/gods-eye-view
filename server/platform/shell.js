@@ -77,8 +77,40 @@ export function ownerPageMiddleware(sourceRoot = defaultSourceRoot) {
 
 /** Vite plugin registering the platform shell in dev and preview. */
 export function platformShellPlugin() {
+  // Module directory index: bare `/import-export/<mod>/` must serve the
+  // module's public/index.html. Vite dev serves the explicit file path but
+  // the bare directory falls through to the SPA fallback (wrong app), so
+  // resolve it here. Map built from the registry; only single-segment dirs.
+  const moduleIndex = new Map();
+  for (const m of listModules()) {
+    const p = String(m.path || '');
+    if (!p.startsWith('/import-export/') || !p.endsWith('/')) continue;
+    const dir = p.slice('/import-export/'.length, -1);
+    if (!dir || dir.includes('/')) continue;
+    const file = path.join(defaultSourceRoot, 'public', dir, 'index.html');
+    try {
+      if (fs.statSync(file).isFile()) {
+        moduleIndex.set(p, file);
+        moduleIndex.set(p.slice(0, -1), file);
+      }
+    } catch {
+      // No static page for this module — leave it to the SPA / next handler.
+    }
+  }
   const install = (middlewares) => {
     middlewares.use('/api/platform/modules', platformModulesMiddleware());
+    middlewares.use('/import-export', (req, res, next) => {
+      const full = String(req.originalUrl || req.url || '').split('?')[0];
+      const file = moduleIndex.get(full);
+      if (!file) return next();
+      fs.readFile(file, 'utf8', (err, html) => {
+        if (err) return next();
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-store');
+        res.end(html);
+      });
+    });
     // Exact /platform (and /platform/) serves the shell. Registered so that
     // /platform/index.html and any future /platform/* assets fall through to static.
     middlewares.use('/platform', (req, res, next) => {
