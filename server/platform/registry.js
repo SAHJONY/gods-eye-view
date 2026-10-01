@@ -113,7 +113,10 @@ export const PLATFORM_MODULES = Object.freeze([
   },
   {
     id: 'suppliers',
-    path: '/suppliers/',
+    // Served from the vite public dir under the app base path so the
+    // subpath proxy (sahjony.com/import-export/ -> :8200) resolves it.
+    // The bare /suppliers/ path hits the main site's SPA fallback.
+    path: '/import-export/suppliers/',
     icon: '📇',
     name: { es: 'Directorio de proveedores', en: 'Supplier directory' },
     tagline: {

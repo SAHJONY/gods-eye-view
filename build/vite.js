@@ -18,6 +18,12 @@ export function createBrowserViteConfig({
     .map((entry) => entry.trim())
     .filter(Boolean);
   return {
+    // Serve the app under the public subpath it is proxied at
+    // (https://www.sahjony.com/import-export/ -> :8200). Without this, the
+    // root-absolute asset URLs in index.html resolve against sahjony.com/
+    // and return the main site's SPA fallback (text/html), leaving the app
+    // unstyled with dead module scripts. Overridable via VITE_BASE_PATH.
+    base: process.env.VITE_BASE_PATH || '/import-export/',
     plugins: [cesium(), applicationHtmlPlugin(), ...plugins],
     ...(publicDir === undefined ? {} : { publicDir }),
     server: {
