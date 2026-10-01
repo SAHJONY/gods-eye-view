@@ -206,19 +206,23 @@ export function createPortalApi(opts = {}) {
   }
 
   /**
-   * Self-healing demo vessel: if the demo shipment's vessel currently has no
-   * AIS signal in our live feed, repoint the demo at a live cargo vessel so
-   * prospects always see a real moving ship. Demo-only, persisted.
+   * Self-healing demo vessel: the demo must always show a REAL, MOVING ship.
+   * If the demo shipment's vessel currently has no AIS signal or is
+   * stationary (e.g. a parked canal boat drifting in/out of satellite
+   * coverage), repoint the demo at a live underway cargo vessel so prospects
+   * always see live tracking. Demo-only, persisted.
    */
   function repointDemoAtLiveVessel() {
     const demo = shipmentStore.getDemo();
     if (!demo) return;
+    let curVessel = null;
     try {
-      const cur = defaultVesselLookup(demo.vesselMmsi);
-      if (cur && cur.vessel) return; // live — keep it
+      curVessel = (defaultVesselLookup(demo.vesselMmsi) || {}).vessel || null;
     } catch {
-      // fall through to repick
+      curVessel = null;
     }
+    const curSpeed = Number(curVessel?.speed);
+    if (curVessel && Number.isFinite(curSpeed) && curSpeed >= 2) return; // live and moving — keep it
     let pick = null;
     try {
       const now = Date.now() / 1000;
@@ -233,7 +237,7 @@ export function createPortalApi(opts = {}) {
           return (
             t >= 70 &&
             t <= 79 &&
-            sp > 5 &&
+            sp >= 2 &&
             la > 0 &&
             la < 50 &&
             lo > -100 &&
