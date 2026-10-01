@@ -270,8 +270,8 @@ export function createShipmentStore({ load, save } = {}) {
       const shipment = {
         id: newId(),
         clientId: DEMO_CLIENT_ID,
-        vesselMmsi: assertMmsi(attrs.vesselMmsi || '244780354'),
-        vesselName: String(attrs.vesselName || 'MICHIEL DE RUYTER').trim(),
+        vesselMmsi: assertMmsi(attrs.vesselMmsi || '563051700'),
+        vesselName: String(attrs.vesselName || 'MAERSK MONTE AZUL').trim(),
         origin: String(attrs.origin || 'Puerto de Houston').trim(),
         destination: String(attrs.destination || 'Puerto del Mariel').trim(),
         cargoLabel: String(attrs.cargoLabel || 'Contenedor 40ft — alimentos').trim(),

@@ -206,6 +206,57 @@ export function createPortalApi(opts = {}) {
   }
 
   /**
+   * Self-healing demo vessel: if the demo shipment's vessel currently has no
+   * AIS signal in our live feed, repoint the demo at a live cargo vessel so
+   * prospects always see a real moving ship. Demo-only, persisted.
+   */
+  function repointDemoAtLiveVessel() {
+    const demo = shipmentStore.getDemo();
+    if (!demo) return;
+    try {
+      const cur = defaultVesselLookup(demo.vesselMmsi);
+      if (cur && cur.vessel) return; // live — keep it
+    } catch {
+      // fall through to repick
+    }
+    let pick = null;
+    try {
+      const now = Date.now() / 1000;
+      const rows = aisStreamRows(50_000);
+      pick =
+        rows.find((v) => {
+          const t = Number(v?.type);
+          const sp = Number(v?.speed);
+          const la = Number(v?.lat);
+          const lo = Number(v?.lon);
+          const age = now - Number(v?.last_position_epoch || 0);
+          return (
+            t >= 70 &&
+            t <= 79 &&
+            sp > 5 &&
+            la > 0 &&
+            la < 50 &&
+            lo > -100 &&
+            lo < -20 &&
+            age < 1800 &&
+            String(v?.name || '').trim().length > 2
+          );
+        }) || null;
+    } catch {
+      pick = null;
+    }
+    if (!pick) return;
+    try {
+      shipmentStore.updateDemo({
+        vesselMmsi: String(pick.mmsi),
+        vesselName: String(pick.name).trim(),
+      });
+    } catch {
+      // keep the old vessel rather than break the demo login
+    }
+  }
+
+  /**
    * Prospect demo login: no password, rate-limited, view-only. Seeds the
    * single demo shipment (flagged demo:true, permanently en tránsito)
    * on first use.
@@ -220,6 +271,7 @@ export function createPortalApi(opts = {}) {
       });
     }
     const demoShipment = shipmentStore.ensureDemoShipment();
+    repointDemoAtLiveVessel();
     const session = sessionStore.create(DEMO_CLIENT_ID);
     setSessionCookie(res, session.token, req);
     return json(res, 200, {
