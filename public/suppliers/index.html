@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SAHJONY · Directorio de proveedores</title>
+<style>
+:root{
+  --navy-0:#04070f; --navy-1:#060d1d; --navy-2:#0a1428; --navy-3:#0e1a33;
+  --gold:#d4af37; --gold-soft:#e8c56a; --gold-dim:rgba(212,175,55,.16);
+  --ink:#f2f5fa; --muted:#8fa0b8; --line:rgba(212,175,55,.22);
+  --card:rgba(14,26,51,.72); --radius:16px;
+  --grn:#4ade80; --yel:#facc15; --red:#f87171; --blu:#38bdf8;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  margin:0;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(212,175,55,.08), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(38,80,160,.25), transparent 60%),
+    linear-gradient(180deg, var(--navy-1), var(--navy-0));
+  min-height:100vh;min-height:100dvh;font-size:16px;line-height:1.45;
+}
+header{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid var(--line);background:rgba(6,13,29,.9);
+  position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);
+}
+.back{
+  flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);
+  background:transparent;color:var(--gold);font-size:20px;cursor:pointer;
+  display:grid;place-items:center;text-decoration:none;
+}
+.brand{flex:1;min-width:0;}
+.brand h1{font-size:17px;margin:0;letter-spacing:.4px;}
+.brand h1 .sub{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:1.2px;text-transform:uppercase;}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;flex:none;}
+.lang button{border:0;background:transparent;color:var(--muted);font-size:14px;font-weight:700;padding:10px 14px;cursor:pointer;min-height:44px;}
+.lang button.on{background:var(--gold);color:#0a1428;}
+main{padding:14px 16px 60px;max-width:960px;margin:0 auto;}
+.warn{
+  border:1px solid rgba(250,204,21,.45);background:rgba(51,39,10,.55);
+  border-radius:var(--radius);padding:12px 14px;font-size:13px;color:#fde68a;margin-bottom:14px;
+}
+.warn b{color:var(--yel);}
+.search{
+  width:100%;min-height:52px;border-radius:14px;border:2px solid var(--line);
+  background:var(--navy-2);color:var(--ink);font-size:16px;padding:12px 16px;margin-bottom:14px;
+}
+.search::placeholder{color:var(--muted);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+.pcard{
+  border:1px solid var(--line);border-radius:var(--radius);background:var(--card);
+  padding:14px;cursor:pointer;min-height:96px;display:flex;flex-direction:column;gap:6px;
+  transition:border-color .15s;
+}
+.pcard:active,.pcard:hover{border-color:var(--gold);}
+.pcard .emo{font-size:28px;}
+.pcard .nm{font-weight:700;font-size:14px;}
+.pcard .ct{font-size:12px;color:var(--muted);margin-top:auto;}
+.pcard .ct .n{color:var(--gold-soft);font-weight:700;}
+.pcard.empty{opacity:.65;}
+.viewhead{display:flex;align-items:center;gap:10px;margin:4px 0 12px;}
+.viewhead .emo{font-size:34px;}
+.viewhead h2{margin:0;font-size:20px;flex:1;}
+.lanenote{
+  border-left:3px solid var(--gold);padding:8px 12px;color:var(--gold-soft);
+  font-size:13px;margin-bottom:12px;background:rgba(212,175,55,.06);border-radius:0 12px 12px 0;
+}
+.scard{
+  border:1px solid var(--line);border-radius:var(--radius);background:var(--card);
+  padding:14px;margin-bottom:12px;
+}
+.scard h3{margin:0 0 2px;font-size:17px;}
+.scard .loc{color:var(--muted);font-size:13px;margin-bottom:8px;}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.bdg{font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;border:1px solid;}
+.bdg.v-ok{background:rgba(13,43,26,.6);color:var(--grn);border-color:var(--grn);}
+.bdg.v-part{background:rgba(51,39,10,.6);color:var(--yel);border-color:var(--yel);}
+.bdg.v-none{background:rgba(32,36,46,.6);color:#94a3b8;border-color:#94a3b8;}
+.bdg.scope-no{background:rgba(13,43,26,.35);color:var(--grn);border-color:rgba(74,222,128,.5);}
+.bdg.scope-us{background:rgba(26,43,61,.5);color:var(--blu);border-color:rgba(56,189,248,.5);}
+.crow{display:flex;gap:8px;align-items:center;padding:9px 0;border-top:1px solid rgba(143,160,184,.14);font-size:14px;min-height:44px;}
+.crow .k{flex:none;width:86px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;}
+.crow a{color:var(--gold-soft);text-decoration:none;word-break:break-all;}
+.crow .na{color:#5b6a82;}
+.snote{font-size:13px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid rgba(143,160,184,.14);}
+.emptybox{
+  text-align:center;padding:40px 20px;color:var(--muted);
+  border:1px dashed var(--line);border-radius:var(--radius);
+}
+.emptybox .big{font-size:40px;display:block;margin-bottom:10px;}
+.hidden{display:none !important;}
+.count{font-size:13px;color:var(--muted);margin:0 0 10px;}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/platform/" aria-label="Volver">‹</a>
+  <div class="brand"><h1>📇 <span data-i18n="title">Directorio de proveedores</span><span class="sub">SAHJONY · <span data-i18n="subtitle">uso interno</span></span></h1></div>
+  <div class="lang"><button id="b-es" class="on">ES</button><button id="b-en">EN</button></div>
+</header>
+<main>
+  <div class="warn" data-i18n-html="warn"></div>
+  <input class="search" id="q" data-i18n-ph="searchPh" placeholder="Buscar producto o proveedor…">
+  <p class="count" id="count"></p>
+  <div class="grid" id="grid"></div>
+  <div id="detail" class="hidden"></div>
+</main>
+<script>
+var I18N = {
+  es: {
+    title: "Directorio de proveedores",
+    subtitle: "uso interno",
+    warn: "<b>⚠️ Nota OFAC/BIS</b> (no es asesoría legal): la mercancía de origen EE.UU. con destino Cuba requiere autorización del gobierno de EE.UU. antes de comprar o embarcar. Los contactos 🇺🇸 USA solo son viables con licencia + revisión legal.",
+    searchPh: "Buscar producto o proveedor…",
+    suppliers: "proveedores", supplier: "proveedor",
+    searching: "En búsqueda — sourcing en curso",
+    verified: "✓ Verificado", partial: "◷ Por verificar", none: "○ Sin contacto",
+    scopeNo: "🌎 Non-OFAC", scopeUs: "🇺🇸 USA",
+    email: "Email", phone: "Teléfono", web: "Web", contact: "Contacto",
+    noContact: "Sin canal directo publicado", noResults: "Sin resultados para esta búsqueda.",
+    formOnly: "Solo formulario web"
+  },
+  en: {
+    title: "Supplier directory",
+    subtitle: "internal use",
+    warn: "<b>⚠️ OFAC/BIS note</b> (not legal advice): US-origin goods bound for Cuba require US government authorization before buying or shipping. 🇺🇸 USA contacts are only viable with a license + legal review.",
+    searchPh: "Search product or supplier…",
+    suppliers: "suppliers", supplier: "supplier",
+    searching: "Sourcing in progress",
+    verified: "✓ Verified", partial: "◷ Unverified", none: "○ No contact",
+    scopeNo: "🌎 Non-OFAC", scopeUs: "🇺🇸 USA",
+    email: "Email", phone: "Phone", web: "Web", contact: "Contact",
+    noContact: "No direct channel published", noResults: "No results for this search.",
+    formOnly: "Web form only"
+  }
+};
+var LANG = "es", DATA = null;
+function t(k){ return I18N[LANG][k]; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
+  document.querySelectorAll("[data-i18n-html]").forEach(function(el){ el.innerHTML = t(el.getAttribute("data-i18n-html")); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(function(el){ el.placeholder = t(el.getAttribute("data-i18n-ph")); });
+  document.documentElement.lang = LANG;
+}
+function setLang(l){
+  LANG = l;
+  document.getElementById("b-es").classList.toggle("on", l==="es");
+  document.getElementById("b-en").classList.toggle("on", l==="en");
+  applyI18n(); render();
+}
+document.getElementById("b-es").onclick = function(){ setLang("es"); };
+document.getElementById("b-en").onclick = function(){ setLang("en"); };
+
+function vBadge(s){
+  if(s.status==="verified") return '<span class="bdg v-ok">'+t("verified")+"</span>";
+  if(s.status==="partial") return '<span class="bdg v-part">'+t("partial")+"</span>";
+  return '<span class="bdg v-none">'+t("none")+"</span>";
+}
+function scopeBadge(s){
+  return s.ofac_scope==="usa"
+    ? '<span class="bdg scope-us">'+t("scopeUs")+"</span>"
+    : '<span class="bdg scope-no">'+t("scopeNo")+"</span>";
+}
+function row(k, v, href){
+  var body = v ? (href ? '<a href="'+href+'">'+esc(v)+"</a>" : esc(v)) : '<span class="na">'+t("noContact")+"</span>";
+  return '<div class="crow"><span class="k">'+t(k)+"</span><span>"+body+"</span></div>";
+}
+function supplierCard(s){
+  var webHref = s.website ? ("https://"+s.website.replace(/^https?:\/\//,"")) : null;
+  var h = '<div class="scard"><h3>'+esc(s.company)+"</h3>";
+  h += '<div class="loc">'+esc([s.country,s.city].filter(Boolean).join(" · "))+"</div>";
+  h += '<div class="badges">'+vBadge(s)+scopeBadge(s)+"</div>";
+  h += row("email", s.email, s.email ? "mailto:"+s.email : null);
+  h += row("phone", s.phone, s.phone ? "tel:"+s.phone.replace(/[^+\d]/g,"") : null);
+  h += row("web", s.website, webHref);
+  if(s.contact_name) h += row("contact", s.contact_name, null);
+  if(s.notes) h += '<div class="snote">'+esc(s.notes)+"</div>";
+  return h+"</div>";
+}
+function matches(s, q){
+  if(!q) return true;
+  q = q.toLowerCase();
+  return [s.company,s.country,s.city,s.email,s.phone,s.website,s.contact_name,s.notes]
+    .filter(Boolean).join(" ").toLowerCase().indexOf(q) >= 0;
+}
+function render(){
+  var q = document.getElementById("q").value.trim();
+  var grid = document.getElementById("grid"), detail = document.getElementById("detail");
+  grid.classList.remove("hidden"); detail.classList.add("hidden"); detail.innerHTML = "";
+  var shown = 0, totalSup = 0;
+  var html = "";
+  DATA.products.forEach(function(p){
+    var n = p.suppliers.length; totalSup += n;
+    if(q && p.name.toLowerCase().indexOf(q.toLowerCase())<0 && !p.suppliers.some(function(s){return matches(s,q);})) return;
+    shown++;
+    html += '<div class="pcard'+(n?"":" empty")+'" data-pid="'+p.id+'">'
+      + '<span class="emo">'+p.emoji+'</span>'
+      + '<span class="nm">'+esc(p.name)+'</span>'
+      + '<span class="ct"><span class="n">'+n+'</span> '+(n===1?t("supplier"):t("suppliers"))+'</span></div>';
+  });
+  grid.innerHTML = html || '<div class="emptybox"><span class="big">🔍</span>'+t("noResults")+"</div>";
+  document.getElementById("count").textContent = DATA.products.length+" / "+shown+" · "+totalSup+" "+t("suppliers");
+  grid.querySelectorAll(".pcard").forEach(function(c){
+    c.onclick = function(){ openProduct(c.getAttribute("data-pid")); };
+  });
+}
+function openProduct(pid){
+  var p = DATA.products.filter(function(x){return x.id===pid;})[0];
+  if(!p) return;
+  var q = document.getElementById("q").value.trim();
+  var grid = document.getElementById("grid"), detail = document.getElementById("detail");
+  grid.classList.add("hidden"); detail.classList.remove("hidden");
+  var list = p.suppliers.filter(function(s){return matches(s,q);});
+  var h = '<div class="viewhead"><span class="emo">'+p.emoji+"</span><h2>"+esc(p.name)+"</h2></div>";
+  if(p.lane_note) h += '<div class="lanenote">'+esc(p.lane_note)+"</div>";
+  if(!list.length){
+    h += '<div class="emptybox"><span class="big">🔎</span>'+t("searching")+".</div>";
+  } else {
+    h += list.map(supplierCard).join("");
+  }
+  detail.innerHTML = h;
+  window.scrollTo(0,0);
+}
+document.getElementById("q").addEventListener("input", render);
+fetch("data.json",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+  DATA = d; applyI18n(); render();
+}).catch(function(){
+  document.getElementById("grid").innerHTML = '<div class="emptybox"><span class="big">⚠️</span>data.json</div>';
+});
+</script>
+</body>
+</html>

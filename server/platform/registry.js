@@ -111,6 +111,19 @@ export const PLATFORM_MODULES = Object.freeze([
     status: 'live',
     audience: 'owner',
   },
+  {
+    id: 'suppliers',
+    path: '/suppliers/',
+    icon: '📇',
+    name: { es: 'Directorio de proveedores', en: 'Supplier directory' },
+    tagline: {
+      es: 'Todos los proveedores por producto: contactos verificados, Non-OFAC y USA.',
+      en: 'All suppliers by product: verified contacts, Non-OFAC and USA.',
+    },
+    phase: '2a',
+    status: 'live',
+    audience: 'owner',
+  },
 ]);
 
 function copyModule(m) {
