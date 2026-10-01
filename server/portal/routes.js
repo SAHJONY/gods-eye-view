@@ -548,6 +548,38 @@ export function createPortalApi(opts = {}) {
         if (!owner()) return undefined;
         const adminPath = pathname.slice('/admin'.length);
 
+        // Provider keys (e.g. SHIPSGO_TOKEN for the client container tracker).
+        // Owner-gated; the key is written to a root-only env file (0600),
+        // applied to this process live, and never echoed back.
+        if (adminPath === '/provider-keys' && req.method === 'GET') {
+          return json(res, 200, {
+            keys: { SHIPSGO_TOKEN: String(process.env.SHIPSGO_TOKEN || '').trim() !== '' },
+          });
+        }
+        if (adminPath === '/provider-keys' && req.method === 'POST') {
+          let body;
+          try {
+            body = await readJsonBody(req);
+          } catch (error) {
+            return json(res, 400, { error: error.message });
+          }
+          const token = String(body?.SHIPSGO_TOKEN ?? '');
+          if (
+            token.length < 1 || token.length > 300 ||
+            /[\s#'"`\\]/.test(token) || /[\x00-\x1f\x7f]/.test(token)
+          ) {
+            return json(res, 400, { error: 'invalid_token' });
+          }
+          const file = process.env.GEV_PROVIDER_KEYS_FILE || '/etc/gods-eye-view/provider-keys.env';
+          try {
+            fs.mkdirSync(path.dirname(file), { recursive: true });
+            fs.writeFileSync(file, `SHIPSGO_TOKEN=${token}\n`, { mode: 0o600 });
+          } catch (error) {
+            return json(res, 500, { error: 'write_failed' });
+          }
+          process.env.SHIPSGO_TOKEN = token;
+          return json(res, 200, { ok: true, keys: { SHIPSGO_TOKEN: true } });
+        }
         if (adminPath === '/clients' && req.method === 'GET') {
           return json(res, 200, { clients: clientStore.list() });
         }

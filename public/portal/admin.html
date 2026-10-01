@@ -60,6 +60,7 @@
       <button data-pane="pShips">Embarques</button>
       <button data-pane="pQuotes">Cotizaciones</button>
       <button data-pane="pWatch">Vigilante AIS</button>
+      <button data-pane="pKeys">🔑 Claves</button>
     </div>
     <section id="pClients" class="pane on">
       <div class="card"><h3>Nuevo cliente</h3>
@@ -115,6 +116,15 @@
         <button class="act" id="wTick">Ejecutar ahora</button>
         <div class="msg">Evalúa cada 60 s automáticamente: salida del geofence de origen (~15 km) o velocidad sostenida &gt; 3 nudos → <b>en tránsito</b>; entrada al geofence de destino → <b>en puerto</b>. <b>Entregado</b> siempre es manual.</div>
         <div id="wTrans" style="margin-top:12px"></div>
+      </div>
+    </section>
+    <section id="pKeys" class="pane">
+      <div class="card"><h3>🔑 Claves de proveedor</h3>
+        <div class="msg">Rastreador de contenedores (ShipsGo)</div>
+        <div style="margin-top:10px"><label for="kShipsgo">SHIPSGO_TOKEN <span id="kShipsgoState" class="msg"></span></label>
+        <input id="kShipsgo" type="password" autocomplete="off" placeholder="Pega tu token de ShipsGo"></div>
+        <button class="act" id="kSave" style="margin-top:10px">Guardar clave</button>
+        <div class="msg" id="kMsg">Se guarda en el servidor y el rastreador la usa al instante. Nunca se muestra de vuelta.</div>
       </div>
     </section>
   </div>
@@ -253,7 +263,29 @@ document.getElementById('wTick').addEventListener('click', async () => {
     : 'Sin cambios.';
   loadWatcher();
 });
-function refreshAll() { loadClients(); loadShips(); loadQuotes(); loadWatcher(); }
+function refreshAll() { loadClients(); loadShips(); loadQuotes(); loadWatcher(); loadKeys(); }
+/* provider keys */
+async function loadKeys() {
+  const { data } = await admin('/provider-keys');
+  const on = !!(data.keys && data.keys.SHIPSGO_TOKEN);
+  document.getElementById('kShipsgoState').textContent = on ? '· ✅ configurada' : '· ⚠️ sin configurar';
+  document.getElementById('kShipsgo').placeholder = on ? 'Configurada — pega una nueva para reemplazarla' : 'Pega tu token de ShipsGo';
+}
+document.getElementById('kSave').addEventListener('click', async () => {
+  const input = document.getElementById('kShipsgo');
+  const msg = document.getElementById('kMsg');
+  const token = input.value.trim();
+  if (!token) { msg.textContent = 'Pega el token primero.'; return; }
+  msg.textContent = 'Guardando…';
+  const { status, data } = await admin('/provider-keys', 'POST', { SHIPSGO_TOKEN: token });
+  if (status === 200 && data.ok) {
+    input.value = '';
+    msg.textContent = '✅ Guardada. El rastreador ya puede buscar contenedores.';
+    loadKeys();
+  } else {
+    msg.textContent = '❌ No se pudo guardar (' + (data.error || status) + '). Revisa el token e intenta de nuevo.';
+  }
+});
 </script>
 </body>
 </html>
