@@ -717,7 +717,10 @@ async function refreshVessel() {
   const btn3d = document.getElementById('btn3d');
   if (btn3d && isFinite(v.lat) && isFinite(v.lon)) {
     const vmmsi = encodeURIComponent(String(v.mmsi || ''));
-    btn3d.href = `/import-export/#lat=${encodeURIComponent(v.lat)}&lon=${encodeURIComponent(v.lon)}&alt=200000&pitch=-55&v=2&l=ais&vessel=${vmmsi}&client=1`;
+    // v2 layer token 'a' = ais-live-vessels (the full word 'ais' is NOT a
+    // valid token and silently enables nothing — decodeLayerStateParams
+    // rejects it, which is why vessel data never loaded).
+    btn3d.href = `/import-export/#lat=${encodeURIComponent(v.lat)}&lon=${encodeURIComponent(v.lon)}&alt=200000&pitch=-55&v=2&l=a&vessel=${vmmsi}&client=1`;
     btn3d.classList.add('show');
   } else if (btn3d) {
     btn3d.classList.remove('show');

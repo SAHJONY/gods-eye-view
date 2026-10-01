@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ShareLinkManager, isClientModeHash } from './sharelink.js';
+import { decodeLayerStateParams } from './data/layerState.js';
 
 function makeManager(hash = '') {
   globalThis.window = { location: { hash, href: `http://localhost/${hash}` } };
@@ -75,4 +76,25 @@ test('hash rewrites drop malformed vessel params instead of preserving them', ()
   );
   assert.equal(rewritten.get('vessel'), null);
   assert.equal(rewritten.get('client'), '1');
+});
+
+test('the portal 3D deep-link layer param decodes to the AIS vessel layer', () => {
+  // Contract with public/portal/panel.html: the "Ver en 3D" button must
+  // carry a v2 layer token that actually enables ais-live-vessels. The
+  // full word 'ais' is not a valid token and silently enables nothing.
+  const portalHash =
+    '#lat=10.66281&lon=-61.78696&alt=200000&pitch=-55&v=2&l=a&vessel=304664000&client=1';
+  const decoded = decodeLayerStateParams(
+    new URLSearchParams(portalHash.replace(/^#/, '')),
+  );
+  assert.ok(decoded, 'portal layer params must decode');
+  assert.ok(
+    decoded.enabledLayerIds.includes('ais-live-vessels'),
+    'AIS vessel layer must be enabled by the portal link',
+  );
+  // And the invalid form must keep failing closed so regressions are loud.
+  assert.equal(
+    decodeLayerStateParams(new URLSearchParams('v=2&l=ais')),
+    null,
+  );
 });
