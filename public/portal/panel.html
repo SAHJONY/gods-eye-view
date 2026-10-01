@@ -716,7 +716,8 @@ async function refreshVessel() {
     ? 'actualizado ' + relTime(new Date(when)) : 'en vivo';
   const btn3d = document.getElementById('btn3d');
   if (btn3d && isFinite(v.lat) && isFinite(v.lon)) {
-    btn3d.href = `/import-export/#lat=${encodeURIComponent(v.lat)}&lon=${encodeURIComponent(v.lon)}&alt=200000&pitch=-55&v=2&l=ais`;
+    const vmmsi = encodeURIComponent(String(v.mmsi || ''));
+    btn3d.href = `/import-export/#lat=${encodeURIComponent(v.lat)}&lon=${encodeURIComponent(v.lon)}&alt=200000&pitch=-55&v=2&l=ais&vessel=${vmmsi}&client=1`;
     btn3d.classList.add('show');
   } else if (btn3d) {
     btn3d.classList.remove('show');

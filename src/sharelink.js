@@ -35,6 +35,25 @@ const SHARE_UI_STATE_PARAM = 'ui';
 const SHARE_STYLE_PARAMS_PARAM = 'sp';
 const SHARE_CREATED_AT_PARAM = 'at';
 
+/**
+ * Whether the current URL hash requests customer-facing tracking mode
+ * (`client=1`). In client mode the internal tool branding and control
+ * chrome are hidden; only the globe and vessel data are shown.
+ * @param {string} [hashString] - Raw location.hash value (defaults to the
+ *   live one so call sites stay thin).
+ * @returns {boolean}
+ */
+export function isClientModeHash(hashString = location.hash) {
+  const raw = typeof hashString === 'string' && hashString.startsWith('#')
+    ? hashString.slice(1)
+    : hashString || '';
+  try {
+    return new URLSearchParams(raw).get('client') === '1';
+  } catch {
+    return false;
+  }
+}
+
 const SHARE_PANEL_STATE_REGISTRY = Object.freeze([
   { id: 'control-panel', token: 'c', pinnable: true },
   { id: 'location-bar', token: 'l', pinnable: true },
@@ -243,6 +262,12 @@ export class ShareLinkManager {
         : null,
       mapStack: params.get('map') || 'photoreal',
       layerState: decodedLayerState,
+      // Optional vessel deep-link: `vessel=<mmsi>` selects and focuses that
+      // exact AIS vessel after the feed populates (portal "Ver en 3D").
+      vesselMmsi: (() => {
+        const raw = String(params.get('vessel') || '').trim();
+        return /^[0-9]{5,10}$/.test(raw) ? raw : null;
+      })(),
       layerStateInvalid:
         params.get('v') === '2' &&
         params.has('l') &&

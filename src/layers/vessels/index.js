@@ -61,6 +61,19 @@ export function createVesselLayer({ source, services, options = {} } = {}) {
     buildVesselCard: parts.cards.buildVesselCard,
     buildSelectedVesselCard: parts.cards.buildSelectedVesselCard,
     cardScreenSeparated: parts.cards.cardScreenSeparated,
+    /**
+     * Deep-link entry: select and camera-focus one live AIS vessel by MMSI.
+     * Returns true when the vessel is in the current feed and was selected.
+     */
+    selectVesselByMmsi(mmsi) {
+      const key = String(mmsi || '').trim();
+      if (!key) return false;
+      const byMmsi = vesselState.state.records.byMmsi;
+      const record =
+        byMmsi.get(key) || byMmsi.get(Number(key)) || null;
+      if (!record) return false;
+      return parts.selection.selectAndFocusVessel(record) === true;
+    },
   });
   Object.defineProperty(layer, 'testing', { value: parts.testing });
   return layer;

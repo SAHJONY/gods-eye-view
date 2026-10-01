@@ -1,0 +1,39 @@
+/* Customer tracking mode (?client=1 in the URL hash).
+ *
+ * Hides every piece of internal tool chrome — branding, control docks,
+ * layer panels, intelligence HUD, welcome and provider dialogs — so the
+ * view reads as a plain SAHJONY vessel-tracking page. Only the Cesium
+ * globe, the world-overlay pipeline (vessel labels and the selected
+ * vessel card), the loading status and toasts stay visible.
+ */
+
+body.gev-client-mode #title-bar,
+body.gev-client-mode #top-center-actions,
+body.gev-client-mode #style-indicator,
+body.gev-client-mode #command-dock,
+body.gev-client-mode #control-panel,
+body.gev-client-mode #pp-toggles,
+body.gev-client-mode #left-panel-stack,
+body.gev-client-mode #right-context-rail,
+body.gev-client-mode #cockpit-hud,
+body.gev-client-mode #first-run-launcher,
+body.gev-client-mode #intel-hud,
+body.gev-client-mode #key-setup-chip,
+body.gev-client-mode #key-setup,
+body.gev-client-mode #traffic-sync-chip,
+body.gev-client-mode #cctv-sync-chip,
+body.gev-client-mode #provider-settings,
+body.gev-client-mode .hud-corner,
+body.gev-client-mode .hud-edge {
+  display: none !important;
+}
+
+/* Keep the globe, vessel overlay (labels + selected vessel card),
+ * loading indicator and toasts on screen. */
+body.gev-client-mode #cesiumContainer,
+body.gev-client-mode #world-overlay-root,
+body.gev-client-mode #world-overlay-actions,
+body.gev-client-mode #global-loading-status,
+body.gev-client-mode #toast {
+  display: block;
+}

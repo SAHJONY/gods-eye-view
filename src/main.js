@@ -1,5 +1,18 @@
 import { createStandaloneApplication } from './standalone/application.js';
 import { describeError } from './standalone/errors.js';
+import { isClientModeHash } from './sharelink.js';
+
+// Customer tracking mode (?client=1): present the globe as a plain
+// SAHJONY vessel-tracking page — never disclose the internal tool.
+// Applied before boot so the loading screen is rebranded too.
+if (isClientModeHash()) {
+  document.title = 'SAHJONY · Seguimiento de buque en vivo';
+  document.body.classList.add('gev-client-mode');
+  const loaderTitle = document.querySelector('#loading-screen h2');
+  if (loaderTitle) loaderTitle.textContent = 'SAHJONY · SEGUIMIENTO EN VIVO';
+  const loaderStatus = document.querySelector('#loading-screen .loader-status');
+  if (loaderStatus) loaderStatus.textContent = 'Cargando vista en vivo…';
+}
 
 const application = createStandaloneApplication({
   googleApiKey: import.meta.env.GOOGLE_MAPS_API_KEY,

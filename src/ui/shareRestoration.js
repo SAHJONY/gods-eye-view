@@ -276,6 +276,35 @@ export class ShareRestoration {
     window.dispatchEvent(
       new CustomEvent('gev:initial-share-restore-settled', { detail: result }),
     );
+    // Vessel deep-link (`#...&vessel=<mmsi>`): after the shared camera
+    // settles, select and focus that exact AIS vessel once the live feed
+    // has populated. Polls briefly; never fights the user.
+    const mmsi = this._initialShareState?.vesselMmsi;
+    if (mmsi && result?.status === 'settled') {
+      void this._selectSharedVessel(mmsi);
+    }
+  }
+
+  /**
+   * Poll the live AIS vessel layer for one MMSI and select/focus it.
+   * Stops on success, timeout, or dispose. The focus request travels the
+   * same world-focus path as a click, so user navigation always wins.
+   */
+  async _selectSharedVessel(mmsi) {
+    const DEADLINE_MS = 30000;
+    const STEP_MS = 1000;
+    const started = Date.now();
+    while (!this._disposed && Date.now() - started < DEADLINE_MS) {
+      try {
+        const mod = await import('../data/aisLiveVessels.js');
+        if (typeof mod.selectVesselByMmsi === 'function' && mod.selectVesselByMmsi(mmsi)) {
+          return;
+        }
+      } catch {
+        // feed or layer not ready yet — keep polling
+      }
+      await new Promise((r) => setTimeout(r, STEP_MS));
+    }
   }
   destroy() {
     if (this._disposed) return;
