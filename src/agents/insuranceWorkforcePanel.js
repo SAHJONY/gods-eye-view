@@ -366,18 +366,8 @@ export function initInsuranceWorkforcePanel({
     return lang;
   }
 
-  if (typeof document !== 'undefined') {
-    btnEl = document.createElement('button');
-    btnEl.id = 'gev-ins-wf-btn';
-    btnEl.type = 'button';
-    btnEl.innerHTML =
-      '<span style="font-size:20px">🤖</span><span>Seguros · IA</span>';
-    btnEl.setAttribute('aria-label', 'Seguros workforce / Insurance workforce');
-    btnEl.addEventListener('click', () => (panelEl ? close() : open()));
-    const dock = document.getElementById('command-dock');
-    if (dock) dock.appendChild(btnEl);
-    else document.body.appendChild(btnEl);
-  }
+  // Launcher button removed from the SAHJONY LIVE VIEW panel (owner request
+  // 2026-10-01): the panel stays reachable through SAHJONY VOZ commands.
 
   const api = {
     open,

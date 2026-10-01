@@ -502,18 +502,8 @@ export function initWorkforcePanel({ workforce = null, signal = null } = {}) {
     return lang;
   }
 
-  if (typeof document !== 'undefined') {
-    btnEl = document.createElement('button');
-    btnEl.id = 'gev-workforce-btn';
-    btnEl.type = 'button';
-    btnEl.innerHTML =
-      '<span style="font-size:20px">🤖</span><span>Agentes</span>';
-    btnEl.setAttribute('aria-label', 'Agentes IA / AI agents');
-    btnEl.addEventListener('click', () => (panelEl ? close() : open()));
-    const dock = document.getElementById('command-dock');
-    if (dock) dock.appendChild(btnEl);
-    else document.body.appendChild(btnEl);
-  }
+  // Launcher button removed from the SAHJONY LIVE VIEW panel (owner request
+  // 2026-10-01): the panel stays reachable through SAHJONY VOZ commands.
 
   const api = {
     open,

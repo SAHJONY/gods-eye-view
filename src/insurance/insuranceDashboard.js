@@ -309,18 +309,8 @@ export function initInsuranceDashboard(
     return lang;
   }
 
-  if (typeof document !== 'undefined') {
-    btnEl = document.createElement('button');
-    btnEl.id = 'gev-insurance-btn';
-    btnEl.type = 'button';
-    btnEl.innerHTML =
-      '<span style="font-size:20px">🛡️</span><span>Seguros</span>';
-    btnEl.setAttribute('aria-label', 'Seguros / Insurance');
-    btnEl.addEventListener('click', () => (panelEl ? close() : open()));
-    const dock = document.getElementById('command-dock');
-    if (dock) dock.appendChild(btnEl);
-    else document.body.appendChild(btnEl);
-  }
+  // Launcher button removed from the SAHJONY LIVE VIEW panel (owner request
+  // 2026-10-01): the desk stays reachable through SAHJONY VOZ commands.
 
   const api = {
     open,

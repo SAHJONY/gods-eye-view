@@ -348,22 +348,9 @@ export function initStreetView({ viewer, signal = null } = {}) {
     current = null;
   }
 
-  let btnEl = null;
-  if (typeof document !== 'undefined') {
-    btnEl = document.createElement('button');
-    btnEl.id = 'gev-streetview-btn';
-    btnEl.type = 'button';
-    btnEl.innerHTML =
-      '<span class="sv-emoji">🛣️</span><span>Vista de calle</span>';
-    btnEl.setAttribute('aria-label', 'Vista de calle');
-    btnEl.addEventListener('click', () => {
-      if (pickHandler) endPickMode();
-      else startPickMode();
-    });
-    const dock = document.getElementById('command-dock');
-    if (dock) dock.appendChild(btnEl);
-    else document.body.appendChild(btnEl);
-  }
+  let btnEl = null; // No launcher button in the panel (owner request 2026-10-01).
+  // Launcher button removed from the SAHJONY LIVE VIEW panel (owner request
+  // 2026-10-01): street view stays reachable through SAHJONY VOZ commands.
 
   const api = {
     openAt,

@@ -777,17 +777,8 @@ export function initDriveForDollars({
     buildPanel();
   }
 
-  if (typeof document !== 'undefined') {
-    btnEl = document.createElement('button');
-    btnEl.id = 'gev-drive-btn';
-    btnEl.type = 'button';
-    btnEl.innerHTML = '<span class="sv-emoji">🚗</span><span>Driver $</span>';
-    btnEl.setAttribute('aria-label', 'Modo manejo');
-    btnEl.addEventListener('click', togglePanel);
-    const dock = document.getElementById('command-dock');
-    if (dock) dock.appendChild(btnEl);
-    else document.body.appendChild(btnEl);
-  }
+  // Launcher button removed from the SAHJONY LIVE VIEW panel (owner request
+  // 2026-10-01): driving mode stays reachable through SAHJONY VOZ commands.
 
   restorePins();
 
