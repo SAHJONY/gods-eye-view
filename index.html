@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>God's Eye View</title>
+  <title>SAHJONY LIVE VIEW</title>
   <!-- Client tracking mode: rebrand BEFORE first paint so the internal
        tool name never flashes in the tab or loader. Runs synchronously
        in <head>, ahead of the module bootstrap that does the full rebrand. -->
@@ -14,18 +14,18 @@
           String(window.location.hash || '').replace(/^#/, '')
         );
         if (!m) return;
-        document.title = 'SAHJONY · Seguimiento de buque en vivo';
+        document.title = 'SAHJONY LIVE VIEW · Seguimiento de buque en vivo';
         document.documentElement.classList.add('gev-client-mode');
         var s = document.createElement('style');
         s.id = 'gev-client-bootstrap';
         s.textContent =
           '#loading-screen h2{visibility:hidden}' +
-          '#loading-screen h2::after{content:"SAHJONY · Seguimiento de buque en vivo";visibility:visible;display:block}';
+          '#loading-screen h2::after{content:"SAHJONY LIVE VIEW · Seguimiento de buque en vivo";visibility:visible;display:block}';
         document.head.appendChild(s);
       } catch (e) {}
     })();
   </script>
-  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <link rel="icon" type="image/svg+xml" href="/sahjony-mark.svg" />
   <link rel="stylesheet" href="/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -20,6 +20,21 @@ export const MODULE_PHASES = Object.freeze(['1', '2a', '2b', '2c', '3']);
 
 export const PLATFORM_MODULES = Object.freeze([
   {
+    id: 'live-view',
+    // Native SAHJONY tool URL: nginx aliases /live-view/ -> :8200/import-export/
+    // (the 3D app). Card links here; assets still resolve under /import-export/.
+    path: '/live-view/',
+    icon: '🌍',
+    name: { es: 'SAHJONY LIVE VIEW', en: 'SAHJONY LIVE VIEW' },
+    tagline: {
+      es: 'Vista en vivo 3D: buques, aviones y puertos en tiempo real.',
+      en: 'Live 3D view: vessels, aircraft and ports in real time.',
+    },
+    phase: '2a',
+    status: 'live',
+    audience: 'owner',
+  },
+  {
     id: 'import-export',
     path: '/import-export/',
     icon: '📊',
