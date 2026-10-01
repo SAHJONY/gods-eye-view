@@ -8,7 +8,9 @@ import { clampScopeTerminusPct } from './scopeMask.js';
 import {
   decodeLayerStateParams,
   encodeLayerStateParams,
+  LAYER_STATE_VERSION,
 } from './data/layerState.js';
+import { CUBA_FLEET_DEFAULT_VIEW } from './data/cubaFleet.js';
 
 /**
  * Share Links — URL Hash State Management
@@ -181,13 +183,20 @@ export class ShareLinkManager {
     if (!hash) return null;
 
     const params = new URLSearchParams(hash);
-    const lat = parseFloat(params.get('lat'));
-    const lon = parseFloat(params.get('lon'));
+    const fleetParam = params.get('fleet') === 'cuba' ? 'cuba' : null;
+    let lat = parseFloat(params.get('lat'));
+    let lon = parseFloat(params.get('lon'));
 
     // Coordinates drive Cartesian conversion, so reject non-finite URL values
     // before marking a share restoration as pending. `parseFloat('Infinity')`
     // is not NaN and would otherwise reach Cesium asynchronously at startup.
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    // The fleet deep-link (`#fleet=cuba`) carries no lat/lon: fall back to the
+    // fleet default view so the link still parses and the fleet view runs.
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      if (!fleetParam) return null;
+      lat = CUBA_FLEET_DEFAULT_VIEW.lat;
+      lon = CUBA_FLEET_DEFAULT_VIEW.lon;
+    }
 
     const parseOr = (value, fallback) => {
       const num = parseFloat(value);
@@ -200,11 +209,21 @@ export class ShareLinkManager {
       50,
     );
     const style = URL_TO_STYLE[params.get('style')] || 'normal';
+    // Fleet deep-link (`fleet=cuba`) with no explicit layer payload: default
+    // to vessels-only (AIS) so the globe opens on boats, not the default
+    // layer set (which includes aircraft).
+    if (params.get('fleet') === 'cuba' && !params.has('l')) {
+      params.set('v', String(LAYER_STATE_VERSION));
+      params.set('l', 'a');
+    }
     const decodedLayerState = decodeLayerStateParams(params);
     const state = {
       lat,
       lon,
-      alt: parseOr(params.get('alt'), 800),
+      alt: parseOr(
+        params.get('alt'),
+        fleetParam ? CUBA_FLEET_DEFAULT_VIEW.rangeM : 800,
+      ),
       heading: parseOr(params.get('heading'), 0),
       pitch: parseOr(params.get('pitch'), -35),
       roll: parseOr(params.get('roll'), 0),

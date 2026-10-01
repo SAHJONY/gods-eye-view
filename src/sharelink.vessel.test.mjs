@@ -98,3 +98,25 @@ test('the portal 3D deep-link layer param decodes to the AIS vessel layer', () =
     null,
   );
 });
+
+test('fleet deep-link parses with no lat/lon and defaults to vessels-only', () => {
+  // Regression: `#fleet=cuba&client=1` used to fail closed on missing lat/lon,
+  // so the globe booted with default layers (aircraft visible, no vessels)
+  // and the fleet view never ran.
+  const parsed = makeManager('#fleet=cuba&client=1').parseInitialHash();
+  assert.ok(parsed, 'fleet link must parse without coordinates');
+  assert.equal(parsed.fleetId, 'cuba');
+  assert.ok(
+    parsed.layerState?.enabledLayerIds.includes('ais-live-vessels'),
+    'fleet link must enable the AIS vessel layer',
+  );
+  assert.ok(
+    !parsed.layerState?.enabledLayerIds.includes('flights'),
+    'fleet link must not enable the aircraft layer by default',
+  );
+});
+
+test('non-fleet link without coordinates still fails closed', () => {
+  assert.equal(makeManager('#client=1').parseInitialHash(), null);
+  assert.equal(makeManager('#lat=abc&lon=xyz').parseInitialHash(), null);
+});
