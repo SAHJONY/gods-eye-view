@@ -212,7 +212,7 @@ function render(){
  document.documentElement.lang=lang;
  const bl=document.getElementById("bizlinks");bl.innerHTML="";
  [["/",t("home"),false],["/wholesale/index.html",t("wsl"),true],["/insurance/index.html",t("ins"),false],
-  ["/crude/index.html",t("cru"),false],["/import-export/index.html",t("imp"),false],["/cubacash/index.html",t("cub"),false]]
+  ["/crude/index.html",t("cru"),false],["/import-export/trade/index.html",t("imp"),false],["/cubacash/index.html",t("cub"),false]]
  .forEach(([u,l,on])=>{const a=document.createElement("a");a.className="bizlink"+(on?" on":"");
   a.href=u;a.textContent=l;bl.appendChild(a)});
  const vt=document.getElementById("viewtabs");vt.innerHTML="";

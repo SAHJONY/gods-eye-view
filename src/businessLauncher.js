@@ -44,7 +44,7 @@ export const BUSINESSES = Object.freeze([
   {
     id: 'trade',
     icon: '🌐',
-    screen: '/import-export/index.html',
+    screen: '/import-export/trade/index.html',
     es: 'Comercio import/export',
     en: 'Import/Export Trade',
     esDesc: 'RFQs, proveedores y márgenes',

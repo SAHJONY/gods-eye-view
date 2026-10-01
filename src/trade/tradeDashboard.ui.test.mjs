@@ -633,7 +633,7 @@ test('dashboard: drawer body is readable at a glance — bilingual headings', ()
   dd.destroy();
 });
 
-test('openDeepLink opens /import-export/index.html#<view>', () => {
+test('openDeepLink opens /import-export/trade/index.html#<view>', () => {
   // The trade ui test mock sets globalThis.window = globalThis, so
   // window.open resolves to globalThis.open; stub it just for this test.
   const prev = globalThis.open;
@@ -648,9 +648,9 @@ test('openDeepLink opens /import-export/index.html#<view>', () => {
       rfqEngine: fakeEngine(),
     });
     dd.openDeepLink('rfqs');
-    assert.equal(openedUrl, '/import-export/index.html#rfqs');
+    assert.equal(openedUrl, '/import-export/trade/index.html#rfqs');
     dd.openDeepLink('suppliers');
-    assert.equal(openedUrl, '/import-export/index.html#suppliers');
+    assert.equal(openedUrl, '/import-export/trade/index.html#suppliers');
     dd.destroy();
   } finally {
     if (prev === undefined) delete globalThis.open;

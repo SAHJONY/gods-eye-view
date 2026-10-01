@@ -79,7 +79,7 @@ test('five businesses, one per module, with standalone screen URLs', () => {
   assert.equal(byId.wholesale.screen, '/wholesale/index.html');
   assert.equal(byId.crude.screen, '/crude/index.html');
   assert.equal(byId.insurance.screen, '/insurance/index.html');
-  assert.equal(byId.trade.screen, '/import-export/index.html');
+  assert.equal(byId.trade.screen, '/import-export/trade/index.html');
   assert.equal(byId.cubacash.screen, '/cubacash/index.html');
   for (const b of BUSINESSES) {
     assert.ok(b.es && b.en, `${b.id} bilingual labels`);

@@ -971,9 +971,9 @@ export function initTradeDashboard({
     return 0;
   }
 
-  /** Deep link to the standalone full-screen trade app: /import-export/index.html#<view>. */
+  /** Deep link to the standalone full-screen trade app: /import-export/trade/index.html#<view>. */
   function openDeepLink(view) {
-    const url = `/import-export/index.html#${view}`;
+    const url = `/import-export/trade/index.html#${view}`;
     try {
       if (typeof window !== 'undefined' && typeof window.open === 'function') {
         window.open(url, '_blank', 'noopener');
