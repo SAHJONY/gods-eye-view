@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SAHJONY · Carros para Cuba</title>
+<style>
+:root{--navy-0:#04070f;--navy-1:#060d1d;--gold:#d4af37;--gold-soft:#e8c56a;--ink:#f2f5fa;--muted:#8fa0b8;--line:rgba(212,175,55,.22);--card:rgba(14,26,51,.72);--radius:16px;--grn:#4ade80;--yel:#facc15;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(1200px 600px at 80% -10%,rgba(212,175,55,.08),transparent 60%),linear-gradient(180deg,var(--navy-1),var(--navy-0));min-height:100vh;font-size:16px;line-height:1.45;}
+header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);background:rgba(6,13,29,.9);position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);}
+.back{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--gold);font-size:20px;cursor:pointer;display:grid;place-items:center;text-decoration:none;}
+.brand{flex:1;min-width:0;} .brand h1{font-size:17px;margin:0;} .brand h1 .sub{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:1.2px;text-transform:uppercase;}
+main{padding:14px 16px 60px;max-width:960px;margin:0 auto;}
+h2{font-size:15px;color:var(--gold-soft);text-transform:uppercase;letter-spacing:1px;margin:26px 0 10px;}
+.card{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);padding:14px;margin-bottom:12px;}
+.card h3{margin:0 0 2px;font-size:17px;} .card .detail{color:var(--muted);font-size:13px;margin-bottom:8px;}
+.price{font-size:22px;font-weight:800;color:var(--gold-soft);}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px;}
+.stat{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);padding:12px;text-align:center;}
+.stat .n{font-size:20px;font-weight:800;color:var(--gold-soft);} .stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.bdg{font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;border:1px solid;white-space:nowrap;}
+.bdg.strong{background:rgba(12,40,64,.6);color:#38bdf8;border-color:#38bdf8;}
+.bdg.lead{background:rgba(51,39,10,.6);color:var(--yel);border-color:var(--yel);}
+ul{padding-left:20px;font-size:14px;} li{margin:7px 0;}
+.foot{color:var(--muted);font-size:12px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px;}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/platform/" aria-label="Volver">‹</a>
+  <div class="brand"><h1>🚗 Carros para Cuba<span class="sub">Inventario · sourcing · precios</span></h1></div>
+</header>
+<main>
+  <h2>Inventario</h2>
+  <div id="inventory"></div>
+  <h2>Sourcing pipeline</h2>
+  <div class="stats" id="stats"></div>
+  <ul id="notes"></ul>
+  <h2>Pendiente</h2>
+  <ul id="pending"></ul>
+  <div class="foot" id="foot"></div>
+</main>
+<script>
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+fetch("data.json",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+  document.getElementById("inventory").innerHTML=d.inventory.map(function(c){
+    var b=c.status==="strong"?'<span class="bdg strong">LISTO</span>':'<span class="bdg lead">PENDIENTE</span>';
+    return '<div class="card"><h3>'+esc(c.name)+' '+b+'</h3><div class="detail">'+esc(c.detail)+'</div><div class="price">'+esc(c.price)+'</div></div>';
+  }).join("");
+  var p=d.pipeline||{};
+  document.getElementById("stats").innerHTML=
+    '<div class="stat"><div class="n">'+esc(p.total||"—")+'</div><div class="l">Pipeline</div></div>'+
+    '<div class="stat"><div class="n">'+esc(p.usa||"—")+'</div><div class="l">USA</div></div>'+
+    '<div class="stat"><div class="n">'+esc(p.cuba_shortlist||"—")+'</div><div class="l">Shortlist Cuba</div></div>';
+  document.getElementById("notes").innerHTML='<li>'+esc(d.formula||"")+'</li>'+(d.notes||[]).map(function(m){return"<li>"+esc(m)+"</li>";}).join("");
+  document.getElementById("pending").innerHTML=(d.pending||[]).map(function(m){return"<li>"+esc(m)+"</li>";}).join("");
+  document.getElementById("foot").textContent="Inteligencia interna SAHJONY LLC · actualizado "+(d.updated||"—")+" · Precios de proveedor jamás públicos.";
+}).catch(function(){document.getElementById("inventory").innerHTML='<div class="card">⚠️ No se pudo cargar data.json</div>';});
+</script>
+</body>
+</html>

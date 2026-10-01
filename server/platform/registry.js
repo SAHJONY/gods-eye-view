@@ -34,7 +34,9 @@ export const PLATFORM_MODULES = Object.freeze([
   },
   {
     id: 'crude',
-    path: '/crude/',
+    // FIX 2026-10-01: bare /crude/ hit the main-site SPA fallback (wrong
+    // content). Served from the vite public dir under the app base path.
+    path: '/import-export/crude/',
     icon: '🛢️',
     name: { es: 'Petróleo crudo', en: 'Crude oil' },
     tagline: {
@@ -47,7 +49,7 @@ export const PLATFORM_MODULES = Object.freeze([
   },
   {
     id: 'energia',
-    path: '/energy/',
+    path: '/import-export/energy/',
     icon: '⚡',
     name: { es: 'Energía', en: 'Energy' },
     tagline: {
@@ -55,12 +57,12 @@ export const PLATFORM_MODULES = Object.freeze([
       en: 'Diesel, gasoline and gas for Cuba: specs, pricing and ports.',
     },
     phase: '2c',
-    status: 'soon',
+    status: 'live',
     audience: 'owner',
   },
   {
     id: 'carros',
-    path: '/cars/',
+    path: '/import-export/cars/',
     icon: '🚗',
     name: { es: 'Carros Cuba', en: 'Cuba cars' },
     tagline: {
@@ -68,12 +70,12 @@ export const PLATFORM_MODULES = Object.freeze([
       en: 'Cuba car market, A to Z.',
     },
     phase: '2c',
-    status: 'soon',
+    status: 'live',
     audience: 'owner',
   },
   {
     id: 'paqueteria',
-    path: '/paqueteria/',
+    path: '/import-export/paqueteria/',
     icon: '📦',
     name: { es: 'Paquetería', en: 'Parcels' },
     tagline: {
@@ -81,7 +83,7 @@ export const PLATFORM_MODULES = Object.freeze([
       en: 'Parcel agency: intake, QR, per-package tracking and WhatsApp notices.',
     },
     phase: '2b',
-    status: 'soon',
+    status: 'live',
     audience: 'owner',
   },
   {

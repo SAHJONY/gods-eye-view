@@ -276,12 +276,32 @@ export class ShareRestoration {
     window.dispatchEvent(
       new CustomEvent('gev:initial-share-restore-settled', { detail: result }),
     );
+    // Fleet deep-link (`#...&fleet=cuba`): takes precedence over a single
+    // vessel — open the globe directly on the Cuba fleet vessels.
+    const fleetId = this._initialShareState?.fleetId;
+    if (fleetId === 'cuba' && result?.status === 'settled') {
+      void this._showSharedFleet();
+    }
     // Vessel deep-link (`#...&vessel=<mmsi>`): after the shared camera
     // settles, select and focus that exact AIS vessel once the live feed
     // has populated. Polls briefly; never fights the user.
     const mmsi = this._initialShareState?.vesselMmsi;
-    if (mmsi && result?.status === 'settled') {
+    if (mmsi && !fleetId && result?.status === 'settled') {
       void this._selectSharedVessel(mmsi);
+    }
+  }
+
+  /**
+   * Run the Cuba fleet view after the shared camera settles.
+   * Stops on dispose; never fights the user.
+   */
+  async _showSharedFleet() {
+    if (this._disposed) return;
+    try {
+      const { showCubaFleetView } = await import('./fleetView.js');
+      await showCubaFleetView({ viewer: this.viewer });
+    } catch {
+      // Fleet view is best-effort; the globe remains usable.
     }
   }
 

@@ -66,11 +66,13 @@ export function createVesselLayer({ source, services, options = {} } = {}) {
      * Returns true when the vessel is in the current feed and was selected.
      */
     selectVesselByMmsi(mmsi) {
+      // Exact string match only. Records store MMSI as strings; the
+      // Number() coercion could land a mistyped key on an unrelated
+      // record and focus the wrong vessel.
       const key = String(mmsi || '').trim();
       if (!key) return false;
       const byMmsi = vesselState.state.records.byMmsi;
-      const record =
-        byMmsi.get(key) || byMmsi.get(Number(key)) || null;
+      const record = byMmsi.get(key) || null;
       if (!record) return false;
       return parts.selection.selectAndFocusVessel(record) === true;
     },

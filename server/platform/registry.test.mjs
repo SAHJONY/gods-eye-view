@@ -48,7 +48,7 @@ test('listModules/getModule return copies, never the frozen originals', () => {
   assert.notEqual(PLATFORM_MODULES[0].name.es, 'MUTATED');
   const one = getModule('crude');
   assert.equal(one.id, 'crude');
-  assert.equal(one.path, '/crude/');
+  assert.equal(one.path, '/import-export/crude/');
   assert.equal(getModule('nope'), null);
 });
 

@@ -268,6 +268,9 @@ export class ShareLinkManager {
         const raw = String(params.get('vessel') || '').trim();
         return /^[0-9]{5,10}$/.test(raw) ? raw : null;
       })(),
+      // Fleet deep-link (`fleet=cuba`): open the globe directly on the
+      // Cuba fleet vessels (portal "Ver flota en 3D").
+      fleetId: params.get('fleet') === 'cuba' ? 'cuba' : null,
       layerStateInvalid:
         params.get('v') === '2' &&
         params.has('l') &&
@@ -635,6 +638,9 @@ export class ShareLinkManager {
       const vessel = String(current.get('vessel') || '').trim();
       if (/^[0-9]{5,10}$/.test(vessel)) params.set('vessel', vessel);
       if (current.get('client') === '1') params.set('client', '1');
+      // Fleet deep-link (`fleet=cuba`): keep it across hash rewrites so a
+      // reload stays on the fleet view instead of the generic globe.
+      if (current.get('fleet') === 'cuba') params.set('fleet', 'cuba');
     } catch {
       // Keep the freshly built params when the live hash is unreadable.
     }

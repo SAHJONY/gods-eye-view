@@ -8,6 +8,9 @@ import { isClientModeHash } from './sharelink.js';
 if (isClientModeHash()) {
   document.title = 'SAHJONY · Seguimiento de buque en vivo';
   document.body.classList.add('gev-client-mode');
+  // Remove the pre-paint bootstrap rebrand so its ::after label does not
+  // double-render next to the real heading text set below.
+  document.getElementById('gev-client-bootstrap')?.remove();
   const loaderTitle = document.querySelector('#loading-screen h2');
   if (loaderTitle) loaderTitle.textContent = 'SAHJONY · SEGUIMIENTO EN VIVO';
   const loaderStatus = document.querySelector('#loading-screen .loader-status');
