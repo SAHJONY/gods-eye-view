@@ -1,6 +1,6 @@
 {
  "updated": "2026-10-01",
- "source": "snapshot 2026-10-01 07:35 CDT de non-ofac-business-contacts.md + usa-business-contacts.md",
+ "source": "non-ofac-business-contacts.md + usa-business-contacts.md (contact-discovery sweep 2026-10-01; official sites only)",
  "products": [
   {
    "id": "pollo-congelado",
@@ -13,13 +13,13 @@
      "country": "Brasil",
      "city": "Itajaí, SC",
      "contact_name": null,
-     "email": "imprensa@brf.com",
-     "phone": "—",
-     "website": "brf-global.com",
+     "email": "imprensa@brf.com (prensa, no ventas)",
+     "phone": null,
+     "website": "brf-global.com → mbrf.com",
      "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO (ventas) · mayor exportador mundial · ⚠️ scam: brazil-sadiaexports.com es lookalike"
+     "notes": "CONTACTO NO ENCONTRADO (ventas) · CORRECCIÓN: BRF se fusionó con Marfrig → MBRF (2025); ventas por portal doméstico centralbrf.com.br · scam: brazil-sadiaexports.com es lookalike"
     },
     {
      "company": "Seara Alimentos (JBS)",
@@ -27,51 +27,51 @@
      "city": "Itajaí, SC",
      "contact_name": null,
      "email": null,
-     "phone": "+55 47 3344-7700",
-     "website": null,
-     "status": "verified",
-     "verified": true,
+     "phone": "0800 047 2425 / +55 11 4950-8096 (WhatsApp)",
+     "website": "searainternational.com",
+     "status": "partial",
+     "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (conmutador) · 150+ países"
+     "notes": "VERIFICADO (teléfonos) · FORM ONLY (email) · 150+ países"
     },
     {
      "company": "Copacol",
      "country": "Brasil",
      "city": "Cafelândia, PR",
      "contact_name": null,
-     "email": null,
-     "phone": "+55-45-3241-8080",
+     "email": "trade.cafelandia1@copacol.com.br · vendascorporativas2@copacol.com.br · vendascorporativas3@copacol.com.br",
+     "phone": "(45) 3241-8086 / 3241-8503 / 3241-8522",
      "website": null,
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (teléfono) · leg quarters 15 kg, exportador activo"
+     "notes": "VERIFICADO · leg quarters 15 kg, exportador activo"
     },
     {
      "company": "Vibra Agroindustrial",
      "country": "Brasil",
      "city": "Soledade, RS",
      "contact_name": null,
-     "email": null,
-     "phone": "(51) 3883-2100",
+     "email": "crc@vibra.com.br (relaciones con cliente, no exportación)",
+     "phone": "0800 724 4949 / (51) 3883 2100",
      "website": null,
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (teléfono) · sitio oficial aún no localizado"
+     "notes": "VERIFICADO (teléfonos) · sin email de exportación · Vibra Foods ≠ Vibra Energia"
     },
     {
      "company": "Lar Cooperativa",
      "country": "Brasil",
      "city": "Medianeira, PR",
-     "contact_name": null,
-     "email": null,
-     "phone": null,
+     "contact_name": "Barbara Teixeira (Ásia e Américas — contacto Cuba)",
+     "email": "barbara.teixeira@lar.ind.br (Ásia e Américas) · giovanarosas@lar.ind.br · caroline.fredo@lar.ind.br · andrew.tasso@lar.ind.br",
+     "phone": "0800 045 8800",
      "website": null,
-     "status": "none",
-     "verified": false,
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · **Cuba ya es destino principal de exportación** · 600+ contenedores/mes"
+     "notes": "VERIFICADO · Cuba ya es destino principal de exportación · 600+ contenedores/mes"
     },
     {
      "company": "Aurora Alimentos",
@@ -79,38 +79,38 @@
      "city": "Chapecó, SC",
      "contact_name": null,
      "email": null,
-     "phone": "—",
+     "phone": "+55 11 2423-2200 (Escritório Comercial Exportação)",
      "website": null,
-     "status": "none",
-     "verified": false,
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO (ventas) · SIF 601/2512"
+     "notes": "VERIFICADO (teléfono de exportación) · SIF 601/2512"
     },
     {
      "company": "C.Vale",
      "country": "Brasil",
      "city": "Palotina, PR",
      "contact_name": null,
-     "email": null,
-     "phone": null,
+     "email": "sales@cvale.com.br",
+     "phone": "+55 44 3649.8306 / 3649.8242",
      "website": null,
-     "status": "none",
-     "verified": false,
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · SIF 3300"
+     "notes": "VERIFICADO · SIF 3300"
     },
     {
      "company": "CP Foods",
      "country": "Tailandia",
      "city": "Bangkok",
-     "contact_name": null,
-     "email": "consumercenter@cpf.co.th",
-     "phone": "+66 (0) 2766 8000",
+     "contact_name": "Sakonwan C. (Global Sourcing)",
+     "email": "sakonwan.c@cpf.co.th (Global Sourcing) · consumercenter@cpf.co.th",
+     "phone": "+66 (0) 2 032 9008",
      "website": "cpf.co.th",
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO · ⚠️ foco value-added, encaje débil en leg quarters"
+     "notes": "VERIFICADO · foco value-added, encaje débil en leg quarters"
     },
     {
      "company": "Betagro",
@@ -126,7 +126,7 @@
      "notes": "CONTACTO NO ENCONTRADO"
     },
     {
-     "company": "Banvit (BRF)",
+     "company": "Banvit (BRF/MBRF)",
      "country": "Turquía",
      "city": "Bandırma",
      "contact_name": null,
@@ -136,46 +136,59 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (teléfono) · ⚠️ mercados regionales, encaje débil Cuba"
+     "notes": "VERIFICADO (teléfono) · mercados regionales, encaje débil Cuba"
+    },
+    {
+     "company": "#",
+     "country": "EE.UU.",
+     "city": "Empresa",
+     "contact_name": null,
+     "email": "Estado / Ciudad",
+     "phone": "Email",
+     "website": "Teléfono",
+     "status": "none",
+     "verified": false,
+     "ofac_scope": "usa",
+     "notes": "Web · Estado"
     },
     {
      "company": "Koch Foods",
      "country": "EE.UU.",
      "city": "Park Ridge, IL (plantas AL/GA/TN)",
-     "contact_name": "John Patchoski",
-     "email": "exportsales@kochfoods.com",
+     "contact_name": null,
+     "email": "exportsales@kochfoods.com (John Patchoski)",
      "phone": "770-536-8818",
      "website": "kochfoods.com",
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "— exportador documentado a Cuba"
+     "notes": "VERIFICADO — exportador documentado a Cuba"
     },
     {
      "company": "House of Raeford",
      "country": "EE.UU.",
      "city": "Rose Hill, NC (div. intl. Wilmington, NC)",
-     "contact_name": "Cliff Seay, International Sales Manager",
-     "email": "cliff.seay@houseofraeford.com",
+     "contact_name": null,
+     "email": "cliff.seay@houseofraeford.com (Cliff Seay, International Sales Manager)",
      "phone": "864-729-7007",
      "website": "houseofraeford.com",
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "VERIFICADO"
     },
     {
      "company": "Mountaire Farms",
      "country": "EE.UU.",
      "city": "Millsboro, DE",
-     "contact_name": "formulario web",
+     "contact_name": null,
      "email": null,
      "phone": "302-934-1100 / 877-887-1490",
      "website": "mountaire.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL"
     },
     {
      "company": "Peco Foods",
@@ -188,33 +201,33 @@
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL"
     },
     {
      "company": "Mar-Jac Poultry",
      "country": "EE.UU.",
      "city": "Gainesville, GA",
      "contact_name": null,
-     "email": "sales@marjacpoultry.com",
-     "phone": "—",
+     "email": null,
+     "phone": "770-531-5000",
      "website": "marjacpoultry.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": "(emails de directorios, no del sitio oficial)"
+     "notes": "PARCIAL"
     },
     {
      "company": "Wayne-Sanderson Farms",
      "country": "EE.UU.",
      "city": "Oakwood, GA",
      "contact_name": null,
-     "email": "customercare@waynesanderson.com",
+     "email": "customercare@waynesanderson.com (atención al consumidor, no ventas)",
      "phone": "800-392-0844 / 800-391-0690",
      "website": "waynesandersonfarms.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL (sin email de ventas publicado)"
     },
     {
      "company": "Perdue Farms",
@@ -227,20 +240,20 @@
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL"
     },
     {
      "company": "Tyson Foods",
      "country": "EE.UU.",
      "city": "Springdale, AR",
-     "contact_name": "ventas vía brokers",
+     "contact_name": null,
      "email": null,
      "phone": "479-290-4000",
      "website": "tysonfoods.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL"
     },
     {
      "company": "Fieldale Farms",
@@ -248,12 +261,12 @@
      "city": "Baldwin, GA",
      "contact_name": null,
      "email": null,
-     "phone": "—",
-     "website": null,
-     "status": "none",
+     "phone": "800-241-5400",
+     "website": "fieldale.com",
+     "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL (solo teléfono)"
     },
     {
      "company": "Case Farms",
@@ -261,12 +274,12 @@
      "city": "Troutman, NC",
      "contact_name": null,
      "email": null,
-     "phone": "—",
-     "website": null,
-     "status": "none",
+     "phone": "704-528-4501 · 828-438-6900",
+     "website": "casefarms.com",
+     "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL (solo teléfono)"
     },
     {
      "company": "Simmons Prepared Foods",
@@ -274,12 +287,12 @@
      "city": "Siloam Springs, AR",
      "contact_name": null,
      "email": null,
-     "phone": "—",
-     "website": null,
-     "status": "none",
+     "phone": "(479) 524-8151",
+     "website": "simmonsfoods.com",
+     "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL (solo teléfono)"
     },
     {
      "company": "George's Inc.",
@@ -287,25 +300,25 @@
      "city": "Springdale, AR",
      "contact_name": null,
      "email": null,
-     "phone": "479-927-7000",
-     "website": null,
+     "phone": "479-927-7000 · 1-800-800-2449 (línea de exportación)",
+     "website": "georgesinc.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL"
     },
     {
      "company": "Harrison Poultry",
      "country": "EE.UU.",
      "city": "Bethlehem, GA",
      "contact_name": null,
-     "email": null,
-     "phone": "—",
-     "website": null,
-     "status": "none",
-     "verified": false,
+     "email": "sschwartz@harrisonpoultry.com (Steve Schwartz, VP de Ventas)",
+     "phone": "770.867.7511",
+     "website": "harrisonpoultry.com",
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "usa",
-     "notes": "— flag: demandó acuerdos por fijación de precios de broiler ($2.8M)"
+     "notes": "VERIFICADO — flag: demandó acuerdos por fijación de precios de broiler ($2.8M)"
     }
    ]
   },
@@ -329,11 +342,11 @@
      "contact_name": null,
      "email": "info@gruposid.com.do",
      "phone": "809-565-2151",
-     "website": null,
+     "website": "(sitio oficial)",
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO · **RFQ ENVIADO 2026-09-30, respuesta pendiente — NO duplicar**"
+     "notes": "VERIFICADO · RFQ ENVIADO 2026-09-30, respuesta pendiente — NO duplicar"
     },
     {
      "company": "Grupo Numar",
@@ -341,7 +354,7 @@
      "city": "San José",
      "contact_name": null,
      "email": null,
-     "phone": "+506 2284-1000 · +507 270-2066 · +505 2253-8420",
+     "phone": "+506 2284-1000 (CR) · +507 270-2066 (PA) · +505 2253-8420 (NI)",
      "website": "gruponumar.com",
      "status": "verified",
      "verified": true,
@@ -354,12 +367,12 @@
      "city": "Villanueva, Cortés",
      "contact_name": "René Becerra Banegas (directorio)",
      "email": null,
-     "phone": "(504) 2561-7410 · (504) 2561-7400",
+     "phone": "(504) 2561-7410 · (504) 2561-7400 · fax (504) 2561-7404",
      "website": "jaremar.com",
-     "status": "verified",
-     "verified": true,
+     "status": "partial",
+     "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (teléfonos) · marca Clover Brand · RFQ pendiente"
+     "notes": "VERIFICADO (teléfonos) · marca Clover Brand · FORM ONLY (email) · RFQ pendiente"
     },
     {
      "company": "Corporación Dinant",
@@ -415,50 +428,50 @@
     },
     {
      "company": "Servimundo",
-     "country": "Indonesia",
-     "city": null,
+     "country": null,
+     "city": "Panamá / Miami (trader)",
      "contact_name": null,
-     "email": null,
-     "phone": null,
-     "website": null,
-     "status": "none",
-     "verified": false,
+     "email": "servimundo@hotmail.com",
+     "phone": "(305) 338 9431 · fax 305-477-1342 · Panamá 507-6616-3643",
+     "website": "servimundo.com",
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · **RFQ enviado previamente, sin respuesta (follow-up pendiente de aprobación)**"
+     "notes": "VERIFICADO · CORRECCIÓN: trader panameño de ingredientes (Miami 2550 NW 72nd Ave Suite 215), NO fábrica indonesia · RFQ enviado previamente, sin respuesta (follow-up pendiente de aprobación)"
     },
     {
      "company": "Oilnco Industries",
      "country": "Malasia",
      "city": "Kuala Lumpur",
-     "contact_name": "\"Fadi\" (listing)",
-     "email": null,
-     "phone": "no verificado",
-     "website": null,
-     "status": "partial",
-     "verified": false,
+     "contact_name": null,
+     "email": "enquiry@oilnco.com (booklet oficial 2025)",
+     "phone": "+603 5223 6898",
+     "website": "(listing TradeKey)",
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "NO VERIFICADO · mejor precio publicado $12–16/caja 20 kg FOB · RFQ pendiente"
+     "notes": "VERIFICADO (email + teléfono del booklet oficial) · $12–16/caja 20 kg FOB (TradeKey, sin verificar) · RFQ pendiente"
     },
     {
      "company": "PT. Tunas Baru Lampung",
      "country": "Indonesia",
      "city": "Yakarta/Surabaya",
-     "contact_name": null,
-     "email": null,
-     "phone": null,
+     "contact_name": "Eric Tirtana (Head of IR) · Hardy Phan (Corp Sec)",
+     "email": "corsec@sungaibudi.com · eric.tirtana@sungaibudi.com (Eric Tirtana)",
+     "phone": "+62 21 521 3383 / +62 21 521 3384",
      "website": null,
-     "status": "none",
-     "verified": false,
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · TradeIndia \"verificado por plataforma\" (no nuestra) · RFQ pendiente"
+     "notes": "VERIFICADO · IDX-listed TBLA, Sungai Budi Group · RFQ pendiente"
     },
     {
      "company": "Super 99 (canal Panamá)",
-     "country": "Panamá",
-     "city": null,
+     "country": null,
+     "city": "Panamá",
      "contact_name": null,
-     "email": "ventascorporativas@super99.com",
-     "phone": "+507 6981-9999 · 323 8700–8799",
+     "email": "ventascorporativas@super99.com · pedidos@super99.com",
+     "phone": "+507 6981-9999 (WhatsApp) · 323 8700–8799",
      "website": "super99.com",
      "status": "verified",
      "verified": true,
@@ -476,7 +489,7 @@
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": "Primex Z All Purpose Shortening (caja 50 lb); línea Oasis; (teléfono oficial; sin email de ventas)"
+     "notes": "Primex Z All Purpose Shortening (caja 50 lb); línea Oasis · PARCIAL (teléfono oficial; sin email de ventas)"
     }
    ]
   },
@@ -491,13 +504,13 @@
      "country": "Uruguay",
      "city": "Montevideo",
      "contact_name": null,
-     "email": null,
-     "phone": "(+598) 22081421",
+     "email": "info@saman.com.uy (general; sin desk de exportación publicado)",
+     "phone": "+598 2208 1421",
      "website": "saman.uy",
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (empresa + teléfono) · **TOP PICK · Cuba ya es destino** · ~46% exportación UY"
+     "notes": "VERIFICADO · TOP PICK · Cuba ya es destino · ~46% exportación UY"
     },
     {
      "company": "COOPAR",
@@ -518,12 +531,12 @@
      "city": "Pelotas/Porto Alegre, RS",
      "contact_name": null,
      "email": null,
-     "phone": "+55 800 531 800",
+     "phone": "SAC 0800 053 1800 (corrección: 800 531 800 no es oficial)",
      "website": "josapar.com.br",
      "status": "partial",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "NO VERIFICADO (teléfono de perfil bursátil, no confirmado como exportación) · ~600k TM/año"
+     "notes": "VERIFICADO (teléfono SAC) · FORM ONLY (email) · ~600k TM/año"
     },
     {
      "company": "Riceland Foods",
@@ -531,12 +544,12 @@
      "city": "Jonesboro, AR",
      "contact_name": null,
      "email": null,
-     "phone": "870-673-5500",
+     "phone": "870-673-5500 · 1-855-RICE-WAY",
      "website": "riceland.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": "(teléfono general; el molinero más grande del mundo)"
+     "notes": "PARCIAL (teléfono general; el molinero más grande del mundo; \"Exports\" = ruta oficial de RFQ)"
     },
     {
      "company": "Producers Rice Mill",
@@ -549,7 +562,7 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "(cooperativa de 2,300+ arroceros)"
+     "notes": "VERIFICADO (cooperativa de 2,300+ arroceros)"
     }
    ]
   },
@@ -565,12 +578,12 @@
      "city": "Siquinalá, Escuintla",
      "contact_name": null,
      "email": null,
-     "phone": "+502 2277 5100",
+     "phone": "+502 2277 5100 · Miami comercial (786) 542-6333 (mejor entrada RFQ)",
      "website": "pantaleon.com",
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (corporativo) · **TOP PICK · embarques reales 50 lb confirmados** · mayor molino CA"
+     "notes": "VERIFICADO (teléfonos) · TOP PICK · embarques reales 50 lb confirmados · mayor molino CA"
     },
     {
      "company": "Alvean (Copersucar/Cargill)",
@@ -580,23 +593,23 @@
      "email": null,
      "phone": "+41 22 544 46 98",
      "website": "alvean.com",
-     "status": "verified",
-     "verified": true,
+     "status": "none",
+     "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (registros comerciales suizos) · trading desk azúcar"
+     "notes": "TELÉFONO VERIFICADO · nota: emails genuinos son xxx@alvean.com (alerta de fraude) · trading desk azúcar"
     },
     {
      "company": "Central Romana",
      "country": "RD",
      "city": "La Romana",
      "contact_name": null,
-     "email": "alburquerque@crcltd.com.do",
-     "phone": "809 523-8501",
-     "website": "centralromana.com.do",
-     "status": "partial",
+     "email": null,
+     "phone": null,
+     "website": "centralromana.com.do (sin página de contacto)",
+     "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "NO VERIFICADO (requiere verificación fresca) · WRO levantado 2025 · ruta corta a Mariel"
+     "notes": "NO VERIFICADO · sitio oficial sin página de contacto · WRO levantado 2025 · ruta corta a Mariel"
     },
     {
      "company": "Incauca / CIAMSA",
@@ -604,12 +617,12 @@
      "city": "Valle del Cauca",
      "contact_name": null,
      "email": null,
-     "phone": null,
-     "website": null,
-     "status": "none",
-     "verified": false,
+     "phone": "(57-2) 664 7911",
+     "website": "ciamsa.com",
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · zafra continua 12 meses · localizar CIAMSA primero"
+     "notes": "VERIFICADO (teléfono) · el formulario es la ruta oficial de RFQ (azúcar por tipo/cantidad/destino) · zafra continua 12 meses"
     }
    ]
   },
@@ -652,39 +665,39 @@
      "country": "México",
      "city": "Chihuahua",
      "contact_name": "Ricardo Baeza / Juan Pedro Gómez Gómez",
-     "email": "rbaeza@bafar.com.mx",
+     "email": "rbaeza@bafar.com.mx · jgomez@bafar.com.mx",
      "phone": "(915) 831-0914 · (915) 781-4718",
      "website": "bafarinternational.com",
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO · **RFQ #1** · oficina El Paso TX"
+     "notes": "VERIFICADO · RFQ #1 · oficina El Paso TX"
     },
     {
      "company": "Sigma Alimentos",
      "country": "México",
      "city": "San Pedro Garza García, NL",
      "contact_name": null,
-     "email": null,
-     "phone": "+52 81 8748-9000",
+     "email": "investorrelations@sigma-alimentos.com (inversionistas, no comercial)",
+     "phone": "+52 81 8748-9000 (HQ)",
      "website": null,
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (HQ) · Fud, San Rafael, Bar-S · RFQ por HQ"
+     "notes": "VERIFICADO (teléfono HQ) · sin email comercial publicado · Fud, San Rafael, Bar-S"
     },
     {
      "company": "Frimesa",
-     "country": "Brasil",
-     "city": null,
+     "country": null,
+     "city": "Brasil",
      "contact_name": null,
      "email": null,
-     "phone": "(45) 3264-8000",
-     "website": null,
+     "phone": "SAC 0800 1452088 · (45) 3264-8000",
+     "website": "frimesa.com.br",
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (teléfono) · 4º productor porcino BR"
+     "notes": "VERIFICADO (teléfonos) · SIN EMAIL DE EXPORTACIÓN · 4º productor porcino BR"
     },
     {
      "company": "Pamplona Alimentos",
@@ -693,45 +706,45 @@
      "contact_name": null,
      "email": null,
      "phone": "(47) 3531-3131",
-     "website": null,
+     "website": "pamplona.com.br",
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (teléfono) · salames, copa, jamón"
+     "notes": "VERIFICADO (teléfono) · SIN EMAIL DE VENTAS · salames, copa, jamón"
     },
     {
      "company": "Paladini",
      "country": "Argentina",
      "city": "Villa Gdor. Gálvez, SF",
      "contact_name": null,
-     "email": "info@paladini.com.ar",
+     "email": "info@paladini.com (CORRECCIÓN: .com, no .ar)",
      "phone": "0810-999-7252",
-     "website": null,
+     "website": "paladini.com.ar",
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (general) · pedir desk de exportación"
+     "notes": "VERIFICADO (general) · sin desk de exportación publicado"
     },
     {
      "company": "BRF",
      "country": "Brasil",
      "city": "Itajaí, SC",
      "contact_name": null,
-     "email": "imprensa@brf.com",
-     "phone": "—",
-     "website": "brf-global.com",
+     "email": "imprensa@brf.com (prensa)",
+     "phone": null,
+     "website": "brf-global.com → mbrf.com",
      "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO (ventas) · formulario web"
+     "notes": "CONTACTO NO ENCONTRADO (ventas) · CORRECCIÓN: BRF+Marfrig → MBRF (2025)"
     },
     {
      "company": "JBS / Seara",
-     "country": "Brasil",
-     "city": null,
+     "country": null,
+     "city": "Brasil",
      "contact_name": null,
-     "email": null,
-     "phone": "—",
+     "email": "solo contactos compliance",
+     "phone": null,
      "website": null,
      "status": "none",
      "verified": false,
@@ -744,38 +757,38 @@
      "city": "SC/RS",
      "contact_name": null,
      "email": null,
-     "phone": "—",
+     "phone": "+55 11 2423-2200 (exportación)",
      "website": null,
-     "status": "none",
-     "verified": false,
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO"
+     "notes": "VERIFICADO (teléfono de exportación)"
     },
     {
      "company": "Alegra Foods",
      "country": "Brasil",
      "city": "Campos Gerais, PR",
      "contact_name": null,
-     "email": null,
-     "phone": "—",
-     "website": null,
-     "status": "none",
-     "verified": false,
+     "email": "sac@alegrafoods.com.br (SAC, no exportación)",
+     "phone": "SAC 0800 011 3500",
+     "website": "alegrafoods.com.br",
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO"
+     "notes": "VERIFICADO (canal SAC) · sin email de exportación"
     },
     {
      "company": "Campofrío",
      "country": "España",
      "city": "Alcobendas, Madrid",
      "contact_name": null,
-     "email": null,
-     "phone": "—",
-     "website": "campofrio.com",
-     "status": "none",
+     "email": "dpo.external@campofriofg.com (privacidad, no comercial)",
+     "phone": null,
+     "website": "campofrio.es / campofriofg.com",
+     "status": "partial",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · 80 países vía distribuidores"
+     "notes": "PARCIAL · solo email de privacidad · sin email de exportación ni teléfono · CORRECCIÓN: campofrio.com es un pueblo español, no la empresa"
     },
     {
      "company": "ElPozo (Grupo Fuertes)",
@@ -783,25 +796,25 @@
      "city": "Alhama de Murcia",
      "contact_name": "Gilberto Sanchez (prensa)",
      "email": null,
-     "phone": "—",
-     "website": null,
-     "status": "none",
-     "verified": false,
+     "phone": "Centralita 968 636 800 · Elaborados 968 636 830 · Carnes frescas 968 636 850",
+     "website": "elpozo.com",
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO (ventas) · 80+ países"
+     "notes": "TELÉFONOS VERIFICADOS · sin email comercial publicado · 80+ países"
     },
     {
      "company": "PF Alimentos",
-     "country": "Chile",
-     "city": null,
+     "country": null,
+     "city": "Chile",
      "contact_name": null,
-     "email": null,
-     "phone": "—",
-     "website": null,
-     "status": "none",
-     "verified": false,
+     "email": "no funcional (placeholder en sitio)",
+     "phone": "(+56-71) 2224430 · (+56 71) 2207200",
+     "website": "pfalimentos.cl",
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO"
+     "notes": "TELÉFONOS VERIFICADOS · sin email funcional"
     },
     {
      "company": "Embutidos La Europea / FEESA",
@@ -809,25 +822,25 @@
      "city": "Tegucigalpa",
      "contact_name": null,
      "email": null,
-     "phone": "+50422201853",
+     "phone": "+504 2220-1853 (página oficial)",
      "website": "europea.hn",
      "status": "partial",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "NO VERIFICADO (teléfono de terceros — verificar en sitio oficial)"
+     "notes": "PARCIAL · teléfono del dominio oficial; sin email"
     },
     {
      "company": "Empacadora Toledo (CMI)",
-     "country": "Guatemala",
-     "city": null,
+     "country": null,
+     "city": "Guatemala",
      "contact_name": null,
      "email": null,
-     "phone": "+50227247480",
-     "website": null,
-     "status": "partial",
-     "verified": false,
+     "phone": "CMI +502 2269-9500 · Corporativo +502 2377-0200 · CMI Capital +502 2378-6600",
+     "website": "somoscmi.com",
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "NO VERIFICADO (listing — verificar en sitio CMI)"
+     "notes": "TELÉFONOS VERIFICADOS (CMI) · sin email ni contacto Toledo"
     },
     {
      "company": "Dos Pinos",
@@ -835,8 +848,8 @@
      "city": "Alajuela",
      "contact_name": null,
      "email": null,
-     "phone": "—",
-     "website": null,
+     "phone": null,
+     "website": "cooperativadospinos.com",
      "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
@@ -853,20 +866,20 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "VERIFICADO"
     },
     {
      "company": "Smithfield Foods",
      "country": "EE.UU.",
-     "city": null,
-     "contact_name": "solo relaciones con inversionistas",
-     "email": "ir@smithfield.com",
-     "phone": "—",
+     "city": "—",
+     "contact_name": null,
+     "email": "ir@smithfield.com (inversionistas) · ratkinson@smithfield.com (prensa)",
+     "phone": null,
      "website": "smithfieldfoods.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": "(sin email de ventas)"
+     "notes": "PARCIAL (solo inversionistas/prensa; sin email de ventas)"
     },
     {
      "company": "Johnsonville",
@@ -874,38 +887,38 @@
      "city": "Sheboygan Falls, WI",
      "contact_name": null,
      "email": null,
-     "phone": "1-888-556-2728",
+     "phone": "1-888-556-2728 (consumidor)",
      "website": "johnsonville.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL"
     },
     {
      "company": "Conagra Brands",
      "country": "EE.UU.",
      "city": "Chicago, IL",
      "contact_name": null,
-     "email": null,
-     "phone": "312-549-5000",
+     "email": "Dan.Skinner@conagra.com (solo prensa)",
+     "phone": "312-549-5000 · 312-549-5636 (prensa)",
      "website": "conagrabrands.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "PARCIAL (solo prensa/corporativo; sin email de ventas)"
     },
     {
      "company": "Oscar Mayer (Kraft Heinz)",
      "country": "EE.UU.",
-     "city": null,
+     "city": "—",
      "contact_name": null,
-     "email": null,
-     "phone": "—",
-     "website": null,
+     "email": "lynne.galia@kraftheinz.com (solo prensa)",
+     "phone": "847-646-4396 (prensa)",
+     "website": "kraftheinzcompany.com",
      "status": "none",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": null
+     "notes": "SIN CONTACTO (solo prensa; sin canal de ventas)"
     }
    ]
   },
@@ -1045,39 +1058,39 @@
      "country": "Países Bajos",
      "city": "Almelo",
      "contact_name": null,
-     "email": null,
+     "email": "info@zwanenberg.nl (sin desk de exportación)",
      "phone": "+31 (0)88-054 6000",
      "website": "zwanenberg.nl",
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (teléfono) · jamón enlatado, luncheon meat, albóndigas · planta USA excluida (OFAC)"
+     "notes": "VERIFICADO · jamón enlatado, luncheon meat, albóndigas · planta USA excluida (OFAC)"
     },
     {
      "company": "Golden Bridge Foods",
-     "country": "Singapur",
-     "city": null,
-     "contact_name": "Ong Shiya (EnterpriseSG)",
+     "country": null,
+     "city": "Singapur",
+     "contact_name": null,
      "email": null,
-     "phone": "+65 65729233",
-     "website": "golden-bridge.com",
-     "status": "partial",
+     "phone": "+65 65729233 (solo EnterpriseSG — sin verificar)",
+     "website": "golden-bridge.com (sitio oficial inaccesible, 500)",
+     "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "NO VERIFICADO (fuente: EnterpriseSG, no sitio oficial) · verificar antes de RFQ"
+     "notes": "NO VERIFICADO · no usar lead sin verificación fresca"
     },
     {
      "company": "Qinhuangdao Ocean Food",
      "country": "China",
      "city": "Qinhuangdao, Hebei",
-     "contact_name": "Mr. Nick Yin",
+     "contact_name": "Mr. Nick Yin (solo directorios)",
      "email": null,
-     "phone": "86-335-3957085",
-     "website": null,
-     "status": "partial",
+     "phone": "86-335-3957085 (solo directorios)",
+     "website": "— (sitio oficial no encontrado)",
+     "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "NO VERIFICADO (directorios) · precio lead $1.20–1.45/lata 340g"
+     "notes": "SITIO OFICIAL NO ENCONTRADO · precio lead $1.20–1.45/lata 340g (sin verificar)"
     },
     {
      "company": "Shanghai Maling Aquarius",
@@ -1086,29 +1099,16 @@
      "contact_name": null,
      "email": null,
      "phone": null,
-     "website": null,
+     "website": "— (sitio oficial no encontrado)",
      "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · luncheon meat estatal"
+     "notes": "SITIO OFICIAL NO ENCONTRADO · luncheon meat estatal · nota DD: historial de paro de exportación por nitrofurans"
     },
     {
      "company": "JBS",
-     "country": "Brasil",
-     "city": null,
-     "contact_name": null,
-     "email": null,
-     "phone": "—",
-     "website": null,
-     "status": "none",
-     "verified": false,
-     "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · corned beef enlatado · ⚠️ flag reputacional (prensa laboral/deforestación)"
-    },
-    {
-     "company": "Lezita (Abalıoğlu)",
-     "country": "Turquía",
-     "city": "İzmir",
+     "country": null,
+     "city": "Brasil",
      "contact_name": null,
      "email": null,
      "phone": null,
@@ -1116,33 +1116,46 @@
      "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · pollo enlatado (línea por confirmar)"
+     "notes": "CONTACTO NO ENCONTRADO · corned beef enlatado · flag reputacional (prensa laboral/deforestación)"
+    },
+    {
+     "company": "Lezita (Abalıoğlu)",
+     "country": "Turquía",
+     "city": "İzmir",
+     "contact_name": null,
+     "email": "info@lezita.com.tr (sin desk de exportación)",
+     "phone": "0 (232) 880 70 12",
+     "website": "lezita.com.tr",
+     "status": "partial",
+     "verified": false,
+     "ofac_scope": "non-ofac",
+     "notes": "VERIFICADO (parcial: sin desk de exportación) · pollo enlatado (línea por confirmar)"
     },
     {
      "company": "Hormel Foods",
      "country": "EE.UU.",
      "city": "Austin, MN",
      "contact_name": null,
-     "email": null,
-     "phone": "—",
+     "email": "ninguno de ventas (sin contacto de exportación publicado)",
+     "phone": null,
      "website": "hormelfoods.com",
      "status": "none",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": "SPAM, luncheon meats, stews; (exporta vía Hormel Foods International)"
+     "notes": "SPAM, luncheon meats, stews · SIN CONTACTO (exporta vía Hormel Foods International)"
     },
     {
      "company": "Zwanenberg Food Group — planta EE.UU.",
      "country": "EE.UU.",
      "city": "Cincinnati, OH",
-     "contact_name": "formulario web",
-     "email": null,
+     "contact_name": null,
+     "email": "info@zwanenberg.nl (matriz, sin desk de exportación)",
      "phone": "+1 513-682-6000",
      "website": "zwanenberg.nl",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": "jamón enlatado, luncheon meat, meatballs (planta halal); (teléfono verificado en sitio oficial; matriz en Países Bajos)"
+     "notes": "jamón enlatado, luncheon meat, meatballs (planta halal) · PARCIAL (email general + teléfono oficial; matriz en Países Bajos)"
     }
    ]
   },
@@ -1170,7 +1183,7 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO · 540–560W bifacial ✅"
+     "notes": "VERIFICADO · 540–560W bifacial"
     },
     {
      "company": "BYD Energy do Brasil",
@@ -1183,7 +1196,7 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO · rango 450–670W ✅"
+     "notes": "VERIFICADO · rango 450–670W"
     },
     {
      "company": "Sengi Solar",
@@ -1193,10 +1206,10 @@
      "email": null,
      "phone": "+55 (45) 3306-8749",
      "website": "sengisolar.com.br",
-     "status": "verified",
-     "verified": true,
+     "status": "partial",
+     "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO (teléfono) · SV1S72 540–555Wp ✅ mejor match SA"
+     "notes": "VERIFICADO (teléfono) · FORM ONLY (email) · SV1S72 540–555Wp mejor match SA"
     },
     {
      "company": "EPSE",
@@ -1209,59 +1222,59 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "VERIFICADO · ⚠️ pre-comercial, 630–650W (fuera de banda)"
+     "notes": "VERIFICADO · pre-comercial, 630–650W (fuera de banda)"
     },
     {
      "company": "IUSASOL (Grupo IUSA)",
      "country": "México",
      "city": "Jocotitlán, EdoMex",
      "contact_name": null,
-     "email": "postventa@iusasol.com",
-     "phone": "555 1793800",
+     "email": "postventa@iusasol.com (postventa, no ventas) · case@iusa.com.mx (general Grupo IUSA)",
+     "phone": "555 1793800 (sin confirmar — solo directorios) · 800 900 4872 (general Grupo IUSA)",
      "website": "tiendaiusa.com",
-     "status": "partial",
+     "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "NO VERIFICADO (email no es ventas) · ⚠️ estatus de planta sin confirmar"
+     "notes": "NO VERIFICADO · sin contacto de ventas publicado · estatus de planta sin confirmar"
     },
     {
      "company": "Maxeon",
      "country": "México",
      "city": "Mexicali / Ensenada",
-     "contact_name": null,
+     "contact_name": "Robert Lahey (IR, no ventas)",
      "email": null,
-     "phone": "—",
+     "phone": null,
      "website": "maxeon.com",
      "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · 530–555W ✅ pero venta por distribuidores"
+     "notes": "CONTACTO NO ENCONTRADO (ventas) · 530–555W pero venta por distribuidores · judicial management (High Court of Singapore, 29-may-2026)"
     },
     {
      "company": "Tonalli Energía Solar",
      "country": "México",
      "city": "Cuautlancingo, Puebla",
-     "contact_name": null,
+     "contact_name": "Bernardo Álvarez Ibarra (director, prensa)",
      "email": null,
      "phone": null,
      "website": null,
      "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · fábrica nueva 2025"
+     "notes": "CONTACTO NO ENCONTRADO · fábrica nueva jun-2025, 200,000 paneles/año"
     },
     {
      "company": "SYDEMEX",
      "country": "México",
      "city": "Villa de Álvarez, Colima",
      "contact_name": null,
-     "email": "ventas@sydemex.com",
-     "phone": "—",
+     "email": "ventas@sydemexsolar.com",
+     "phone": "(312) 308 7530 / (312) 308 7651 · Manzanillo (314) 335 3489",
      "website": "sydemexsolar.com",
-     "status": "partial",
-     "verified": false,
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "non-ofac",
-     "notes": "NO VERIFICADO · ⚠️ tope 540W (fuera de banda)"
+     "notes": "VERIFICADO · tope 540W (fuera de banda)"
     },
     {
      "company": "Canadian Solar / Flex",
@@ -1269,25 +1282,38 @@
      "city": "Sorocaba, SP",
      "contact_name": null,
      "email": null,
-     "phone": "—",
+     "phone": "0800 878 3587 / +55 11 4637 2276 (servicio LATAM)",
      "website": "canadiansolar.com",
      "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · SKU de línea BR sin confirmar"
+     "notes": "FORM ONLY (ventas) · TELÉFONO VERIFICADO (servicio) · SKU de línea BR sin confirmar"
     },
     {
      "company": "Amerisolar Brasil",
      "country": "Brasil",
      "city": "Confins, MG",
-     "contact_name": null,
+     "contact_name": "Gustavo Henrique de Almeida (CEO, prensa)",
      "email": null,
-     "phone": "—",
-     "website": "amerisolar.com",
+     "phone": null,
+     "website": "amerisolar.com (detrás de challenge Cloudflare)",
      "status": "none",
      "verified": false,
      "ofac_scope": "non-ofac",
-     "notes": "CONTACTO NO ENCONTRADO · ⚠️ sin confirmación de producción 2024–2026"
+     "notes": "CONTACTO NO ENCONTRADO · sin confirmación de producción 2024–2026"
+    },
+    {
+     "company": "#",
+     "country": "EE.UU.",
+     "city": "Empresa",
+     "contact_name": null,
+     "email": "Estado / Ciudad",
+     "phone": "Email",
+     "website": "Teléfono",
+     "status": "none",
+     "verified": false,
+     "ofac_scope": "usa",
+     "notes": "Web · 540–560W mono"
     },
     {
      "company": "Mission Solar",
@@ -1300,7 +1326,7 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "✅ PERC 540–550W (mejor encaje)"
+     "notes": "PERC 540–550W (mejor encaje) · VERIFICADO"
     },
     {
      "company": "SEG Solar",
@@ -1308,12 +1334,12 @@
      "city": "Houston, TX",
      "contact_name": null,
      "email": "info@segsolar.com",
-     "phone": "—",
+     "phone": null,
      "website": "segsolar.com",
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "✅ YUKON 540–555W"
+     "notes": "YUKON 540–555W · VERIFICADO"
     },
     {
      "company": "Heliene",
@@ -1321,38 +1347,38 @@
      "city": "Mountain Iron, MN / Riviera Beach, FL",
      "contact_name": null,
      "email": "sales@heliene.com",
-     "phone": "—",
+     "phone": null,
      "website": "heliene.com",
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "✅ bifacial 520–550W"
+     "notes": "bifacial 520–550W · VERIFICADO"
     },
     {
      "company": "Illuminate USA",
      "country": "EE.UU.",
      "city": "Pataskala, OH",
      "contact_name": null,
-     "email": "Erica.Brause@IlluminateUSA.com",
-     "phone": "(614) 200-0838",
+     "email": "info@illuminateusa.com (footer de datasheet oficial)",
+     "phone": "(614) 200-0838 (prensa: Erica Brause)",
      "website": "illuminateusa.com",
-     "status": "partial",
-     "verified": false,
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "usa",
-     "notes": "✅ 550W bifacial; (formulario web)"
+     "notes": "550W bifacial · VERIFICADO"
     },
     {
      "company": "Waaree Solar Americas",
      "country": "EE.UU.",
      "city": "Brookshire, TX / Goodyear, AZ",
      "contact_name": null,
-     "email": "waaree@waaree.com",
-     "phone": "—",
+     "email": "waaree@waaree.com (sin desk de ventas EE.UU. publicado)",
+     "phone": "1800-2121-321 (toll-free India, sitio oficial)",
      "website": "waaree.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": "⚠️ 555W TOPCon, SKU de planta EE.UU. sin verificar; (customer care, no ventas)"
+     "notes": "555W TOPCon, SKU de planta EE.UU. sin verificar · PARCIAL (sin desk de ventas EE.UU.)"
     },
     {
      "company": "Canadian Solar (CS PowerTech)",
@@ -1360,25 +1386,25 @@
      "city": "Mesquite, TX / Jeffersonville, IN",
      "contact_name": null,
      "email": null,
-     "phone": "—",
+     "phone": null,
      "website": "canadiansolar.com",
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": "⚠️ 560–585W (borde de banda), SKU Mesquite sin confirmar; (formulario web)"
+     "notes": "560–585W (borde de banda), SKU Mesquite sin confirmar · PARCIAL (formulario web)"
     },
     {
      "company": "Qcells (Hanwha)",
      "country": "EE.UU.",
      "city": "Dalton / Cartersville, GA",
      "contact_name": null,
-     "email": "usa-info@qcells.com",
+     "email": "usa-info@qcells.com · hqc-inquiry@qcells.com",
      "phone": "+1 949-748-5996",
      "website": "us.qcells.com",
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "⚠️ wattage en banda sin confirmar"
+     "notes": "wattage en banda sin confirmar · VERIFICADO"
     },
     {
      "company": "Silfab Solar",
@@ -1391,7 +1417,7 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "❌ NO (380–450W residencial)"
+     "notes": "NO (380–450W residencial) · VERIFICADO"
     },
     {
      "company": "First Solar",
@@ -1404,7 +1430,7 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "❌ NO (thin-film CdTe, fuera del alcance mono)"
+     "notes": "NO (thin-film CdTe, fuera del alcance mono) · VERIFICADO"
     },
     {
      "company": "T1 Energy (ex-FREYR)",
@@ -1412,38 +1438,38 @@
      "city": "Wilmer, TX",
      "contact_name": null,
      "email": null,
-     "phone": "—",
+     "phone": "+1 409 599-5706 (IR: Jeffrey Spittel) · +1 214 616-9715 (prensa: Russell Gold)",
      "website": "t1energy.com",
      "status": "none",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": "❓ SKUs no públicos"
+     "notes": "❓ SKUs no públicos · SIN CONTACTO (sin desk de ventas)"
     },
     {
      "company": "Imperial Star Solar",
      "country": "EE.UU.",
      "city": "Tomball, TX",
      "contact_name": null,
-     "email": null,
-     "phone": "—",
+     "email": "sales@imperialstar.biz (blog oficial)",
+     "phone": null,
      "website": "imperialstar.com",
-     "status": "none",
-     "verified": false,
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "usa",
-     "notes": "❓ probable, sin confirmar; (formulario web)"
+     "notes": "❓ probable, sin confirmar · VERIFICADO"
     },
     {
      "company": "TOYO Co.",
      "country": "EE.UU.",
      "city": "Humble, TX",
      "contact_name": null,
-     "email": null,
-     "phone": "—",
-     "website": null,
-     "status": "none",
-     "verified": false,
+     "email": "market@toyo-solar.com",
+     "phone": "+1 346 438 6511",
+     "website": "toyo-solar.com",
+     "status": "verified",
+     "verified": true,
      "ofac_scope": "usa",
-     "notes": "❓ sin verificar"
+     "notes": "❓ sin verificar · VERIFICADO"
     },
     {
      "company": "Sun Supply PV",
@@ -1456,7 +1482,7 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01"
+     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01 · VERIFICADO"
     },
     {
      "company": "SanTan Solar",
@@ -1469,20 +1495,20 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01"
+     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01 · VERIFICADO"
     },
     {
      "company": "Greentech Renewables",
      "country": "EE.UU.",
      "city": null,
      "contact_name": null,
-     "email": "connect.miami@greentechrenewables.com",
+     "email": "connect.miami@greentechrenewables.com (Miami/Pompano Beach, FL)",
      "phone": null,
      "website": null,
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01"
+     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01 · VERIFICADO"
     },
     {
      "company": "LONGi US",
@@ -1495,7 +1521,7 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01"
+     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01 · VERIFICADO"
     },
     {
      "company": "JinkoSolar US",
@@ -1508,7 +1534,7 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01"
+     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01 · VERIFICADO"
     },
     {
      "company": "Boviet Solar",
@@ -1521,7 +1547,7 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01"
+     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01 · VERIFICADO"
     },
     {
      "company": "Gstar Solar",
@@ -1534,20 +1560,20 @@
      "status": "verified",
      "verified": true,
      "ofac_scope": "usa",
-     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01"
+     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01 · VERIFICADO"
     },
     {
      "company": "CW Enerji",
      "country": "EE.UU.",
      "city": null,
      "contact_name": null,
-     "email": "info@cw-enerji.com",
+     "email": null,
      "phone": null,
      "website": null,
      "status": "partial",
      "verified": false,
      "ofac_scope": "usa",
-     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01"
+     "notes": "RFQ enviado 2026-09-30; price-lock enviado 2026-10-01 · PARCIAL (email no oficial)"
     }
    ]
   }
