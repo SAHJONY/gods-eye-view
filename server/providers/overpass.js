@@ -25,6 +25,33 @@ const _overpassInFlight = new Map();
 
 let _overpassConcurrent = 0;
 
+// --- Upstream circuit breaker -------------------------------------------
+// All public Overpass mirrors have been refusing this host (Apache 406 on
+// the .de mirrors = IP block, timeouts on the community mirrors; observed
+// 2026-10-01). Without a breaker, every cache miss burns ~45-90 s trying
+// dead mirrors while the client sits at "syncing road network 0%". The
+// breaker fails fast: once a full upstream round fails, queries serve
+// last-good disk data immediately for the cooldown window. Any upstream
+// success closes the breaker, so recovery is automatic.
+let _overpassBreakerOpenUntil = 0;
+/** Cooldown after a fully-failed upstream round before probing mirrors again. */
+const OVERPASS_BREAKER_COOLDOWN_MS = 10 * 60 * 1000;
+
+function noteOverpassUpstreamSuccess() {
+  _overpassBreakerOpenUntil = 0;
+}
+
+function noteOverpassUpstreamFailure() {
+  // A "failure" here means every mirror refused/timed out for one query —
+  // upstream is dead, not flaky. Open the breaker immediately.
+  if (Date.now() >= _overpassBreakerOpenUntil) {
+    console.warn(
+      '[Overpass Proxy] all mirrors failed — circuit breaker open, serving stale cache for 10 min',
+    );
+  }
+  _overpassBreakerOpenUntil = Date.now() + OVERPASS_BREAKER_COOLDOWN_MS;
+}
+
 const _overpassRateLimiter = makeRateLimiter({
   windowMs: 60_000,
   max: 90,
@@ -142,6 +169,16 @@ function overpassProxy({ routing = {} } = {}) {
 
         // From here onward the request is genuinely upstream-bound and has
         // consumed one local limiter slot. Cache and dedupe hits above do not.
+        // Circuit breaker: upstream is known-dead — serve last-good data
+        // immediately instead of burning ~45-90 s on dead mirrors per query.
+        if (Date.now() < _overpassBreakerOpenUntil) {
+          const stale = await readStaleOverpass(cacheKey);
+          if (stale) {
+            sendOverpassResponse(res, stale, 'STALE');
+            return;
+          }
+          // No stale data at all: fall through and try upstream anyway.
+        }
         if (_overpassConcurrent >= OVERPASS_MAX_CONCURRENT) {
           res.writeHead(503, {
             'Content-Type': 'application/json',
@@ -166,6 +203,9 @@ function overpassProxy({ routing = {} } = {}) {
               _overpassCache.set(cacheKey, entry);
               trimOverpassCache();
               writeOverpassDisk(cacheKey, entry);
+              noteOverpassUpstreamSuccess();
+            } else {
+              noteOverpassUpstreamFailure();
             }
             return payload;
           })
@@ -189,6 +229,7 @@ function overpassProxy({ routing = {} } = {}) {
         sendOverpassResponse(res, payload, 'MISS');
       } catch (e) {
         // Every mirror threw (network-level). Same serve-stale rule.
+        noteOverpassUpstreamFailure();
         const stale = cacheKey ? await readStaleOverpass(cacheKey) : null;
         if (stale) {
           sendOverpassResponse(res, stale, 'STALE');
