@@ -680,6 +680,17 @@ export function registerPageHtml(sourceRoot = defaultSourceRoot) {
   return portalPageFile(sourceRoot, 'registro.html', '');
 }
 
+/**
+ * Client panel: GET /portal/panel.html. No autodemo injection — the page
+ * runs in real mode and requires a login session. Registered explicitly
+ * because the Vite SPA fallback (base /import-export/) otherwise swallows
+ * this path with a base-URL error page instead of letting it fall through
+ * to static.
+ */
+export function panelPageHtml(sourceRoot = defaultSourceRoot) {
+  return portalPageFile(sourceRoot, 'panel.html', '');
+}
+
 /** Client login page: GET /portal (exact path only). No auth required. */
 export function loginPageHtml(sourceRoot = defaultSourceRoot) {
   return portalPageFile(sourceRoot, 'index.html', '');
@@ -720,9 +731,10 @@ export function portalApiPlugin() {
   const install = (middlewares) => {
     middlewares.use('/portal/demo', portalPageMiddleware(demoPageHtml));
     middlewares.use('/portal/registro', portalPageMiddleware(registerPageHtml));
+    middlewares.use('/portal/panel.html', portalPageMiddleware(panelPageHtml));
     // Exact /portal (and /portal/) serves the client login page. Registered
     // after the specific routes above; the exact-path guard lets everything
-    // else (/portal/panel.html, /portal/vendor/*, …) fall through to static.
+    // else (/portal/vendor/*, …) fall through to static.
     middlewares.use('/portal', (req, res, next) => {
       const full = String(req.originalUrl || req.url || '').split('?')[0];
       if (full !== '/portal' && full !== '/portal/') return next();
