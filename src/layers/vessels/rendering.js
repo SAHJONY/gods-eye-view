@@ -6,6 +6,8 @@ import {
   applyVesselOverlayPolicy,
   VESSEL_CARD_FADE_DISTANCE_M,
 } from '../../data/vesselLabels.js';
+import { cubaVesselCss } from '../../data/cubaVessels.js';
+import { mountCubaLegend } from '../../ui/cubaLegend.js';
 import {
   cameraPoseSignature,
   screenProjectedRotation,
@@ -178,7 +180,11 @@ export function createRendering({
    */
 
   function shipIcon(record, selected) {
-    const cssColor = selected ? '#ffffff' : vesselTypeCss(record.type);
+    // Cuba traffic overrides the type color: green = sailing to Cuba,
+    // gold = known Cuba-lane vessel.
+    const cssColor = selected
+      ? '#ffffff'
+      : cubaVesselCss(record) || vesselTypeCss(record.type);
     const key = `${cssColor}:${selected ? 'selected' : 'normal'}`;
     if (vesselState.shipIconCache.has(key))
       return vesselState.shipIconCache.get(key);
@@ -200,6 +206,13 @@ export function createRendering({
     state.preRenderRemover = viewer.scene.preRender.addEventListener(() =>
       updateVisibility(),
     );
+    // Client-facing Cuba-traffic legend (green = sailing to Cuba,
+    // gold = Cuba-lane vessels). Mounted once, visible in every mode.
+    try {
+      mountCubaLegend();
+    } catch {
+      /* legend is decorative — never break the layer */
+    }
   }
 
   function updateVisibility(force = false) {

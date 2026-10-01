@@ -2,6 +2,10 @@ import {
   accentForVesselType,
   normalizeVesselType,
 } from '../../data/vesselLabels.js';
+import {
+  cubaVesselAccent,
+  cubaVesselBadge,
+} from '../../data/cubaVessels.js';
 
 export function createCards({
   vesselState,
@@ -57,6 +61,7 @@ export function createCards({
       parts.push(formatSpeed(record.speed));
     const direction = record.heading ?? record.course;
     if (Number.isFinite(direction)) parts.push(`${Math.round(direction)}°`);
+    const badge = cubaVesselBadge(record);
     return {
       id: vesselOverlayEntryId(record),
       actionable: Boolean(record?.mmsi),
@@ -64,8 +69,8 @@ export function createCards({
         components.rendering.getVisual(record).billboard?.position ||
         components.rendering.getVisual(record).position,
       gapPx: 10,
-      accent: accentForVesselType(record.type),
-      title: trimHudValue(displayVesselName(record), 26),
+      accent: cubaVesselAccent(record) || accentForVesselType(record.type),
+      title: `${badge ? '🇨🇺 ' : ''}${trimHudValue(displayVesselName(record), 26)}`,
       details: parts.length ? [parts.join(' · ')] : [],
       selected: false,
       priority: components.rendering.labelPriority(record, null),
@@ -92,6 +97,8 @@ export function createCards({
     ];
     const destination = String(record.destination || '').trim();
     if (destination) details.push(`→ ${trimHudValue(destination, 24)}`);
+    const badge = cubaVesselBadge(record);
+    if (badge) details.push(badge.text);
     const stale = (record.missedRefreshes || 0) > 0;
     details.push(
       `MMSI ${record.mmsi || '--'} · ${formatPositionTime(record)}${stale ? ' · OBSOLETO' : ''}`,
@@ -103,7 +110,7 @@ export function createCards({
         components.rendering.getVisual(record).billboard?.position ||
         components.rendering.getVisual(record).position,
       gapPx: 12,
-      accent: accentForVesselType(record.type),
+      accent: cubaVesselAccent(record) || accentForVesselType(record.type),
       title: trimHudValue(displayVesselName(record), 32),
       details,
       selected: true,
