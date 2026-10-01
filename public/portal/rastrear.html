@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>¿Dónde está mi contenedor? · SAHJONY LLC</title>
-<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <style>
   :root{ --gold:#e8b34b; --bg:#0a1428; --card:#101d38; --line:#24365c; --txt:#eef3ff; --muted:#9fb0d0; }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
@@ -60,7 +59,6 @@
   <a href="https://wa.me/12816628581?text=Hola%20SAHJONY%2C%20necesito%20ayuda%20para%20rastrear%20mi%20contenedor" target="_blank" rel="noopener" style="display:block; text-align:center; margin-top:22px; background:#123f2b; color:#4ade80; text-decoration:none; border:1px solid #1f7a4d; border-radius:14px; padding:16px; font-weight:800; font-size:16px;">💬 ¿No encuentras tu número? Escríbenos por WhatsApp</a>
   <footer>SAHJONY LLC · Seguimiento en vivo</footer>
 </main>
-<script src="vendor/leaflet/leaflet.js"></script>
 <script>
 (function(){
   'use strict';
@@ -68,7 +66,24 @@
   var go = document.getElementById('go');
   var cards = document.getElementById('cards');
   var mapEl = document.getElementById('map');
-  var map = null, layer = null;
+  var map = null, layer = null, leafletReady = null;
+
+  /* Leaflet solo se descarga cuando un resultado trae posición — la página
+     abre ligera y el mapa carga bajo demanda. */
+  function loadLeaflet(){
+    if (leafletReady) return leafletReady;
+    leafletReady = new Promise(function(resolve, reject){
+      var css = document.createElement('link');
+      css.rel = 'stylesheet'; css.href = 'vendor/leaflet/leaflet.css';
+      document.head.appendChild(css);
+      var js = document.createElement('script');
+      js.src = 'vendor/leaflet/leaflet.js';
+      js.onload = function(){ resolve(); };
+      js.onerror = function(){ reject(new Error('map')); };
+      document.body.appendChild(js);
+    });
+    return leafletReady;
+  }
 
   var STATUS = {
     EN_ROUTE: ['En camino 🟢', 'go'],
@@ -123,13 +138,20 @@
       if (r.lat !== null && r.lon !== null) pts.push([r, [r.lat, r.lon]]);
     });
     if (pts.length) {
-      ensureMap();
-      mapEl.style.display = 'block';
-      layer.clearLayers();
-      pts.forEach(function(p){
-        L.marker(p[1]).addTo(layer).bindPopup('<b>🚢 ' + esc(p[0].vessel || 'Barco') + '</b><br>📦 ' + esc(p[0].container || p[0].query));
+      loadLeaflet().then(function(){
+        ensureMap();
+        mapEl.style.display = 'block';
+        layer.clearLayers();
+        pts.forEach(function(p){
+          L.marker(p[1]).addTo(layer).bindPopup('<b>🚢 ' + esc(p[0].vessel || 'Barco') + '</b><br>📦 ' + esc(p[0].container || p[0].query));
+        });
+        setTimeout(function(){ map.invalidateSize(); map.fitBounds(L.latLngBounds(pts.map(function(p){ return p[1]; })).pad(0.6)); }, 60);
+      }).catch(function(){
+        var note = document.createElement('div');
+        note.className = 'empty';
+        note.textContent = 'El mapa no cargó, pero tu carga sí aparece arriba con su barco y fecha de llegada.';
+        cards.appendChild(note);
       });
-      setTimeout(function(){ map.invalidateSize(); map.fitBounds(L.latLngBounds(pts.map(function(p){ return p[1]; })).pad(0.6)); }, 60);
     }
   }
 
