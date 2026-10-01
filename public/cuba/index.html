@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SAHJONY · CUBA — Centro de operaciones</title>
+<link rel="icon" href="/sahjony-mark.svg">
+<style>
+:root{--navy-0:#04070f;--navy-1:#060d1d;--gold:#d4af37;--gold-soft:#e8c56a;--ink:#f2f5fa;--muted:#8fa0b8;--line:rgba(212,175,55,.22);--card:rgba(14,26,51,.72);--radius:16px;--grn:#4ade80;--yel:#facc15;--red:#f87171;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(1200px 600px at 80% -10%,rgba(212,175,55,.08),transparent 60%),linear-gradient(180deg,var(--navy-1),var(--navy-0));min-height:100vh;font-size:16px;line-height:1.45;}
+header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);background:rgba(6,13,29,.9);position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);}
+.back{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--gold);font-size:20px;cursor:pointer;display:grid;place-items:center;text-decoration:none;}
+.brand{flex:1;min-width:0;} .brand h1{font-size:17px;margin:0;} .brand h1 .sub{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:1.2px;text-transform:uppercase;}
+main{padding:14px 16px 60px;max-width:960px;margin:0 auto;}
+h2{font-size:15px;color:var(--gold-soft);text-transform:uppercase;letter-spacing:1px;margin:26px 0 10px;}
+a.sec{display:block;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:var(--radius);background:var(--card);padding:14px;margin-bottom:12px;}
+a.sec h3{margin:0 0 4px;font-size:17px;}
+a.sec h3 .arr{float:right;color:var(--gold);}
+a.sec p{margin:0;font-size:13px;color:var(--muted);}
+a.sec .tag{display:inline-block;font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;margin-top:8px;letter-spacing:.6px;}
+.tag.live{background:rgba(6,40,20,.6);color:var(--grn);border:1px solid var(--grn);}
+.tag.soon{background:rgba(51,39,10,.6);color:var(--yel);border:1px solid var(--yel);}
+.tag.gap{background:rgba(51,14,14,.5);color:var(--red);border:1px solid var(--red);}
+.note{font-size:12px;color:var(--muted);margin-top:6px;}
+.foot{color:var(--muted);font-size:12px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px;}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/platform/" aria-label="Volver">‹</a>
+  <div class="brand"><h1>🇨🇺 CUBA<span class="sub">Centro de operaciones · SAHJONY LLC</span></h1></div>
+</header>
+<main>
+  <h2>En vivo</h2>
+  <a class="sec" href="/live-view/#fleet=cuba&client=1&v=2&l=a">
+    <h3>🛰️ SAHJONY LIVE VIEW — Flota Cuba <span class="arr">›</span></h3>
+    <p>El globo 3D abre directo sobre los buques de la flota Cuba, solo barcos, sin aviones.</p>
+    <span class="tag live">EN VIVO</span>
+  </a>
+  <a class="sec" href="/import-export/cuba-maritimo/">
+    <h3>🚢 Tráfico marítimo <span class="arr">›</span></h3>
+    <p>Rastreador 24/7, flota EE.UU.–Cuba, operadores de primera mano y contactos verificados.</p>
+    <span class="tag live">EN VIVO</span>
+    <div class="note">Nota honesta: el feed AIS en vivo no muestra buques en aguas cubanas en este momento — la tabla se llena sola cuando haya cobertura.</div>
+  </a>
+
+  <h2>Comercio: lo que entra y sale</h2>
+  <a class="sec" href="/import-export/trade/">
+    <h3>📊 Mesa de comercio <span class="arr">›</span></h3>
+    <p>Market Intel, RFQs, pipeline de negocios y envíos. Tablero interno de la operación Cuba.</p>
+    <span class="tag live">EN VIVO</span>
+  </a>
+  <a class="sec" href="https://www.sahjony.com/cuba/">
+    <h3>📈 Pulso del mercado <span class="arr">›</span></h3>
+    <p>Tablero público: los 29 productos, tendencias de 7 días y precios que le ganan a la competencia.</p>
+    <span class="tag live">EN VIVO</span>
+  </a>
+  <div class="sec" style="cursor:default">
+    <h3>📦 Datos completos de comercio exterior</h3>
+    <p>Buque por buque, carga por carga, origen y destino — importaciones y exportaciones de Cuba.</p>
+    <span class="tag gap">EN CONSTRUCCIÓN</span>
+    <div class="note">El AIS da posición, no carga. Estamos conectando las fuentes de manifiestos y estadísticas oficiales. Nada se publica sin verificar.</div>
+  </div>
+
+  <h2>Negocios</h2>
+  <a class="sec" href="/import-export/energy/">
+    <h3>⚡ Energía para Cuba <span class="arr">›</span></h3>
+    <p>Diésel, gasolina y gas: especificaciones, benchmarks reales y puertos.</p>
+    <span class="tag live">EN VIVO</span>
+  </a>
+  <a class="sec" href="/import-export/cars/">
+    <h3>🚗 Carros para Cuba <span class="arr">›</span></h3>
+    <p>Mercado de carros para Cuba, de la A a la Z.</p>
+    <span class="tag live">EN VIVO</span>
+  </a>
+  <a class="sec" href="/import-export/paqueteria/">
+    <h3>📦 Paquetería a Cuba <span class="arr">›</span></h3>
+    <p>Agencia de paquetes: registro, QR, rastreo por paquete y avisos por WhatsApp.</p>
+    <span class="tag live">EN VIVO</span>
+  </a>
+  <a class="sec" href="/import-export/suppliers/">
+    <h3>📇 Directorio de proveedores <span class="arr">›</span></h3>
+    <p>105 proveedores por producto: contactos verificados, Non-OFAC y USA.</p>
+    <span class="tag live">EN VIVO</span>
+  </a>
+
+  <div class="foot">Inteligencia interna SAHJONY LLC · No compartir con terceros.</div>
+</main>
+</body>
+</html>

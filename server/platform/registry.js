@@ -20,6 +20,23 @@ export const MODULE_PHASES = Object.freeze(['1', '2a', '2b', '2c', '3']);
 
 export const PLATFORM_MODULES = Object.freeze([
   {
+    id: 'cuba',
+    // Single consolidated Cuba module (2026-10-01, Juan): everything
+    // Cuba-related lives here — live fleet, maritime, trade desk, market
+    // pulse, energy, cars, parcels, suppliers. Served from the vite public
+    // dir under the app base path: /import-export/cuba/.
+    path: '/import-export/cuba/',
+    icon: '🇨🇺',
+    name: { es: 'CUBA — Centro de operaciones', en: 'CUBA — Operations hub' },
+    tagline: {
+      es: 'Todo Cuba en un solo lugar: flota en vivo, marítimo, comercio, energía, carros, paquetería y proveedores.',
+      en: 'All Cuba in one place: live fleet, maritime, trade, energy, cars, parcels and suppliers.',
+    },
+    phase: '2a',
+    status: 'live',
+    audience: 'owner',
+  },
+  {
     id: 'live-view',
     // Native SAHJONY tool URL: nginx aliases /live-view/ -> :8200/import-export/
     // (the 3D app). Card links here; assets still resolve under /import-export/.
@@ -63,45 +80,6 @@ export const PLATFORM_MODULES = Object.freeze([
     audience: 'owner',
   },
   {
-    id: 'energia',
-    path: '/import-export/energy/',
-    icon: '⚡',
-    name: { es: 'Energía', en: 'Energy' },
-    tagline: {
-      es: 'Diésel, gasolina y gas para Cuba: especificaciones, precios y puertos.',
-      en: 'Diesel, gasoline and gas for Cuba: specs, pricing and ports.',
-    },
-    phase: '2c',
-    status: 'live',
-    audience: 'owner',
-  },
-  {
-    id: 'carros',
-    path: '/import-export/cars/',
-    icon: '🚗',
-    name: { es: 'Carros Cuba', en: 'Cuba cars' },
-    tagline: {
-      es: 'Mercado de carros para Cuba, de la A a la Z.',
-      en: 'Cuba car market, A to Z.',
-    },
-    phase: '2c',
-    status: 'live',
-    audience: 'owner',
-  },
-  {
-    id: 'paqueteria',
-    path: '/import-export/paqueteria/',
-    icon: '📦',
-    name: { es: 'Paquetería', en: 'Parcels' },
-    tagline: {
-      es: 'Agencia de paquetes: registro, QR, rastreo por paquete y avisos por WhatsApp.',
-      en: 'Parcel agency: intake, QR, per-package tracking and WhatsApp notices.',
-    },
-    phase: '2b',
-    status: 'live',
-    audience: 'owner',
-  },
-  {
     id: 'portal',
     path: '/portal/',
     icon: '👤',
@@ -125,37 +103,6 @@ export const PLATFORM_MODULES = Object.freeze([
       en: 'Public adjusting + sales: claims, pipeline, industry codes and AI workforce.',
     },
     phase: '2c',
-    status: 'live',
-    audience: 'owner',
-  },
-  {
-    id: 'suppliers',
-    // Served from the vite public dir under the app base path so the
-    // subpath proxy (sahjony.com/import-export/ -> :8200) resolves it.
-    // The bare /suppliers/ path hits the main site's SPA fallback.
-    path: '/import-export/suppliers/',
-    icon: '📇',
-    name: { es: 'Directorio de proveedores', en: 'Supplier directory' },
-    tagline: {
-      es: 'Todos los proveedores por producto: contactos verificados, Non-OFAC y USA.',
-      en: 'All suppliers by product: verified contacts, Non-OFAC and USA.',
-    },
-    phase: '2a',
-    status: 'live',
-    audience: 'owner',
-  },
-  {
-    id: 'cuba-maritimo',
-    // Served from the vite public dir under the app base path, same as
-    // suppliers: sahjony.com/import-export/cuba-maritimo/ -> :8200.
-    path: '/import-export/cuba-maritimo/',
-    icon: '🚢',
-    name: { es: 'Cuba marítimo', en: 'Cuba maritime' },
-    tagline: {
-      es: 'Flota EE.UU.–Cuba, rastreador 24/7, primera mano y contactos verificados.',
-      en: 'US–Cuba fleet, 24/7 tracker, first-hand operators and verified contacts.',
-    },
-    phase: '2a',
     status: 'live',
     audience: 'owner',
   },
