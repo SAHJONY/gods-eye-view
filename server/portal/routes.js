@@ -753,6 +753,15 @@ export function loginPageHtml(sourceRoot = defaultSourceRoot) {
 }
 
 /**
+ * Client container tracker: GET /portal/rastrear(.html). No auth required.
+ * Dead-simple page: paste container/BL/booking numbers, see the ship, its
+ * live position on a map, status and ETA — plus a 3D deep link.
+ */
+export function trackPageHtml(sourceRoot = defaultSourceRoot) {
+  return portalPageFile(sourceRoot, 'rastrear.html', '');
+}
+
+/**
  * Cuba fleet 24/7 tracker: GET /portal/cuba-fleet. No auth required.
  * Internal SAHJONY ops page listing the US–Cuba trade vessels with live
  * AIS positions (auto-refresh), last-known fallback, and per-vessel 3D
@@ -799,6 +808,8 @@ export function portalApiPlugin() {
     middlewares.use('/portal/registro', portalPageMiddleware(registerPageHtml));
     middlewares.use('/portal/panel.html', portalPageMiddleware(panelPageHtml));
     middlewares.use('/portal/cuba-fleet', portalPageMiddleware(fleetPageHtml));
+    middlewares.use('/portal/rastrear', portalPageMiddleware(trackPageHtml));
+    middlewares.use('/portal/rastrear.html', portalPageMiddleware(trackPageHtml));
     // Exact /portal (and /portal/) serves the client login page. Registered
     // after the specific routes above; the exact-path guard lets everything
     // else (/portal/vendor/*, …) fall through to static.

@@ -1,5 +1,5 @@
 /**
- * SAHJONY client container tracker — GET /api/track
+ * SAHJONY client container tracker — GET /api/portal/track
  *
  * Dead-simple client API: ?numbers=MSKU1234567,TCLU7654321 (max 10).
  * For each number it does ShipsGo v2 LOOKUPS ONLY (never POST/create, so no
@@ -171,7 +171,7 @@ export function containerTrackProxy() {
     } catch {
       return next();
     }
-    if (url.pathname !== '/api/track') return next();
+    if (url.pathname !== '/api/portal/track') return next();
     if (req.method !== 'GET') return next();
     if (!shipsgoToken()) {
       return sendJson(res, 503, {

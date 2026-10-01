@@ -57,6 +57,7 @@
   <div class="hint">Funciona con número de contenedor, conocimiento de embarque (BL) o reserva.</div>
   <div id="map"></div>
   <div class="cards" id="cards"></div>
+  <a href="https://wa.me/12816628581?text=Hola%20SAHJONY%2C%20necesito%20ayuda%20para%20rastrear%20mi%20contenedor" target="_blank" rel="noopener" style="display:block; text-align:center; margin-top:22px; background:#123f2b; color:#4ade80; text-decoration:none; border:1px solid #1f7a4d; border-radius:14px; padding:16px; font-weight:800; font-size:16px;">💬 ¿No encuentras tu número? Escríbenos por WhatsApp</a>
   <footer>SAHJONY LLC · Seguimiento en vivo</footer>
 </main>
 <script src="vendor/leaflet/leaflet.js"></script>
@@ -137,7 +138,7 @@
     if (!raw.length) { nums.focus(); return; }
     go.disabled = true;
     cards.innerHTML = '<div class="loading">🔎 Buscando tu carga…</div>';
-    fetch('/api/track?numbers=' + encodeURIComponent(raw.slice(0, 10).join(',')))
+    fetch('/api/portal/track?numbers=' + encodeURIComponent(raw.slice(0, 10).join(',')))
       .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, status: r.status, body: j }; }); })
       .then(function(out){
         go.disabled = false;
