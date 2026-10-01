@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SAHJONY · Cuba marítimo</title>
+<style>
+:root{
+  --navy-0:#04070f; --navy-1:#060d1d; --navy-2:#0a1428;
+  --gold:#d4af37; --gold-soft:#e8c56a; --ink:#f2f5fa; --muted:#8fa0b8;
+  --line:rgba(212,175,55,.22); --card:rgba(14,26,51,.72); --radius:16px;
+  --grn:#4ade80; --yel:#facc15; --red:#f87171; --blu:#38bdf8;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:radial-gradient(1200px 600px at 80% -10%, rgba(212,175,55,.08), transparent 60%),
+  radial-gradient(900px 500px at 10% 110%, rgba(38,80,160,.25), transparent 60%),
+  linear-gradient(180deg, var(--navy-1), var(--navy-0));min-height:100vh;font-size:16px;line-height:1.45;}
+header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);
+  background:rgba(6,13,29,.9);position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);}
+.back{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;
+  color:var(--gold);font-size:20px;cursor:pointer;display:grid;place-items:center;text-decoration:none;}
+.brand{flex:1;min-width:0;} .brand h1{font-size:17px;margin:0;letter-spacing:.4px;}
+.brand h1 .sub{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:1.2px;text-transform:uppercase;}
+main{padding:14px 16px 60px;max-width:960px;margin:0 auto;}
+h2{font-size:15px;color:var(--gold-soft);text-transform:uppercase;letter-spacing:1px;margin:26px 0 10px;}
+.tracker{display:block;text-decoration:none;border:1px solid var(--gold);border-radius:var(--radius);
+  background:linear-gradient(135deg,rgba(212,175,55,.14),rgba(14,26,51,.72));padding:16px;margin-bottom:6px;}
+.tracker .t{font-size:18px;font-weight:800;color:var(--gold-soft);}
+.tracker .d{font-size:13px;color:var(--muted);margin-top:4px;}
+.card{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);padding:14px;margin-bottom:12px;}
+.card h3{margin:0 0 2px;font-size:17px;}
+.card .role{color:var(--gold-soft);font-size:13px;font-weight:600;margin-bottom:8px;}
+.card .row{font-size:14px;margin:5px 0;} .card .row .k{color:var(--muted);}
+.card a.tel{color:var(--grn);font-weight:800;text-decoration:none;font-size:16px;}
+.card a.mail{color:var(--blu);text-decoration:none;word-break:break-all;}
+.card .notes{font-size:13px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:12px;overflow:hidden;}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
+tr:last-child td{border-bottom:none;}
+.vn{font-weight:800;} .vs{color:var(--muted);font-size:11px;}
+.bdg{font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;border:1px solid;white-space:nowrap;}
+.bdg.confirmed{background:rgba(13,43,26,.6);color:var(--grn);border-color:var(--grn);}
+.bdg.strong{background:rgba(12,40,64,.6);color:var(--blu);border-color:var(--blu);}
+.bdg.lead{background:rgba(51,39,10,.6);color:var(--yel);border-color:var(--yel);}
+.bdg.verify{background:rgba(51,39,10,.6);color:var(--yel);border-color:var(--yel);}
+.bdg.current{background:rgba(13,43,26,.6);color:var(--grn);border-color:var(--grn);}
+.warn{border:1px solid rgba(248,113,113,.45);background:rgba(51,14,14,.5);border-radius:var(--radius);padding:12px 14px;font-size:13px;margin-bottom:12px;}
+.warn b{color:var(--red);}
+ul{padding-left:20px;font-size:14px;} li{margin:7px 0;}
+.foot{color:var(--muted);font-size:12px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px;}
+.tblwrap{overflow-x:auto;border-radius:12px;}
+@media (max-width:640px){ .hideroute{display:none;} }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/platform/" aria-label="Volver">‹</a>
+  <div class="brand"><h1>🚢 Cuba marítimo<span class="sub">Flota · primera mano · contactos</span></h1></div>
+</header>
+<main>
+  <a class="tracker" id="trackerLink" href="/portal/cuba-fleet">
+    <div class="t">📡 Rastreador de flota 24/7</div>
+    <div class="d">Posiciones en vivo de los 13 buques · se actualiza solo cada 5 min · botón 3D por buque. Toca para abrir.</div>
+  </a>
+
+  <h2>Buques del tráfico EE.UU.–Cuba</h2>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Buque</th><th class="hideroute">Ruta</th><th>IMO / MMSI</th><th></th></tr></thead>
+    <tbody id="vessels"><tr><td colspan="4">Cargando…</td></tr></tbody>
+  </table></div>
+
+  <h2>Primera mano — contactos</h2>
+  <div id="contacts"></div>
+
+  <h2>Contrapartes en Cuba</h2>
+  <div id="cubaside"></div>
+
+  <div class="warn" id="sanctions" style="display:none"><b>⛔ NO TRATAR — sancionados:</b><ul id="sanctionList" style="margin:8px 0 0"></ul></div>
+
+  <h2>Mercado 2026</h2>
+  <ul id="market"></ul>
+
+  <h2>Pendiente por confirmar</h2>
+  <ul id="pending"></ul>
+
+  <div class="foot" id="foot"></div>
+</main>
+<script>
+var LABEL = {confirmed:"CONFIRMADO", strong:"SÓLIDO", lead:"PISTA", verify:"VERIFICAR", current:"ACTUAL", "lcl":"LCL", "fcl-only":"SOLO FCL"};
+function badge(t){ return '<span class="bdg '+t+'">'+(LABEL[t]||t)+'</span>'; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+fetch("data.json",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
+  document.getElementById("trackerLink").href = d.tracker_url || "/portal/cuba-fleet";
+  document.getElementById("vessels").innerHTML = d.vessels.map(function(v){
+    return '<tr><td><span class="vn">'+esc(v.name)+'</span><div class="vs">'+esc(v.operator)+' · '+esc(v.kind)+'</div><div class="vs">'+esc(v.note)+'</div></td>'+
+      '<td class="hideroute">'+esc(v.route)+'</td>'+
+      '<td class="vs">'+esc(v.imo||"—")+'<br>'+esc(v.mmsi||"—")+'</td>'+
+      '<td>'+badge(v.status)+'</td></tr>';
+  }).join("");
+  document.getElementById("contacts").innerHTML = d.contacts.map(function(c){
+    var tags=(c.tags||[]).map(badge).join(" ");
+    return '<div class="card"><h3>'+esc(c.name)+' '+tags+'</h3><div class="role">'+esc(c.role)+'</div>'+
+      (c.phone?'<div class="row"><a class="tel" href="tel:'+esc(c.phone.replace(/[^0-9+]/g,""))+'">📞 '+esc(c.phone)+'</a></div>':"")+
+      (c.email?'<div class="row"><a class="mail" href="mailto:'+esc(c.email)+'">✉️ '+esc(c.email)+'</a></div>':"")+
+      (c.address?'<div class="row"><span class="k">📍 </span>'+esc(c.address)+'</div>':"")+
+      (c.hours?'<div class="row"><span class="k">🕐 </span>'+esc(c.hours)+'</div>':"")+
+      (c.notes?'<div class="notes">'+esc(c.notes)+'</div>':"")+'</div>';
+  }).join("");
+  document.getElementById("cubaside").innerHTML = d.cuba_side.map(function(c){
+    return '<div class="card"><h3>'+esc(c.name)+'</h3><div class="role">'+esc(c.role)+'</div>'+
+      (c.phone?'<div class="row"><a class="tel" href="tel:'+esc(c.phone.replace(/[^0-9+]/g,""))+'">📞 '+esc(c.phone)+'</a></div>':"")+
+      (c.address?'<div class="row"><span class="k">📍 </span>'+esc(c.address)+'</div>':"")+
+      (c.notes?'<div class="notes">'+esc(c.notes)+'</div>':"")+'</div>';
+  }).join("");
+  if(d.sanctioned && d.sanctioned.length){
+    document.getElementById("sanctions").style.display="block";
+    document.getElementById("sanctionList").innerHTML = d.sanctioned.map(function(s){return "<li>"+esc(s)+"</li>";}).join("");
+  }
+  document.getElementById("market").innerHTML = (d.market_notes||[]).map(function(m){return "<li>"+esc(m)+"</li>";}).join("");
+  document.getElementById("pending").innerHTML = (d.pending||[]).map(function(m){return "<li>"+esc(m)+"</li>";}).join("");
+  document.getElementById("foot").textContent = "Inteligencia interna SAHJONY LLC · actualizado "+(d.updated||"—")+" · No compartir con terceros.";
+}).catch(function(){
+  document.getElementById("vessels").innerHTML = '<tr><td colspan="4">⚠️ No se pudo cargar data.json</td></tr>';
+});
+</script>
+</body>
+</html>

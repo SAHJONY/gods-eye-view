@@ -127,6 +127,21 @@ export const PLATFORM_MODULES = Object.freeze([
     status: 'live',
     audience: 'owner',
   },
+  {
+    id: 'cuba-maritimo',
+    // Served from the vite public dir under the app base path, same as
+    // suppliers: sahjony.com/import-export/cuba-maritimo/ -> :8200.
+    path: '/import-export/cuba-maritimo/',
+    icon: '🚢',
+    name: { es: 'Cuba marítimo', en: 'Cuba maritime' },
+    tagline: {
+      es: 'Flota EE.UU.–Cuba, rastreador 24/7, primera mano y contactos verificados.',
+      en: 'US–Cuba fleet, 24/7 tracker, first-hand operators and verified contacts.',
+    },
+    phase: '2a',
+    status: 'live',
+    audience: 'owner',
+  },
 ]);
 
 function copyModule(m) {
