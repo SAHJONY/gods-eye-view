@@ -152,6 +152,10 @@
   .mapbar .fresh::before { content:""; width:8px; height:8px; border-radius:50%; background:#34de96;
             box-shadow:0 0 8px #34de96; animation:blink 2s infinite; }
   @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+  .mapbar .btn3d { font-size:12px; font-weight:800; letter-spacing:.4px; color:#04170e;
+    background:linear-gradient(180deg,#3ddc92,#1f9d63); border-radius:8px; padding:6px 12px;
+    text-decoration:none; display:none; align-items:center; gap:6px; }
+  .mapbar .btn3d.show { display:inline-flex; }
   /* floating vessel badge — cinematic HUD */
   #vesselBadge { position:absolute; top:12px; left:64px; right:56px; display:none;
                  pointer-events:none; text-align:center; }
@@ -318,6 +322,7 @@
           <label><input type="checkbox" id="tglCyclones" checked> Tormentas</label>
           <label><input type="checkbox" id="tglTrack" checked> Recorrido</label>
           <span class="fresh" id="fresh"></span>
+          <a class="btn3d" id="btn3d" target="_blank" rel="noopener">🌐 Ver en 3D</a>
         </div>
       </div>
       <div class="notice" id="dPending" style="display:none">
@@ -699,11 +704,23 @@ function stopVesselTimer() { if (vesselTimer) { clearInterval(vesselTimer); vess
 async function refreshVessel() {
   if (!currentId) return;
   const data = await api(`/shipments/${encodeURIComponent(currentId)}/vessel`);
-  if (!data || !data.vessel) { document.getElementById('fresh').textContent = 'sin señal AIS'; return; }
+  if (!data || !data.vessel) {
+    document.getElementById('fresh').textContent = 'sin señal AIS';
+    const b = document.getElementById('btn3d');
+    if (b) b.classList.remove('show');
+    return;
+  }
   const v = data.vessel;
   const when = v.last_position_UTC || v.last_position_at || null;
   document.getElementById('fresh').textContent = when
     ? 'actualizado ' + relTime(new Date(when)) : 'en vivo';
+  const btn3d = document.getElementById('btn3d');
+  if (btn3d && isFinite(v.lat) && isFinite(v.lon)) {
+    btn3d.href = `/import-export/#lat=${encodeURIComponent(v.lat)}&lon=${encodeURIComponent(v.lon)}&alt=200000&pitch=-55&v=2&l=ais`;
+    btn3d.classList.add('show');
+  } else if (btn3d) {
+    btn3d.classList.remove('show');
+  }
   drawMap(data);
 }
 function relTime(d) {
