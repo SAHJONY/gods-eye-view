@@ -622,6 +622,22 @@ export class ShareLinkManager {
     // Copy-time metadata is intentionally absent here. `copyLink()` adds a
     // fresh timestamp to its ephemeral URL without aging the live address.
     params.delete(SHARE_CREATED_AT_PARAM);
+
+    // Preserve portal deep-link params across the app's own hash rewrites.
+    // Without this, the first state update after load would drop `vessel`
+    // and `client` from the URL — a reload would then lose the exact-vessel
+    // selection and, worse, drop client tracking mode and disclose the
+    // internal tool.
+    try {
+      const current = new URLSearchParams(
+        String(window.location.hash || '').replace(/^#/, ''),
+      );
+      const vessel = String(current.get('vessel') || '').trim();
+      if (/^[0-9]{5,10}$/.test(vessel)) params.set('vessel', vessel);
+      if (current.get('client') === '1') params.set('client', '1');
+    } catch {
+      // Keep the freshly built params when the live hash is unreadable.
+    }
     return params;
   }
 

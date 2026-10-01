@@ -50,3 +50,29 @@ test('client mode requires an explicit client=1 hash param', () => {
   assert.equal(isClientModeHash('#lat=10&vessel=316023339'), false);
   assert.equal(isClientModeHash(''), false);
 });
+
+test('hash rewrites preserve the vessel deep-link and client mode params', () => {
+  const manager = makeManager(
+    '#v=2&lat=10&lon=20&l=ais&vessel=316023339&client=1',
+  );
+  manager.parseInitialHash();
+  manager._initialRestorePending = false;
+  manager._updateHash();
+  const rewritten = new URLSearchParams(
+    String(window.location.hash).replace(/^#/, ''),
+  );
+  assert.equal(rewritten.get('vessel'), '316023339');
+  assert.equal(rewritten.get('client'), '1');
+});
+
+test('hash rewrites drop malformed vessel params instead of preserving them', () => {
+  const manager = makeManager('#v=2&lat=10&lon=20&l=ais&vessel=abc&client=1');
+  manager.parseInitialHash();
+  manager._initialRestorePending = false;
+  manager._updateHash();
+  const rewritten = new URLSearchParams(
+    String(window.location.hash).replace(/^#/, ''),
+  );
+  assert.equal(rewritten.get('vessel'), null);
+  assert.equal(rewritten.get('client'), '1');
+});
