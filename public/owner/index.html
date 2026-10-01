@@ -95,9 +95,6 @@
   .card.soon{opacity:.6; cursor:default;}
   .card.soon:hover{transform:none; box-shadow:none;}
   .card .go{color:var(--gold-soft); font-size:14px; font-weight:700;}
-  #stage{flex:1; min-height:0; display:none; flex-direction:column;}
-  #stage.show{display:flex;}
-  #frame{flex:1; width:100%; border:0; background:var(--navy-0); min-height:0;}
   .soon-note{
     margin:auto; text-align:center; padding:30px; max-width:420px;
     background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
@@ -143,7 +140,6 @@
       <a id="crumbOpen" href="#" target="_blank" rel="noopener">↗</a>
     </div>
     <div id="home"></div>
-    <div id="stage"><iframe id="frame" title="module"></iframe></div>
   </main>
 </div>
 
@@ -183,8 +179,6 @@
   var sideNav = document.getElementById('sideNav');
   var topNav = document.getElementById('topNav');
   var home = document.getElementById('home');
-  var stage = document.getElementById('stage');
-  var frame = document.getElementById('frame');
   var crumb = document.getElementById('crumb');
   var crumbName = document.getElementById('crumbName');
   var crumbHome = document.getElementById('crumbHome');
@@ -238,7 +232,7 @@
 
   function renderHome(){
     home.innerHTML = ''; home.style.display = '';
-    stage.classList.remove('show'); crumb.hidden = true;
+    crumb.hidden = true;
     var h = document.createElement('h2'); h.textContent = t('welcome');
     var p = document.createElement('p'); p.className = 'lead'; p.textContent = t('lead');
     var grid = document.createElement('div'); grid.className = 'grid';
@@ -265,7 +259,7 @@
 
   function renderSoon(m){
     home.innerHTML = ''; home.style.display = '';
-    stage.classList.remove('show'); crumb.hidden = true;
+    crumb.hidden = true;
     var box = document.createElement('div'); box.className = 'soon-note';
     box.innerHTML = '<div class="ico">' + (m.icon || '▦') + '</div>';
     var h = document.createElement('h3'); h.textContent = label(m) + ' — ' + t('soon');
@@ -277,18 +271,11 @@
     markActive(m.id);
   }
 
+  // Modules open as full pages (top-level navigation), never embedded in an
+  // iframe: the iframe painted black on iOS Safari while the same pages
+  // load fine standalone. Every module page links back to /platform/.
   function renderModule(m){
-    home.style.display = 'none';
-    stage.classList.add('show');
-    crumb.hidden = false;
-    crumbHome.textContent = t('home');
-    crumbName.textContent = label(m);
-    crumbOpen.textContent = '↗ ' + t('openNew');
-    crumbOpen.href = m.path;
-    if (frame.getAttribute('src') !== m.path) frame.setAttribute('src', m.path);
-    frame.setAttribute('title', label(m));
-    document.title = 'SAHJONY · ' + label(m);
-    markActive(m.id);
+    location.href = m.path;
   }
 
   function route(){
