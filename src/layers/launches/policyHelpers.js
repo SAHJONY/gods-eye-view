@@ -80,10 +80,10 @@ export function createPolicyHelpers({
         : null,
       ascent:
         suppliedTrajectoryPoints > 1
-          ? 'SUPPLIED TRAJECTORY POINTS'
+          ? 'PUNTOS DE TRAYECTORIA SUMINISTRADOS'
           : replayAvailable
-            ? 'RECONSTRUCTED ESTIMATE'
-            : 'UNAVAILABLE',
+            ? 'ESTIMACIÓN RECONSTRUIDA'
+            : 'NO DISPONIBLE',
       replayAvailable: Boolean(replayAvailable),
     };
   }
@@ -196,7 +196,7 @@ export function createPolicyHelpers({
 
   function formatMissionEventTime(launchTime) {
     const date = new Date(launchTime);
-    if (!launchTime || !Number.isFinite(date.getTime())) return 'UNAVAILABLE';
+    if (!launchTime || !Number.isFinite(date.getTime())) return 'NO DISPONIBLE';
     return `${date.toISOString().slice(0, 10)}\n${date.toISOString().slice(11, 19)} UTC`;
   }
 

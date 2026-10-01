@@ -18,7 +18,7 @@ export function createModel({ state: layerState, services, parts, source }) {
       const payload = flight.payload || flight;
       return {
         id: String(flight.id || payload.id || `payload-${index}`),
-        name: payload.name || flight.name || 'Unnamed payload',
+        name: payload.name || flight.name || 'Carga sin nombre',
         type: payload.type?.name || flight.type?.name || null,
         manufacturer: payload.manufacturer?.name || null,
         operator: payload.operator?.name || null,
@@ -49,16 +49,16 @@ export function createModel({ state: layerState, services, parts, source }) {
     const launcherStatus = launcher.status?.name || null;
     const status =
       success === true
-        ? 'RECOVERED'
+        ? 'RECUPERADA'
         : success === false
           ? 'LOST'
           : attempted
-            ? 'RECOVERY ATTEMPT'
+            ? 'INTENTO DE RECUPERACIÓN'
             : recoveryType
               ? recoveryType.toUpperCase()
               : launcherStatus
                 ? launcherStatus.toUpperCase()
-                : 'NO RECOVERY DATA';
+                : 'SIN DATOS DE RECUPERACIÓN';
     return {
       id: String(stage?.id || landing?.id || `${category}-${index}`),
       category,
@@ -92,7 +92,7 @@ export function createModel({ state: layerState, services, parts, source }) {
         normalizeLanding(
           stage,
           `Launcher stage ${index + 1}`,
-          'LAUNCHER',
+          'LANZADOR',
           index,
         ),
       ),
@@ -100,7 +100,7 @@ export function createModel({ state: layerState, services, parts, source }) {
         normalizeLanding(
           stage,
           `Spacecraft stage ${index + 1}`,
-          'SPACECRAFT',
+          'NAVE ESPACIAL',
           index,
         ),
       ),
@@ -113,11 +113,11 @@ export function createModel({ state: layerState, services, parts, source }) {
           normalizeLanding(
             {
               ...flight,
-              type: payloads[index]?.type || 'Payload',
+              type: payloads[index]?.type || 'Carga útil',
               serial_number: payloads[index]?.name,
             },
             payloads[index]?.name || `Payload ${index + 1}`,
-            'PAYLOAD',
+            'CARGA ÚTIL',
             index,
           ),
         );
@@ -191,12 +191,12 @@ export function createModel({ state: layerState, services, parts, source }) {
           id: String(
             launch.id || launch.slug || launch.name || `launch-${date}`,
           ),
-          name: launch.name || 'Unnamed launch',
+          name: launch.name || 'Lanzamiento sin nombre',
           status: launch.status?.name || 'Unknown',
           launchTime: Number.isFinite(date)
             ? new Date(date).toISOString()
             : null,
-          launchSite: pad.name || location.name || 'Unknown launch site',
+          launchSite: pad.name || location.name || 'Sitio de lanzamiento desconocido',
           lat: Number.isFinite(lat) ? lat : null,
           lon: Number.isFinite(lon) ? lon : null,
           provider: launch.launch_service_provider?.name || null,
@@ -212,7 +212,7 @@ export function createModel({ state: layerState, services, parts, source }) {
                   event.type?.abbrev ||
                   event.type?.name ||
                   event.name ||
-                  'Mission event',
+                  'Evento de misión',
                 relativeTime: event.relative_time || event.relativeTime || null,
                 offsetSeconds: parts.policyHelpers.parseMissionDurationSeconds(
                   event.relative_time || event.relativeTime,

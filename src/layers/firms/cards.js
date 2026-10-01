@@ -115,7 +115,7 @@ export function createCards({
         if (!card.interactive) return card;
         return {
           ...card,
-          accessibilityLabel: `Focus fire detection ${card.title}, ${card.details.join(', ')}`,
+          accessibilityLabel: `Enfocar detección de incendio ${card.title}, ${card.details.join(', ')}`,
           activate: () => {
             const fire = layerState._fireByCardId.get(card.id);
             if (!fire) return false;

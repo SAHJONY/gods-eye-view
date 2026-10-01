@@ -31,7 +31,7 @@ export function createProjection({
       paintLane: 'selected',
       collisionGroup: 'ambient-card',
       priority: Number.MAX_SAFE_INTEGER - 1,
-      title: String(name || cameraId || 'CAMERA'),
+      title: String(name || cameraId || 'CÁMARA'),
       details: [],
       accent: '#6be8ff',
       interactive: false,

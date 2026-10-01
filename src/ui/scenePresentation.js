@@ -47,7 +47,7 @@ export function renderSceneShots(
   if (!scene || scene.shots.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'scene-shot-empty';
-    empty.textContent = 'No shots yet. Use CAPTURE SHOT to save current look.';
+    empty.textContent = 'Aún no hay tomas. Usa CAPTURAR TOMA para guardar el aspecto actual.';
     element.appendChild(empty);
     return;
   }
@@ -61,14 +61,14 @@ export function renderSceneShots(
     const label = document.createElement('div');
     label.className = 'scene-shot-label';
     label.textContent = shot.title;
-    label.title = 'Double-click to rename';
+    label.title = 'Doble clic para renombrar';
     listen(label, 'click', () => select(shot.id));
     listen(label, 'dblclick', () => {
       if (label.children.length) return;
       const input = document.createElement('input');
       input.type = 'text';
       input.className = 'scene-shot-rename';
-      input.setAttribute('aria-label', 'Shot name');
+      input.setAttribute('aria-label', 'Nombre de la toma');
       input.value = shot.title;
       let finished = false;
       const finish = (save) => {
@@ -96,11 +96,11 @@ export function renderSceneShots(
     actions.className = 'scene-shot-actions';
     const loadButton = document.createElement('button');
     loadButton.className = 'scene-shot-btn';
-    loadButton.textContent = 'LOAD';
+    loadButton.textContent = 'CARGAR';
     listen(loadButton, 'click', () => load(scene.id, shot.id));
     const deleteButton = document.createElement('button');
     deleteButton.className = 'scene-shot-btn scene-shot-danger';
-    deleteButton.textContent = 'DEL';
+    deleteButton.textContent = 'ELIM';
     listen(deleteButton, 'click', () => remove(scene.id, shot.id));
     actions.appendChild(loadButton);
     actions.appendChild(deleteButton);

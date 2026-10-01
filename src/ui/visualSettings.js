@@ -836,7 +836,7 @@ export class VisualSettings {
     if (enabled !== undefined && typeof enabled !== 'boolean') {
       return {
         ok: false,
-        error: `Invalid detection enabled value: ${enabled}`,
+        error: `Valor inválido para activar la detección: ${enabled}`,
         ...this.getDetectionState(),
       };
     }
@@ -846,7 +846,7 @@ export class VisualSettings {
       if (!requestedProfile) {
         return {
           ok: false,
-          error: `Unknown detection mode: ${mode}`,
+          error: `Modo de detección desconocido: ${mode}`,
           ...this.getDetectionState(),
         };
       }
@@ -856,7 +856,7 @@ export class VisualSettings {
       if (!Number.isFinite(Number(densityPct))) {
         return {
           ok: false,
-          error: `Invalid density: ${densityPct}`,
+          error: `Densidad inválida: ${densityPct}`,
           ...this.getDetectionState(),
         };
       }
@@ -870,7 +870,7 @@ export class VisualSettings {
     ) {
       return {
         ok: false,
-        error: `Detection mode ${requestedProfile} conflicts with density ${requestedDensity}%`,
+        error: `El modo de detección ${requestedProfile} entra en conflicto con la densidad ${requestedDensity}%`,
         ...this.getDetectionState(),
       };
     }
@@ -880,7 +880,7 @@ export class VisualSettings {
       if (!ALLOCATION_STRATEGIES.includes(requestedAllocation)) {
         return {
           ok: false,
-          error: `Unknown allocation strategy: ${allocationStrategy}`,
+          error: `Estrategia de asignación desconocida: ${allocationStrategy}`,
           ...this.getDetectionState(),
         };
       }
@@ -889,7 +889,7 @@ export class VisualSettings {
       if (!Number.isFinite(Number(fadePct))) {
         return {
           ok: false,
-          error: `Invalid fade distance: ${fadePct}`,
+          error: `Distancia de atenuación inválida: ${fadePct}`,
           ...this.getDetectionState(),
         };
       }
@@ -898,7 +898,7 @@ export class VisualSettings {
       if (!Number.isFinite(Number(outsideOpacityPct))) {
         return {
           ok: false,
-          error: `Invalid outside opacity: ${outsideOpacityPct}`,
+          error: `Opacidad exterior inválida: ${outsideOpacityPct}`,
           ...this.getDetectionState(),
         };
       }
@@ -971,7 +971,7 @@ export class VisualSettings {
     if (enabled !== undefined && typeof enabled !== 'boolean') {
       return {
         ok: false,
-        error: `Invalid bloom enabled value: ${enabled}`,
+        error: `Valor inválido para activar bloom: ${enabled}`,
         bloom: current(),
       };
     }
@@ -981,7 +981,7 @@ export class VisualSettings {
     ) {
       return {
         ok: false,
-        error: `Invalid bloom intensity: ${intensityPct}`,
+        error: `Intensidad de bloom inválida: ${intensityPct}`,
         bloom: current(),
       };
     }
@@ -1011,7 +1011,7 @@ export class VisualSettings {
     if (enabled !== undefined && typeof enabled !== 'boolean') {
       return {
         ok: false,
-        error: `Invalid sharpen enabled value: ${enabled}`,
+        error: `Valor inválido para activar la nitidez: ${enabled}`,
         sharpen: current(),
       };
     }
@@ -1021,7 +1021,7 @@ export class VisualSettings {
     ) {
       return {
         ok: false,
-        error: `Invalid sharpen intensity: ${intensityPct}`,
+        error: `Intensidad de nitidez inválida: ${intensityPct}`,
         sharpen: current(),
       };
     }
@@ -1060,7 +1060,7 @@ export class VisualSettings {
         ok: false,
         celestialRing: current(),
         cameraFocused: false,
-        error: `Invalid celestial ring enabled value: ${enabled}`,
+        error: `Valor inválido para el anillo celestial: ${enabled}`,
       };
     }
     if (typeof syncShare !== 'boolean' || typeof focus !== 'boolean') {
@@ -1068,7 +1068,7 @@ export class VisualSettings {
         ok: false,
         celestialRing: current(),
         cameraFocused: false,
-        error: 'Celestial ring options must be boolean',
+        error: 'Las opciones del anillo celestial deben ser booleanas',
       };
     }
     if (!styleSupported && enabled) {
@@ -1076,7 +1076,7 @@ export class VisualSettings {
         ok: false,
         celestialRing: current(),
         cameraFocused: false,
-        error: 'Celestial ring is available only in Normal style',
+        error: 'El anillo celestial solo está disponible en el estilo Normal',
       };
     }
     if (syncShare) this.shareLinkManager?.claimRestoreLane?.('visual');
@@ -1088,8 +1088,8 @@ export class VisualSettings {
       this._celestialBtn.disabled = !styleSupported;
       this._celestialBtn.setAttribute('aria-disabled', String(!styleSupported));
       this._celestialBtn.title = styleSupported
-        ? 'Celestial ring — reveal the full globe'
-        : 'Celestial ring — available in Normal style';
+        ? 'Anillo celestial — muestra el globo terráqueo completo'
+        : 'Anillo celestial — disponible en el estilo Normal';
     }
     let cameraFocused = false;
     if (nextEnabled && focus) {
@@ -1478,7 +1478,12 @@ export class VisualSettings {
     });
 
     // Update style indicator
-    const displayNames = { surveillance: 'NVG', thermal: 'FLIR', retro: 'CRT' };
+    const displayNames = {
+      surveillance: 'NVG',
+      thermal: 'FLIR',
+      retro: 'CRT',
+      snow: 'NIEVE',
+    };
     this._styleIndicator.textContent =
       displayNames[styleName] || styleName.toUpperCase();
     this._updateStyleMiniStatus(styleName);
@@ -1532,8 +1537,8 @@ export class VisualSettings {
     btn.setAttribute(
       'aria-label',
       enabled
-        ? `Detection overlay: ${String(modeLabel).toLowerCase()}`
-        : 'Detection overlay: off',
+        ? `Superposición de detección: ${String(modeLabel).toLowerCase()}`
+        : 'Superposición de detección: desactivada',
     );
     btn.classList.remove('active', 'god', 'panoptic');
     if (modeLabel === 'SPARSE') {

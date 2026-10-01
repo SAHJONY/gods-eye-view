@@ -69,7 +69,7 @@ test('the guidance names the environment variable and where to set it', () => {
     stats: { keyRequired: true },
   });
   assert.match(text, /FIRMS_MAP_KEY/);
-  assert.match(text, /Provider Settings/);
+  assert.match(text, /Ajustes de proveedores/);
 });
 
 test('guidance appears only for a key that is actually missing and actually named', () => {

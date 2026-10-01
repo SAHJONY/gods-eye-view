@@ -193,7 +193,7 @@ export function createPanel({ state: layerState, services, parts, source }) {
     setMissionPanelField('[data-mission-status]', launch.status);
     setMissionPanelField(
       '[data-mission-site]',
-      launch.launchSite && launch.launchSite !== 'Unknown launch site'
+      launch.launchSite && launch.launchSite !== 'Sitio de lanzamiento desconocido'
         ? launch.launchSite
         : null,
     );
@@ -219,7 +219,7 @@ export function createPanel({ state: layerState, services, parts, source }) {
           ]
             .filter(Boolean)
             .join(' · ');
-          return `<tr><td>${escapeMissionText(payload.name)}${payload.amount > 1 ? ` ×${payload.amount}` : ''}${detail ? `<small>${escapeMissionText(detail)}</small>` : ''}</td><td>${escapeMissionText(payload.type || 'UNSPECIFIED')}</td><td>${escapeMissionText(payload.destination || launch.orbit?.name || 'UNAVAILABLE')}</td></tr>`;
+          return `<tr><td>${escapeMissionText(payload.name)}${payload.amount > 1 ? ` ×${payload.amount}` : ''}${detail ? `<small>${escapeMissionText(detail)}</small>` : ''}</td><td>${escapeMissionText(payload.type || 'SIN ESPECIFICAR')}</td><td>${escapeMissionText(payload.destination || launch.orbit?.name || 'NO DISPONIBLE')}</td></tr>`;
         })
       : [];
     if (launch.payloads.length > 5) {
@@ -229,24 +229,24 @@ export function createPanel({ state: layerState, services, parts, source }) {
     }
     layerState._missionPanel.querySelector(
       '[data-mission-payloads]',
-    ).innerHTML = missionTableRows(payloadRows, 3, 'PAYLOAD DATA UNAVAILABLE');
+    ).innerHTML = missionTableRows(payloadRows, 3, 'DATOS DE CARGA NO DISPONIBLES');
     const stageRows = launch.recoveryStages.map((stage) => {
       const endpoint = stage.endpoint;
       const destination =
         stage.destination ||
-        (endpoint?.accuracy === 'PAD / RTLS'
+        (endpoint?.accuracy === 'PLATAFORMA / RTLS'
           ? launch.launchSite
-          : 'UNAVAILABLE');
+          : 'NO DISPONIBLE');
       const position = endpoint
         ? `${endpoint.lat.toFixed(2)}, ${endpoint.lon.toFixed(2)} · ${endpoint.accuracy}`
         : stage.downrangeKm > 0
           ? `${stage.downrangeKm.toLocaleString()} KM DOWNRANGE`
-          : 'POSITION UNAVAILABLE';
+          : 'POSICIÓN NO DISPONIBLE';
       const stageDetail = [
         Number.isFinite(stage.flightNumber)
           ? `FLIGHT ${stage.flightNumber}`
           : null,
-        stage.reused ? 'REUSED' : null,
+        stage.reused ? 'REUTILIZADA' : null,
         stage.recoveryType,
       ]
         .filter(Boolean)
@@ -254,7 +254,7 @@ export function createPanel({ state: layerState, services, parts, source }) {
       return `<tr><td>${escapeMissionText(stage.name)}${stageDetail ? `<small>${escapeMissionText(stageDetail)}</small>` : ''}</td><td>${escapeMissionText(stage.status)}</td><td>${escapeMissionText(destination)}<small>${escapeMissionText(position)}</small></td></tr>`;
     });
     layerState._missionPanel.querySelector('[data-mission-stages]').innerHTML =
-      missionTableRows(stageRows, 3, 'NO STAGE RE-ENTRY / RECOVERY DATA');
+      missionTableRows(stageRows, 3, 'SIN REINGRESO DE ETAPA / DATOS DE RECUPERACIÓN');
     const stageSection = layerState._missionPanel.querySelector(
       '[data-mission-stages-section]',
     );
@@ -303,8 +303,8 @@ export function createPanel({ state: layerState, services, parts, source }) {
     list.innerHTML = entries
       .map(({ launch, index }) => {
         const color = parts.model.missionMarkerColor(launch).toCssColorString();
-        const date = launch.launchTime?.slice(0, 10) || 'DATE UNAVAILABLE';
-        const provider = launch.provider || 'UNSPECIFIED OPERATOR';
+        const date = launch.launchTime?.slice(0, 10) || 'FECHA NO DISPONIBLE';
+        const provider = launch.provider || 'OPERADOR SIN ESPECIFICAR';
         const label = parts.overlays
           .shortMissionLabel(launch.name, 27)
           .toUpperCase();
@@ -450,16 +450,16 @@ export function createPanel({ state: layerState, services, parts, source }) {
     layerState._missionPanel.className = 'context-space-mission-detail';
     layerState._missionPanel.setAttribute(
       'aria-label',
-      'Selected Space Mission',
+      'Misión espacial seleccionada',
     );
-    layerState._missionPanel.innerHTML = `<div class="space-mission-view-header"><span>SELECTED SPACE MISSION</span><button type="button" data-mission-close title="Show all missions" aria-label="Deselect mission">×</button></div><div class="space-mission-detail"><strong data-mission-title>MISSION</strong><span data-mission-field data-mission-provider></span><span data-mission-field>STATUS · <b data-mission-status></b></span><span data-mission-field>LAUNCH SITE · <b data-mission-site></b></span><span data-mission-field>LAUNCH TIME · <b data-mission-time></b></span><span data-mission-field>ORBIT · <b data-mission-orbit></b></span><span>ASCENT PATH · <b data-mission-ascent-source></b></span><span data-mission-field>CURRENT DISTANCE FROM EARTH · <b data-mission-distance></b></span><span data-mission-field>SATELLITE SPEED · <b data-mission-speed></b></span></div><section class="mission-data-section"><h4>PAYLOAD</h4><div class="mission-table-scroll"><table class="mission-data-table"><thead><tr><th>NAME</th><th>TYPE</th><th>DESTINATION</th></tr></thead><tbody data-mission-payloads></tbody></table></div></section><section class="mission-data-section" data-mission-stages-section><h4>STAGE / RE-ENTRY / RECOVERY</h4><div class="mission-table-scroll"><table class="mission-data-table"><thead><tr><th>STAGE</th><th>STATUS</th><th>FINAL POSITION</th></tr></thead><tbody data-mission-stages></tbody></table></div></section><div class="mission-replay-speed-control"><div class="mission-replay-speed-header"><label for="space-mission-replay-speed">REPLAY SPEED</label><output class="gev-slider-value" for="space-mission-replay-speed" data-mission-replay-speed-output>1×</output></div><input id="space-mission-replay-speed" class="gev-quantitative-slider" type="range" min="0.25" max="4" step="0.25" value="1" data-mission-replay-speed aria-label="Replay speed multiplier"><div class="mission-replay-speed-scale" aria-hidden="true"><span>0.25×</span><span>1×</span><span>4×</span></div></div><div class="mission-action-row"><button type="button" class="mission-focus-button" data-mission-focus>FOCUS</button><button type="button" class="mission-replay-button" data-mission-replay aria-pressed="false">REPLAY ASCENT</button></div><div class="space-mission-nav"><button type="button" class="mission-nav-button" data-mission-prev title="Previous mission"><span aria-hidden="true">‹</span> PREV</button><span class="mission-nav-index" data-mission-index>—</span><button type="button" class="mission-nav-button" data-mission-next title="Next mission">NEXT <span aria-hidden="true">›</span></button></div><button type="button" class="panel-layer-toggle" data-mission-show-all>SHOW ALL / DESELECT</button>`;
+    layerState._missionPanel.innerHTML = `<div class="space-mission-view-header"><span>MISIÓN ESPACIAL SELECCIONADA</span><button type="button" data-mission-close title="Mostrar todas las misiones" aria-label="Deseleccionar misión">×</button></div><div class="space-mission-detail"><strong data-mission-title>MISIÓN</strong><span data-mission-field data-mission-provider></span><span data-mission-field>ESTADO · <b data-mission-status></b></span><span data-mission-field>SITIO DE LANZAMIENTO · <b data-mission-site></b></span><span data-mission-field>HORA DE LANZAMIENTO · <b data-mission-time></b></span><span data-mission-field>ÓRBITA · <b data-mission-orbit></b></span><span>TRAYECTORIA DE ASCENSO · <b data-mission-ascent-source></b></span><span data-mission-field>DISTANCIA ACTUAL A LA TIERRA · <b data-mission-distance></b></span><span data-mission-field>VELOCIDAD DEL SATÉLITE · <b data-mission-speed></b></span></div><section class="mission-data-section"><h4>CARGA ÚTIL</h4><div class="mission-table-scroll"><table class="mission-data-table"><thead><tr><th>NOMBRE</th><th>TIPO</th><th>DESTINO</th></tr></thead><tbody data-mission-payloads></tbody></table></div></section><section class="mission-data-section" data-mission-stages-section><h4>ETAPA / REINGRESO / RECUPERACIÓN</h4><div class="mission-table-scroll"><table class="mission-data-table"><thead><tr><th>ETAPA</th><th>ESTADO</th><th>POSICIÓN FINAL</th></tr></thead><tbody data-mission-stages></tbody></table></div></section><div class="mission-replay-speed-control"><div class="mission-replay-speed-header"><label for="space-mission-replay-speed">VELOCIDAD DE REPETICIÓN</label><output class="gev-slider-value" for="space-mission-replay-speed" data-mission-replay-speed-output>1×</output></div><input id="space-mission-replay-speed" class="gev-quantitative-slider" type="range" min="0.25" max="4" step="0.25" value="1" data-mission-replay-speed aria-label="Multiplicador de velocidad de repetición"><div class="mission-replay-speed-scale" aria-hidden="true"><span>0.25×</span><span>1×</span><span>4×</span></div></div><div class="mission-action-row"><button type="button" class="mission-focus-button" data-mission-focus>ENFOCAR</button><button type="button" class="mission-replay-button" data-mission-replay aria-pressed="false">REPETIR ASCENSO</button></div><div class="space-mission-nav"><button type="button" class="mission-nav-button" data-mission-prev title="Misión anterior"><span aria-hidden="true">‹</span> ANTERIOR</button><span class="mission-nav-index" data-mission-index>—</span><button type="button" class="mission-nav-button" data-mission-next title="Misión siguiente">SIGUIENTE <span aria-hidden="true">›</span></button></div><button type="button" class="panel-layer-toggle" data-mission-show-all>MOSTRAR TODO / DESELECCIONAR</button>`;
     layerState._missionPanel
       .querySelector('.mission-action-row')
       .insertAdjacentHTML(
         'beforeend',
         `<div class="mission-replay-transport" data-mission-replay-transport hidden>
-      <button type="button" data-mission-replay-toggle title="Pause replay" aria-label="Pause replay">Ⅱ</button>
-      <button type="button" class="cancel" data-mission-replay-cancel title="Cancel replay" aria-label="Cancel replay"><span aria-hidden="true">×</span></button>
+      <button type="button" data-mission-replay-toggle title="Pausar repetición" aria-label="Pausar repetición">Ⅱ</button>
+      <button type="button" class="cancel" data-mission-replay-cancel title="Cancelar repetición" aria-label="Cancelar repetición"><span aria-hidden="true">×</span></button>
     </div>`,
       );
     host.appendChild(layerState._missionPanel);

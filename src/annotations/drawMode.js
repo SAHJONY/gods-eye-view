@@ -284,12 +284,12 @@ export function closeRing(pairs) {
 
 /** One line of guidance for the person drawing, by state. */
 export function drawHint(session) {
-  if (!session) return 'Pick a shape, then click the map.';
+  if (!session) return 'Elige una forma y luego clic en el mapa.';
   const n = session.vertices.length;
   if (session.shape === 'pin')
     return n
-      ? 'Enter to place the pin, Esc to cancel.'
-      : 'Click where the pin goes.';
+      ? 'Enter para colocar el pin, Esc para cancelar.'
+      : 'Clic donde va el pin.';
   const need = MIN_VERTICES[session.shape] - n;
   if (need > 0) return `Click ${need} more point${need === 1 ? '' : 's'}.`;
   if (finishReason(session) === 'degenerate') {
@@ -299,5 +299,5 @@ export function drawHint(session) {
   }
   const full =
     n >= MAX_VERTICES ? ` · ${MAX_VERTICES}-point limit reached` : '';
-  return `${formatMeasure(session)} · double-click or Enter to finish, Backspace undoes, Esc cancels.${full}`;
+  return `${formatMeasure(session)} · doble clic o Enter para terminar, Retroceso deshace, Esc cancela.${full}`;
 }

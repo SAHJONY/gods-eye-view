@@ -229,12 +229,12 @@ export function createTracking({
     // what the Easter egg replaces the real type with.
     const type = tr3bTypeLabel(
       icao24,
-      parts.queries._toCleanText(info?.type) || 'Type unknown',
+      parts.queries._toCleanText(info?.type) || 'Tipo desconocido',
     );
     const registration =
-      parts.queries._toCleanText(info?.registration) || 'Reg unknown';
+      parts.queries._toCleanText(info?.registration) || 'Matrícula desconocida';
     const operator =
-      parts.queries._toCleanText(info?.operator) || 'Operator unknown';
+      parts.queries._toCleanText(info?.operator) || 'Operador desconocido';
     const altitude = parts.queries._formatAltitude(info?.altitudeFt);
     const speedKt = info?.speedMps ? Math.round(info.speedMps * 1.944) : null;
     const tail = speedKt ? `${altitude} · ${speedKt} kt` : altitude;

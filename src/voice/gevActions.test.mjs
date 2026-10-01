@@ -1066,7 +1066,7 @@ test('generic layer visibility exposes lifecycle truth for every manager phase a
     ok: false,
     action: 'set_layer_visibility',
     layerId: 'radio',
-    error: 'Radio layer unavailable',
+    error: 'Capa de radio no disponible',
     enabled: false,
     lifecycleState: 'disabled',
     lifecycleUncertain: false,
@@ -1612,7 +1612,7 @@ test('set_context_mode pre-dispatch cancellation includes authoritative Context 
     ok: false,
     action: 'set_context_mode',
     cancelled: true,
-    error: 'Context request was cancelled before it could run',
+    error: 'La solicitud de contexto fue cancelada antes de ejecutarse',
     // Authoritative state, reported in the vocabulary the tool accepts.
     mode: 'contacts',
     modeInternal: 'flights',

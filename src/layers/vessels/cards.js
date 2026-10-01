@@ -21,8 +21,8 @@ export function createCards({
     el.classList.add('active');
     el.textContent = [
       `AIS: ${trimHudValue(record.name, 32)}`,
-      `${trimHudValue(record.type || 'VESSEL', 24)}  SPD: ${formatSpeed(record.speed)}  HDG: ${formatHeading(record.heading ?? record.course)}`,
-      `MMSI: ${record.mmsi || '--'}  ${formatPositionTime(record)}${stale ? '  · STALE' : ''}`,
+      `${trimHudValue(record.type || 'BUQUE', 24)}  SPD: ${formatSpeed(record.speed)}  HDG: ${formatHeading(record.heading ?? record.course)}`,
+      `MMSI: ${record.mmsi || '--'}  ${formatPositionTime(record)}${stale ? '  · OBSOLETO' : ''}`,
     ].join('\n');
   }
 
@@ -85,7 +85,7 @@ export function createCards({
     const direction = record.heading ?? record.course;
     const details = [
       [
-        vesselTypeShort(record) || 'VESSEL',
+        vesselTypeShort(record) || 'BUQUE',
         formatSpeed(record.speed),
         Number.isFinite(direction) ? `${Math.round(direction)}°` : '--°',
       ].join(' · '),
@@ -94,7 +94,7 @@ export function createCards({
     if (destination) details.push(`→ ${trimHudValue(destination, 24)}`);
     const stale = (record.missedRefreshes || 0) > 0;
     details.push(
-      `MMSI ${record.mmsi || '--'} · ${formatPositionTime(record)}${stale ? ' · STALE' : ''}`,
+      `MMSI ${record.mmsi || '--'} · ${formatPositionTime(record)}${stale ? ' · OBSOLETO' : ''}`,
     );
     return {
       id: vesselOverlayEntryId(record),
@@ -116,7 +116,7 @@ export function createCards({
   function vesselOverlayEntryId(record) {
     const mmsi = String(record?.mmsi || '').trim();
     if (mmsi) return `vessel:${mmsi}`;
-    const name = String(record?.name || 'VESSEL').trim() || 'VESSEL';
+    const name = String(record?.name || 'BUQUE').trim() || 'BUQUE';
     const lat = Number.isFinite(record?.lat) ? record.lat.toFixed(5) : 'x';
     const lon = Number.isFinite(record?.lon) ? record.lon.toFixed(5) : 'x';
     return `vessel:unkeyed:${name}:${lat}:${lon}`;
@@ -150,8 +150,8 @@ export function createCards({
 
   function displayVesselName(record) {
     const name = String(record.name || '').trim();
-    if (name && name !== 'VESSEL' && name !== record.mmsi) return name;
-    return record.mmsi ? `MMSI ${record.mmsi}` : 'VESSEL';
+    if (name && name !== 'BUQUE' && name !== record.mmsi) return name;
+    return record.mmsi ? `MMSI ${record.mmsi}` : 'BUQUE';
   }
 
   function formatSpeed(speed) {
@@ -159,13 +159,13 @@ export function createCards({
   }
 
   function formatHeading(heading) {
-    return Number.isFinite(heading) ? `${Math.round(heading)}DEG` : '--DEG';
+    return Number.isFinite(heading) ? `${Math.round(heading)}°` : '--°';
   }
 
   function formatPositionTime(record) {
-    if (!record.lastPositionUtc) return 'POS: LIVE';
+    if (!record.lastPositionUtc) return 'POS: EN VIVO';
     const date = new Date(record.lastPositionUtc);
-    if (Number.isNaN(date.getTime())) return 'POS: LIVE';
+    if (Number.isNaN(date.getTime())) return 'POS: EN VIVO';
     return `POS: ${date.toISOString().slice(11, 19)}Z`;
   }
   return {

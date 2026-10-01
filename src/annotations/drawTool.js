@@ -236,7 +236,7 @@ export function initDrawTool({ viewer, annotations }) {
         flyTo: false,
       });
       if (destroyed || attempt !== generation) return result;
-      if (result?.drawn === 0) setHint('That shape could not be placed.');
+      if (result?.drawn === 0) setHint('Esa forma no se pudo colocar.');
       return result;
     } catch (error) {
       if (destroyed || attempt !== generation) return null;
@@ -258,7 +258,7 @@ export function initDrawTool({ viewer, annotations }) {
     if (session) session = createDrawSession(shape);
     annotations.clear();
     syncPreview();
-    if (!destroyed && !active) setHint('Board cleared.');
+    if (!destroyed && !active) setHint('Tablero limpiado.');
   };
 
   // ---- keys: only while drawing, never while typing in another field ----

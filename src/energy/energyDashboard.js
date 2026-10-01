@@ -1,5 +1,5 @@
 /**
- * Energy desk dashboard for GOD'S EYE VIEW — diesel/gasoline/LPG → Cuba.
+ * Energy desk dashboard for SAHJONY LIVE VIEW — diesel/gasoline/LPG → Cuba.
  *
  * $0, no API keys, no external calls. Spanish-first (ES default, EN toggle),
  * phone-first: 44px touch targets, 16px inputs, larger type, no hover-only

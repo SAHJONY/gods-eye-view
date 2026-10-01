@@ -30,7 +30,7 @@ import { ShellFeedback } from './shellFeedback.js';
 import { runCctvLayerEnableTransition } from '../cctvFocusPolicy.js';
 
 /**
- * Central UI orchestrator for the God's Eye View application.
+ * Central UI orchestrator for the SAHJONY LIVE VIEW application.
  *
  * Responsibilities:
  * - Visual controls and presets backed by the VisualEffects controller.
@@ -930,7 +930,7 @@ export class StyleManager extends ShellFacade {
     const { cctvLayer } = this.services;
     if (this._disposed) return false;
     if (!this._dataManager || !this._dataManager.layers?.has('cctv')) {
-      this._showToast('CCTV layer unavailable');
+      this._showToast('Capa de CCTV no disponible');
       return false;
     }
     const enabled = this._dataManager.isEnabled('cctv');
@@ -1023,7 +1023,7 @@ export class StyleManager extends ShellFacade {
   setHudVisible(mode) {
     const normalized = String(mode ?? '').toLowerCase();
     if (!['on', 'off', 'auto'].includes(normalized)) {
-      return { ok: false, error: `Unknown HUD visibility mode: ${mode}` };
+      return { ok: false, error: `Modo de visibilidad de HUD desconocido: ${mode}` };
     }
     this.shareLinkManager?.claimRestoreLane?.('visual');
     this.hud.setMode(normalized);
@@ -1045,7 +1045,7 @@ export class StyleManager extends ShellFacade {
   setHudLayout(variantName) {
     const variant = String(variantName ?? '').toLowerCase();
     if (!['tactical', 'operator', 'minimal'].includes(variant)) {
-      return { ok: false, error: `Unknown HUD layout: ${variantName}` };
+      return { ok: false, error: `Diseño de HUD desconocido: ${variantName}` };
     }
     this.shareLinkManager?.claimRestoreLane?.('visual');
     this._setHudVariant(variant);
@@ -1087,21 +1087,21 @@ export class StyleManager extends ShellFacade {
    */
   async setMapStack(stackId) {
     if (!this.mapStackController) {
-      return { ok: false, error: 'Map stack controller unavailable' };
+      return { ok: false, error: 'Controlador de pila de mapas no disponible' };
     }
     const stacks = this.mapStackController.getStacks();
     const target = stacks.find((stack) => stack.id === stackId);
     if (!target) {
       return {
         ok: false,
-        error: `Unknown map stack: ${stackId}`,
+        error: `Pila de mapas desconocida: ${stackId}`,
         available: stacks.map((s) => s.id),
       };
     }
     if (!target.available) {
       return {
         ok: false,
-        error: `${target.label} requires a Cesium ion token`,
+        error: `${target.label} requiere un token de Cesium ion`,
         activeStack: this.mapStackController.getActiveId(),
       };
     }
@@ -1111,7 +1111,7 @@ export class StyleManager extends ShellFacade {
     return {
       ok: landed,
       activeStack: state.activeId,
-      error: landed ? null : state.lastError || 'Map stack did not switch',
+      error: landed ? null : state.lastError || 'La pila de mapas no cambió',
     };
   }
 
@@ -1371,7 +1371,7 @@ export class StyleManager extends ShellFacade {
     this._lifetime.listen(this._shareBtn, 'click', async () => {
       const success = await this.shareLinkManager.copyLink();
       if (!this._disposed)
-        this._showToast(success ? 'Link copied!' : 'Copy failed');
+        this._showToast(success ? '¡Enlace copiado!' : 'No se pudo copiar');
     });
   }
 

@@ -3,19 +3,19 @@ export { layerFeedState } from '../data/feedState.js';
 import { GUIDANCE_STATUSES } from '../loadingFeedback.js';
 import { keySetupRequirement } from '../keySetupCore.mjs';
 const FEED_STATE_LABELS = Object.freeze({
-  nominal: 'ON',
-  loading: 'LOADING',
-  degraded: 'DEGRADED',
-  stale: 'STALE',
-  partial: 'PARTIAL',
-  fallback: 'FALLBACK',
-  unavailable: 'UNAVAILABLE',
+  nominal: 'ACTIVADO',
+  loading: 'CARGANDO',
+  degraded: 'DEGRADADO',
+  stale: 'DESACTUALIZADO',
+  partial: 'PARCIAL',
+  fallback: 'RESERVA',
+  unavailable: 'NO DISPONIBLE',
 });
 
 // Presentation order is independent of catalog registration and startup order.
 const PANEL_GROUPS = [
   {
-    label: 'Movement',
+    label: 'Movimiento',
     ids: [
       'satellites',
       'flights',
@@ -27,11 +27,11 @@ const PANEL_GROUPS = [
     ],
   },
   {
-    label: 'Cameras',
+    label: 'Cámaras',
     ids: ['cctv', 'alpr-cameras'],
   },
   {
-    label: 'Infrastructure',
+    label: 'Infraestructura',
     ids: [
       'military-installations',
       'local-datacenters',
@@ -40,11 +40,11 @@ const PANEL_GROUPS = [
     ],
   },
   {
-    label: 'Events',
+    label: 'Eventos',
     ids: ['rocket-launches', 'earthquakes', 'local-firms'],
   },
   {
-    label: 'Utilities',
+    label: 'Utilidades',
     ids: ['directions', 'radio'],
   },
 ];
@@ -55,12 +55,12 @@ const PANEL_POSITIONS = new Map(
   PANEL_ORDER.map(({ id }, index) => [id, index]),
 );
 const PANEL_LABELS = {
-  'ais-live-vessels': 'Live Vessels',
-  bikeshare: 'Bike Share',
-  cctv: 'Cameras',
-  'alpr-cameras': 'Mapped ALPR Cameras',
-  'local-datacenters': 'Data Centers',
-  'local-firms': 'Active Fires',
+  'ais-live-vessels': 'Buques en vivo',
+  bikeshare: 'Bicicletas compartidas',
+  cctv: 'Cámaras',
+  'alpr-cameras': 'Cámaras ALPR mapeadas',
+  'local-datacenters': 'Centros de datos',
+  'local-firms': 'Incendios activos',
 };
 
 function panelLabel(layer) {
@@ -148,7 +148,7 @@ export class LayerPanel {
     for (const layer of layers) {
       if (!layer.showInTogglePanel) continue;
       const group =
-        PANEL_ORDER[PANEL_POSITIONS.get(layer.id)]?.label ?? 'Other layers';
+        PANEL_ORDER[PANEL_POSITIONS.get(layer.id)]?.label ?? 'Otras capas';
       if (group && group !== previousGroup) {
         const heading = document.createElement('h3');
         heading.className = 'data-layer-group-heading';
@@ -469,16 +469,18 @@ export class LayerPanel {
     const lifecycleState =
       layer.lifecycleState || (layer.enabled ? 'enabled' : 'disabled');
     if (lifecycleState === 'enabling' || lifecycleState === 'disabling') {
-      return `${lifecycleState.toUpperCase()} · ${source}`;
+      const transitionLabel =
+        lifecycleState === 'enabling' ? 'ACTIVANDO' : 'DESACTIVANDO';
+      return `${transitionLabel} · ${source}`;
     }
     if (layer.lifecycleUncertain) {
-      return `UNCERTAIN · ${source} · lifecycle state requires reconciliation`;
+      return `INCIERTO · ${source} · el estado del ciclo de vida requiere conciliación`;
     }
     const presentedError =
       stats.error || stats.lastError || stats.managerRefreshError;
     if (presentedError) {
       if (typeof stats.retryInSec === 'number' && stats.retryInSec > 0) {
-        return `${stateLabel} · ${source} · ${presentedError} · retry ${stats.retryInSec}s`;
+        return `${stateLabel} · ${source} · ${presentedError} · reintentar en ${stats.retryInSec}s`;
       }
       return `${stateLabel} · ${source} · ${presentedError}`;
     }
@@ -491,12 +493,12 @@ export class LayerPanel {
     ) {
       return `${source} · ${stats.statusMessage.trim()}`;
     }
-    const ago = stats.lastUpdate ? this._timeAgo(stats.lastUpdate) : 'never';
+    const ago = stats.lastUpdate ? this._timeAgo(stats.lastUpdate) : 'nunca';
     if (stats.loading) {
       const loadingLabel =
         typeof stats.loadingLabel === 'string' && stats.loadingLabel.trim()
           ? stats.loadingLabel.trim()
-          : 'loading...';
+          : 'cargando...';
       return `${source} · ${loadingLabel}`;
     }
     if (feedState === 'fallback') {
@@ -513,14 +515,14 @@ export class LayerPanel {
         Number.isInteger(rawRowCount) &&
         acceptedRowCount >= 0 &&
         rawRowCount > acceptedRowCount
-          ? `${acceptedRowCount} of ${rawRowCount} records accepted`
-          : 'incomplete snapshot';
+          ? `${acceptedRowCount} de ${rawRowCount} registros aceptados`
+          : 'instantánea incompleta';
       return `${stateLabel} · ${source} · ${detail} · ${ago}`;
     }
     if (feedState === 'stale') {
       const retry =
         typeof stats.retryInSec === 'number' && stats.retryInSec > 0
-          ? ` · retrying in ${stats.retryInSec}s`
+          ? ` · reintentando en ${stats.retryInSec}s`
           : '';
       return `${stateLabel} · ${source} · ${ago}${retry}`;
     }
@@ -559,12 +561,14 @@ export class LayerPanel {
     button.setAttribute('aria-disabled', String(transitioning));
     button.setAttribute('aria-busy', String(transitioning));
     button.textContent = transitioning
-      ? layer.lifecycleState.toUpperCase()
+      ? layer.lifecycleState === 'enabling'
+        ? 'ACTIVANDO'
+        : 'DESACTIVANDO'
       : uncertain
-        ? 'UNCERTAIN'
+        ? 'INCIERTO'
         : layer.enabled
           ? FEED_STATE_LABELS[feedState]
-          : 'OFF';
+          : 'APAGADO';
     const keyGuidance = layerKeyRequirementTooltip(layer);
     // Name the missing key on the control itself: a row reading KEY REQUIRED
     // without saying WHICH key leaves a dead control and no next step. Empty
@@ -585,9 +589,9 @@ export class LayerPanel {
 
   _timeAgo(timestamp) {
     const diff = Math.floor((Date.now() - timestamp) / 1000);
-    if (diff < 5) return 'just now';
-    if (diff < 60) return `${diff}s ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 5) return 'ahora mismo';
+    if (diff < 60) return `hace ${diff} s`;
+    if (diff < 3600) return `hace ${Math.floor(diff / 60)} min`;
+    return `hace ${Math.floor(diff / 3600)} h`;
   }
 }

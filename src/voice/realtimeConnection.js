@@ -59,7 +59,7 @@ export class RealtimeConnection {
     this.input.pushToTalkKeyHeld = pushToTalkKeyHeld;
     this.input.spaceKeyHeld = spaceKeyHeld;
     if (!window.RTCPeerConnection || !navigator.mediaDevices?.getUserMedia) {
-      this.setStatus('error', 'WebRTC microphone support unavailable');
+      this.setStatus('error', 'Soporte de micrófono WebRTC no disponible');
       return;
     }
 
@@ -78,7 +78,7 @@ export class RealtimeConnection {
     // — this is what "applies next session" means.
     this.cost.prepareSession();
     this.syncCostUi();
-    this.setStatus('connecting', 'Requesting microphone');
+    this.setStatus('connecting', 'Solicitando micrófono');
     this.debugLog('session.starting', {
       epoch,
       tier: this.cost.voiceTier,
@@ -176,9 +176,9 @@ export class RealtimeConnection {
         if (!ownsChannel()) return;
         const detail = this.input.pushToTalkMode
           ? this.input.pushToTalkKeyHeld
-            ? 'Release Space to send'
-            : 'Hold Space to talk'
-          : 'Ask or command';
+            ? 'Suelta Espacio para enviar'
+            : 'Mantén Espacio para hablar'
+          : 'Pregunta o comando';
         this.setStatus('listening', detail);
         this.debugLog('data_channel.open', {
           connection: this.connectionDiagnostics(dataChannel),
@@ -206,7 +206,7 @@ export class RealtimeConnection {
           this.status !== 'error'
         ) {
           this.fatalError(
-            'Realtime data channel closed',
+            'Canal de datos en tiempo real cerrado',
             null,
             this.connectionDiagnostics(dataChannel),
           );
@@ -294,7 +294,7 @@ export class RealtimeConnection {
         // Still not recovered after the grace window → treat as a real drop.
         if (this.pc?.connectionState === 'disconnected') {
           this.fatalError(
-            'WebRTC connection lost',
+            'Conexión WebRTC perdida',
             null,
             this.connectionDiagnostics(),
           );

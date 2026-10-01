@@ -1,5 +1,5 @@
 /**
- * Business launcher for GOD'S EYE VIEW — $0, no API keys, no external calls.
+ * Business launcher for SAHJONY LIVE VIEW — $0, no API keys, no external calls.
  *
  * Juan's requirement: every business module gets its own independent,
  * separate full screen — the cramped floating panels over the 3D globe are
@@ -218,7 +218,7 @@ export function initBusinessLauncher({ signal = null } = {}) {
     close.className = 'bl-close';
     close.type = 'button';
     close.textContent = '✕';
-    close.setAttribute('aria-label', 'Close');
+    close.setAttribute('aria-label', t('Cerrar', 'Close'));
     close.addEventListener('click', () => closeOverlay());
     head.appendChild(title);
     head.appendChild(esBtn);

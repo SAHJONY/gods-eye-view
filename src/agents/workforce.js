@@ -1,5 +1,5 @@
 /**
- * SAHJONY · GOD'S EYE VIEW — Wholesale Real Estate Intelligence Workforce
+ * SAHJONY · SAHJONY LIVE VIEW — Wholesale Real Estate Intelligence Workforce
  * -----------------------------------------------------------------------
  * Client-side only. $0. No API keys. No external network calls.
  * The workforce runs ONLY while the app is open — nothing runs in the

@@ -1,5 +1,5 @@
 /**
- * Energy map layer — Cuban receiving-port pins for GOD'S EYE VIEW.
+ * Energy map layer — Cuban receiving-port pins for SAHJONY LIVE VIEW.
  *
  * $0, no API keys. Renders the four static Cuban receiving ports
  * (Mariel, Havana, Santiago de Cuba, Cienfuegos) as labeled pins.

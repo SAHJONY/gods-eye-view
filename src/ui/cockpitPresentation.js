@@ -32,10 +32,10 @@ export const COCKPIT_GROUND_WAIT_TIMEOUT_MS = 5000;
 export const COCKPIT_BRIEF_ROTATE_MS = 9000;
 
 export const COCKPIT_BRIEF_CYCLE_OFF_HELP =
-  'Cycle briefing pages automatically every 9 seconds (Signals → News → Local). Pauses while you hover or focus the panel. Live signal data refreshes continuously either way.';
+  'Recorre las páginas del informe automáticamente cada 9 segundos (Señales → Noticias → Local). Se pausa cuando pasas el cursor sobre el panel o lo enfocas. Los datos de señales en vivo se actualizan continuamente de todas formas.';
 
 export const COCKPIT_BRIEF_CYCLE_ON_HELP =
-  'Stop automatic page cycling. Previous, Next, and the SIG/NEWS/LOCAL tabs stay available.';
+  'Detiene el recorrido automático de páginas. Anterior, Siguiente y las pestañas SIG/NOT/LOCAL siguen disponibles.';
 
 export const COCKPIT_REGIONAL_REFRESH_MS = 5 * 60_000;
 
@@ -44,20 +44,20 @@ export const COCKPIT_REGIONAL_REFRESH_DISTANCE_M = 25_000;
 export const COCKPIT_BRIEF_PAGES = [
   {
     id: 'signals',
-    kicker: 'LIVE SIGNALS',
-    subtitle: 'OBSERVED / MAPPED PINGS',
-    source: 'SOURCE-BACKED EVENTS · NO SYNTHETIC NEWS',
+    kicker: 'SEÑALES EN VIVO',
+    subtitle: 'PINGS OBSERVADOS / MAPEADOS',
+    source: 'EVENTOS CON FUENTE · SIN NOTICIAS SINTÉTICAS',
   },
   {
     id: 'news',
-    kicker: 'REGIONAL NEWS',
-    subtitle: 'LATEST LOCATION-MATCHED REPORTING',
-    source: 'GOOGLE NEWS RSS · LOCATION QUERY · RECENT',
+    kicker: 'NOTICIAS REGIONALES',
+    subtitle: 'ÚLTIMAS NOTICIAS DE LA UBICACIÓN',
+    source: 'GOOGLE NEWS RSS · CONSULTA DE UBICACIÓN · RECIENTE',
   },
   {
     id: 'local',
-    kicker: 'LOCAL INFO',
-    subtitle: 'PLACE / CONDITIONS / POSITION',
+    kicker: 'INFORMACIÓN LOCAL',
+    subtitle: 'LUGAR / CONDICIONES / POSICIÓN',
     source: 'OPENSTREETMAP · OPEN-METEO · UTC',
   },
 ];
@@ -80,15 +80,15 @@ export function isRenderedOnScreen(element) {
 
 export function formatCockpitBriefAge(value) {
   const timestamp = Date.parse(value);
-  if (!Number.isFinite(timestamp)) return 'TIME UNKNOWN';
+  if (!Number.isFinite(timestamp)) return 'HORA DESCONOCIDA';
   const minutes = Math.max(0, Math.round((Date.now() - timestamp) / 60_000));
-  if (minutes < 60) return `${minutes}M AGO`;
+  if (minutes < 60) return `${minutes} MIN`;
   const hours = Math.round(minutes / 60);
-  return hours < 48 ? `${hours}H AGO` : `${Math.round(hours / 24)}D AGO`;
+  return hours < 48 ? `${hours} H` : `${Math.round(hours / 24)} D`;
 }
 
 export function formatCockpitWindDirection(value) {
-  if (!Number.isFinite(value)) return 'DIR UNKNOWN';
+  if (!Number.isFinite(value)) return 'DIR DESCONOCIDA';
   const labels = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
   const normalized = ((value % 360) + 360) % 360;
   return `${labels[Math.round(normalized / 45) % labels.length]} · ${Math.round(normalized)}°`;

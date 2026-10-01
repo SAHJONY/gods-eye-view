@@ -53,9 +53,9 @@ test('orientation alone smooths at 120 degrees/s and waiting/stale override movi
   applyDisplayCourse(e, 100);
   assert.equal(e.courseDeg, 12);
   updatePlayback(e, 45000, 15000);
-  assert.equal(displayMotion(e, 45000).word, 'WAITING');
+  assert.equal(displayMotion(e, 45000).word, 'EN ESPERA');
   updatePlayback(e, 200000, 170000);
-  assert.equal(displayMotion(e, 200000).word, 'NO FIX');
+  assert.equal(displayMotion(e, 200000).word, 'SIN POSICIÓN');
 });
 
 test('display copy never borrows a future bearing and follows anchored freshness after a wall jump', () => {
@@ -76,13 +76,13 @@ test('display copy never borrows a future bearing and follows anchored freshness
       e,
     );
   const before = copy(35000);
-  assert.equal(before.details[1], 'Moving');
+  assert.equal(before.details[1], 'En movimiento');
   assert.ok(before.details.includes('reported hdg 270°'));
   assert.ok(!before.details[1].includes('270'));
   updatePlayback(e, 3600000, 16);
   assert.equal(e.sample.motion, 'moving');
   assert.equal(e.sample.latestReportAgeMs, 10016);
-  assert.equal(displayMotion(e, 3600000).word, 'EN ROUTE');
+  assert.equal(displayMotion(e, 3600000).word, 'EN RUTA');
   assert.equal(copy(3600000).details[2], before.details[2]);
   assert.match(
     copy(3600000).details[2],

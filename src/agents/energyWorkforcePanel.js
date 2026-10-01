@@ -1,5 +1,5 @@
 /**
- * Energy Desk AI Workforce Panel for GOD'S EYE VIEW — $0, no API keys, no
+ * Energy Desk AI Workforce Panel for SAHJONY LIVE VIEW — $0, no API keys, no
  * external calls.
  *
  * Roster of the 5 energy-desk agents: status dots, tier badges, last action,

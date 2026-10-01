@@ -116,7 +116,7 @@ export function createLifecycle({ state, services, parts }) {
 
   const methods = {
     id: 'transit',
-    name: 'Transit',
+    name: 'Tránsito',
     icon: '🚌',
     source: 'GTFS-RT',
 

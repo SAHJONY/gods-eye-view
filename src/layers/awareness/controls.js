@@ -8,11 +8,11 @@ export function createControls({ state: layerState, services, parts, source }) {
   const methods = {
     id: 'military-awareness',
 
-    name: 'Global Context',
+    name: 'Contexto global',
 
     icon: '◎',
 
-    source: 'Open-source proximity context',
+    source: 'Contexto de proximidad de código abierto',
 
     // Context is entered from its dedicated right rail, not as a raw layer.
     showInTogglePanel: false,

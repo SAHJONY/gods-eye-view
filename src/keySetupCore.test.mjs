@@ -18,7 +18,7 @@ import {
 test('provider requirements name the registry env vars and next step', () => {
   assert.equal(
     keySetupRequirement('cesium-ion'),
-    'Needs CESIUM_ION_TOKEN — add it in Provider Settings',
+    'Necesita CESIUM_ION_TOKEN — agrégala en Ajustes de proveedores',
   );
   assert.equal(keySetupRequirement('unknown'), '');
 });

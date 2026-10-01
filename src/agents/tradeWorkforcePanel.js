@@ -1,5 +1,5 @@
 /**
- * Trade AI Workforce Panel for GOD'S EYE VIEW — $0, no API keys, no external calls.
+ * Trade AI Workforce Panel for SAHJONY LIVE VIEW — $0, no API keys, no external calls.
  *
  * Roster of the 6 local import/export AI agents: status dots, last action,
  * Start/Pause/Resume, live bilingual activity feed (newest first, refreshes

@@ -1,5 +1,5 @@
 /**
- * MY CUBA CASH Dashboard for GOD'S EYE VIEW — $0, no API keys, no external calls.
+ * MY CUBA CASH Dashboard for SAHJONY LIVE VIEW — $0, no API keys, no external calls.
  *
  * Mission-control panel for the MY CUBA CASH beta (v0.9) remittance comparison
  * layer: KPI row with HONEST beta stats (zero customers/transactions/reviews

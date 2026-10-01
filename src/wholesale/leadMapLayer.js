@@ -1,5 +1,5 @@
 /**
- * Wholesale lead map layer — Cesium lead pins for GOD'S EYE VIEW.
+ * Wholesale lead map layer — Cesium lead pins for SAHJONY LIVE VIEW.
  *
  * $0, no API keys. Draws one marker per wholesale lead, colored by the
  * deal-engine score (green ≥ 70, yellow 40–69, red < 40, gray when not

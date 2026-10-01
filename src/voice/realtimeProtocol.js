@@ -52,8 +52,8 @@ export async function startPreparedRadioAfterPlaybackReady(
           ok: false,
           audioState: current ? 'error' : 'stopped',
           error: current
-            ? result.error || 'Radio playback could not start'
-            : 'Radio playback handoff was cancelled',
+            ? result.error || 'No se pudo iniciar la reproducción de radio'
+            : 'El traspaso de reproducción de radio fue cancelado',
         },
       };
     }
@@ -74,7 +74,7 @@ export async function startPreparedRadioAfterPlaybackReady(
         ...result,
         ok: false,
         audioState: 'error',
-        error: error?.message || 'Radio playback could not start',
+        error: error?.message || 'No se pudo iniciar la reproducción de radio',
       },
     };
   }
@@ -188,7 +188,7 @@ export function responseInstructionForToolResult(result) {
         );
       }
       if (!parts.length) {
-        parts.push('The places you described are now marked on the map.');
+        parts.push('Los lugares que describiste ya están marcados en el mapa.');
       }
     }
     parts.push(

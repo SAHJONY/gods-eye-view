@@ -47,22 +47,22 @@ export function bindRadioControls() {
     );
     if (displayOpen) this.actions.revealStyleParameters();
     if (this._cockpitDisplayToggleBtn) {
-      const action = displayOpen ? 'Collapse' : 'Expand';
+      const action = displayOpen ? 'Contraer' : 'Expandir';
       this._cockpitDisplayToggleBtn.textContent = displayOpen ? '▶' : '◀';
       this._cockpitDisplayToggleBtn.setAttribute(
         'aria-label',
-        `${action} Cockpit display options`,
+        `${action} las opciones de pantalla de la cabina`,
       );
-      this._cockpitDisplayToggleBtn.title = `${action} Cockpit display options`;
+      this._cockpitDisplayToggleBtn.title = `${action} las opciones de pantalla de la cabina`;
     }
     if (this._cockpitRadioToggleBtn) {
-      const action = radioOpen ? 'Collapse' : 'Expand';
+      const action = radioOpen ? 'Contraer' : 'Expandir';
       this._cockpitRadioToggleBtn.textContent = radioOpen ? '▶' : '◀';
       this._cockpitRadioToggleBtn.setAttribute(
         'aria-label',
-        `${action} Cockpit Radio controls`,
+        `${action} los controles de radio de la cabina`,
       );
-      this._cockpitRadioToggleBtn.title = `${action} Cockpit Radio controls`;
+      this._cockpitRadioToggleBtn.title = `${action} los controles de radio de la cabina`;
     }
     if (!expanded && returnFocus) {
       (kind === 'display'
@@ -140,17 +140,17 @@ export function bindRadioControls() {
     if (this._radioTunerValue) {
       this._radioTunerValue.textContent = station
         ? `CH ${String(slot.stationIndex + 1).padStart(2, '0')} / ${String(this._radioTunerStations.length).padStart(2, '0')}`
-        : 'NO STATIONS';
+        : 'SIN ESTACIONES';
     }
     if (this._radioTunerStation)
       this._radioTunerStation.textContent =
-        station?.name || 'NO STATION AVAILABLE';
+        station?.name || 'NINGUNA ESTACIÓN DISPONIBLE';
     if (this._radioTunerSlider) {
       this._radioTunerSlider.setAttribute(
         'aria-valuetext',
         station
-          ? `${station.name}, station ${slot.stationIndex + 1} of ${this._radioTunerStations.length}`
-          : 'No station available',
+          ? `${station.name}, estación ${slot.stationIndex + 1} de ${this._radioTunerStations.length}`
+          : 'Ninguna estación disponible',
       );
     }
     if (syncStatic)
@@ -301,12 +301,12 @@ export function bindRadioControls() {
       this._radioTunerBandPinnedForNavigation = false;
       if (result.reason === 'station-unavailable') {
         if (this._radioTunerValue)
-          this._radioTunerValue.textContent = 'OFF AIR';
+          this._radioTunerValue.textContent = 'FUERA DEL AIRE';
         if (this._radioTunerStation)
-          this._radioTunerStation.textContent = 'STATION UNAVAILABLE';
+          this._radioTunerStation.textContent = 'ESTACIÓN NO DISPONIBLE';
         this._radioTunerSlider?.setAttribute(
           'aria-valuetext',
-          'Station unavailable after directory refresh',
+          'Estación no disponible después de actualizar el directorio',
         );
       }
     }
@@ -340,7 +340,7 @@ export function bindRadioControls() {
             origin: 'user',
             notificationToken,
           }),
-        `Radio could not ${enabling ? 'start' : 'stop'} cleanly`,
+        `La radio no pudo ${enabling ? 'iniciarse' : 'detenerse'} correctamente`,
       );
       if (this.destroyed || toggled === false) return;
       if (

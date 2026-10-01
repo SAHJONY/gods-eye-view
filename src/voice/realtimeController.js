@@ -267,7 +267,7 @@ export class GevRealtimeController extends RealtimeFacade {
       this.ui.root.remove();
     }
     if (!preserveStatus && !removeUi) {
-      this.setStatus('idle', 'Voice off');
+      this.setStatus('idle', 'Voz apagada');
     }
     this.setRadioVoiceDucking(false);
     if (removeUi) this.emitSessionEvent({ type: 'disposed' });
@@ -291,20 +291,20 @@ export class GevRealtimeController extends RealtimeFacade {
     const resolvedDetail =
       status === 'listening' && this.pushToTalkMode
         ? this.pushToTalkKeyHeld
-          ? 'Release Space to send'
-          : 'Hold Space to talk'
+          ? 'Suelta Espacio para enviar'
+          : 'Mantén Espacio para hablar'
         : detail;
     const primaryDetail =
       status === 'error'
-        ? 'VOICE UNAVAILABLE'
+        ? 'VOZ NO DISPONIBLE'
         : resolvedDetail ||
-          (status === 'idle' ? 'VOICE STANDBY' : 'VOICE ACTIVE');
+          (status === 'idle' ? 'VOZ EN ESPERA' : 'VOZ ACTIVA');
     this.ui.detail.textContent = primaryDetail;
     this.ui.detail.title = primaryDetail;
     if (this.ui.errorDetail) {
       this.ui.errorDetail.textContent =
         status === 'error'
-          ? resolvedDetail || 'Voice session could not be started.'
+          ? resolvedDetail || 'No se pudo iniciar la sesión de voz.'
           : '';
     }
     if (status === 'idle' || status === 'connecting' || status === 'error') {

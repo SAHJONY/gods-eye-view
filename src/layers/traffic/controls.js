@@ -10,7 +10,7 @@ export function createControls({ state: layerState, services, parts, source }) {
   const methods = {
     id: 'traffic',
 
-    name: 'Street Traffic',
+    name: 'Tráfico vial',
 
     icon: '🚗',
 

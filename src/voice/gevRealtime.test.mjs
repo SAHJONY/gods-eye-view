@@ -318,7 +318,7 @@ test('push-to-talk starts once at 500ms and repeat does not reset the threshold'
   assert.equal(f.controller.pushToTalkKeyHeld, false);
   assert.equal(f.microphone.enabled, false);
   assert.equal(f.controller.ui.root.dataset.pushToTalk, undefined);
-  assert.equal(f.controller.ui.detail.textContent, 'Hold Space to talk');
+  assert.equal(f.controller.ui.detail.textContent, 'Mantén Espacio para hablar');
 });
 
 test('push-to-talk treats a Space release before 500ms as a background tap', (t) => {
@@ -483,7 +483,7 @@ test('voice control help tray reflects the push-to-talk key state', () => {
     resolveVoiceControlHint(false, false),
     'Hold Space to speak · tap Space to activate focused controls',
   );
-  assert.equal(resolveVoiceControlHint(true, true), 'Release Space to send');
+  assert.equal(resolveVoiceControlHint(true, true), 'Suelta Espacio para enviar');
   assert.equal(
     resolveVoiceControlHint(true, false),
     'Hold Space to speak · tap Space to activate focused controls',

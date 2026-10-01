@@ -1,5 +1,5 @@
 /**
- * SAHJONY · GOD'S EYE VIEW — Trade desk live-deal seeds
+ * SAHJONY · SAHJONY LIVE VIEW — Trade desk live-deal seeds
  * -----------------------------------------------------------------------
  * Seeds the worldwide trade desk pipeline (`sahjony.trade.v1`) with the
  * three LIVE deals on record. Every fact below is grounded in the

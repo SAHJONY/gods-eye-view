@@ -1,4 +1,4 @@
-// SAHJONY · GOD'S EYE VIEW — Energy (diesel/gasoline/LPG → Cuba) math engine.
+// SAHJONY · SAHJONY LIVE VIEW — Energy (diesel/gasoline/LPG → Cuba) math engine.
 // ---------------------------------------------------------------------------
 // Pure, unit-testable, zero dependencies. Bilingual (Spanish/English).
 // No cesium, no network, no API keys, no DOM.

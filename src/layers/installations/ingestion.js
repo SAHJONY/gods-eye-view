@@ -136,7 +136,7 @@ export function createIngestion({
           )
             return;
           placesError =
-            'Google Places search unavailable; showing mapped sites';
+            'Búsqueda de Google Places no disponible; mostrando sitios mapeados';
         }
       }
       await resolveGroundFloorCellsBounded(
@@ -169,9 +169,9 @@ export function createIngestion({
             : 'ready'
           : 'empty',
         payload.status === 'stale'
-          ? 'Serving cached mapped context'
+          ? 'Mostrando contexto mapeado en caché'
           : saturated
-            ? 'Too many mapped sites in view to list them all'
+            ? 'Demasiados sitios mapeados en vista para listarlos todos'
             : placesError,
       );
       parts.rendering.renderRecords();
@@ -187,7 +187,7 @@ export function createIngestion({
       layerState.failureReason = error?.failureReason || 'unavailable';
       setInstallationStatus(
         'unavailable',
-        error?.message || 'Installation context unavailable',
+        error?.message || 'Contexto de instalación no disponible',
       );
       parts.viewport.scheduleUnavailableRetry();
     } finally {

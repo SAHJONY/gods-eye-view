@@ -1,5 +1,5 @@
 /**
- * Cuba market (Dedicated Cuba Desk) dashboard for GOD'S EYE VIEW — $0, no
+ * Cuba market (Dedicated Cuba Desk) dashboard for SAHJONY LIVE VIEW — $0, no
  * API keys, no external calls.
  *
  * Mission-control panel for the Cuba desk of the import-export department

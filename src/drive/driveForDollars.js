@@ -1,5 +1,5 @@
 /**
- * Driver for Dollars — wholesaling mode for GOD'S EYE VIEW.
+ * Driver for Dollars — wholesaling mode for SAHJONY LIVE VIEW.
  *
  * $0, no API keys. While Juan drives a neighborhood, the app records the
  * GPS route, lets him drop pins on distressed properties (condition, notes,
@@ -782,7 +782,7 @@ export function initDriveForDollars({
     btnEl.id = 'gev-drive-btn';
     btnEl.type = 'button';
     btnEl.innerHTML = '<span class="sv-emoji">🚗</span><span>Driver $</span>';
-    btnEl.setAttribute('aria-label', 'Driver for dollars / modo manejo');
+    btnEl.setAttribute('aria-label', 'Modo manejo');
     btnEl.addEventListener('click', togglePanel);
     const dock = document.getElementById('command-dock');
     if (dock) dock.appendChild(btnEl);

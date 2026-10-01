@@ -22,7 +22,7 @@ import { VectorTile } from '@mapbox/vector-tile';
  * @module data/flowTiles
  */
 
-const FLOW_LAYER_NAME = 'Traffic flow';
+const FLOW_LAYER_NAME = 'Flujo de tráfico';
 export function decodeFlowTile(data, z, x, y) {
   let layer;
   try {

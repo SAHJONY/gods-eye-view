@@ -189,7 +189,7 @@ export function createFrames({ state: layerState, services, parts, source }) {
     const label = String(camera?.name || 'CCTV');
     const city = String(camera?.city || 'GLOBAL');
     const status = String(
-      health?.message || health?.status || camera?.feedType || 'NO FEED',
+      health?.message || health?.status || camera?.feedType || 'SIN SEÑAL',
     ).toUpperCase();
 
     ctx.strokeStyle = 'rgba(0, 220, 255, 0.24)';

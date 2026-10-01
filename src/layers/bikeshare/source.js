@@ -16,7 +16,7 @@ export function createBikeshareSource({
       const payload = await response.json();
       signal?.throwIfAborted();
       if (!payload || typeof payload !== 'object')
-        throw new Error('Malformed GBFS payload');
+        throw new Error('Datos GBFS malformados');
       return payload;
     },
   };

@@ -56,7 +56,7 @@ export class PanelPositionControls {
       );
       if (hadOldPositions) {
         this._showToast(
-          'Panel layout updated — positions reset to new defaults',
+          'Distribución del panel actualizada — posiciones restablecidas a los valores predeterminados',
         );
       }
     } catch {

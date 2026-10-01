@@ -236,7 +236,7 @@ function keySetupEndpoint({ sourceRoot = defaultSourceRoot } = {}) {
     }
   };
   return {
-    name: 'gev-key-setup',
+    name: 'sahjony-key-setup',
     // serve AND not preview: `vite preview` resolves with command 'serve' too,
     // so a bare apply:'serve' would still configure under preview. The endpoints
     // only install via configureServer (never configurePreviewServer), so they

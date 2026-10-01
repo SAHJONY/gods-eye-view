@@ -299,13 +299,13 @@ export class PanelChrome {
           panelEl
             .querySelector('.panel-title, .pp-header-label')
             ?.textContent?.trim() || 'panel';
-        const action = collapsed ? 'Expand' : 'Collapse';
+        const action = collapsed ? 'Expandir' : 'Contraer';
         btn.title = `${action} ${panelName}`;
         btn.setAttribute('aria-label', `${action} ${panelName}`);
         if (panelEl.id === 'radio-panel') {
-          const action = collapsed ? 'Expand' : 'Collapse';
-          btn.title = `${action} Radio`;
-          btn.setAttribute('aria-label', `${action} Radio section`);
+          const action = collapsed ? 'Expandir' : 'Contraer';
+          btn.title = `${action} la sección de Radio`;
+          btn.setAttribute('aria-label', `${action} la sección de Radio`);
         }
       });
     const dockToggle = panelEl.querySelector(
@@ -316,7 +316,7 @@ export class PanelChrome {
         panelEl
           .querySelector('.panel-title, .location-toolbar-label')
           ?.textContent?.trim() || 'panel';
-      const action = collapsed ? 'Expand' : 'Collapse';
+      const action = collapsed ? 'Expandir' : 'Contraer';
       dockToggle.setAttribute('aria-expanded', String(!collapsed));
       dockToggle.setAttribute('aria-label', `${action} ${panelName}`);
       dockToggle.title = `${action} ${panelName}`;

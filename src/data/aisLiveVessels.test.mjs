@@ -1295,7 +1295,7 @@ test('buildVesselCard: heading falls back to course; missing parts are omitted',
 });
 
 test('buildVesselCard: unnamed vessels title as MMSI; long names truncate', () => {
-  const unnamed = buildVesselCard(makeRecord({ name: 'VESSEL' }));
+  const unnamed = buildVesselCard(makeRecord({ name: 'BUQUE' }));
   assert.equal(unnamed.title, 'MMSI 353136000');
   const long = buildVesselCard(makeRecord({ name: 'A'.repeat(40) }));
   assert.ok(long.title.length <= 26, `title too long: ${long.title.length}`);
@@ -1349,7 +1349,7 @@ test('vessel host publication preserves the shipped grid winner and separation s
     speed,
     position: { x: 1, y: 2, z: 3, screen: { x, y } },
   });
-  const low = makeCandidate('100', 'VESSEL', 20, 20, 1);
+  const low = makeCandidate('100', 'BUQUE', 20, 20, 1);
   const winner = makeCandidate('200', 'NAMED WINNER', 40, 30, 16);
   const separated = makeCandidate('300', 'SEPARATED', 400, 300, 3);
   Cesium.SceneTransforms.worldToWindowCoordinates = (_scene, position) => position.screen;
@@ -1414,7 +1414,7 @@ test('vessel real layer lifecycle publishes protected selection and leaves no st
     assert.equal(publication.entries[0].variant, 'selected');
     assert.equal(publication.entries[0].protected, true);
     assert.equal(publication.entries[0].collisionGroup, 'ambient-card');
-    assert.match(publication.entries[0].accessibilityLabel, /Focus vessel EVER GIVEN, MMSI 353136000/);
+    assert.match(publication.entries[0].accessibilityLabel, /Enfocar buque EVER GIVEN, MMSI 353136000/);
     assert.equal(publication.entries[0].activate(), true);
     assert.equal(focusRequests.length, 1);
     assert.equal(focusRequests[0].id, '353136000');
@@ -1450,7 +1450,7 @@ test('buildSelectedVesselCard: destination line + STALE marker; placeholders for
   assert.deepEqual(card.details, [
     'TANKER · --KT · --°',
     '→ ROTTERDAM',
-    'MMSI 353136000 · POS: LIVE · STALE',
+    'MMSI 353136000 · POS: EN VIVO · OBSOLETO',
   ]);
 });
 

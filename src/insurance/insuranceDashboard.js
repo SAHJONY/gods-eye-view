@@ -1,5 +1,5 @@
 /**
- * Insurance Command Center dashboard for GOD'S EYE VIEW — $0, no API keys, no external calls.
+ * Insurance Command Center dashboard for SAHJONY LIVE VIEW — $0, no API keys, no external calls.
  *
  * Mission-control panel: big bilingual KPI cards (coverage gaps, renewals
  * ≤30 days, open claims, quotes tracked) plus one-tap buttons that open the

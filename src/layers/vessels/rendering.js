@@ -448,7 +448,7 @@ export function createRendering({
           : '';
         return {
           ...card,
-          accessibilityLabel: `Focus vessel ${card.title}, MMSI ${mmsi}`,
+          accessibilityLabel: `Enfocar buque ${card.title}, MMSI ${mmsi}`,
           activate: () => {
             const record = state.records.byMmsi.get(mmsi);
             if (!record) return false;

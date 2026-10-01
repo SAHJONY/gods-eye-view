@@ -340,7 +340,7 @@ test('keeps failed-launch mission details truthful without inventing paths', () 
     trajectory: [],
   }, false), {
     orbit: 'PLANNED · Geostationary Transfer Orbit',
-    ascent: 'UNAVAILABLE',
+    ascent: 'NO DISPONIBLE',
     replayAvailable: false,
   });
   assert.deepEqual(missionPathPresentation({
@@ -352,7 +352,7 @@ test('keeps failed-launch mission details truthful without inventing paths', () 
     ],
   }, false), {
     orbit: 'PLANNED · Low Earth Orbit',
-    ascent: 'SUPPLIED TRAJECTORY POINTS',
+    ascent: 'PUNTOS DE TRAYECTORIA SUMINISTRADOS',
     replayAvailable: false,
   });
 });
@@ -364,7 +364,7 @@ test('describes only renderable successful mission paths', () => {
     trajectory: [],
   }, true), {
     orbit: 'Low Earth Orbit',
-    ascent: 'RECONSTRUCTED ESTIMATE',
+    ascent: 'ESTIMACIÓN RECONSTRUIDA',
     replayAvailable: true,
   });
   assert.deepEqual(missionPathPresentation({
@@ -373,7 +373,7 @@ test('describes only renderable successful mission paths', () => {
     trajectory: [{ latitude: 28.5, longitude: -80.5 }],
   }, false), {
     orbit: null,
-    ascent: 'UNAVAILABLE',
+    ascent: 'NO DISPONIBLE',
     replayAvailable: false,
   });
 });
@@ -722,7 +722,7 @@ test('normalizes detailed payload and stage recovery records', () => {
   assert.equal(launches[0].payloads[0].amount, 2);
   assert.equal(launches[0].payloads[0].massKg, 420);
   assert.equal(launches[0].recoveryStages[0].name, 'Core · B1099');
-  assert.equal(launches[0].recoveryStages[0].status, 'RECOVERED');
+  assert.equal(launches[0].recoveryStages[0].status, 'RECUPERADA');
   assert.equal(launches[0].recoveryStages[0].downrangeKm, 610);
   assert.equal(launches[0].recoveryStages[0].lat, 30.1);
   assert.equal(launches[0].recoveryStages[0].lon, -76.2);
@@ -900,7 +900,7 @@ test('formats the launch epoch for ascent and orbit replay labels', () => {
     formatMissionEventTime('2026-06-29T02:25:00Z'),
     '2026-06-29\n02:25:00 UTC',
   );
-  assert.equal(formatMissionEventTime(null), 'UNAVAILABLE');
+  assert.equal(formatMissionEventTime(null), 'NO DISPONIBLE');
 });
 
 test('reduces generic launch-site names to their identifying suffix', () => {
@@ -939,17 +939,17 @@ test('mission overlay factories preserve all four source-formatted label roles a
 
   const selected = createRocketMissionMarkerOverlayEntry(launch, position, true);
   assert.equal(selected.title, 'FALCON 9');
-  assert.deepEqual(selected.details, ['LAUNCH SITE · 39A']);
+  assert.deepEqual(selected.details, ['SITIO DE LANZAMIENTO · 39A']);
   assert.equal(selected.paintLane, 'selected');
   assert.equal(selected.protected, true);
 
   const roles = [
-    ['reentry', 'STAGE RE-ENTRY', '#ffd166', ['STAGE RE-ENTRY', []]],
-    ['payload', 'EST. ORBIT POSITION\n2026-07-20\n10:00:00 UTC', '#ffd166', [
-      'EST. ORBIT POSITION',
+    ['reentry', 'REINGRESO DE ETAPA', '#ffd166', ['REINGRESO DE ETAPA', []]],
+    ['payload', 'POS. ORBITAL EST.\n2026-07-20\n10:00:00 UTC', '#ffd166', [
+      'POS. ORBITAL EST.',
       ['2026-07-20', '10:00:00 UTC'],
     ]],
-    ['orbit', 'PROJECTED ORBIT', '#c084fc', ['PROJECTED ORBIT', []]],
+    ['orbit', 'ÓRBITA PROYECTADA', '#c084fc', ['ÓRBITA PROYECTADA', []]],
   ];
   for (const [id, text, accent, [title, details]] of roles) {
     const entry = createRocketMissionElementOverlayEntry({ id, position, text, accent });
@@ -1203,11 +1203,11 @@ test('real mission build, select, refresh, deselect, disable, and destroy paths 
     assert.deepEqual(selectedPublication[3], ROCKET_MISSION_SELECTED_OVERLAY_SOURCE_OPTIONS);
     assert.deepEqual(selectedPublication[2].map(({ title }) => title), [
       'FALCON 9',
-      'STAGE RE-ENTRY',
-      'EST. ORBIT POSITION',
-      'PROJECTED ORBIT',
+      'REINGRESO DE ETAPA',
+      'POS. ORBITAL EST.',
+      'ÓRBITA PROYECTADA',
     ]);
-    assert.deepEqual(selectedPublication[2][0].details, ['LAUNCH SITE · 39A']);
+    assert.deepEqual(selectedPublication[2][0].details, ['SITIO DE LANZAMIENTO · 39A']);
     assert.match(selectedPublication[2][2].details[0], /^\d{4}-\d{2}-\d{2}$/);
     assert.match(selectedPublication[2][2].details[1], /^\d{2}:\d{2}:\d{2} UTC$/);
     assert.ok(selectedPublication[2].every((entry) => (
@@ -1284,7 +1284,7 @@ test('real mission build, select, refresh, deselect, disable, and destroy paths 
       type === 'entries' && sourceId === ROCKET_MISSION_SELECTED_OVERLAY_SOURCE_ID
     ));
     assert.equal(refreshPublication[2][0].title, 'MISSION REFRESH');
-    assert.deepEqual(refreshPublication[2][0].details, ['LAUNCH SITE · 39A']);
+    assert.deepEqual(refreshPublication[2][0].details, ['SITIO DE LANZAMIENTO · 39A']);
 
     _setSelectedRocketMissionForTest(null);
     const deselectedPublication = hostCalls.findLast(([type, sourceId]) => (
@@ -1410,7 +1410,7 @@ test('missing payload details stay unknown without inventing mass or classificat
     const [launch] = normalizeRocketLaunches([{ id: 'mass', pad: { latitude: 1, longitude: 2 }, net: '2026-07-20T10:00:00Z',
       payloads: [{ mass }] }], NOW);
     assert.equal(launch.payloads[0].massKg, expected);
-    assert.equal(launch.payloads[0].name, 'Unnamed payload');
+    assert.equal(launch.payloads[0].name, 'Carga sin nombre');
   }
   const [launch] = normalizeRocketLaunches([{ id: 'missing', pad: { latitude: 1, longitude: 2 }, net: '2026-07-20T10:00:00Z' }], NOW);
   assert.deepEqual(launch.payloads, []);

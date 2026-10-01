@@ -152,5 +152,5 @@ export const STYLE_STATUS_LABELS = {
   thermal: 'FLIR',
   anime: 'ANIME',
   noir: 'NOIR',
-  snow: 'SNOW',
+  snow: 'NIEVE',
 };

@@ -1,4 +1,4 @@
-// SAHJONY · GOD'S EYE VIEW — Energy desk store (diesel/gasoline/LPG → Cuba).
+// SAHJONY · SAHJONY LIVE VIEW — Energy desk store (diesel/gasoline/LPG → Cuba).
 // ---------------------------------------------------------------------------
 // localStorage pipeline store, guarded for non-browser. Key:
 // 'sahjony.energy.v1'. Falls back to in-memory storage outside a browser.

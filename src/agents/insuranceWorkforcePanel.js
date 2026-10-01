@@ -1,5 +1,5 @@
 /**
- * Insurance Workforce Panel for GOD'S EYE VIEW — $0, no API keys, no external calls.
+ * Insurance Workforce Panel for SAHJONY LIVE VIEW — $0, no API keys, no external calls.
  *
  * Roster of the 3 insurance agents (gap analyst, renewal watcher, claim-prep):
  * status dots, last action, Start/Pause/Resume + Run-once buttons, live

@@ -63,7 +63,7 @@ export function _handleContextLayerChange(change) {
               notificationToken,
             });
             return true;
-          }, 'Space Missions cancellation could not restore the previous layer state'),
+          }, 'La cancelación de Misiones Espaciales no pudo restaurar el estado anterior de las capas'),
         );
       }
     }
@@ -84,14 +84,14 @@ export function _handleContextLayerChange(change) {
     ) {
       this.showToast(
         change.reason ||
-          'That layer is unavailable in the current Context mode',
+          'Esa capa no está disponible en el modo de contexto actual',
       );
     }
     this._syncContextModeButtons();
     return;
   }
   if (change?.type === 'visibility-failed') {
-    const failureMessage = `${change.layerId} could not ${change.enabled ? 'start' : 'stop'} cleanly`;
+    const failureMessage = `${change.layerId} no pudo ${change.enabled ? 'iniciar' : 'detener'} correctamente`;
     // A failed direct Context-shell START has already had its siblings
     // cleared by the visibility guard. Wait outside the synchronous manager
     // notification for this queue to settle, then reconcile the complete

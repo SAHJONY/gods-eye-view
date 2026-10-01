@@ -1,5 +1,5 @@
 /**
- * SAHJONY · GOD'S EYE VIEW — MY CUBA CASH Workforce
+ * SAHJONY · SAHJONY LIVE VIEW — MY CUBA CASH Workforce
  * -----------------------------------------------------------------------
  * Client-side only. $0. No API keys. No external network calls.
  * The workforce runs ONLY while the app is open — nothing runs in the

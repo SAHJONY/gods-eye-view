@@ -31,9 +31,9 @@ export const DIRECTIONS_STEP_OVERLAY_SOURCE_OPTIONS = Object.freeze({
 
 /** Travel modes, keyed by the `/api/route` profile name. */
 export const DIRECTIONS_MODES = Object.freeze({
-  car: Object.freeze({ chip: 'DRIVE', word: 'Drive', icon: '🚗' }),
-  foot: Object.freeze({ chip: 'WALK', word: 'Walk', icon: '🚶' }),
-  bike: Object.freeze({ chip: 'BIKE', word: 'Bike', icon: '🚲' }),
+  car: Object.freeze({ chip: 'AUTO', word: 'Auto', icon: '🚗' }),
+  foot: Object.freeze({ chip: 'A PIE', word: 'A pie', icon: '🚶' }),
+  bike: Object.freeze({ chip: 'BICI', word: 'Bici', icon: '🚲' }),
 });
 export const DEFAULT_DIRECTIONS_MODE = 'car';
 
@@ -110,29 +110,29 @@ export function directionsRowControls(state) {
     label: spec.chip,
     active: mode === id,
     state: mode === id ? 'active' : 'idle',
-    title: `${spec.word} — reroute for ${spec.word.toLowerCase()}`,
+    title: `${spec.word} — recalcular ruta para ${spec.word.toLowerCase()}`,
     params: { mode: id },
   }));
   chips.push({
     id: 'set-a',
-    label: armed === 'a' ? 'CLICK MAP' : a ? 'A ✓' : 'SET A',
+    label: armed === 'a' ? 'CLIC EN MAPA' : a ? 'A ✓' : 'FIJAR A',
     active: armed === 'a',
     state: armed === 'a' ? 'active' : 'idle',
     title:
       armed === 'a'
-        ? 'Click a spot on the globe to place A (click again to cancel)'
-        : 'Then click the globe to place the start',
+        ? 'Clic en un punto del globo para colocar A (clic de nuevo para cancelar)'
+        : 'Luego clic en el globo para colocar el inicio',
     params: { arm: armed === 'a' ? null : 'a' },
   });
   chips.push({
     id: 'set-b',
-    label: armed === 'b' ? 'CLICK MAP' : b ? 'B ✓' : 'SET B',
+    label: armed === 'b' ? 'CLIC EN MAPA' : b ? 'B ✓' : 'FIJAR B',
     active: armed === 'b',
     state: armed === 'b' ? 'active' : 'idle',
     title:
       armed === 'b'
-        ? 'Click a spot on the globe to place B (click again to cancel)'
-        : 'Then click the globe to place the destination',
+        ? 'Clic en un punto del globo para colocar B (clic de nuevo para cancelar)'
+        : 'Luego clic en el globo para colocar el destino',
     params: { arm: armed === 'b' ? null : 'b' },
   });
   chips.push({
@@ -140,23 +140,23 @@ export function directionsRowControls(state) {
     label: '⇄',
     disabled: !(a && b) || routing,
     state: 'idle',
-    title: 'Swap A and B',
+    title: 'Intercambiar A y B',
     params: { swap: true },
   });
   const flying = Number.isInteger(flightStep);
   chips.push({
     id: 'fly',
-    label: routing ? 'FLY ···' : flying ? 'FLYING' : 'FLY',
+    label: routing ? 'VOLAR ···' : flying ? 'VOLANDO' : 'VOLAR',
     disabled: !route || routing,
     busy: routing || flying,
     active: flying,
     state: routing || flying ? 'loading' : 'idle',
-    title: route ? 'Fly the camera along the route' : 'Place A and B first',
+    title: route ? 'Vuela la cámara a lo largo de la ruta' : 'Coloca A y B primero',
     params: { fly: true },
   });
   chips.push({
     id: 'clear',
-    label: 'CLEAR',
+    label: 'LIMPIAR',
     disabled: !a && !b && !route,
     state: 'idle',
     title: 'Remove the route and both markers',
@@ -179,8 +179,8 @@ export function directionsRowControls(state) {
  */
 export const POINTER_TOOL_EXITS = Object.freeze({
   draw: Object.freeze({
-    name: 'Draw',
-    leave: 'press Escape twice to leave Draw',
+    name: 'Dibujar',
+    leave: 'pulsa Escape dos veces para salir de Dibujar',
   }),
 });
 
@@ -378,10 +378,10 @@ export function directionsStats(state) {
     };
   }
   let coverage;
-  if (armed) coverage = `Click the globe to place ${armed.toUpperCase()}`;
-  else if (a && !b) coverage = 'SET B, then click the globe';
-  else if (!a && b) coverage = 'SET A, then click the globe';
-  else coverage = 'SET A, then click the globe';
+  if (armed) coverage = `Clic en el globo para colocar ${armed.toUpperCase()}`;
+  else if (a && !b) coverage = 'FIJAR B, luego clic en el globo';
+  else if (!a && b) coverage = 'FIJAR A, luego clic en el globo';
+  else coverage = 'FIJAR A, luego clic en el globo';
   return {
     count: 0,
     lastUpdate,
@@ -1247,7 +1247,7 @@ export function createDirectionsLayer({ services }) {
 
   const directionsLayer = {
     id: 'directions',
-    name: 'Directions',
+    name: 'Direcciones',
     icon: '🧭',
     source: 'OSM routing',
     updateInterval: 0,

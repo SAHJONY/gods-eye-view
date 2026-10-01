@@ -10,7 +10,7 @@
  * readout reporting "Location: --" while the camera sat over the destination.
  */
 
-const EMPTY = Object.freeze({ city: '📍 Location: --', poi: 'Landmark: --' });
+const EMPTY = Object.freeze({ city: '📍 Ubicación: --', poi: 'Punto de referencia: --' });
 
 /** Split a geocoder `formatted_address` into its trimmed, non-empty segments. */
 export function addressSegments(label) {
@@ -58,7 +58,7 @@ export function locationMiniStatus({
       poi:
         segments.length > 1
           ? segments.slice(1).join(', ')
-          : 'Searched location',
+          : 'Ubicación buscada',
     };
   }
 

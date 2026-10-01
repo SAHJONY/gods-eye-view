@@ -1,5 +1,5 @@
 /**
- * Insurance Command Center store for GOD'S EYE VIEW — $0, no API keys, no network.
+ * Insurance Command Center store for SAHJONY LIVE VIEW — $0, no API keys, no network.
  *
  * Read-through localStorage wrapper over the SAME key the standalone app
  * (public/insurance/index.html) uses, so GEV and the standalone app share one

@@ -19,7 +19,7 @@ export function createPresentation({
     if (!active) {
       return layerState._records.length
         ? `${layerState._records.length} CAMERAS STANDING BY · NO CAMERA SELECTED · CLICK A CAMERA TO ACTIVATE`
-        : 'No cameras available in catalog.';
+        : 'No hay cámaras disponibles en el catálogo.';
     }
 
     const area = parts.model.sectorAreaKm2(
@@ -38,9 +38,9 @@ export function createPresentation({
       `HDG ${Math.round(active.camera.headingDeg)}°`,
       `FOV ${Math.round(active.camera.fovDeg)}°`,
       `COVERAGE ${area.toFixed(2)}km²`,
-      overlapCount > 0 ? `OVERLAP ${overlapCount} cams` : 'ISOLATED VIEW',
-      `PROJ ${layerState._showProjection ? 'MONITOR' : 'OFF'}`,
-      layerState._coverageMode === 'viewshed' ? 'VIEWSHED' : null,
+      overlapCount > 0 ? `OVERLAP ${overlapCount} cams` : 'VISTA AISLADA',
+      `PROJ ${layerState._showProjection ? 'MONITOR' : 'APAGADO'}`,
+      layerState._coverageMode === 'viewshed' ? 'CAMPO VISUAL' : null,
       `CAL ${calBadge.replace('-', ' ').toUpperCase()}`,
       health?.sourceKind
         ? `SRC ${String(health.sourceKind).toUpperCase()}`

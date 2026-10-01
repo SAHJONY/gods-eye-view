@@ -20,8 +20,8 @@ export function updateContext(info, heading) {
     this.pushCockpitSignal(
       'context-status',
       'info',
-      'CONTEXT STANDBY',
-      'ENABLE GLOBAL CONTEXT FOR PROXIMITY PINGS',
+      'CONTEXTO EN ESPERA',
+      'ACTIVA EL CONTEXTO GLOBAL PARA PINGS DE PROXIMIDAD',
     );
     return;
   }
@@ -53,7 +53,7 @@ export function updateContext(info, heading) {
     this.context.dataset.state = 'lost';
     if (this.contextUncertainty) {
       this.contextUncertainty.textContent =
-        'CONTACT LOST · LAST KNOWN READOUT · NOT AN ALL-CLEAR';
+        'CONTACTO PERDIDO · ÚLTIMA LECTURA CONOCIDA · NO ES SEÑAL DE DESPEJE';
     }
     // The cue changes the footer's height; re-run layout once on the way in
     // rather than every frame the contact stays lost.
@@ -61,8 +61,8 @@ export function updateContext(info, heading) {
     this.pushCockpitSignal(
       'context-status',
       'warning',
-      `CONTACT LOST · ${snapshot.subject.label || snapshot.subject.id || 'SUBJECT'}`,
-      'SUBJECT LEFT ITS FEED · READOUT HOLDING LAST KNOWN',
+      `CONTACTO PERDIDO · ${snapshot.subject.label || snapshot.subject.id || 'OBJETIVO'}`,
+      'EL OBJETIVO ABANDONÓ SU FUENTE · LECTURA RETENIDA EN ÚLTIMA CONOCIDA',
     );
     return;
   }
@@ -84,11 +84,11 @@ export function updateContext(info, heading) {
   if (this.contextNearestLabel) {
     this.contextNearestLabel.textContent = closest
       ? `${closest.cohort.label.toUpperCase()} · ${closestLabel}`
-      : 'NO AVAILABLE EXAMPLE';
+      : 'SIN EJEMPLO DISPONIBLE';
     this.contextNearestLabel.setAttribute(
       'aria-label',
       closest && closestLabel === '—'
-        ? `${closest.cohort.label}, Unavailable`
+        ? `${closest.cohort.label}, No disponible`
         : this.contextNearestLabel.textContent,
     );
   }
@@ -101,7 +101,7 @@ export function updateContext(info, heading) {
       'aria-label',
       Number.isFinite(distanceM)
         ? this.contextDistance.textContent
-        : 'Unavailable',
+        : 'No disponible',
     );
   }
 
@@ -134,14 +134,14 @@ export function updateContext(info, heading) {
   }
   if (this.contextBearing) {
     if (relative === null) this.contextBearing.textContent = 'BRG —';
-    else if (Math.abs(relative) < 8) this.contextBearing.textContent = 'AHEAD';
+    else if (Math.abs(relative) < 8) this.contextBearing.textContent = 'DE FRENTE';
     else
       this.contextBearing.textContent = `${relative < 0 ? 'L' : 'R'} ${String(Math.round(Math.abs(relative))).padStart(3, '0')}°`;
   }
   if (this.contextUncertainty) {
     this.contextUncertainty.textContent = unknownCount
-      ? `${unknownCount} INPUT${unknownCount === 1 ? '' : 'S'} UNKNOWN · NOT AN ALL-CLEAR`
-      : 'AVAILABLE INPUTS CURRENT · NOT AN ALL-CLEAR';
+      ? `${unknownCount} ENTRADA${unknownCount === 1 ? '' : 'S'} DESCONOCIDA · NO ES SEÑAL DE DESPEJE`
+      : 'ENTRADAS DISPONIBLES ACTUALES · NO ES SEÑAL DE DESPEJE';
   }
   if (this.contextUpdated) {
     this.contextUpdated.textContent = Number.isFinite(snapshot.evaluatedAt)

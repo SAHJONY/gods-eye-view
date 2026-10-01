@@ -66,12 +66,14 @@ test('root config retains existing named exports and standalone provider order',
     config.plugins.slice(2, -1).map((plugin) => plugin.name),
     providers.localProviderPlugins().map((plugin) => plugin.name),
   );
-  assert.equal(config.plugins.at(-2).name, 'gev-key-setup');
+  assert.equal(config.plugins.at(-4).name, 'sahjony-key-setup');
+  assert.equal(config.plugins.at(-3).name, 'sahjony-portal-api');
+  assert.equal(config.plugins.at(-2).name, 'sahjony-platform-shell');
   assert.equal(config.plugins.at(-1).name, 'api-not-found');
 });
 
 test('build export resolves in Node and has no browser fallback', async () => {
-  const exported = await import('gods-eye-view/build/vite');
+  const exported = await import('sahjony-live-view/build/vite');
   assert.equal(exported.createBrowserViteConfig, createBrowserViteConfig);
   const pkg = JSON.parse(
     readFileSync(new URL('../../package.json', import.meta.url)),

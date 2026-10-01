@@ -85,7 +85,7 @@ export class RealtimeTurns {
 
   sendTextCommand(text) {
     if (!this.dc || this.dc.readyState !== 'open') {
-      throw new Error('GEV voice is not connected');
+      throw new Error('La voz de GEV no está conectada');
     }
     const cleanText = String(text || '').trim();
     if (!cleanText) return;
@@ -207,7 +207,7 @@ export class RealtimeTurns {
           eventId: payload.event_id,
           activeResponseMessage: payload.error?.message || null,
         });
-        this.setStatus('listening', 'Ask or command');
+        this.setStatus('listening', 'Pregunta o comando');
         return;
       }
       // A conversation.item.delete for a stale viewport screenshot can land
@@ -327,7 +327,7 @@ export class RealtimeTurns {
       return;
     }
 
-    this.setStatus('executing', 'Running command');
+    this.setStatus('executing', 'Ejecutando comando');
     this.pruneProcessedCalls();
     let sentOutput = false;
     let lastResult = null;
@@ -486,7 +486,7 @@ export class RealtimeTurns {
           : null;
         result = {
           ok: false,
-          error: error?.message || 'GEV command failed',
+          error: error?.message || 'Falló el comando de GEV',
           tool: call.name,
           ...(isRadioFeatureCall
             ? readLayerLifecycleSummary(this.dataManager, 'radio', {
@@ -577,7 +577,7 @@ export class RealtimeTurns {
         ),
       );
     }
-    this.setStatus('listening', 'Ask or command');
+    this.setStatus('listening', 'Pregunta o comando');
   }
 
   sendToolOutput(callId, result) {
@@ -631,7 +631,7 @@ export class RealtimeTurns {
       if (responseStatus === 'failed') {
         const details = payload.response?.status_details || null;
         const failErr = details?.error || null;
-        this.reportError('Realtime response failed', failErr, {
+        this.reportError('Falló la respuesta en tiempo real', failErr, {
           responseId: payload.response?.id || payload.response_id || null,
           statusReason: details?.reason || null,
           type: failErr?.type || null,
@@ -642,7 +642,7 @@ export class RealtimeTurns {
         // connection is still live. Recover to listening so the user can retry
         // (mirrors the transient-blip philosophy, H8).
         if (this.dc?.readyState === 'open') {
-          this.setStatus('listening', 'Ask or command');
+          this.setStatus('listening', 'Pregunta o comando');
         }
       }
       if (!this.radio.pendingRadioPlaybackResult) {

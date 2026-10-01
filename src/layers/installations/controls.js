@@ -6,7 +6,7 @@ export function createControls({ state: layerState, services, parts, source }) {
   const methods = {
     id: LAYER_ID,
 
-    name: 'Mapped Installations',
+    name: 'Instalaciones mapeadas',
 
     icon: '⌖',
 

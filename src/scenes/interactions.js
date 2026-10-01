@@ -24,7 +24,7 @@ export function createSceneInteractions(
         card.append(text);
         if (item.action.url) {
           const link = document.createElement('a');
-          link.textContent = 'Source';
+          link.textContent = 'Fuente';
           link.style.color = '#6eeaff';
           link.href = item.action.url;
           link.target = '_blank';
@@ -60,8 +60,8 @@ export function createSceneInteractions(
     const ok = await session.dispatch(id);
     if (current && current === panel && status)
       status.textContent = ok
-        ? 'Action complete'
-        : 'Action unavailable or cancelled';
+        ? 'Acción completada'
+        : 'Acción no disponible o cancelada';
     return ok;
   }
   return {
@@ -87,7 +87,7 @@ export function createSceneInteractions(
       }
       panel = document.createElement('section');
       panel.dataset.directorInteractions = '';
-      panel.setAttribute('aria-label', 'Scene actions');
+      panel.setAttribute('aria-label', 'Acciones de escena');
       Object.assign(panel.style, {
         position: 'absolute',
         left: '12px',
@@ -104,12 +104,12 @@ export function createSceneInteractions(
       });
       const owner = panel;
       const title = document.createElement('strong');
-      title.textContent = 'Scene actions';
+      title.textContent = 'Acciones de escena';
       panel.append(title);
       status = document.createElement('p');
       status.setAttribute('role', 'status');
       status.textContent =
-        'Select a feature or use Tab and Enter to choose an action.';
+        'Selecciona una función o usa Tab y Enter para elegir una acción.';
       panel.append(status);
       for (const item of items) {
         const button = document.createElement('button');

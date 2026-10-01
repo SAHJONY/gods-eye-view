@@ -1,5 +1,5 @@
 /**
- * SAHJONY · GOD'S EYE VIEW — Crude Oil Brokerage Workforce
+ * SAHJONY · SAHJONY LIVE VIEW — Crude Oil Brokerage Workforce
  * -----------------------------------------------------------------------
  * Client-side only. $0. No API keys. No external network calls.
  * The workforce runs ONLY while the app is open — nothing runs in the

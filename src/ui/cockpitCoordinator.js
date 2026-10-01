@@ -201,7 +201,7 @@ export class CockpitCoordinator {
     if (!['flights', 'military'].includes(targetLayer)) {
       return {
         ok: false,
-        error: `Cockpit flies aircraft only — ${targetLayer} contacts cannot be entered`,
+        error: `La cabina solo opera aviones — los contactos de ${targetLayer} no se pueden usar`,
       };
     }
     const activeLayer =
@@ -224,7 +224,7 @@ export class CockpitCoordinator {
     const filtered = aircraftClass ? `${aircraftClass} ` : '';
     return {
       ok: false,
-      error: `No ${filtered}${label} contact is available to enter — track one first, or say "next ${label}"`,
+      error: `Ningún contacto ${filtered}${label} disponible para entrar — rastrea uno primero, o di "next ${label}"`,
     };
   }
 
@@ -244,7 +244,7 @@ export class CockpitCoordinator {
       return {
         ok: false,
         action: 'control_cockpit',
-        error: 'Cockpit controller unavailable',
+        error: 'Controlador de cabina no disponible',
         state: this.getCockpitState(),
       };
     }
@@ -266,8 +266,8 @@ export class CockpitCoordinator {
           ok: false,
           action: 'control_cockpit',
           error: this._contextModeChanging
-            ? 'Contacts is still starting up — try Cockpit again in a moment'
-            : 'Contacts must be active to enter Cockpit — say "open contacts" first',
+            ? 'Los contactos aún se están iniciando — intenta la cabina de nuevo en un momento'
+            : 'Los contactos deben estar activos para entrar a la cabina — di "open contacts" primero',
           state: this.getCockpitState(),
         };
       }
@@ -336,7 +336,7 @@ export class CockpitCoordinator {
         ok: exited,
         action: 'control_cockpit',
         state: this.getCockpitState(),
-        error: exited ? null : 'Cockpit was already inactive',
+        error: exited ? null : 'La cabina ya estaba inactiva',
       };
     }
     if (normalized === 'next' || normalized === 'previous') {
@@ -352,13 +352,13 @@ export class CockpitCoordinator {
         ok: changed,
         action: 'control_cockpit',
         state: this.getCockpitState(),
-        error: changed ? null : 'No further context target was available',
+        error: changed ? null : 'No había más objetivos de contexto disponibles',
       };
     }
     return {
       ok: false,
       action: 'control_cockpit',
-      error: `Unknown cockpit action: ${action}`,
+      error: `Acción de cabina desconocida: ${action}`,
       state: this.getCockpitState(),
     };
   }

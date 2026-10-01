@@ -61,7 +61,7 @@ export function createSubject({ state: layerState, services, parts, source }) {
       cohorts: [
         {
           id: 'flights',
-          label: 'Flights',
+          label: 'Vuelos',
           source: flightsState.stats.source || SOURCE_LABEL.flights,
           summary: parts.navigation.summarizeAwarenessCohortForNavigation(
             flights,
@@ -70,7 +70,7 @@ export function createSubject({ state: layerState, services, parts, source }) {
         },
         {
           id: 'military',
-          label: 'Military flights',
+          label: 'Vuelos militares',
           source: militaryState.stats.source || SOURCE_LABEL.military,
           summary: parts.navigation.summarizeAwarenessCohortForNavigation(
             military,
@@ -79,7 +79,7 @@ export function createSubject({ state: layerState, services, parts, source }) {
         },
         {
           id: 'ais-live-vessels',
-          label: 'AIS vessels',
+          label: 'Buques AIS',
           source: vesselsState.stats.source || SOURCE_LABEL['ais-live-vessels'],
           summary: parts.navigation.summarizeAwarenessCohortForNavigation(
             vessels,
@@ -88,11 +88,11 @@ export function createSubject({ state: layerState, services, parts, source }) {
         },
         {
           id: 'military-installations',
-          label: 'Mapped installations',
+          label: 'Instalaciones mapeadas',
           source:
             installationsState.stats.source ||
             SOURCE_LABEL['military-installations'],
-          coverage: 'CURRENT VIEWPORT ONLY',
+          coverage: 'SOLO VENTANA ACTUAL',
           summary: parts.queries.summarizeInstallationViewport(
             installations,
             installationsState,

@@ -1,5 +1,5 @@
 /**
- * MY CUBA CASH AI Workforce Panel for GOD'S EYE VIEW — $0, no API keys,
+ * MY CUBA CASH AI Workforce Panel for SAHJONY LIVE VIEW — $0, no API keys,
  * no external calls.
  *
  * Roster of the 4 local MY CUBA CASH AI agents: status dots, last action,

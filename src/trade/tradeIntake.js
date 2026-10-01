@@ -1,5 +1,5 @@
 /**
- * SAHJONY · GOD'S EYE VIEW — Trade desk intake & triage queue
+ * SAHJONY · SAHJONY LIVE VIEW — Trade desk intake & triage queue
  * -----------------------------------------------------------------------
  * Pure, unit-testable, zero dependencies. No cesium, no network, no keys.
  *

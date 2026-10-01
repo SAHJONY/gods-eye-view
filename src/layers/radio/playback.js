@@ -76,7 +76,7 @@ export function createPlayback({ state: layerState, services, parts, source }) {
       if (tryRadioFallback(failedId, attempt?.origin, attempt?.id)) return;
       layerState._audioState = 'error';
       layerState._audioError =
-        'Broadcaster stream is unavailable or blocked by the browser.';
+        'La transmisión de la emisora no está disponible o el navegador la bloqueó.';
       parts.presentation.emitState();
     });
   }
@@ -202,8 +202,8 @@ export function createPlayback({ state: layerState, services, parts, source }) {
       layerState._audioState = 'error';
       layerState._audioError =
         error?.name === 'NotAllowedError'
-          ? 'Playback requires a direct click or tap.'
-          : 'Broadcaster stream could not be started.';
+          ? 'La reproducción requiere un clic o toque directo.'
+          : 'No se pudo iniciar la transmisión de la emisora.';
       parts.presentation.emitState();
       return false;
     }

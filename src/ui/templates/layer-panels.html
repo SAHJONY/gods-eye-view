@@ -4,9 +4,9 @@
     <div class="panel-glow"></div>
     <div class="data-panel-inner">
       <div class="panel-header">
-        <span class="panel-title">DATA LAYERS</span>
+        <span class="panel-title">CAPAS DE DATOS</span>
         <span class="panel-divider"></span>
-        <button class="panel-collapse-btn" data-collapse-target="data-panel" title="Collapse panel">+</button>
+        <button class="panel-collapse-btn" data-collapse-target="data-panel" title="Contraer panel">+</button>
       </div>
       <div id="data-toggles" class="data-toggle-list"></div>
     </div>
@@ -19,52 +19,52 @@
       <div class="panel-header">
         <span class="panel-title">CCTV</span>
         <span class="panel-divider"></span>
-        <button class="panel-collapse-btn" data-collapse-target="cctv-panel" title="Collapse panel">+</button>
+        <button class="panel-collapse-btn" data-collapse-target="cctv-panel" title="Contraer panel">+</button>
       </div>
       <div id="cctv-frame-wrap" class="cctv-frame-wrap">
-        <img id="cctv-frame" alt="CCTV feed frame" />
+        <img id="cctv-frame" alt="Fotograma del feed CCTV" />
       </div>
-      <div id="cctv-source-badge" role="status" aria-live="polite">SOURCE · UNKNOWN</div>
-      <div id="cctv-meta">Enable CCTV to load camera intersections</div>
+      <div id="cctv-source-badge" role="status" aria-live="polite">FUENTE · DESCONOCIDA</div>
+      <div id="cctv-meta">Activa CCTV para cargar intersecciones de cámaras</div>
       <div class="cctv-controls">
-        <button id="cctv-enable-btn" class="scene-btn">CCTV OFF</button>
-        <button id="cctv-nearest-btn" class="scene-btn">NEAREST</button>
-      </div>
-      <div class="cctv-controls">
-        <button id="cctv-prev-btn" class="scene-btn">PREV</button>
-        <select id="cctv-camera-select" aria-label="CCTV camera"></select>
-        <button id="cctv-next-btn" class="scene-btn">NEXT</button>
+        <button id="cctv-enable-btn" class="scene-btn">CCTV APAGADO</button>
+        <button id="cctv-nearest-btn" class="scene-btn">MÁS CERCANA</button>
       </div>
       <div class="cctv-controls">
-        <button id="cctv-focus-btn" class="scene-btn">FOCUS</button>
-        <button id="cctv-coverage-btn" class="scene-btn">COVERAGE OFF</button>
-        <button id="cctv-auto-hop-btn" class="scene-btn">AUTO HOP OFF</button>
+        <button id="cctv-prev-btn" class="scene-btn">ANT</button>
+        <select id="cctv-camera-select" aria-label="Cámara CCTV"></select>
+        <button id="cctv-next-btn" class="scene-btn">SIG</button>
       </div>
       <div class="cctv-controls">
-        <button id="cctv-projection-btn" class="scene-btn">PROJECTION ON</button>
+        <button id="cctv-focus-btn" class="scene-btn">ENFOCAR</button>
+        <button id="cctv-coverage-btn" class="scene-btn">COBERTURA APAGADA</button>
+        <button id="cctv-auto-hop-btn" class="scene-btn">SALTO AUTO APAGADO</button>
+      </div>
+      <div class="cctv-controls">
+        <button id="cctv-projection-btn" class="scene-btn">PROYECCIÓN ACTIVADA</button>
         <span id="cctv-quality-chip">CAL · --</span>
       </div>
       <div class="cctv-calibration-block">
         <div class="cctv-calibration-header">
-          <div class="cctv-summary-label">CALIBRATION</div>
-          <button id="cctv-adjust-btn" class="scene-btn" title="Drag the camera in the world: rings rotate, arrows move, handles set range/FOV">ADJUST</button>
+          <div class="cctv-summary-label">CALIBRACIÓN</div>
+          <button id="cctv-adjust-btn" class="scene-btn" title="Arrastra la cámara en el mundo: los anillos rotan, las flechas mueven, los controles fijan alcance/FOV">AJUSTAR</button>
         </div>
-        <div id="cctv-cal-readout" class="cctv-cal-readout" aria-label="Camera pose — click a value to type">
-          <button class="cctv-cal-value" data-cal-field="heading" title="Heading (compass °) — click to type">HDG --</button>
-          <button class="cctv-cal-value" data-cal-field="pitch" title="Pitch (° up/down) — click to type">PITCH --</button>
-          <button class="cctv-cal-value" data-cal-field="fov" title="Horizontal FOV (°) — click to type">FOV --</button>
-          <button class="cctv-cal-value" data-cal-field="range" title="Range / monitor-plane distance (m) — click to type">RANGE --</button>
-          <button class="cctv-cal-value" data-cal-field="height" title="Mount height above ground (m) — click to type">HGT --</button>
-          <button class="cctv-cal-value" data-cal-field="north" title="North offset from catalog position (m) — click to type">ΔN --</button>
-          <button class="cctv-cal-value" data-cal-field="east" title="East offset from catalog position (m) — click to type">ΔE --</button>
+        <div id="cctv-cal-readout" class="cctv-cal-readout" aria-label="Posición de cámara: clic en un valor para escribir">
+          <button class="cctv-cal-value" data-cal-field="heading" title="Rumbo (brújula °): clic para escribir">HDG --</button>
+          <button class="cctv-cal-value" data-cal-field="pitch" title="Cabeceo (° arriba/abajo): clic para escribir">PITCH --</button>
+          <button class="cctv-cal-value" data-cal-field="fov" title="FOV horizontal (°): clic para escribir">FOV --</button>
+          <button class="cctv-cal-value" data-cal-field="range" title="Alcance / distancia al plano de monitoreo (m): clic para escribir">RANGE --</button>
+          <button class="cctv-cal-value" data-cal-field="height" title="Altura de montaje sobre el suelo (m): clic para escribir">HGT --</button>
+          <button class="cctv-cal-value" data-cal-field="north" title="Desplazamiento norte desde la posición del catálogo (m): clic para escribir">ΔN --</button>
+          <button class="cctv-cal-value" data-cal-field="east" title="Desplazamiento este desde la posición del catálogo (m): clic para escribir">ΔE --</button>
         </div>
         <div class="cctv-controls cctv-calibration-actions">
-          <button id="cctv-calib-save-btn" class="scene-btn">SAVE CAL</button>
-          <button id="cctv-calib-reset-btn" class="scene-btn">RESET CAL</button>
+          <button id="cctv-calib-save-btn" class="scene-btn">GUARDAR CAL</button>
+          <button id="cctv-calib-reset-btn" class="scene-btn">RESTABLECER CAL</button>
         </div>
       </div>
-      <div class="cctv-summary-label">SCENE SUMMARY</div>
-      <div id="cctv-summary">Enable CCTV to start camera-linked intelligence summaries.</div>
+      <div class="cctv-summary-label">RESUMEN DE ESCENA</div>
+      <div id="cctv-summary">Activa CCTV para iniciar resúmenes de inteligencia vinculados a cámaras.</div>
     </div>
   </div>
 
@@ -73,35 +73,35 @@
     <div class="panel-glow"></div>
     <div class="scene-panel-inner">
       <div class="panel-header">
-        <span class="panel-title">SCENES</span>
+        <span class="panel-title">ESCENAS</span>
         <span class="panel-divider"></span>
-        <button class="panel-collapse-btn" data-collapse-target="scene-panel" title="Collapse panel">+</button>
+        <button class="panel-collapse-btn" data-collapse-target="scene-panel" title="Contraer panel">+</button>
       </div>
       <div class="scene-controls">
-        <select id="scene-select" aria-label="Scene recipe"></select>
-        <button id="scene-new-btn" class="scene-btn">NEW</button>
-        <button id="scene-delete-btn" class="scene-btn scene-btn-danger">DEL</button>
+        <select id="scene-select" aria-label="Receta de escena"></select>
+        <button id="scene-new-btn" class="scene-btn">NUEVA</button>
+        <button id="scene-delete-btn" class="scene-btn scene-btn-danger">ELIMINAR</button>
       </div>
       <div class="scene-controls">
-        <button id="scene-capture-btn" class="scene-btn">CAPTURE SHOT</button>
-        <button id="scene-update-shot-btn" class="scene-btn">UPDATE SHOT</button>
+        <button id="scene-capture-btn" class="scene-btn">CAPTURAR TOMA</button>
+        <button id="scene-update-shot-btn" class="scene-btn">ACTUALIZAR TOMA</button>
       </div>
       <div id="scene-shot-list" class="scene-shot-list"></div>
       <div class="scene-controls">
-        <button id="scene-start-btn" class="scene-btn">START</button>
-        <button id="scene-stop-btn" class="scene-btn scene-btn-danger">STOP</button>
-        <button id="scene-next-btn" class="scene-btn">NEXT</button>
+        <button id="scene-start-btn" class="scene-btn">INICIAR</button>
+        <button id="scene-stop-btn" class="scene-btn scene-btn-danger">DETENER</button>
+        <button id="scene-next-btn" class="scene-btn">SIGUIENTE</button>
       </div>
       <div class="scene-controls">
-        <button id="scene-export-btn" class="scene-btn">EXPORT PRESETS</button>
-        <button id="scene-import-btn" class="scene-btn">IMPORT</button>
-        <button id="scene-download-btn" class="scene-btn">RUN LOG</button>
+        <button id="scene-export-btn" class="scene-btn">EXPORTAR PREAJUSTES</button>
+        <button id="scene-import-btn" class="scene-btn">IMPORTAR</button>
+        <button id="scene-download-btn" class="scene-btn">REGISTRO</button>
         <input type="file" id="scene-import-file" accept="application/json,.json" hidden />
       </div>
       <div class="scene-progress">
         <div id="scene-progress-fill">0%</div>
       </div>
-      <div id="scene-status">Ready</div>
+      <div id="scene-status">Listo</div>
     </div>
   </div>
 

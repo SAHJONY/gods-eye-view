@@ -262,10 +262,10 @@ export function createAlprPresentation({ state, services, source }) {
         id: record.id,
         layerId: LAYER_ID,
         dataSource: state.dataSource,
-        layerName: 'ALPR Cameras',
+        layerName: 'Cámaras ALPR',
         source:
           source.attribution?.description || source.label || 'Camera source',
-        label: 'ALPR camera',
+        label: 'Cámara ALPR',
         latitude: record.latitude,
         longitude: record.longitude,
         properties: {

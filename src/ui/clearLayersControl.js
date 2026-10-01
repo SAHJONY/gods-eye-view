@@ -12,7 +12,7 @@ export function bindClearLayersControl(button, clear) {
       button.setAttribute('aria-busy', String(busy));
       button.setAttribute(
         'aria-label',
-        busy ? 'Clearing selected data layers' : 'Clear selected data layers',
+        busy ? 'Borrando las capas de datos seleccionadas' : 'Borrar las capas de datos seleccionadas',
       );
     },
     destroy() {

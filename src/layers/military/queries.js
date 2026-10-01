@@ -54,7 +54,7 @@ export function createQueries({
    */
 
   function _formatAltitude(altitudeFt) {
-    if (!Number.isFinite(altitudeFt)) return 'Alt unknown';
+    if (!Number.isFinite(altitudeFt)) return 'Alt desconocida';
     return `${Math.round(altitudeFt)} ft`;
   }
 
@@ -196,7 +196,7 @@ export function createQueries({
 
     id: 'military',
 
-    name: 'Military Flights',
+    name: 'Vuelos militares',
 
     icon: '🎖️',
 

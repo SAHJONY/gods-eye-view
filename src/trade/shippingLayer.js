@@ -1,5 +1,5 @@
 /**
- * Trade RFQ shipping-lane map layer — Cesium route pins for GOD'S EYE VIEW.
+ * Trade RFQ shipping-lane map layer — Cesium route pins for SAHJONY LIVE VIEW.
  *
  * $0, no API keys. Draws, per active RFQ (request for quote), an origin
  * pin, a destination pin, and a great-circle shipping lane between them,

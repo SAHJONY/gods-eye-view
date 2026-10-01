@@ -459,7 +459,7 @@ test('all manufacturers share one ALPR title and color; only supplied metadata a
     );
     await alprCamerasLayer.update();
     const entities = h.source.entities.values;
-    assert.equal(alprCamerasLayer.name, 'ALPR Cameras');
+    assert.equal(alprCamerasLayer.name, 'Cámaras ALPR');
     assert.deepEqual(
       entities.map((entity) => entity.gevLabelModel.title),
       ['ALPR-0042', 'ALPR-0043', 'ALPR-0044'],
@@ -485,8 +485,8 @@ test('all manufacturers share one ALPR title and color; only supplied metadata a
     );
     for (const entity of entities) {
       h.click(entity.id);
-      assert.equal(getSelectedEntityContext().label, 'ALPR camera');
-      assert.equal(getSelectedEntityContext().layerName, 'ALPR Cameras');
+      assert.equal(getSelectedEntityContext().label, 'Cámara ALPR');
+      assert.equal(getSelectedEntityContext().layerName, 'Cámaras ALPR');
     }
   } finally {
     h.restore();
@@ -765,7 +765,7 @@ test('empty mapped coverage, stale data and a saturated response remain distinct
     assert.equal(alprCamerasLayer.getStats().status, 'empty');
     assert.match(
       alprCamerasLayer.getStats().loadingLabel,
-      /coverage is incomplete/,
+      /cobertura incompleta/,
     );
     h.expire();
     h.setFetch(async () =>
@@ -780,7 +780,7 @@ test('empty mapped coverage, stale data and a saturated response remain distinct
     assert.equal(alprCamerasLayer.getStats().saturated, true);
     assert.match(
       alprCamerasLayer.getStats().loadingLabel,
-      /cached.*Coverage limited/,
+      /caché.*Cobertura limitada/,
     );
   } finally {
     h.restore();
@@ -1096,7 +1096,7 @@ test('nearby count and discovery control frame a real loaded camera without fetc
     await alprCamerasLayer.update();
     assert.equal(alprCamerasLayer.getStats().countLabel, '1 nearby');
     const controls = alprCamerasLayer.getRowControls();
-    assert.equal(controls.legend[0].label, 'Camera badges');
+    assert.equal(controls.legend[0].label, 'Insignias de cámaras');
     assert.equal(controls.chips[0].onClick(), true);
     assert.equal(flights.length, 1);
     assert.equal(getSelectedEntityContext().id, 'alpr:42');

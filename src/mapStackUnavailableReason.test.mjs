@@ -8,15 +8,15 @@ import {
 test('missing photoreal credentials explain both supported setup routes', () => {
   assert.match(
     photorealUnavailableReason(false),
-    /Needs GOOGLE_MAPS_API_KEY.*Provider Settings/,
+    /Necesita GOOGLE_MAPS_API_KEY.*Ajustes de proveedores/,
   );
-  assert.match(photorealUnavailableReason(false), /Cesium ion token/);
+  assert.match(photorealUnavailableReason(false), /token de Cesium ion/);
 });
 
 test('a configured but failed photoreal route does not ask for another key', () => {
   const reason = photorealUnavailableReason(true);
-  assert.match(reason, /unavailable.*restrictions, quota, or network/);
-  assert.doesNotMatch(reason, /Needs|add it/);
+  assert.match(reason, /no disponibles.*restricciones de API de la clave, la cuota o la red/);
+  assert.doesNotMatch(reason, /Necesita|agrégala/);
 });
 
 test('controller credential detection accepts ion without a browser global', () => {

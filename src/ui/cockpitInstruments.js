@@ -31,7 +31,7 @@ export function updateHud(
   const heading = normalizeHeading(this.heading ?? info.track ?? 0);
   if (this.callsign) {
     this.callsign.textContent =
-      info.callsign || info.registration || info.icao24 || 'AIRCRAFT';
+      info.callsign || info.registration || info.icao24 || 'AERONAVE';
   }
   const speedKt = Number.isFinite(info.velocityMps)
     ? info.velocityMps * 1.94384
@@ -127,13 +127,13 @@ export function updateHud(
   }
   if (this.aircraftMeta) {
     const feedState = this.surfaceAcquiring
-      ? 'ACQUIRING SURFACE'
+      ? 'ADQUIRIENDO SUPERFICIE'
       : this.surfaceFallback
-        ? 'SURFACE FALLBACK'
+        ? 'SUPERFICIE DE RESERVA'
         : info.stale
-          ? 'STALE FEED'
-          : 'LIVE TRACK';
-    this.aircraftMeta.textContent = `${info.layerId === 'military' ? 'MILITARY' : 'COMMERCIAL'} · ${feedState} · COURSE ALIGNED`;
+          ? 'FUENTE OBSOLETA'
+          : 'SEGUIMIENTO EN VIVO';
+    this.aircraftMeta.textContent = `${info.layerId === 'military' ? 'MILITAR' : 'COMERCIAL'} · ${feedState} · RUMBO ALINEADO`;
   }
   this.updateRoute(info);
   if (
@@ -158,13 +158,13 @@ export function updateRoute(info) {
   const validDestination =
     Number.isFinite(destination?.lat) && Number.isFinite(destination?.lon);
   const routeLabel = (airport) =>
-    [airport?.code, airport?.name].filter(Boolean).join(' · ') || 'UNKNOWN';
+    [airport?.code, airport?.name].filter(Boolean).join(' · ') || 'DESCONOCIDO';
   if (this.routeFrom) this.routeFrom.textContent = routeLabel(origin);
   if (this.routeTo) this.routeTo.textContent = routeLabel(destination);
   if (this.routeStatus) {
     this.routeStatus.textContent = validDestination
-      ? 'ARROW · ESTIMATED DIRECTION'
-      : 'ROUTE DATA UNAVAILABLE';
+      ? 'FLECHA · DIRECCIÓN ESTIMADA'
+      : 'DATOS DE RUTA NO DISPONIBLES';
   }
   if (this.route) this.route.hidden = !origin && !destination;
   if (
@@ -208,10 +208,10 @@ export function syncWeatherToggle(enabled) {
   this.weatherToggle.setAttribute('aria-pressed', String(active));
   this.weatherToggle.setAttribute(
     'aria-label',
-    `${active ? 'Disable' : 'Enable'} cockpit weather effects`,
+    `${active ? 'Desactivar' : 'Activar'} efectos climáticos de cabina`,
   );
-  this.weatherToggle.title = `${active ? 'Disable' : 'Enable'} cockpit weather effects`;
-  if (this.weatherState) this.weatherState.textContent = active ? 'ON' : 'OFF';
+  this.weatherToggle.title = `${active ? 'Desactivar' : 'Activar'} efectos climáticos de cabina`;
+  if (this.weatherState) this.weatherState.textContent = active ? 'ACTIVADO' : 'DESACTIVADO';
 }
 
 export function setVisionMode(mode, { revealParameters = false } = {}) {
@@ -230,17 +230,17 @@ export function setVisionMode(mode, { revealParameters = false } = {}) {
   const names = {
     optical: inherited,
     crt: 'CRT',
-    nvg: 'Night vision',
-    thermal: 'Thermal',
+    nvg: 'Visión nocturna',
+    thermal: 'Térmica',
     noir: 'Noir',
   };
   if (this.visionCurrent) {
     this.visionCurrent.dataset.cockpitVision = next;
     this.visionCurrent.setAttribute(
       'aria-label',
-      `Current cockpit vision style: ${names[next]}. Activate for next style.`,
+      `Estilo de visión actual de cabina: ${names[next]}. Activa para el siguiente estilo.`,
     );
-    this.visionCurrent.title = `Current style: ${names[next]} — click for next`;
+    this.visionCurrent.title = `Estilo actual: ${names[next]} — clic para el siguiente`;
   }
   if (this.visionCurrentLabel)
     this.visionCurrentLabel.textContent = labels[next];

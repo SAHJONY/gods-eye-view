@@ -47,8 +47,8 @@ export function createPanel({ state: layerState, services, parts, source }) {
   function hidePanel() {
     if (layerState.panel) {
       const markup = `<div class="military-awareness-standby">
-      <strong>${layerState.enabled ? 'CONTEXT READY' : 'GLOBAL CONTEXT OFF'}</strong>
-      <span>${layerState.enabled ? 'SELECT A FLIGHT, VESSEL, OR MAPPED INSTALLATION' : 'ENABLE TO LOAD OBSERVED / MAPPED PROXIMITY'}</span>
+      <strong>${layerState.enabled ? 'CONTEXTO LISTO' : 'CONTEXTO GLOBAL APAGADO'}</strong>
+      <span>${layerState.enabled ? 'SELECCIONA UN VUELO, BUQUE O INSTALACIÓN MAPEADA' : 'ACTIVA PARA CARGAR PROXIMIDAD OBSERVADA / MAPEADA'}</span>
     </div>`;
       layerState.panel.hidden = false;
       if (layerState.panelMarkup !== markup) {
@@ -69,10 +69,10 @@ export function createPanel({ state: layerState, services, parts, source }) {
         const label = formatAwarenessLabel(item);
         const targetId = item.icao24 || item.mmsi || item.id;
         if (!targetId) {
-          return `<li><span class="military-awareness-target unavailable" aria-label="Unavailable">${escapeHtml(label)} <span>${formatAwarenessDistance(item.distanceM)}</span></span></li>`;
+          return `<li><span class="military-awareness-target unavailable" aria-label="No disponible">${escapeHtml(label)} <span>${formatAwarenessDistance(item.distanceM)}</span></span></li>`;
         }
-        const accessibleLabel = label === '—' ? 'Unavailable' : label;
-        return `<li><button type="button" class="military-awareness-target" data-awareness-layer="${escapeHtml(cohort.id)}" data-awareness-id="${escapeHtml(targetId)}" aria-label="Focus ${escapeHtml(accessibleLabel)}">${escapeHtml(label)} <span>${formatAwarenessDistance(item.distanceM)}</span></button></li>`;
+        const accessibleLabel = label === '—' ? 'No disponible' : label;
+        return `<li><button type="button" class="military-awareness-target" data-awareness-layer="${escapeHtml(cohort.id)}" data-awareness-id="${escapeHtml(targetId)}" aria-label="Enfocar ${escapeHtml(accessibleLabel)}">${escapeHtml(label)} <span>${formatAwarenessDistance(item.distanceM)}</span></button></li>`;
       })
       .join('');
     const pageCount = Math.max(
@@ -93,10 +93,10 @@ export function createPanel({ state: layerState, services, parts, source }) {
 
   function navigationControlsHtml() {
     const canPrevious = layerState.navigationIndex > 0;
-    return `<div class="military-awareness-controls" role="group" aria-label="Global Context navigation">
-    <button type="button" data-awareness-action="previous" title="Previous — prior visited contact in the 250 km window"${canPrevious ? '' : ' disabled'}>PREVIOUS</button>
-    <button type="button" data-awareness-action="focus">FOCUS</button>
-    <button type="button" data-awareness-action="next" title="Next — nearest unvisited contact in the 250 km window"${parts.navigation.canNavigateNext() ? '' : ' disabled'}>NEXT</button>
+    return `<div class="military-awareness-controls" role="group" aria-label="Navegación de contexto global">
+    <button type="button" data-awareness-action="previous" title="Anterior: contacto visitado previo en la ventana de 250 km"${canPrevious ? '' : ' disabled'}>ANTERIOR</button>
+    <button type="button" data-awareness-action="focus">ENFOCAR</button>
+    <button type="button" data-awareness-action="next" title="Siguiente: contacto no visitado más cercano en la ventana de 250 km"${parts.navigation.canNavigateNext() ? '' : ' disabled'}>SIGUIENTE</button>
   </div>`;
   }
 

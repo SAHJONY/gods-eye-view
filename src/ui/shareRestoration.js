@@ -188,9 +188,9 @@ export class ShareRestoration {
     if (result.classification === 'pending') {
       this._shareTrackingNoticeGeneration += 1;
       this._shareTrackingAcquiringKey = trackingKey;
-      this.showStatus('ACQUIRING', {
+      this.showStatus('ADQUIRIENDO', {
         state: 'acquiring',
-        detail: `SHARED ${String(result.label || 'SUBJECT').toUpperCase()}`,
+        detail: `COMPARTIDO ${String(result.label || 'OBJETO').toUpperCase()}`,
         persistent: true,
       });
       return;
@@ -214,13 +214,13 @@ export class ShareRestoration {
     const noticeGeneration = ownsAcquiringNotice
       ? this._shareTrackingNoticeGeneration
       : ++this._shareTrackingNoticeGeneration;
-    const subject = result.label || 'entity';
+    const subject = result.label || 'la entidad';
     const message =
       result.classification === 'expired'
-        ? `Shared ${subject} follow expired`
+        ? `El seguimiento compartido de ${subject} expiró`
         : result.classification === 'source-unavailable'
-          ? `Shared ${subject} could not be restored — feed unavailable`
-          : `Shared ${subject} is unavailable`;
+          ? `No se pudo restaurar ${subject} compartido — fuente no disponible`
+          : `${subject} compartido no está disponible`;
     const showAfterStartupCover = () => {
       this._lifetime.frame(() => {
         if (

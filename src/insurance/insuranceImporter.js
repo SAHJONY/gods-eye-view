@@ -1,5 +1,5 @@
 /**
- * Insurance backup import/export for GOD'S EYE VIEW — $0, no network.
+ * Insurance backup import/export for SAHJONY LIVE VIEW — $0, no network.
  *
  * exportBackup(state): triggers a JSON download of the full insurance state.
  * parseBackup(text): validates the shape of a backup (businesses object with

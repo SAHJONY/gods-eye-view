@@ -98,7 +98,7 @@ export function createFlightFeed(source) {
   feed._lastError = null;
   feed._activeUpdateControllers = new Set();
   feed._lastStatus = null;
-  feed._lastSource = source?.label || 'Aircraft';
+  feed._lastSource = source?.label || 'Avión';
   feed._lastCoverage = 'worldwide upstream snapshot';
   feed._trackingRefreshEpoch = 0;
   feed._lastTrackingRefreshOutcome = {

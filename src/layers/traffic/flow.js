@@ -23,11 +23,11 @@ export function createFlow({ state: layerState, services, parts, source }) {
     if (!error || error.name === 'AbortError') return null;
     const message = String(error.message || error);
     const status = Number(message.match(/HTTP (\d{3})/)?.[1]);
-    if (status === 503) return 'TomTom key unavailable';
-    if (status === 429) return 'TomTom daily budget reached';
-    if (status === 502 || status === 504) return 'TomTom upstream unreachable';
+    if (status === 503) return 'Clave de TomTom no disponible';
+    if (status === 429) return 'Presupuesto diario de TomTom alcanzado';
+    if (status === 502 || status === 504) return 'TomTom inalcanzable';
     if (Number.isFinite(status)) return `TomTom flow error (HTTP ${status})`;
-    return 'TomTom flow unavailable';
+    return 'Flujo de TomTom no disponible';
   }
 
   /**

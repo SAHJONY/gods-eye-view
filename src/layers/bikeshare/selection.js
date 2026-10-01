@@ -22,7 +22,7 @@ export function createSelection({
     const stationName = String(record?.stationName || '').trim();
     const stationLabel =
       stationName ||
-      (record?.stationId ? `Station ${record.stationId}` : 'Station');
+      (record?.stationId ? `Station ${record.stationId}` : 'Estación');
     const bikes = Number.isFinite(record?.bikesAvailable)
       ? record.bikesAvailable
       : '?';

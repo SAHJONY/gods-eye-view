@@ -1,5 +1,5 @@
 /**
- * SAHJONY · GOD'S EYE VIEW — Workforce Core (cross-cutting AI agent framework)
+ * SAHJONY · SAHJONY LIVE VIEW — Workforce Core (cross-cutting AI agent framework)
  * -----------------------------------------------------------------------
  * Client-side only. $0. No API keys. No external network calls.
  * The workforce runs ONLY while the app is open — nothing runs in the

@@ -59,7 +59,7 @@ export function createIngestion({
         // the chip still read "just now". Keep the existing (stale) catalog on
         // screen and surface the outage instead — do NOT stamp _lastUpdate.
         if (results.every((r) => !r.ok)) {
-          layerState._lastError = 'CelesTrak unreachable';
+          layerState._lastError = 'CelesTrak inalcanzable';
           console.warn(
             '[Data:Satellites] All CelesTrak groups failed — keeping existing catalog, surfacing outage',
           );

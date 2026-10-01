@@ -1,5 +1,5 @@
 /**
- * Cuba Desk AI Workforce Panel for GOD'S EYE VIEW — $0, no API keys, no
+ * Cuba Desk AI Workforce Panel for SAHJONY LIVE VIEW — $0, no API keys, no
  * external calls.
  *
  * Roster of the 6 local Cuba-desk AI agents: status dots, authority tier

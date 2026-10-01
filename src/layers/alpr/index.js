@@ -233,7 +233,7 @@ export function createAlprCamerasLayer({ source, services } = {}) {
 
   const alprCamerasLayer = {
     id: LAYER_ID,
-    name: 'ALPR Cameras',
+    name: 'Cámaras ALPR',
     icon: '📷',
     source: source.label || 'Mapped camera locations',
     updateInterval: 0,
@@ -312,10 +312,10 @@ export function createAlprCamerasLayer({ source, services } = {}) {
         chips: [
           {
             id: 'find-camera',
-            label: 'SHOW NEAREST',
+            label: 'MOSTRAR MÁS CERCANA',
             title: state.viewer?.trackedEntity
-              ? 'Stop following the current object before navigating to a camera'
-              : 'Move to the nearest loaded camera and show its details',
+              ? 'Deja de seguir el objeto actual antes de navegar a una cámara'
+              : 'Ve a la cámara cargada más cercana y muestra sus detalles',
             disabled:
               !state.enabled || !count || Boolean(state.viewer?.trackedEntity),
             onClick: focusNearest,
@@ -323,11 +323,11 @@ export function createAlprCamerasLayer({ source, services } = {}) {
         ],
         legend: [
           {
-            label: 'Camera badges',
+            label: 'Insignias de cámaras',
             color: ALPR_COLOR,
             count,
             blurb:
-              'Cyan cameras turn coral when selected. Wedges illustrate mapped direction, not measured coverage. Nearby cameras may be outside the screen.',
+              'Las cámaras cian se vuelven coral al seleccionarlas. Las cuñas ilustran la dirección mapeada, no la cobertura medida. Las cámaras cercanas pueden estar fuera de la pantalla.',
           },
         ],
       };
@@ -351,15 +351,15 @@ export function createAlprCamerasLayer({ source, services } = {}) {
           : 0,
         loadingLabel: state.loading
           ? state.retrying
-            ? 'retrying mapped ALPR cameras'
-            : 'loading mapped ALPR cameras'
+            ? 'reintentando cámaras ALPR mapeadas'
+            : 'cargando cámaras ALPR mapeadas'
           : state.status === 'zoom-in'
-            ? 'Zoom in to load mapped cameras'
+            ? 'Acercar para cargar cámaras mapeadas'
             : [
-                state.stale ? 'Showing cached locations' : '',
-                state.saturated ? 'Coverage limited — zoom in' : '',
+                state.stale ? 'Mostrando ubicaciones en caché' : '',
+                state.saturated ? 'Cobertura limitada — acercar' : '',
                 state.status === 'empty'
-                  ? 'No mapped cameras returned — coverage is incomplete'
+                  ? 'Sin cámaras mapeadas — cobertura incompleta'
                   : '',
               ]
                 .filter(Boolean)

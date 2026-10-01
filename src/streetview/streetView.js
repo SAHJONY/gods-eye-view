@@ -1,5 +1,5 @@
 /**
- * Street View for GOD'S EYE VIEW — $0, no API keys.
+ * Street View for SAHJONY LIVE VIEW — $0, no API keys.
  *
  * Three keyless providers:
  *  1. KartaView — crowdsourced street-level photos embedded in an iframe
@@ -245,7 +245,7 @@ export function initStreetView({ viewer, signal = null } = {}) {
     });
     if (activeTab === 'kartaview') {
       const frame = document.createElement('iframe');
-      frame.title = 'KartaView street-level imagery';
+      frame.title = 'Imágenes a nivel de calle de KartaView';
       frame.src = kartaViewUrl(current.lat, current.lng);
       frame.setAttribute('allow', 'fullscreen');
       body.appendChild(frame);
@@ -355,7 +355,7 @@ export function initStreetView({ viewer, signal = null } = {}) {
     btnEl.type = 'button';
     btnEl.innerHTML =
       '<span class="sv-emoji">🛣️</span><span>Vista de calle</span>';
-    btnEl.setAttribute('aria-label', 'Vista de calle / street view');
+    btnEl.setAttribute('aria-label', 'Vista de calle');
     btnEl.addEventListener('click', () => {
       if (pickHandler) endPickMode();
       else startPickMode();

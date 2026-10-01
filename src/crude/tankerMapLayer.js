@@ -1,5 +1,5 @@
 /**
- * Crude-oil cargo map layer — Cesium tanker route pins for GOD'S EYE VIEW.
+ * Crude-oil cargo map layer — Cesium tanker route pins for SAHJONY LIVE VIEW.
  *
  * $0, no API keys. Draws, per active crude cargo, a load-port pin, a
  * discharge-port pin, and a great-circle route arc between them, colored by

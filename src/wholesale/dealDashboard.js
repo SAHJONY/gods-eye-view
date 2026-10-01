@@ -1,5 +1,5 @@
 /**
- * Wholesale Deal Dashboard for GOD'S EYE VIEW — $0, no API keys, no external calls.
+ * Wholesale Deal Dashboard for SAHJONY LIVE VIEW — $0, no API keys, no external calls.
  *
  * Mission-control panel for the wholesale real-estate pipeline:
  * KPI row, status pipeline, lead cards, editable detail drawer, deal math

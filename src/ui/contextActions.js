@@ -5,7 +5,7 @@ import {
 
 export async function _runUserFacingContextAction(
   operation,
-  message = 'Context could not restore every layer; try again',
+  message = 'El contexto no pudo restaurar todas las capas; inténtalo de nuevo',
   { falseIsFailure = true } = {},
 ) {
   if (this.destroyed) return false;
@@ -76,7 +76,7 @@ export async function setContextMode(
     ok: false,
     action: 'set_context_mode',
     cancelled: true,
-    error: 'Context request was superseded by a newer voice turn',
+    error: 'La solicitud de contexto fue reemplazada por un turno de voz más reciente',
     ...this.getContextModeState(),
     ...(this._contextTransitionFailedLayerIds?.length
       ? { failedLayerIds: [...this._contextTransitionFailedLayerIds] }
@@ -103,7 +103,7 @@ export async function setContextMode(
         ...state,
         ...(result === true
           ? {}
-          : { error: 'Context mode transition did not complete' }),
+          : { error: 'La transición del modo de contexto no se completó' }),
         ...(this._contextTransitionFailedLayerIds?.length
           ? { failedLayerIds: [...this._contextTransitionFailedLayerIds] }
           : {}),
@@ -114,7 +114,7 @@ export async function setContextMode(
       return {
         ok: false,
         action: 'set_context_mode',
-        error: `Unknown context mode: ${mode}`,
+        error: `Modo de contexto desconocido: ${mode}`,
         mode: this._contextMode,
         ...this.getContextModeState(),
       };
@@ -152,8 +152,8 @@ export async function setContextMode(
             // Named in the operator's vocabulary, not the internal id: this
             // string is read by the voice model, which takes 'contacts'.
             error: crossModeSwitchLost
-              ? `Switch to ${contextModeWord(canonical)} did not complete — Context is now off`
-              : 'Context mode transition did not complete',
+              ? `El cambio a ${contextModeWord(canonical)} no se completó — el contexto ahora está desactivado`
+              : 'La transición del modo de contexto no se completó',
             ...(crossModeSwitchLost ? { contextOff: true, priorMode } : {}),
           }),
       ...(this._contextTransitionFailedLayerIds?.length
@@ -172,7 +172,7 @@ export async function setContextMode(
     return {
       ok: false,
       action: 'set_context_mode',
-      error: error?.message || 'Context mode transition failed',
+      error: error?.message || 'Falló la transición del modo de contexto',
       ...(Array.isArray(error?.failedLayerIds)
         ? { failedLayerIds: [...error.failedLayerIds] }
         : {}),
@@ -222,21 +222,21 @@ export function clearSelectedLayers() {
   const operation = managerOperation
     .then((result) => {
       if (result.targetIds.length === 0) {
-        this.showToast('No selected data layers');
+        this.showToast('No hay capas de datos seleccionadas');
       } else if (result.notClearedIds.length > 0) {
         this.showToast(
-          `${result.notClearedIds.length} data layer${result.notClearedIds.length === 1 ? '' : 's'} could not be cleared`,
+          `${result.notClearedIds.length} capa${result.notClearedIds.length === 1 ? '' : 's'} de datos no se ${result.notClearedIds.length === 1 ? 'pudo' : 'pudieron'} borrar`,
         );
       } else {
         this.showToast(
-          `Cleared ${result.clearedIds.length} data layer${result.clearedIds.length === 1 ? '' : 's'}`,
+          `Se ${result.clearedIds.length === 1 ? 'borró' : 'borraron'} ${result.clearedIds.length} capa${result.clearedIds.length === 1 ? '' : 's'} de datos`,
         );
       }
       return result;
     })
     .catch((error) => {
       console.warn('[Data] clear selected layers failed', error);
-      this.showToast('Selected data layers could not be cleared');
+      this.showToast('No se pudieron borrar las capas de datos seleccionadas');
       return {
         targetIds: [],
         items: [],

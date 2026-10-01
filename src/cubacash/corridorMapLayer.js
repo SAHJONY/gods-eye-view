@@ -1,6 +1,6 @@
 /**
  * MY CUBA CASH corridor map layer — Cesium provider pins + remittance
- * corridor arcs for GOD'S EYE VIEW.
+ * corridor arcs for SAHJONY LIVE VIEW.
  *
  * $0, no API keys. Per provider with real coordinates, one coverage pin.
  * Per corridor with real endpoint coordinates, one from-pin, one to-pin,

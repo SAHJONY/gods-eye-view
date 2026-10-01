@@ -164,14 +164,14 @@ test('row chips: modes, arming, and command availability follow the state', () =
     'clear',
   ]);
   assert.equal(chips.find((c) => c.id === 'mode-car').active, true);
-  assert.equal(chips.find((c) => c.id === 'set-a').label, 'SET A');
+  assert.equal(chips.find((c) => c.id === 'set-a').label, 'FIJAR A');
   assert.deepEqual(chips.find((c) => c.id === 'set-a').params, { arm: 'a' });
   assert.equal(chips.find((c) => c.id === 'fly').disabled, true);
   assert.equal(chips.find((c) => c.id === 'swap').disabled, true);
   assert.equal(chips.find((c) => c.id === 'clear').disabled, true);
 
   const armed = directionsRowControls({ ...idle, armed: 'a' }).chips;
-  assert.equal(armed.find((c) => c.id === 'set-a').label, 'CLICK MAP');
+  assert.equal(armed.find((c) => c.id === 'set-a').label, 'CLIC EN MAPA');
   assert.deepEqual(
     armed.find((c) => c.id === 'set-a').params,
     { arm: null },
@@ -202,14 +202,14 @@ test('row chips: modes, arming, and command availability follow the state', () =
 });
 
 test('stats guide the user, show progress, and summarize a route honestly', () => {
-  assert.equal(directionsStats(idle).coverage, 'SET A, then click the globe');
+  assert.equal(directionsStats(idle).coverage, 'FIJAR A, luego clic en el globo');
   assert.equal(
     directionsStats({ ...idle, armed: 'b' }).coverage,
-    'Click the globe to place B',
+    'Clic en el globo para colocar B',
   );
   assert.equal(
     directionsStats({ ...idle, a: A }).coverage,
-    'SET B, then click the globe',
+    'FIJAR B, luego clic en el globo',
   );
   const routing = directionsStats({ ...idle, a: A, b: B, status: 'routing' });
   assert.equal(routing.loading, true);

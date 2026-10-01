@@ -20,8 +20,8 @@ import { createSurfaceKeyboard } from './ui/surfaceKeyboard.js';
 export function keySetupChipLabel(status) {
   const missing = Math.max(0, (status?.total || 0) - (status?.setCount || 0));
   return missing > 0
-    ? `POWER UP · ${missing} ${missing === 1 ? 'KEY' : 'KEYS'} WAITING`
-    : 'POWERED UP';
+    ? `ACTIVAR · ${missing} ${missing === 1 ? 'CLAVE' : 'CLAVES'} PENDIENTES`
+    : 'ACTIVADO';
 }
 
 /**
@@ -82,15 +82,15 @@ function buildRow(documentRef, key) {
   tier.textContent = TIER_DOTS[key.tier] || '';
   tier.title =
     key.tier === 'metered'
-      ? 'Metered — a billing-enabled account'
-      : 'Free key — register, paste, done';
+      ? 'Medido — cuenta con facturación activada'
+      : 'Clave gratuita — regístrate, pégala, listo';
   head.append(led, title, tier);
   if (key.clientExposed) {
     const exposed = documentRef.createElement('span');
     exposed.className = 'key-setup-exposed';
-    exposed.textContent = 'browser-side';
+    exposed.textContent = 'en el navegador';
     exposed.title =
-      'This key runs in the browser by design — restrict it at the provider (see SECURITY.md)';
+      'Esta clave corre en el navegador por diseño — restríngela en el proveedor (ver SECURITY.md)';
     head.append(exposed);
   }
   if (external) {
@@ -98,9 +98,9 @@ function buildRow(documentRef, key) {
     // facts this panel reports, never values it rewrites or deletes.
     const badge = documentRef.createElement('span');
     badge.className = 'key-setup-external';
-    badge.textContent = 'configured externally';
+    badge.textContent = 'configurada externamente';
     badge.title =
-      'Supplied by your environment, Keychain, or launcher — change it where it was set';
+      'Suministrada por tu entorno, Keychain o el lanzador — cámbiala donde se configuró';
     head.append(badge);
   }
   const get = documentRef.createElement('a');
@@ -108,7 +108,7 @@ function buildRow(documentRef, key) {
   get.href = key.getUrl;
   get.target = '_blank';
   get.rel = 'noopener noreferrer';
-  get.textContent = key.set ? 'MANAGE ↗' : 'GET KEY ↗';
+  get.textContent = key.set ? 'GESTIONAR ↗' : 'OBTENER CLAVE ↗';
   head.append(get);
 
   const unlocks = documentRef.createElement('p');
@@ -129,8 +129,8 @@ function buildRow(documentRef, key) {
       input.dataset.envVar = envVar;
       input.setAttribute('aria-label', envVar);
       input.placeholder = key.set
-        ? `${envVar} saved — paste to replace`
-        : `paste ${envVar}`;
+        ? `${envVar} guardada — pega para reemplazar`
+        : `pega ${envVar}`;
       fields.append(input);
     }
     if (key.managed === 'file') {
@@ -138,8 +138,8 @@ function buildRow(documentRef, key) {
       remove.type = 'button';
       remove.className = 'key-setup-remove';
       remove.dataset.keySetupRemove = JSON.stringify(key.envVars);
-      remove.textContent = 'REMOVE';
-      remove.title = `Remove ${key.title} from this app's saved keys`;
+      remove.textContent = 'ELIMINAR';
+      remove.title = `Eliminar ${key.title} de las claves guardadas de esta app`;
       fields.append(remove);
     }
     row.append(fields);
@@ -260,8 +260,8 @@ export async function initKeySetup({
 
   const storeLabel = () =>
     status?.store === 'pinokio-environment'
-      ? 'your app configuration'
-      : 'your local .env';
+      ? 'la configuración de tu app'
+      : 'tu .env local';
 
   const submitUpdates = async (updates, doneVerb) => {
     if (disposed || busy) return;
@@ -270,7 +270,7 @@ export async function initKeySetup({
     )?.set;
     busy = true;
     applyButton?.setAttribute('aria-disabled', 'true');
-    say('Saving…');
+    say('Guardando…');
     try {
       const response = await doFetch('/api/setup/keys', {
         method: 'POST',
@@ -281,7 +281,7 @@ export async function initKeySetup({
       const payload = await response.json().catch(() => ({}));
       if (disposed) return;
       if (!response.ok || !payload.ok) {
-        say(payload.error || `Save failed (${response.status}).`);
+        say(payload.error || `Error al guardar (${response.status}).`);
         return;
       }
       for (const input of root.querySelectorAll('input[data-env-var]'))
@@ -308,10 +308,10 @@ export async function initKeySetup({
         });
       }
       say(
-        `${doneVerb} ${storeLabel()}. Restarting — this page reloads itself.`,
+        `${doneVerb} ${storeLabel()}. Reiniciando — esta página se recarga sola.`,
       );
     } catch (error) {
-      say(`Save failed: ${error?.message || error}`);
+      say(`Error al guardar: ${error?.message || error}`);
     } finally {
       busy = false;
       applyButton?.setAttribute('aria-disabled', 'false');
@@ -328,10 +328,10 @@ export async function initKeySetup({
       })),
     );
     if (!Object.keys(updates).length) {
-      say('Paste at least one key first.');
+      say('Pega al menos una clave primero.');
       return;
     }
-    await submitUpdates(updates, 'Saved to');
+    await submitUpdates(updates, 'Guardada en');
   };
 
   chip.addEventListener('click', openDialog);
@@ -353,11 +353,11 @@ export async function initKeySetup({
     // a deliberate two-step the lure cannot pre-satisfy.
     const ok =
       typeof globalThis.confirm !== 'function' ||
-      globalThis.confirm('Remove this key from your saved configuration?');
+      globalThis.confirm('¿Eliminar esta clave de tu configuración guardada?');
     if (!ok) return;
     void submitUpdates(
       Object.fromEntries(envVars.map((name) => [name, null])),
-      'Removed from',
+      'Eliminada de',
     );
   });
 

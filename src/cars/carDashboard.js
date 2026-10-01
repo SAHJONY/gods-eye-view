@@ -1,4 +1,4 @@
-// Cuba car market A–Z dashboard for GOD'S EYE VIEW — $0, no API keys, no
+// Cuba car market A–Z dashboard for SAHJONY LIVE VIEW — $0, no API keys, no
 // external calls. Mission-control panel: buyer qualification funnel, Rosmel
 // gestor draft queue (drafts only), competition price panel, deal pipeline.
 //

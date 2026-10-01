@@ -90,7 +90,7 @@ export function createControls({ state: layerState, services, parts, source }) {
   const methods = {
     id: 'satellites',
 
-    name: 'Satellites',
+    name: 'Satélites',
 
     icon: '🛰️',
 
@@ -299,7 +299,7 @@ export function createControls({ state: layerState, services, parts, source }) {
       if (outcome.status !== 'accepted' && outcome.status !== 'partial') {
         return {
           status: 'source-unavailable',
-          reason: 'CelesTrak catalog unavailable',
+          reason: 'Catálogo CelesTrak no disponible',
           refreshEpoch: outcome.epoch,
         };
       }
@@ -494,7 +494,7 @@ export function createControls({ state: layerState, services, parts, source }) {
         layerState._params.catalog === 'dense' &&
         layerState._denseStatus === 'ready';
       let title =
-        'Add the full Starlink broadband shell (thousands of extra points)';
+        'Agregar la capa completa de Starlink (miles de puntos extra)';
       if (loading) title = 'Loading the Starlink shell…';
       else if (failed)
         title = `Starlink ${layerState._denseError || 'load failed'} — click to retry`;
@@ -541,7 +541,7 @@ export function createControls({ state: layerState, services, parts, source }) {
         lastUpdate: layerState._lastUpdate,
         stale: false,
         status:
-          layerState._lastError === 'CelesTrak unreachable'
+          layerState._lastError === 'CelesTrak inalcanzable'
             ? 'unavailable'
             : layerState._lastError
               ? 'degraded'

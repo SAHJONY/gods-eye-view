@@ -1,5 +1,5 @@
 /**
- * Crude Oil Brokerage Dashboard for GOD'S EYE VIEW — $0, no API keys, no external calls.
+ * Crude Oil Brokerage Dashboard for SAHJONY LIVE VIEW — $0, no API keys, no external calls.
  *
  * Mission-control panel for the crude oil brokerage pipeline:
  * KPI row, status pipeline columns, cargo cards, editable detail drawer with

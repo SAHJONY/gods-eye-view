@@ -1,5 +1,5 @@
 /**
- * SAHJONY · GOD'S EYE VIEW — Trade follow-up draft queue
+ * SAHJONY · SAHJONY LIVE VIEW — Trade follow-up draft queue
  * -----------------------------------------------------------------------
  * localStorage-backed draft queue for deal follow-ups. Key:
  * 'sahjony.trade.followups.v1'. Falls back to in-memory outside a browser.

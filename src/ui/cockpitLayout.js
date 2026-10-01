@@ -36,9 +36,9 @@ export function setContextCollapsed(collapsed) {
     this.contextToggle.setAttribute('aria-expanded', String(expanded));
     this.contextToggle.setAttribute(
       'aria-label',
-      `${expanded ? 'Collapse' : 'Expand'} Contact panel`,
+      `${expanded ? 'Contraer' : 'Expandir'} panel de contactos`,
     );
-    this.contextToggle.title = `${expanded ? 'Collapse' : 'Expand'} contact panel`;
+    this.contextToggle.title = `${expanded ? 'Contraer' : 'Expandir'} panel de contactos`;
     const icon = this.contextToggle.querySelector('.material-symbols-outlined');
     if (icon) icon.textContent = expanded ? 'chevron_left' : 'chevron_right';
   }
@@ -59,9 +59,9 @@ export function setSignalCollapsed(collapsed, { user = false } = {}) {
     this.signalToggle.setAttribute('aria-expanded', String(expanded));
     this.signalToggle.setAttribute(
       'aria-label',
-      `${expanded ? 'Collapse' : 'Expand'} cockpit briefing panel`,
+      `${expanded ? 'Contraer' : 'Expandir'} panel de informe de cabina`,
     );
-    this.signalToggle.title = `${expanded ? 'Collapse' : 'Expand'} briefing panel`;
+    this.signalToggle.title = `${expanded ? 'Contraer' : 'Expandir'} panel de informe`;
     const icon = this.signalToggle.querySelector('.material-symbols-outlined');
     if (icon)
       icon.textContent = expanded ? 'right_panel_close' : 'right_panel_open';

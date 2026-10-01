@@ -26,7 +26,7 @@ export function createEarthquakesLayer({ source, overlayHost } = {}) {
 
   const layer = {
     id: 'earthquakes',
-    name: 'Earthquakes (24h)',
+    name: 'Terremotos (24h)',
     icon: '🌋',
     source: 'USGS',
     updateInterval: 60000,
@@ -154,7 +154,7 @@ export function createEarthquakesLayer({ source, overlayHost } = {}) {
         if (request.signal.aborted || _request !== request || !_enabled)
           return false;
         console.warn('[Data:Earthquakes] Fetch error:', e);
-        _lastError = e?.message || 'Earthquake source unavailable';
+        _lastError = e?.message || 'Fuente de terremotos no disponible';
         return false;
       } finally {
         if (_request === request) _request = null;

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Insurance Command Center</title>
+<title>Centro de Seguros · SAHJONY LLC</title>
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--txt:#f1f5f9;--mut:#94a3b8;--acc:#38bdf8;--grn:#4ade80;--yel:#facc15;--red:#f87171;--brd:#334155}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -57,13 +57,13 @@ label{font-size:14px;color:var(--mut);font-weight:700}
 </head>
 <body>
 <header>
-<h1 id="apptitle">🛡️ Insurance Command Center</h1>
-<div class="sub" id="appsub">Coverage tracking + claim prep for all 4 businesses</div>
+<h1 id="apptitle">🛡️ Centro de Seguros</h1>
+<div class="sub" id="appsub">Seguimiento de cobertura + preparación de reclamos para los 4 negocios</div>
 <div class="langrow noprint">
 <button class="langbtn" id="btnEN" onclick="setLang('en')">EN</button>
 <button class="langbtn" id="btnES" onclick="setLang('es')">ES</button>
 </div>
-<div class="noprint" style="margin-top:8px"><select id="homestate" onchange="setHome(this.value)" style="margin:0" aria-label="state"></select></div>
+<div class="noprint" style="margin-top:8px"><select id="homestate" onchange="setHome(this.value)" style="margin:0" aria-label="estado"></select></div>
 </header>
 <div class="biztabs noprint" id="biztabs"></div>
 <div class="viewtabs noprint" id="viewtabs"></div>
@@ -137,42 +137,42 @@ wts_other:"Auto, hogar, vida y negocios: consigue al menos 3 cotizaciones reales
 other:"Otro",
 library:"Biblioteca de seguros",lib:"Biblioteca",lib_p:"Líneas personales",lib_c:"Líneas comerciales",lib_search:"Buscar coberturas…",
 managebiz:"Negocios",bizname:"Nombre del negocio",industry:"Industria",addbiz:"Agregar negocio"}};
-let lang="en"; const t=k=>T[lang][k]||k;
+let lang="es"; const t=k=>T[lang][k]||k;
 /* ============ seed data ============ */
 const SEED={
 wholesale:{coverages:[
- {id:"w1",type:"Vacant property insurance",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Covers vacant homes under contract. Standard homeowners will not cover vacant >30-60 days."},
- {id:"w2",type:"Commercial general liability",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Slip-and-fall etc. on properties being shown."},
- {id:"w3",type:"Builder's risk",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Per-project, when a rehab is in play."},
- {id:"w4",type:"Errors & omissions (E&O)",priority:3,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Professional liability as deal intermediary."}],claims:[]},
+ {id:"w1",type:"Seguro de propiedad vacante",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Cubre viviendas vacías bajo contrato. El seguro de hogar estándar no cubre propiedades vacías más de 30–60 días."},
+ {id:"w2",type:"Responsabilidad comercial general",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Resbalones y caídas, etc., en propiedades que se están mostrando."},
+ {id:"w3",type:"Riesgo de construcción",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Por proyecto, cuando hay una rehabilitación en marcha."},
+ {id:"w4",type:"Errores y omisiones (E&O)",priority:3,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Responsabilidad profesional como intermediario de tratos."}],claims:[]},
 import:{coverages:[
- {id:"i1",type:"Cargo / marine insurance (per shipment)",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Insure every shipment door-to-door. Notify carrier in writing immediately on damage."},
- {id:"i2",type:"Warehouse / storage liability",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"If goods sit in a warehouse at any point."},
- {id:"i3",type:"Commercial general liability",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:""},
- {id:"i4",type:"Trade credit insurance",priority:3,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Protects receivables if a buyer defaults."}],claims:[]},
+ {id:"i1",type:"Seguro de carga / marítimo (por envío)",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Asegura cada envío puerta a puerta. Notifica a la aseguradora por escrito de inmediato ante daños."},
+ {id:"i2",type:"Responsabilidad de almacén",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Si la mercancía permanece en un almacén en algún momento."},
+ {id:"i3",type:"Responsabilidad comercial general",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:""},
+ {id:"i4",type:"Seguro de crédito comercial",priority:3,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Protege las cuentas por cobrar si un comprador incumple."}],claims:[]},
 crude:{coverages:[
- {id:"c1",type:"Errors & omissions (E&O)",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Core broker protection — failed-deal and misrepresentation claims."},
- {id:"c2",type:"Commercial general liability",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:""},
- {id:"c3",type:"Contingent cargo (per deal)",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Backstop if a counterparty's cargo cover fails."}],claims:[]},
+ {id:"c1",type:"Errores y omisiones (E&O)",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Protección central del bróker — reclamos por tratos fallidos y tergiversación."},
+ {id:"c2",type:"Responsabilidad comercial general",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:""},
+ {id:"c3",type:"Carga contingente (por trato)",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Respaldo si la cobertura de carga de una contraparte falla."}],claims:[]},
 cuba:{coverages:[
- {id:"m1",type:"Cyber liability",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Platform handling customer data and payment info."},
- {id:"m2",type:"Errors & omissions (E&O)",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Concierge coordination errors."},
- {id:"m3",type:"Crime / fidelity",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Employee/contractor dishonesty."},
- {id:"m4",type:"Commercial general liability",priority:3,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:""}],claims:[]},
+ {id:"m1",type:"Responsabilidad cibernética",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Plataforma que maneja datos de clientes e información de pagos."},
+ {id:"m2",type:"Errores y omisiones (E&O)",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Errores de coordinación de conserjería."},
+ {id:"m3",type:"Crimen / fidelidad",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Deshonestidad de empleados/contratistas."},
+ {id:"m4",type:"Responsabilidad comercial general",priority:3,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:""}],claims:[]},
 personal:{coverages:[
- {id:"p1",type:"Auto insurance",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Liability + collision/comprehensive. Required by law to drive."},
- {id:"p2",type:"Homeowners / renters insurance",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Dwelling + personal property + liability. Renters: personal property + liability."},
- {id:"p3",type:"Health insurance",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Keep ID cards, EOBs, and denial letters — appeals need them."},
- {id:"p4",type:"Umbrella liability",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Extra liability above auto/home limits. Cheap for the protection."},
- {id:"p5",type:"Life insurance",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Term or permanent. Beneficiaries should know the carrier and policy number."}],claims:[]}};
+ {id:"p1",type:"Seguro de auto",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Responsabilidad civil + colisión/comprensivo. Obligatorio por ley para conducir."},
+ {id:"p2",type:"Seguro de hogar / inquilinos",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Vivienda + pertenencias + responsabilidad civil. Inquilinos: pertenencias + responsabilidad."},
+ {id:"p3",type:"Seguro de salud",priority:1,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Guarda tarjetas de identificación, EOB y cartas de negación — las apelaciones los necesitan."},
+ {id:"p4",type:"Responsabilidad paraguas",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Responsabilidad extra sobre los límites de auto/hogar. Barata para la protección que da."},
+ {id:"p5",type:"Seguro de vida",priority:2,status:"gap",carrier:"",policy:"",eff:"",exp:"",prem:"",notes:"Temporal o permanente. Los beneficiarios deben conocer la aseguradora y el número de póliza."}],claims:[]}};
 const CHECKLISTS={
-prop:["Photos / video of damage (before cleanup)","Police or fire report (if applicable)","Two repair estimates","Inventory list of damaged items","Policy declarations page","Receipts for emergency repairs"],
-cargo:["Bill of lading (front + back)","Commercial invoice","Packing list","Photos of damage at delivery","Written notice to carrier (keep proof)","Independent survey / inspection report","Delivery receipt with exceptions noted"],
-liab:["Incident report (facts only, no admissions)","Witness names and contact","Photos of scene","All correspondence saved","Do NOT admit fault in writing"],
-theft:["Police report","Inventory of stolen items with values","Proof of ownership (receipts, serials)","Photos of point of entry / scene","Policy declarations page"],
-bi:["Proof of closure / interruption period","Financial records (P&L before and after)","Extra expense receipts","Lease / contract obligations during closure"],
-auto:["Police report","Photos of all vehicles and the scene","Other driver's info: license, insurance, plates","Medical records if anyone injured","Repair estimates","Policy declarations page","Do NOT admit fault at the scene"],
-health:["EOB (explanation of benefits)","Itemized bills from the provider","Referral / prior authorization documents","Denial letter (if appealing)","Doctor letter of medical necessity","Claim / appeal forms"]};
+prop:["Fotos / video del daño (antes de limpiar)","Reporte policial o de bomberos (si aplica)","Dos estimados de reparación","Inventario de artículos dañados","Página de declaraciones de la póliza","Recibos de reparaciones de emergencia"],
+cargo:["Conocimiento de embarque (frente + reverso)","Factura comercial","Lista de empaque","Fotos del daño al entregar","Notificación escrita a la naviera (guarda prueba)","Informe de inspección / perito independiente","Recibo de entrega con excepciones anotadas"],
+liab:["Reporte del incidente (solo hechos, sin admitir culpa)","Nombres y contacto de testigos","Fotos de la escena","Guarda toda la correspondencia","NO admitas culpa por escrito"],
+theft:["Reporte policial","Inventario de artículos robados con valores","Prueba de propiedad (recibos, números de serie)","Fotos del punto de entrada / escena","Página de declaraciones de la póliza"],
+bi:["Prueba del periodo de cierre / interrupción","Registros financieros (P&L antes y después)","Recibos de gastos extra","Obligaciones de alquiler / contratos durante el cierre"],
+auto:["Reporte policial","Fotos de todos los vehículos y la escena","Datos del otro conductor: licencia, seguro, placas","Registros médicos si alguien resultó herido","Estimados de reparación","Página de declaraciones de la póliza","NO admitas culpa en la escena"],
+health:["EOB (explicación de beneficios)","Facturas detalladas del proveedor","Documentos de referencia / autorización previa","Carta de negación (si apelas)","Carta médica de necesidad","Formularios de reclamo / apelación"]};
 /* ============ states ============ */
 const STATES=[["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["DC","District of Columbia"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"]];
 function stateOpts(sel){return STATES.map(s=>'<option value="'+s[0]+'"'+(s[0]===sel?" selected":"")+">"+s[1]+" ("+s[0]+")</option>").join("")}
@@ -241,7 +241,7 @@ var LIBQ="";
 const KEY="sahjony_insurance_v1";
 let S;
 function load(){try{S=JSON.parse(localStorage.getItem(KEY))||null}catch(e){S=null}
- if(!S||!S.businesses){S={lang:"en",biz:"wholesale",view:"coverage",businesses:JSON.parse(JSON.stringify(SEED))};save()}
+ if(!S||!S.businesses){S={lang:"es",biz:"wholesale",view:"coverage",businesses:JSON.parse(JSON.stringify(SEED))};save()}
  Object.keys(SEED).forEach(k=>{if(!S.businesses[k])S.businesses[k]=JSON.parse(JSON.stringify(SEED[k]))});
  if(!S.attorney)S.attorney=[];
  if(!("homeState" in S))S.homeState="";
@@ -359,7 +359,7 @@ function openNewClaim(){
 function saveNewClaim(){
  const ty=document.getElementById("n_type").value,dt=document.getElementById("n_date").value,ds=document.getElementById("n_desc").value.trim(),nst=document.getElementById("n_state").value;
  const c={id:String(Date.now()).slice(-6),type:ty,date:dt,desc:ds,stage:0,state:nst,created:new Date().toISOString().slice(0,10),
-  docs:CHECKLISTS[ty].map(d=>({d:d,got:false})),log:[{d:new Date().toISOString().slice(0,10),n:"Claim opened"}]};
+  docs:CHECKLISTS[ty].map(d=>({d:d,got:false})),log:[{d:new Date().toISOString().slice(0,10),n:"Reclamo abierto"}]};
  biz().claims.push(c);save();closeSheet();S.view="claims";render();openClaim(c.id);
 }
 function openClaim(id){
@@ -546,7 +546,7 @@ function exportData(){
 }
 function importData(){
  const i=document.createElement("input");i.type="file";i.accept=".json";
- i.onchange=()=>{const r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();render()}catch(e){alert("bad file")}};r.readAsText(i.files[0])};
+ i.onchange=()=>{const r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();render()}catch(e){alert("archivo inválido")}};r.readAsText(i.files[0])};
  i.click();
 }
 /* ============ helpers ============ */
@@ -555,7 +555,7 @@ function openSheet(h){document.getElementById("sheet").innerHTML=h;document.getE
 function closeSheet(){document.getElementById("modal").classList.remove("open")}
 function setLang(l){lang=l;S.lang=l;save();render()}
 document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeSheet()});
-load();lang=S.lang||"en";if(!applyHash())render();
+load();lang=S.lang||"es";if(!applyHash())render();
 </script>
 </body>
 </html>

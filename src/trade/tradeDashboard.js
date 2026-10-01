@@ -1,5 +1,5 @@
 /**
- * Trade (Import/Export) RFQ Dashboard for GOD'S EYE VIEW — $0, no API keys, no external calls.
+ * Trade (Import/Export) RFQ Dashboard for SAHJONY LIVE VIEW — $0, no API keys, no external calls.
  *
  * Mission-control panel for the import/export RFQ pipeline:
  * KPI row, status pipeline columns, RFQ cards, editable detail drawer with

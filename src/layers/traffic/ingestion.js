@@ -221,7 +221,7 @@ export function createIngestion({
           clamped,
           generation,
           altitude,
-          'Cache full',
+          'Caché llena',
           trace,
         );
         return;
@@ -235,7 +235,7 @@ export function createIngestion({
             clamped,
             generation,
             altitude,
-            'Cache major',
+            'Caché principal',
             trace,
           ))
         )
@@ -265,7 +265,7 @@ export function createIngestion({
             clamped,
             generation,
             altitude,
-            'Loaded major',
+            'Principal cargado',
             trace,
           ))
         )
@@ -299,7 +299,7 @@ export function createIngestion({
           clamped,
           generation,
           altitude,
-          'Loaded full',
+          'Completo cargado',
           trace,
         ))
       )
@@ -308,7 +308,7 @@ export function createIngestion({
     } catch (e) {
       if (e?.name === 'AbortError') return;
       if (generation === layerState._loadGeneration && !renderedSomething)
-        layerState._roadError = 'Road data temporarily unavailable';
+        layerState._roadError = 'Datos viales no disponibles temporalmente';
       console.warn('[Data:Traffic] Fetch error:', e);
     } finally {
       if (generation === layerState._loadGeneration) {

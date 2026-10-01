@@ -49,7 +49,7 @@ export function normalizeLayerLoading(layer = {}) {
   const accepted = Boolean(stats.lastUpdate) || count > 0;
   return {
     id: String(layer.id || ''),
-    label: String(layer.name || layer.id || 'Layer'),
+    label: String(layer.name || layer.id || 'Capa'),
     loading,
     disabling,
     refresh:
@@ -393,9 +393,9 @@ export function presentLoadingFeedback(state, summary, nowMs) {
     return {
       state: 'retry',
       label: (
-        camera.cameraRetry.error || 'Overpass temporarily unavailable'
+        camera.cameraRetry.error || 'Overpass no disponible temporalmente'
       ).toUpperCase(),
-      detail: `ALPR cameras · ${seconds ? `retrying in ${seconds}s` : 'retry pending'}`,
+      detail: `cámaras ALPR · ${seconds ? `reintentando en ${seconds}s` : 'reintento pendiente'}`,
     };
   }
 
@@ -420,18 +420,18 @@ export function presentLoadingFeedback(state, summary, nowMs) {
   if (!state?.visible) return null;
   if (state.phase === 'terminal') {
     const labels = {
-      complete: 'LOAD COMPLETE',
-      cancelled: 'LOAD CANCELLED',
-      error: 'LOAD FAILED',
+      complete: 'CARGA COMPLETA',
+      cancelled: 'CARGA CANCELADA',
+      error: 'CARGA FALLIDA',
     };
     const label =
       state.operation === 'disabling' && state.terminal === 'complete'
-        ? 'LIVE DATA OFF'
+        ? 'DATOS EN VIVO APAGADOS'
         : state.terminal === 'complete' &&
             state.activeIds?.length === 1 &&
             state.activeIds[0] === 'military-installations'
-          ? 'MAPPED SITES LOADED'
-          : labels[state.terminal] || 'LOAD COMPLETE';
+          ? 'SITIOS MAPEADOS CARGADOS'
+          : labels[state.terminal] || 'CARGA COMPLETA';
     return { state: state.terminal, label, detail: '' };
   }
   const active = summary.active;
@@ -439,8 +439,8 @@ export function presentLoadingFeedback(state, summary, nowMs) {
     return {
       state: 'loading',
       label: active[0].cameraRetry.retrying
-        ? 'RETRYING ALPR CAMERAS'
-        : 'FETCHING ALPR CAMERAS',
+        ? 'REINTENTANDO CÁMARAS ALPR'
+        : 'OBTENIENDO CÁMARAS ALPR',
       detail: 'OpenStreetMap · Overpass',
     };
   }
@@ -453,17 +453,17 @@ export function presentLoadingFeedback(state, summary, nowMs) {
     return {
       state: 'loading',
       label: active[0].installationRetry.retrying
-        ? 'RETRYING MAPPED SITES'
-        : 'FETCHING MAPPED SITES',
+        ? 'REINTENTANDO SITIOS MAPEADOS'
+        : 'OBTENIENDO SITIOS MAPEADOS',
       detail: 'OpenStreetMap · Overpass',
     };
   }
   const elapsed = Math.max(0, nowMs - state.startedAt);
   const label = summary.disabling
-    ? 'TURNING OFF LIVE DATA'
+    ? 'APAGANDO DATOS EN VIVO'
     : summary.refresh
-      ? 'REFRESHING LIVE DATA'
-      : 'LOADING LIVE DATA';
+      ? 'ACTUALIZANDO DATOS EN VIVO'
+      : 'CARGANDO DATOS EN VIVO';
   const names = active
     .slice(0, 2)
     .map((record) => record.label)

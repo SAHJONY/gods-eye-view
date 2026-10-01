@@ -1,5 +1,5 @@
 /**
- * Cuba Cars AI Workforce Panel for GOD'S EYE VIEW — $0, no API keys, no
+ * Cuba Cars AI Workforce Panel for SAHJONY LIVE VIEW — $0, no API keys, no
  * external calls.
  *
  * Roster of the 4 local Cuba car-market AI agents: status dots, last action,

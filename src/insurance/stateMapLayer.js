@@ -1,5 +1,5 @@
 /**
- * Insurance state map layer for GOD'S EYE VIEW — $0, no API keys, no external calls.
+ * Insurance state map layer for SAHJONY LIVE VIEW — $0, no API keys, no external calls.
  *
  * One point + label per US state + DC (51 total), colored from the user's
  * OWN insurance data: red = has coverage gaps, amber = a renewal within

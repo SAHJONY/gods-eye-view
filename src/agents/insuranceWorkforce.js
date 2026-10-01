@@ -1,5 +1,5 @@
 /**
- * Insurance workforce for GOD'S EYE VIEW — $0, no API keys, no external calls.
+ * Insurance workforce for SAHJONY LIVE VIEW — $0, no API keys, no external calls.
  *
  * Mirrors the existing workforce conventions (src/agents/workforce.js):
  *   - agents produce MEMOS/NOTES ONLY — they NEVER send, email, post,

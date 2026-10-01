@@ -10,6 +10,6 @@ import { keySetupRequirement } from '../keySetupCore.mjs';
  */
 export function photorealUnavailableReason(hasCredentials) {
   if (hasCredentials)
-    return "Google 3D tiles unavailable — check the key's API restrictions, quota, or network";
-  return `${keySetupRequirement('google-maps')} — or a Cesium ion token for the ion-hosted route`;
+    return "Mosaicos Google 3D no disponibles — verifica las restricciones de API de la clave, la cuota o la red";
+  return `${keySetupRequirement('google-maps')} — o un token de Cesium ion para la ruta alojada en ion`;
 }

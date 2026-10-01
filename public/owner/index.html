@@ -37,12 +37,7 @@
   }
   .brand h1{font-size:17px; margin:0; letter-spacing:.4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .brand h1 .sub{display:block; font-size:11px; color:var(--muted); font-weight:400; letter-spacing:1.2px; text-transform:uppercase;}
-  .lang{display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; flex:none;}
-  .lang button{
-    border:0; background:transparent; color:var(--muted); font-size:14px; font-weight:700;
-    padding:10px 14px; cursor:pointer; min-height:44px;
-  }
-  .lang button.on{background:var(--gold); color:#0a1428;}
+  header .spacer{flex:1;}
   .shell{display:flex; flex:1; min-height:0;}
   nav.side{
     width:248px; flex:none; padding:18px 12px; border-right:1px solid var(--line);
@@ -120,13 +115,9 @@
 </head>
 <body>
 <header>
-  <div class="brand" id="brand" role="button" tabindex="0" aria-label="SAHJONY home">
+  <div class="brand" id="brand" role="button" tabindex="0" aria-label="SAHJONY inicio">
     <div class="mark">◈</div>
-    <h1>SAHJONY LLC<span class="sub" id="brandSub">Trade &amp; Energy Platform</span></h1>
-  </div>
-  <div class="lang" role="group" aria-label="Language / Idioma">
-    <button id="btnEs" type="button">ES</button>
-    <button id="btnEn" type="button">EN</button>
+    <h1>SAHJONY LLC<span class="sub" id="brandSub">Plataforma de comercio y energía</span></h1>
   </div>
 </header>
 
@@ -146,9 +137,9 @@
 <script>
 (function(){
   'use strict';
-  var LANG_KEY = 'sahjony.owner.lang';
-  var lang = localStorage.getItem(LANG_KEY) || 'es';
-  if (lang !== 'es' && lang !== 'en') lang = 'es';
+  // Plataforma 100% en español (decisión de Juan, 2026-10-01): sin selector
+  // de idioma. Se conserva la clave vieja por compatibilidad pero se ignora.
+  var lang = 'es';
 
   var STR = {
     es: {
@@ -160,16 +151,6 @@
       soonBody: 'Este módulo está en el plan de construcción. Aparecerá aquí automáticamente cuando esté listo.',
       noModules: 'No se pudo cargar el registro de módulos.',
       brandSub: 'Plataforma de comercio y energía'
-    },
-    en: {
-      home: 'Home', modules: 'Modules', openNew: 'Open in new tab',
-      welcome: "Owner's command center",
-      lead: 'Every business on the platform in one place. Pick a module to work in it without leaving here.',
-      live: 'Live', soon: 'Soon', open: 'Open →',
-      soonTitle: 'Module on the way',
-      soonBody: 'This module is on the build roadmap. It will appear here automatically when ready.',
-      noModules: 'Could not load the module registry.',
-      brandSub: 'Trade & Energy Platform'
     }
   };
   function t(key){ return (STR[lang] && STR[lang][key]) || STR.es[key] || key; }
@@ -288,15 +269,10 @@
 
   function applyLang(){
     document.documentElement.lang = lang;
-    document.getElementById('btnEs').classList.toggle('on', lang === 'es');
-    document.getElementById('btnEn').classList.toggle('on', lang === 'en');
     document.getElementById('brandSub').textContent = t('brandSub');
-    localStorage.setItem(LANG_KEY, lang);
     buildNav(sideNav); buildNav(topNav); route();
   }
 
-  document.getElementById('btnEs').addEventListener('click', function(){ lang = 'es'; applyLang(); });
-  document.getElementById('btnEn').addEventListener('click', function(){ lang = 'en'; applyLang(); });
   brand.addEventListener('click', function(){ location.hash = '#/'; });
   brand.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ location.hash = '#/'; } });
   window.addEventListener('hashchange', route);

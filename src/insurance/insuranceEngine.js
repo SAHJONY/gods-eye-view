@@ -1,5 +1,5 @@
 /**
- * Insurance engine for GOD'S EYE VIEW — pure logic, $0, no I/O.
+ * Insurance engine for SAHJONY LIVE VIEW — pure logic, $0, no I/O.
  *
  * Operates on plain data shapes shared with the standalone Insurance
  * Command Center (same localStorage key, same schema). Every function is a

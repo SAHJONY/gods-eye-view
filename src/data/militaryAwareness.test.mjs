@@ -461,7 +461,7 @@ test('pending mapped installations render as unknown instead of a false zero', a
     assert.match(installations?.reason || '', /unavailable/i);
     assert.match(
       runtime.panel()?.innerHTML || '',
-      /Mapped installations<\/strong><b aria-live="polite">\?<\/b>/,
+      /Instalaciones mapeadas<\/strong><b aria-live="polite">\?<\/b>/,
       'the operator sees ? rather than an all-clear 0 while installations load',
     );
   } finally {
@@ -568,12 +568,12 @@ test('a vessel feed still connecting after the lifecycle settles reads as unknow
     assert.match(vessels?.reason || '', /unavailable/i);
     assert.match(
       runtime.panel()?.innerHTML || '',
-      /AIS vessels<\/strong><b aria-live="polite">\?<\/b>/,
+      /Buques AIS<\/strong><b aria-live="polite">\?<\/b>/,
       'the panel prints ? for the whole settled-but-connecting window',
     );
     assert.doesNotMatch(
       runtime.panel()?.innerHTML || '',
-      /AIS vessels<\/strong><b aria-live="polite">0<\/b>/,
+      /Buques AIS<\/strong><b aria-live="polite">0<\/b>/,
       'the panel must never print an all-clear 0 before the feed has answered once',
     );
   } finally {
@@ -603,7 +603,7 @@ test('a settled vessel feed reporting a real empty viewport recovers to 0', asyn
     assert.equal(vessels?.count, 0, 'an answered empty viewport is a real observation');
     assert.match(
       runtime.panel()?.innerHTML || '',
-      /AIS vessels<\/strong><b aria-live="polite">0<\/b>/,
+      /Buques AIS<\/strong><b aria-live="polite">0<\/b>/,
       'the operator sees the real count once the feed answers',
     );
   } finally {
@@ -1640,14 +1640,14 @@ test('compact Context snapshots retain installation coverage', () => {
       id: 'military-installations',
       label: 'Mapped installations',
       source: 'OpenStreetMap',
-      coverage: 'CURRENT VIEWPORT ONLY',
+      coverage: 'SOLO VENTANA ACTUAL',
       summary: {
         relationship: 'NEARBY', count: 2, reason: 'mapped matches', nearest: [],
       },
     }],
   }, { canNext: true });
 
-  assert.equal(snapshot.cohorts[0].coverage, 'CURRENT VIEWPORT ONLY');
+  assert.equal(snapshot.cohorts[0].coverage, 'SOLO VENTANA ACTUAL');
   assert.deepEqual(snapshot.navigation, { canNext: true });
 });
 
@@ -2523,8 +2523,8 @@ test('the contacts window reports exactly the counts the panel renders', () => {
     evaluatedAt: Date.now(),
     radiusM: AWARENESS_RADIUS_M,
     cohorts: [
-      { id: 'flights', label: 'Flights', source: 'OpenSky', summary: { relationship: 'nearby', count: 42, reason: 'observed', nearest: [] } },
-      { id: 'military', label: 'Military flights', source: 'adsb.lol', summary: { relationship: 'nearby', count: 13, reason: 'observed', nearest: [] } },
+      { id: 'flights', label: 'Vuelos', source: 'OpenSky', summary: { relationship: 'nearby', count: 42, reason: 'observed', nearest: [] } },
+      { id: 'military', label: 'Vuelos militares', source: 'adsb.lol', summary: { relationship: 'nearby', count: 13, reason: 'observed', nearest: [] } },
       { id: 'ais-live-vessels', label: 'AIS vessels', source: 'AISStream', summary: { relationship: 'unknown', count: null, reason: 'feed unavailable', nearest: [] } },
     ],
   };

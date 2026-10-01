@@ -375,7 +375,7 @@ export function createGevActionRunner({
             ok: false,
             action: 'set_layer_visibility',
             layerId,
-            error: 'Radio layer unavailable',
+            error: 'Capa de radio no disponible',
             ...readLayerLifecycleSummary(dataManager, layerId),
           };
         }
@@ -442,7 +442,7 @@ export function createGevActionRunner({
           action: 'set_layer_visibility',
           layerId,
           cancelled: true,
-          error: 'Layer request was superseded by a newer voice turn',
+          error: 'La solicitud de capa fue reemplazada por un turno de voz más reciente',
           ...lifecycleSummary,
         };
       }
@@ -493,7 +493,7 @@ export function createGevActionRunner({
           ok: false,
           action: 'select_nearest_aircraft',
           error:
-            'Nearest-aircraft selection supports Flights or Military Flights only',
+            'La selección del avión más cercano solo admite Vuelos en vivo o Vuelos militares',
         };
       }
       const hasLocationId = Boolean(String(args.locationId || '').trim());
@@ -584,7 +584,7 @@ export function createGevActionRunner({
           stage: 'refresh',
           cancelled: !current(),
           error: !current()
-            ? 'Nearest-aircraft refresh was cancelled'
+            ? 'La actualización del avión más cercano fue cancelada'
             : `${layer.label || layerId} is enabled, but its destination refresh did not complete`,
           location,
           layer,
@@ -623,7 +623,7 @@ export function createGevActionRunner({
           stage: 'nearest',
           cancelled: !current(),
           error: !current()
-            ? 'Nearest-aircraft selection was cancelled'
+            ? 'La selección del avión más cercano fue cancelada'
             : feed.state === 'unavailable'
               ? `${layer.label || layerId} is enabled, but ${feed.source || 'its aircraft feed'} is unavailable`
               : `${layer.label || layerId} is enabled${feed.state === 'fallback' ? ` on the ${feed.source || 'fallback'} feed` : ''}, but no airborne aircraft is loaded in the ${location.label || 'destination'} view yet`,
@@ -646,7 +646,7 @@ export function createGevActionRunner({
           stage: 'selection',
           error:
             selection?.error ||
-            'The nearest airborne aircraft could not be selected',
+            'No se pudo seleccionar el avión en vuelo más cercano',
           location,
           layer,
           feed,
@@ -694,7 +694,7 @@ export function createGevActionRunner({
         return {
           ok: false,
           action: 'set_context_mode',
-          error: 'Context mode control unavailable',
+          error: 'Control de modo de contexto no disponible',
         };
       }
       const mode = normalizeContextMode(args.mode || args.contextMode);
@@ -720,7 +720,7 @@ export function createGevActionRunner({
           ok: false,
           action: 'set_context_mode',
           cancelled: true,
-          error: 'Context request was cancelled before it could run',
+          error: 'La solicitud de contexto fue cancelada antes de ejecutarse',
           ...cancellationState(),
         };
       }
@@ -742,7 +742,7 @@ export function createGevActionRunner({
           cancelled: true,
           error:
             result?.error ||
-            'Context request was cancelled before it completed',
+            'La solicitud de contexto fue cancelada antes de completarse',
           ...cancellationState(),
         };
       }
@@ -760,7 +760,7 @@ export function createGevActionRunner({
         return {
           ok: false,
           action: 'control_cockpit',
-          error: 'Cockpit control unavailable',
+          error: 'Control de cabina no disponible',
         };
       }
       const rawAction = args.action || args.command;
@@ -795,7 +795,7 @@ export function createGevActionRunner({
             ok: false,
             action: 'control_cockpit',
             cancelled: true,
-            error: 'Cockpit entry was cancelled before it could run',
+            error: 'La entrada a cabina fue cancelada antes de ejecutarse',
             state: styleManager.getCockpitState?.() || null,
           };
         }
@@ -832,7 +832,7 @@ export function createGevActionRunner({
               cancelled: !current() || Boolean(contextResult?.cancelled),
               error:
                 contextResult?.error ||
-                'Contacts context could not be established for Cockpit entry',
+                'No se pudo establecer el contexto de contactos para la entrada a cabina',
               context: contextResult
                 ? withContextModeVocabulary(contextResult)
                 : null,
@@ -1650,7 +1650,7 @@ export async function controlRadio(
     return {
       ok: false,
       action: 'control_radio',
-      error: 'Radio layer unavailable',
+      error: 'Capa de radio no disponible',
       ...readRadioLifecycle(),
     };
   }

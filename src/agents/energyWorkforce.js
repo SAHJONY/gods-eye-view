@@ -1,5 +1,5 @@
 /**
- * SAHJONY · GOD'S EYE VIEW — Energy Desk AI Workforce
+ * SAHJONY · SAHJONY LIVE VIEW — Energy Desk AI Workforce
  * -----------------------------------------------------------------------
  * Client-side only. $0. No API keys. No external network calls.
  * The workforce runs ONLY while the app is open — nothing runs in the

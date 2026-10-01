@@ -143,10 +143,10 @@ test('the measure and the hint follow the shape and the vertex count', () => {
     { lon: 0.01, lat: 0.01 },
   ].forEach((v) => addVertex(area, v));
   assert.match(formatMeasure(area), /ha$|km²$|m²$/);
-  assert.match(drawHint(area), /double-click or Enter to finish/);
+  assert.match(drawHint(area), /doble clic o Enter para terminar/);
   const pin = createDrawSession('pin');
-  assert.equal(drawHint(pin), 'Click where the pin goes.');
-  assert.equal(drawHint(null), 'Pick a shape, then click the map.');
+  assert.equal(drawHint(pin), 'Clic donde va el pin.');
+  assert.equal(drawHint(null), 'Elige una forma y luego clic en el mapa.');
 });
 
 test('a vertex must be a finite coordinate on the globe', () => {

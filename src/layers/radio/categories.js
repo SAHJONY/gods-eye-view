@@ -72,10 +72,10 @@ export function createCategories({
       { id: 'all', label: 'All' },
       { id: 'news', label: 'News' },
       { id: 'talk', label: 'Talk' },
-      { id: 'weather', label: 'Weather / Emergency' },
-      { id: 'public-safety', label: 'Public Safety' },
-      { id: 'aviation-marine', label: 'Aviation / Marine' },
-      { id: 'traffic-transit', label: 'Traffic / Transit' },
+      { id: 'weather', label: 'Clima / Emergencia' },
+      { id: 'public-safety', label: 'Seguridad pública' },
+      { id: 'aviation-marine', label: 'Aviación / Marina' },
+      { id: 'traffic-transit', label: 'Tráfico / Tránsito' },
       { id: 'music', label: 'Music' },
     ];
 

@@ -171,8 +171,8 @@ export class RadioControls {
         String(radioExpanded),
       );
       const label = radioExpanded
-        ? 'Go to expanded Radio section'
-        : 'Expand Radio section in Context';
+        ? 'Ir a la sección de radio expandida'
+        : 'Expandir la sección de radio en Contexto';
       this._contextRadioToggleBtn.setAttribute('aria-label', label);
       this._contextRadioToggleBtn.title = label;
       return;
@@ -188,12 +188,12 @@ export class RadioControls {
       'aria-expanded',
       String(compactOpen),
     );
-    const action = compactOpen ? 'Close' : 'Open';
+    const action = compactOpen ? 'Cerrar' : 'Abrir';
     this._contextRadioToggleBtn.setAttribute(
       'aria-label',
-      `${action} compact Radio controls`,
+      `${action} controles de radio compactos`,
     );
-    this._contextRadioToggleBtn.title = `${action} compact Radio controls`;
+    this._contextRadioToggleBtn.title = `${action} controles de radio compactos`;
   }
 
   destroy() {

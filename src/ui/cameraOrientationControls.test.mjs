@@ -477,7 +477,7 @@ test('bindings route both controls and release every listener on destroy', () =>
   tiltButton.click();
   northButton.click();
   assert.deepEqual(navigations, ['camera', 'camera']);
-  assert.deepEqual(toasts, ['Tilted view', 'North up']);
+  assert.deepEqual(toasts, ['Vista oblicua', 'Norte hacia arriba']);
   // The button shows the state the click just commanded, not a re-measurement.
   assert.equal(tiltButton.getAttribute('aria-pressed'), 'true');
   assert.equal(northButton.getAttribute('--camera-heading'), '90deg');

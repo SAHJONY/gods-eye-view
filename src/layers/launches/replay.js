@@ -200,10 +200,10 @@ export function createReplay({ state: layerState, services, parts, source }) {
     if (speedControl) speedControl.hidden = !replayAvailable;
     button.hidden = active || !replayAvailable;
     button.disabled = !replayAvailable;
-    button.textContent = 'REPLAY ASCENT';
+    button.textContent = 'REPETIR ASCENSO';
     button.classList.remove('active');
     button.setAttribute('aria-pressed', String(active));
-    button.title = 'Replay the estimated ascent with a following camera';
+    button.title = 'Repite el ascenso estimado con una cámara de seguimiento';
     if (transport) {
       transport.hidden = !active;
       transport.classList.toggle(
@@ -218,11 +218,11 @@ export function createReplay({ state: layerState, services, parts, source }) {
         toggleButton.textContent = layerState._replayPaused ? '▶' : 'Ⅱ';
         toggleButton.setAttribute(
           'aria-label',
-          layerState._replayPaused ? 'Resume replay' : 'Pause replay',
+          layerState._replayPaused ? 'Reanudar repetición' : 'Pausar repetición',
         );
         toggleButton.title = layerState._replayPaused
-          ? 'Resume replay'
-          : 'Pause replay';
+          ? 'Reanudar repetición'
+          : 'Pausar repetición';
       }
     }
   }
@@ -235,12 +235,12 @@ export function createReplay({ state: layerState, services, parts, source }) {
     const phase = state.countdownActive
       ? `T minus ${state.countdownSeconds}`
       : state.preCountdownActive
-        ? 'Preparing launch site'
+        ? 'Preparando sitio de lanzamiento'
         : state.elapsedSinceStart < 1
-          ? 'Liftoff'
+          ? 'Despegue'
           : state.ascending
-            ? 'Ascent replay'
-            : 'Orbit replay';
+            ? 'Repetición del ascenso'
+            : 'Repetición de la órbita';
     transport.setAttribute(
       'aria-label',
       `${phase}${layerState._replayPaused ? ', paused' : ''}`,

@@ -288,15 +288,15 @@ export function bindCameraOrientationControls({
       tiltButton?.setAttribute(
         'aria-label',
         next.tilted
-          ? 'Return map to straight-down view'
-          : 'Tilt map to oblique view',
+          ? 'Volver a la vista cenital del mapa'
+          : 'Inclinar el mapa a vista oblicua',
       );
     }
     if (!applied || applied.heading !== next.heading) {
       northButton?.style?.setProperty('--camera-heading', `${next.heading}deg`);
       northButton?.setAttribute(
         'aria-label',
-        `Reset map to north up. Current heading ${next.heading} degrees`,
+        `Restablecer el mapa con el norte hacia arriba. Rumbo actual: ${next.heading} grados`,
       );
     }
     applied = next;
@@ -322,7 +322,7 @@ export function bindCameraOrientationControls({
         : false;
     });
     if (result) {
-      showToast?.(result.tilted ? 'Tilted view' : 'Straight-down view');
+      showToast?.(result.tilted ? 'Vista oblicua' : 'Vista cenital');
       // The action reports the state it just commanded, so the button can
       // follow it without a second pick.
       tilted = result.tilted;
@@ -341,7 +341,7 @@ export function bindCameraOrientationControls({
         })
       );
     });
-    if (result) showToast?.('North up');
+    if (result) showToast?.('Norte hacia arriba');
     sync();
   });
 

@@ -1,5 +1,5 @@
 /**
- * SAHJONY VOZ — free bilingual (ES/EN) voice commander for GOD'S EYE VIEW.
+ * SAHJONY VOZ — free bilingual (ES/EN) voice commander for SAHJONY LIVE VIEW.
  *
  * Uses the browser's built-in Web Speech API (SpeechRecognition +
  * speechSynthesis): $0, no API keys, works in Spanish and English.

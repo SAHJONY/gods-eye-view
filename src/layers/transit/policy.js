@@ -350,10 +350,10 @@ export function buildTransitSelectionCopy(
   const motion = [];
   // What the SCREEN is doing leads, because that is what the reader can check.
   const shown = entry ? displayMotion(entry, nowMs) : null;
-  if (shown?.word === 'STOPPED') motion.push('Stopped');
-  else if (shown?.word === 'NO FIX') motion.push('No recent fix');
-  else if (shown?.word === 'WAITING') motion.push('Waiting for update');
-  else if (shown) motion.push('Moving');
+  if (shown?.word === 'DETENIDO') motion.push('Detenido');
+  else if (shown?.word === 'SIN POSICIÓN') motion.push('Sin posición reciente');
+  else if (shown?.word === 'EN ESPERA') motion.push('Esperando actualización');
+  else if (shown) motion.push('En movimiento');
   if (motion.length) details.push(motion.join(' · '));
   const reportedMotion = [];
   if (Number.isFinite(record.speedMps))
@@ -462,21 +462,21 @@ export const UNDERGROUND_MODES = new Set(['subway']);
 /** The mode in plain words, for a card a person reads rather than scans. */
 export const TRANSIT_MODE_WORD = Object.freeze({
   bus: 'Bus',
-  tram: 'Tram',
-  subway: 'Subway',
-  rail: 'Train',
-  ferry: 'Ferry',
-  unknown: 'Transit vehicle',
+  tram: 'Tranvía',
+  subway: 'Metro',
+  rail: 'Tren',
+  ferry: 'Ferri',
+  unknown: 'Vehículo de tránsito',
 });
 
 /** Short, fixed-width mode word for the detection card's class field. */
 export const TRANSIT_MODE_ABBR = Object.freeze({
   bus: 'BUS',
-  tram: 'TRAM',
+  tram: 'TRANVÍA',
   subway: 'METRO',
-  rail: 'RAIL',
-  ferry: 'FERRY',
-  unknown: 'TRANSIT',
+  rail: 'TREN',
+  ferry: 'FERRI',
+  unknown: 'TRÁNSITO',
 });
 
 /**

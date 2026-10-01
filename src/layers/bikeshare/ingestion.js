@@ -188,7 +188,7 @@ export function createIngestion({
               `[Data:Bikeshare] ${cityId} status update error:`,
               error,
             );
-            layerState._error = 'GBFS status update failed';
+            layerState._error = 'Falló la actualización de estado GBFS';
           }
         }),
       );

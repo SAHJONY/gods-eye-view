@@ -81,7 +81,7 @@ export function _resetCctvCalibration() {
     },
     { origin: 'user' },
   );
-  this.actions.showToast('CCTV calibration reset');
+  this.actions.showToast('Calibración de CCTV restablecida');
 }
 
 export function _beginCctvCalValueEdit(chip) {
@@ -162,7 +162,7 @@ export function _syncCctvCalReadout(enabled, activeCamera) {
   if (this._cctvAdjustBtn) {
     const adjustOn = !!this._cctvState?.calibrationMode;
     this._cctvAdjustBtn.classList.toggle('active', adjustOn && canCalibrate);
-    this._cctvAdjustBtn.textContent = adjustOn ? 'ADJUST ON' : 'ADJUST';
+    this._cctvAdjustBtn.textContent = adjustOn ? 'AJUSTE ACTIVADO' : 'AJUSTAR';
     this._cctvAdjustBtn.disabled = !canCalibrate;
   }
   if (this._cctvCalReadout) {

@@ -87,8 +87,8 @@ export class LocationNavigation {
       this._currentPoi = null;
       this._collapsePOIRow();
       this._updateLocationMiniStatus();
-    } else if (change.type === 'missing') this._showToast('Location not found');
-    else if (change.type === 'failed') this._showToast('Search failed');
+    } else if (change.type === 'missing') this._showToast('Ubicación no encontrada');
+    else if (change.type === 'failed') this._showToast('La búsqueda falló');
     else if (change.type === 'settled')
       this._settleLocationSearchUi(change.generation);
     else if (
@@ -273,7 +273,7 @@ export class LocationNavigation {
 
   _toggleOrbit() {
     if (!this._currentTarget) {
-      this._showToast('Fly to a POI first');
+      this._showToast('Vuele primero a un punto de interés');
       return;
     }
 
@@ -375,11 +375,11 @@ export class LocationNavigation {
       };
       this._resetGlobeBtn?.setAttribute(
         'aria-label',
-        'Reset to full globe view',
+        'Restablecer a la vista completa del globo terráqueo',
       );
       this._cockpitResetGlobeBtn?.setAttribute(
         'aria-label',
-        'Reset cockpit to full globe view',
+        'Restablecer la cabina a la vista completa del globo terráqueo',
       );
       this._globeResetPromise = null;
       this._cancelGlobeReset = null;
@@ -395,11 +395,11 @@ export class LocationNavigation {
     }, 4200);
     this._resetGlobeBtn?.setAttribute(
       'aria-label',
-      'Resetting to full globe view',
+      'Restableciendo la vista completa del globo terráqueo',
     );
     this._cockpitResetGlobeBtn?.setAttribute(
       'aria-label',
-      'Resetting cockpit to full globe view',
+      'Restableciendo la cabina a la vista completa del globo terráqueo',
     );
     const target = flyToGlobeView(this.viewer, {
       onComplete: () => finish(false),

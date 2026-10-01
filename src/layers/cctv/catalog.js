@@ -26,7 +26,7 @@ export function createCatalog({ state: layerState, services, parts, source }) {
         name: seed.label,
         cityId: seed.cityId,
         city: city.name,
-        provider: 'OSM Camera Grid',
+        provider: 'Cuadrícula de cámaras OSM',
         sourceKind: 'seed',
         feedType: 'image',
         feedConfigured: false,
@@ -176,7 +176,7 @@ export function createCatalog({ state: layerState, services, parts, source }) {
         cityId,
         city: String(source.city || city?.name || seed?.city || 'Global'),
         provider: String(
-          source.provider || seed?.provider || 'Configured CCTV Source',
+          source.provider || seed?.provider || 'Fuente CCTV configurada',
         ),
         sourceKind: String(
           source.sourceKind ||

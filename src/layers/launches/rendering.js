@@ -343,7 +343,7 @@ export function createRendering({
               stageId: stage.id,
               phase: 'ATMOSPHERIC_REENTRY',
               altitudeM: STAGE_REENTRY_ALTITUDE_M,
-              source: 'Estimated 100 km atmospheric interface',
+              source: 'Interfaz atmosférica estimada a 100 km',
             },
           });
           const reentryPosition = path[reentryIndex];
@@ -351,7 +351,7 @@ export function createRendering({
             parts.overlays.createRocketMissionElementOverlayEntry({
               id: `reentry:${launch.id}:${stageIndex}`,
               position: reentryPosition,
-              text: 'STAGE RE-ENTRY',
+              text: 'REINGRESO DE ETAPA',
               accent: '#ffd166',
               priority: 700_000 - stageIndex,
               gapPx: 8,
@@ -454,8 +454,8 @@ export function createRendering({
             ? 'CURRENT_SATELLITE_POSITION'
             : 'ESTIMATED_ORBIT_POSITION',
           source: satelliteTrack
-            ? 'Satellites layer'
-            : 'Approximate mission orbit',
+            ? 'Capa de satélites'
+            : 'Órbita aproximada de la misión',
         },
       });
       overlayRecord.liveEventTime = () => liveTime;
@@ -464,7 +464,7 @@ export function createRendering({
           ? parts.overlays
               .shortMissionLabel(satelliteTrack.name, 22)
               .toUpperCase()
-          : 'EST. ORBIT POSITION';
+          : 'POS. ORBITAL EST.';
         return parts.overlays.createRocketMissionElementOverlayEntry({
           id: `payload-position:${launch.id}`,
           position: () => livePosition,
@@ -500,7 +500,7 @@ export function createRendering({
             launchId: launch.id,
             satelliteName: '',
             noradId: '',
-            source: 'Approximate mission orbit',
+            source: 'Órbita aproximada de la misión',
           },
         });
       }
@@ -520,7 +520,7 @@ export function createRendering({
         parts.overlays.createRocketMissionElementOverlayEntry({
           id: `orbit:${launch.id}`,
           position: orbitLabelPosition,
-          text: satelliteTrack ? 'ORBIT' : 'PROJECTED ORBIT',
+          text: satelliteTrack ? 'ORBIT' : 'ÓRBITA PROYECTADA',
           accent: satelliteTrack ? '#22e6e6' : '#c084fc',
           priority: 800_000,
           gapPx: 8,
@@ -540,8 +540,8 @@ export function createRendering({
           noradId: satelliteTrack?.noradId || '',
           phase: 'ASCENT_THEN_ORBIT',
           source: satelliteTrack
-            ? 'Satellite trajectory animation'
-            : 'Approximate trajectory animation',
+            ? 'Animación de trayectoria del satélite'
+            : 'Animación de trayectoria aproximada',
         },
       });
       layerState._dataSource.entities.add({
@@ -563,8 +563,8 @@ export function createRendering({
           launchId: launch.id,
           phase: 'APPROXIMATE_TRANSFER',
           source: satelliteTrack
-            ? 'Launch site to propagated insertion'
-            : 'Launch site to forward projected insertion',
+            ? 'Sitio de lanzamiento a inserción propagada'
+            : 'Sitio de lanzamiento a inserción proyectada',
         },
       });
     }

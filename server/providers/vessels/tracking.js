@@ -177,7 +177,7 @@ export function containerTrackProxy() {
       return sendJson(res, 503, {
         error: 'not-configured',
         message:
-          'El rastreador aún no está conectado. El dueño debe agregar la clave de ShipsGo en Ajustes de proveedor.',
+          'El rastreador está temporalmente en mantenimiento. Intenta de nuevo en unos minutos.',
       });
     }
     const numbers = String(url.searchParams.get('numbers') || '')

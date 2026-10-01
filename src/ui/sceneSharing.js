@@ -82,7 +82,7 @@ export function createSceneDialog(title, onClose) {
     body.append(wrapper);
     return node;
   }
-  button('Cancel', onClose);
+  button('Cancelar', onClose);
   listen(dialog, 'cancel', (event) => {
     event.preventDefault();
     onClose();
@@ -116,8 +116,8 @@ export function mountSceneSharing(
   bar.dataset.directorAuthoring = '';
   bar.className = 'scene-controls';
   const entries = [
-    ['EDIT DETAILS', edit],
-    ['SHARE SCENE', share],
+    ['EDITAR DETALLES', edit],
+    ['COMPARTIR ESCENA', share],
   ];
   const removers = [];
   for (const [text, fn] of entries) {

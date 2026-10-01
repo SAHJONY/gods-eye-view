@@ -101,8 +101,8 @@ export function formatCockpitContextScope(
       : '—';
   const coverage =
     typeof installationCoverage === 'string' ? installationCoverage.trim() : '';
-  const base = `${normalizedLabel} · ${radiusKm} KM AIR/SEA WINDOW`;
-  return coverage ? `${base} · INSTALLATIONS ${coverage}` : base;
+  const base = `${normalizedLabel} · ${radiusKm} KM VENTANA AIRE/MAR`;
+  return coverage ? `${base} · INSTALACIONES ${coverage}` : base;
 }
 
 /** Return seven 30-degree compass divisions centered on a heading. */

@@ -67,7 +67,7 @@ export function createOverlays({ state: layerState, services, parts, source }) {
   }
 
   function shortMissionLabel(name, maxLength = 24) {
-    const text = String(name || 'Unnamed mission')
+    const text = String(name || 'Misión sin nombre')
       .replace(/\s+/g, ' ')
       .trim()
       .split(' | ')[0];
@@ -115,8 +115,8 @@ export function createOverlays({ state: layerState, services, parts, source }) {
     const details = selected
       ? [
           siteName
-            ? `LAUNCH SITE · ${shortMissionLabel(siteName, 20).toUpperCase()}`
-            : 'LAUNCH SITE',
+            ? `SITIO DE LANZAMIENTO · ${shortMissionLabel(siteName, 20).toUpperCase()}`
+            : 'SITIO DE LANZAMIENTO',
         ]
       : [];
     return {
@@ -562,8 +562,8 @@ export function createOverlays({ state: layerState, services, parts, source }) {
     const mission = shortMissionLabel(launch.name, 22).toUpperCase();
     const siteName = compactLaunchSiteName(launch.launchSite);
     const siteCallout = siteName
-      ? `LAUNCH SITE · ${shortMissionLabel(siteName, 20).toUpperCase()}`
-      : 'LAUNCH SITE';
+      ? `SITIO DE LANZAMIENTO · ${shortMissionLabel(siteName, 20).toUpperCase()}`
+      : 'SITIO DE LANZAMIENTO';
     let title = mission;
     let detail = siteCallout;
     if (mode === 'countdown') {
@@ -573,7 +573,7 @@ export function createOverlays({ state: layerState, services, parts, source }) {
       title =
         state.elapsedSinceStart < 1
           ? `LIFTOFF · ${mission}`
-          : `${launch.trajectory.length > 1 ? 'ASCENT REPLAY' : 'ASCENT ESTIMATE'} · ${mission}`;
+          : `${launch.trajectory.length > 1 ? 'REPETICIÓN DE ASCENSO' : 'ESTIMACIÓN DE ASCENSO'} · ${mission}`;
       detail = parts.policyHelpers.formatMissionEventTime(state.eventTime);
     } else if (mode === 'recovery') {
       title = `STAGE RE-ENTRY / RECOVERY · ${mission}`;
