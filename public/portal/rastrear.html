@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>¿Dónde está mi contenedor? · SAHJONY LLC</title>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<style>
+  :root{ --gold:#e8b34b; --bg:#0a1428; --card:#101d38; --line:#24365c; --txt:#eef3ff; --muted:#9fb0d0; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--bg); color:var(--txt); font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; min-height:100vh;}
+  header{position:sticky; top:0; z-index:10; background:rgba(10,20,40,.96); border-bottom:1px solid var(--line); padding:12px 16px; display:flex; align-items:center; gap:12px;}
+  header a.back{color:var(--gold); text-decoration:none; font-size:22px; font-weight:800; padding:8px 4px;}
+  header h1{font-size:17px; margin:0; font-weight:800;}
+  header small{display:block; color:var(--muted); font-weight:400; font-size:12px;}
+  main{max-width:720px; margin:0 auto; padding:20px 16px 60px;}
+  .hero{text-align:center; margin:8px 0 20px;}
+  .hero .big{font-size:44px;}
+  .hero h2{margin:8px 0 6px; font-size:24px;}
+  .hero p{color:var(--muted); margin:0 0 4px; font-size:15px; line-height:1.5;}
+  textarea{width:100%; min-height:110px; border-radius:14px; border:2px solid var(--line); background:#0d1930; color:var(--txt); font-size:18px; padding:14px; font-family:ui-monospace,monospace; letter-spacing:1px; resize:vertical;}
+  textarea:focus{outline:none; border-color:var(--gold);}
+  .cta{display:block; width:100%; margin-top:12px; background:var(--gold); color:#0a1428; border:0; border-radius:14px; font-size:20px; font-weight:800; padding:18px; cursor:pointer;}
+  .cta:disabled{opacity:.6;}
+  .hint{text-align:center; color:var(--muted); font-size:13px; margin-top:10px;}
+  #map{height:340px; border-radius:14px; border:1px solid var(--line); margin:22px 0 8px; display:none; z-index:0;}
+  .cards{display:grid; gap:14px; margin-top:14px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px;}
+  .card .num{font-family:ui-monospace,monospace; font-size:19px; font-weight:800; letter-spacing:1px; color:var(--gold); word-break:break-all;}
+  .row{display:flex; gap:8px; align-items:baseline; margin-top:10px; font-size:15px;}
+  .row .k{color:var(--muted); min-width:86px; flex:none;}
+  .chip{display:inline-block; margin-top:12px; padding:6px 14px; border-radius:999px; font-weight:800; font-size:14px;}
+  .chip.go{background:#123f2b; color:#4ade80; border:1px solid #1f7a4d;}
+  .chip.wait{background:#3d2f10; color:#fbbf24; border:1px solid #8a6d1f;}
+  .chip.done{background:#1e3a5f; color:#7dd3fc; border:1px solid #2f5f8f;}
+  .chip.bad{background:#431418; color:#fca5a5; border:1px solid #7f2d2d;}
+  .btn3d{display:block; text-align:center; margin-top:14px; background:#1a2c52; color:#fff; text-decoration:none; border:1px solid var(--line); border-radius:12px; padding:14px; font-weight:700; font-size:16px;}
+  .empty{background:var(--card); border:1px dashed var(--line); border-radius:16px; padding:18px; text-align:center; color:var(--muted); font-size:15px; line-height:1.6;}
+  .loading{text-align:center; color:var(--muted); padding:26px; font-size:16px;}
+  .err{background:#431418; border:1px solid #7f2d2d; color:#fecaca; border-radius:12px; padding:14px; margin-top:14px; font-size:15px; line-height:1.5;}
+  footer{text-align:center; color:var(--muted); font-size:12px; margin-top:30px;}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/portal/" aria-label="Volver">‹</a>
+  <h1>SAHJONY LLC<small>Rastrea tu carga</small></h1>
+</header>
+<main>
+  <div class="hero">
+    <div class="big">📦</div>
+    <h2>¿Dónde está mi contenedor?</h2>
+    <p>Escribe el número de tu contenedor tal como aparece en tu factura.<br>¿Tienes varios? Pon uno por línea.</p>
+  </div>
+  <textarea id="nums" placeholder="MSKU1234567&#10;TCLU7654321" autocapitalize="characters" autocomplete="off" spellcheck="false"></textarea>
+  <button class="cta" id="go">🔍 Localizar mi carga</button>
+  <div class="hint">Funciona con número de contenedor, conocimiento de embarque (BL) o reserva.</div>
+  <div id="map"></div>
+  <div class="cards" id="cards"></div>
+  <footer>SAHJONY LLC · Seguimiento en vivo</footer>
+</main>
+<script src="vendor/leaflet/leaflet.js"></script>
+<script>
+(function(){
+  'use strict';
+  var nums = document.getElementById('nums');
+  var go = document.getElementById('go');
+  var cards = document.getElementById('cards');
+  var mapEl = document.getElementById('map');
+  var map = null, layer = null;
+
+  var STATUS = {
+    EN_ROUTE: ['En camino 🟢', 'go'],
+    PENDING: ['En espera 🟡', 'wait'],
+    ARRIVED: ['Llegó al puerto 🔵', 'done'],
+    DELIVERED: ['Entregado ✅', 'done'],
+    DISCARDED: ['Cancelado', 'bad']
+  };
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function fmtDate(iso){
+    if (!iso) return null;
+    var d = new Date(iso);
+    if (isNaN(d)) return null;
+    return d.toLocaleDateString('es', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  function ensureMap(){
+    if (map) return;
+    map = L.map('map', { scrollWheelZoom: false }).setView([23, -75], 4);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '© OpenStreetMap' }).addTo(map);
+    layer = L.layerGroup().addTo(map);
+  }
+
+  function render(list){
+    cards.innerHTML = '';
+    mapEl.style.display = 'none';
+    var pts = [];
+    list.forEach(function(r){
+      if (!r || !r.found) {
+        var d = document.createElement('div');
+        d.className = 'empty';
+        d.innerHTML = '😕 <b>' + esc(r && r.query ? r.query : '') + '</b><br>No encontramos ese número.<br>Revisa que esté escrito igual que en tu factura.';
+        cards.appendChild(d);
+        return;
+      }
+      var st = STATUS[r.status] || ['En seguimiento', 'wait'];
+      var eta = fmtDate(r.eta);
+      var el = document.createElement('div');
+      el.className = 'card';
+      el.innerHTML =
+        '<div class="num">📦 ' + esc(r.container || r.query) + '</div>' +
+        '<span class="chip ' + st[1] + '">' + esc(st[0]) + '</span>' +
+        (r.vessel ? '<div class="row"><span class="k">🚢 Barco</span><b>' + esc(r.vessel) + '</b></div>' : '') +
+        (r.shipping_line ? '<div class="row"><span class="k">🏢 Naviera</span>' + esc(r.shipping_line) + '</div>' : '') +
+        ((r.origin || r.destination) ? '<div class="row"><span class="k">🗺️ Ruta</span>' + esc(r.origin || '?') + ' → ' + esc(r.destination || '?') + '</div>' : '') +
+        (eta ? '<div class="row"><span class="k">📅 Llega aprox.</span><b>' + esc(eta) + '</b></div>' : '') +
+        (r.lat !== null && r.lon !== null ? '<div class="row"><span class="k">📍 Posición</span>en el mar ahora mismo' + (r.position_source === 'shipsgo+ais-live' ? ' (en vivo)' : '') + '</div>' : '<div class="row"><span class="k">📍 Posición</span>actualizándose…</div>') +
+        (r.live_3d ? '<a class="btn3d" href="' + esc(r.live_3d) + '">🛰️ Ver mi barco en 3D</a>' : '');
+      cards.appendChild(el);
+      if (r.lat !== null && r.lon !== null) pts.push([r, [r.lat, r.lon]]);
+    });
+    if (pts.length) {
+      ensureMap();
+      mapEl.style.display = 'block';
+      layer.clearLayers();
+      pts.forEach(function(p){
+        L.marker(p[1]).addTo(layer).bindPopup('<b>🚢 ' + esc(p[0].vessel || 'Barco') + '</b><br>📦 ' + esc(p[0].container || p[0].query));
+      });
+      setTimeout(function(){ map.invalidateSize(); map.fitBounds(L.latLngBounds(pts.map(function(p){ return p[1]; })).pad(0.6)); }, 60);
+    }
+  }
+
+  go.addEventListener('click', function(){
+    var raw = nums.value.split(/[\n,;]+/).map(function(s){ return s.trim(); }).filter(Boolean);
+    if (!raw.length) { nums.focus(); return; }
+    go.disabled = true;
+    cards.innerHTML = '<div class="loading">🔎 Buscando tu carga…</div>';
+    fetch('/api/track?numbers=' + encodeURIComponent(raw.slice(0, 10).join(',')))
+      .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, status: r.status, body: j }; }); })
+      .then(function(out){
+        go.disabled = false;
+        if (!out.ok) {
+          cards.innerHTML = '<div class="err">' + esc((out.body && out.body.message) || 'No pudimos buscar ahora. Intenta de nuevo en unos minutos.') + '</div>';
+          return;
+        }
+        render(out.body.results || []);
+      })
+      .catch(function(){
+        go.disabled = false;
+        cards.innerHTML = '<div class="err">No hay conexión con el rastreador. Revisa tu internet e intenta de nuevo.</div>';
+      });
+  });
+})();
+</script>
+</body>
+</html>

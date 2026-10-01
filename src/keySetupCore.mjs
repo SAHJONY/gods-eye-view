@@ -33,7 +33,7 @@ export const KEY_SETUP_KEYS = Object.freeze([
   Object.freeze({
     id: 'google-maps',
     title: 'GOOGLE MAPS',
-    unlocks: 'The photorealistic 3D planet + place search',
+    unlocks: 'El planeta 3D fotorrealista + búsqueda de lugares',
     getUrl: 'https://developers.google.com/maps/documentation/tile/get-api-key',
     envVars: Object.freeze(['GOOGLE_MAPS_API_KEY']),
     tier: 'metered',
@@ -42,7 +42,7 @@ export const KEY_SETUP_KEYS = Object.freeze([
   Object.freeze({
     id: 'google-maps-server',
     title: 'GOOGLE MAPS — SERVER',
-    unlocks: 'Places context + Street View fallback; optional separate key',
+    unlocks: 'Contexto de lugares + Street View de respaldo; clave separada opcional',
     getUrl:
       'https://developers.google.com/maps/documentation/places/web-service/get-api-key',
     envVars: Object.freeze(['GOOGLE_MAPS_SERVER_API_KEY']),
@@ -52,7 +52,7 @@ export const KEY_SETUP_KEYS = Object.freeze([
   Object.freeze({
     id: 'openai',
     title: 'OPENAI',
-    unlocks: 'Voice control — talk to the planet',
+    unlocks: 'Control por voz — habla con el planeta',
     getUrl: 'https://platform.openai.com/api-keys',
     envVars: Object.freeze(['OPENAI_API_KEY']),
     tier: 'metered',
@@ -60,15 +60,23 @@ export const KEY_SETUP_KEYS = Object.freeze([
   Object.freeze({
     id: 'aisstream',
     title: 'AISSTREAM',
-    unlocks: 'Live ships, worldwide',
+    unlocks: 'Buques en vivo, en todo el mundo',
     getUrl: 'https://aisstream.io',
     envVars: Object.freeze(['AISSTREAM_API_KEY']),
     tier: 'free',
   }),
   Object.freeze({
+    id: 'shipsgo',
+    title: 'SHIPSGO',
+    unlocks: 'Rastreador de contenedores para clientes — buque, posición en vivo y llegada estimada',
+    getUrl: 'https://www.shipsgo.com',
+    envVars: Object.freeze(['SHIPSGO_TOKEN']),
+    tier: 'metered',
+  }),
+  Object.freeze({
     id: 'firms',
     title: 'NASA FIRMS',
-    unlocks: 'Live active-fire detections',
+    unlocks: 'Detecciones de incendios activos en vivo',
     getUrl: 'https://firms.modaps.eosdis.nasa.gov/api/map_key/',
     envVars: Object.freeze(['FIRMS_MAP_KEY']),
     tier: 'free',
@@ -76,7 +84,7 @@ export const KEY_SETUP_KEYS = Object.freeze([
   Object.freeze({
     id: 'tomtom',
     title: 'TOMTOM',
-    unlocks: 'Real live traffic (keyless runs a simulation)',
+    unlocks: 'Tráfico real en vivo (sin clave corre una simulación)',
     getUrl: 'https://developer.tomtom.com',
     envVars: Object.freeze(['TOMTOM_API_KEY']),
     tier: 'free',
@@ -84,7 +92,7 @@ export const KEY_SETUP_KEYS = Object.freeze([
   Object.freeze({
     id: 'cesium-ion',
     title: 'CESIUM ION',
-    unlocks: 'Bing imagery map stacks + world terrain',
+    unlocks: 'Pilas de mapas de imágenes Bing + terreno mundial',
     getUrl: 'https://ion.cesium.com/tokens',
     envVars: Object.freeze(['CESIUM_ION_TOKEN']),
     tier: 'free',
@@ -93,7 +101,7 @@ export const KEY_SETUP_KEYS = Object.freeze([
   Object.freeze({
     id: 'opensky',
     title: 'OPENSKY',
-    unlocks: 'More flight-polling credits (anonymous works without)',
+    unlocks: 'Más créditos de sondeo de vuelos (el modo anónimo funciona sin clave)',
     getUrl: 'https://opensky-network.org',
     envVars: Object.freeze(['OPENSKY_CLIENT_ID', 'OPENSKY_CLIENT_SECRET']),
     tier: 'free',
@@ -101,7 +109,7 @@ export const KEY_SETUP_KEYS = Object.freeze([
   Object.freeze({
     id: 'launch-library',
     title: 'LAUNCH LIBRARY',
-    unlocks: 'Higher space-missions request allowance',
+    unlocks: 'Mayor cuota de solicitudes de misiones espaciales',
     getUrl: 'https://thespacedevs.com',
     envVars: Object.freeze(['LL2_API_TOKEN']),
     tier: 'free',
@@ -337,7 +345,7 @@ export function knownKeySetupEnvVars() {
 export function keySetupRequirement(id) {
   const entry = KEY_SETUP_KEYS.find((candidate) => candidate.id === id);
   if (!entry || entry.hidden) return '';
-  return `Needs ${entry.envVars.join(' + ')} — add it in Provider Settings`;
+  return `Necesita ${entry.envVars.join(' + ')} — agrégala en Ajustes de proveedores`;
 }
 
 /**
