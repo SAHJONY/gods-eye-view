@@ -102,11 +102,30 @@ function flyToVessel(viewer, vessel) {
     offset: new Cesium.HeadingPitchRange(
       0,
       Cesium.Math.toRadians(-58),
-      900000,
+      250000,
     ),
-    duration: 2.0,
+    duration: 1.8,
     easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT,
   });
+}
+
+/**
+ * Go straight to a vessel from the traffic panel: use the layer's native
+ * select-and-focus (camera flies to the vessel and its card opens).
+ * Falls back to a manual fly-to when the vessel has no MMSI or the
+ * selection API is unavailable.
+ */
+async function goToVessel(viewer, vessel) {
+  if (!viewer || !vessel) return;
+  if (vessel.mmsi) {
+    try {
+      const { selectVesselByMmsi } = await import('../data/aisLiveVessels.js');
+      if (selectVesselByMmsi(vessel.mmsi) === true) return;
+    } catch {
+      /* fall through to the manual fly-to */
+    }
+  }
+  flyToVessel(viewer, vessel);
 }
 
 /**
@@ -130,7 +149,7 @@ export async function showCubaFleetView({ viewer, timeoutMs = 30000 } = {}) {
   // Always surface the traffic panel on the fleet deep-link, even when the
   // feed carries no Cuba traffic right now.
   try {
-    showCubaTrafficPanel(found, (vessel) => flyToVessel(viewer, vessel));
+    showCubaTrafficPanel(found, (vessel) => goToVessel(viewer, vessel));
   } catch {
     /* panel is decorative — never break the view */
   }
