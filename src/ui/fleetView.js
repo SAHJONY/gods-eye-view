@@ -123,10 +123,11 @@ function goToVessel(viewer, vessel) {
   try {
     viewer.camera.cancelFlight?.();
     viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(position, 0), {
+      // Tight GPS-style framing: close enough to pinpoint the vessel.
       offset: new Cesium.HeadingPitchRange(
         0,
-        Cesium.Math.toRadians(-55),
-        150000,
+        Cesium.Math.toRadians(-62),
+        25000,
       ),
       duration: 1.6,
       easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT,
