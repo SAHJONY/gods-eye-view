@@ -94,38 +94,43 @@ function flyToDefault(viewer) {
   return true;
 }
 
-function flyToVessel(viewer, vessel) {
+/**
+ * Go straight to a vessel from the traffic panel.
+ *
+ * The camera flight runs immediately and synchronously so the tap always
+ * produces visible movement — no async chain in front of it. Afterwards we
+ * try to open the vessel's inspection card as a bonus.
+ */
+function goToVessel(viewer, vessel) {
   if (!viewer?.camera || !vessel) return;
   const position = Cesium.Cartesian3.fromDegrees(vessel.lon, vessel.lat, 0);
-  viewer.camera.cancelFlight?.();
-  viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(position, 0), {
-    offset: new Cesium.HeadingPitchRange(
-      0,
-      Cesium.Math.toRadians(-58),
-      250000,
-    ),
-    duration: 1.8,
-    easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT,
-  });
-}
-
-/**
- * Go straight to a vessel from the traffic panel: use the layer's native
- * select-and-focus (camera flies to the vessel and its card opens).
- * Falls back to a manual fly-to when the vessel has no MMSI or the
- * selection API is unavailable.
- */
-async function goToVessel(viewer, vessel) {
-  if (!viewer || !vessel) return;
-  if (vessel.mmsi) {
-    try {
-      const { selectVesselByMmsi } = await import('../data/aisLiveVessels.js');
-      if (selectVesselByMmsi(vessel.mmsi) === true) return;
-    } catch {
-      /* fall through to the manual fly-to */
-    }
+  try {
+    viewer.camera.cancelFlight?.();
+    viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(position, 0), {
+      offset: new Cesium.HeadingPitchRange(
+        0,
+        Cesium.Math.toRadians(-55),
+        150000,
+      ),
+      duration: 1.6,
+      easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT,
+    });
+  } catch {
+    return;
   }
-  flyToVessel(viewer, vessel);
+  if (vessel.mmsi) {
+    import('../data/aisLiveVessels.js')
+      .then(({ selectVesselByMmsi }) => {
+        try {
+          selectVesselByMmsi(vessel.mmsi);
+        } catch {
+          /* card is a bonus — the camera already moved */
+        }
+      })
+      .catch(() => {
+        /* card is a bonus — the camera already moved */
+      });
+  }
 }
 
 /**
