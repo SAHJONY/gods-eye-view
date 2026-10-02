@@ -26,6 +26,8 @@ export const buildSelectedVesselCard =
 export const cardScreenSeparated = aisLiveVesselsLayer.cardScreenSeparated;
 export const selectVesselByMmsi = (mmsi) =>
   aisLiveVesselsLayer.selectVesselByMmsi(mmsi);
+export const getVesselLivePosition = (mmsi) =>
+  aisLiveVesselsLayer.getVesselLivePosition(mmsi);
 export const _bindVesselInteractionForTest =
   aisLiveVesselsLayer.testing._bindVesselInteractionForTest;
 export const _setVesselStateForTest =

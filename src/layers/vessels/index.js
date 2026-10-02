@@ -76,6 +76,22 @@ export function createVesselLayer({ source, services, options = {} } = {}) {
       if (!record) return false;
       return parts.selection.selectAndFocusVessel(record) === true;
     },
+    /**
+     * Live position of one AIS vessel by MMSI, read from the layer's own
+     * continuously-updated records. Returns `{ lat, lon }` or null when
+     * the vessel is not in the current snapshot.
+     */
+    getVesselLivePosition(mmsi) {
+      const key = String(mmsi || '').trim();
+      if (!key) return null;
+      const record = vesselState.state.records.byMmsi.get(key) || null;
+      if (!record) return null;
+      const lat = Number(record.lat);
+      const lon = Number(record.lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+      if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+      return { lat, lon };
+    },
   });
   Object.defineProperty(layer, 'testing', { value: parts.testing });
   return layer;

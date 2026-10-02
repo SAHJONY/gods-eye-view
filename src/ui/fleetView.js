@@ -21,6 +21,7 @@ import {
   cubaVesselBadge,
 } from '../data/cubaVessels.js';
 import { showCubaTrafficPanel } from './cubaTrafficPanel.js';
+import { getVesselLivePosition } from '../data/aisLiveVessels.js';
 
 const AIS_URL = '/api/ais-live?maxRows=50000';
 
@@ -103,7 +104,22 @@ function flyToDefault(viewer) {
  */
 function goToVessel(viewer, vessel) {
   if (!viewer?.camera || !vessel) return;
-  const position = Cesium.Cartesian3.fromDegrees(vessel.lon, vessel.lat, 0);
+  // Prefer the layer's live position (refreshed every second) over the
+  // panel's fetch-time fix — vessels keep moving after the list loads.
+  let lat = vessel.lat;
+  let lon = vessel.lon;
+  if (vessel.mmsi) {
+    try {
+      const live = getVesselLivePosition(vessel.mmsi);
+      if (live) {
+        lat = live.lat;
+        lon = live.lon;
+      }
+    } catch {
+      /* keep the panel's position */
+    }
+  }
+  const position = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
   try {
     viewer.camera.cancelFlight?.();
     viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(position, 0), {
