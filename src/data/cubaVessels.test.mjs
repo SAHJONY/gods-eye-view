@@ -2,6 +2,9 @@ import {
   isCubaBound,
   destinationWords,
   isCubaLaneVessel,
+  isDepartingCuba,
+  isAnchoredInCuba,
+  isInCubaZone,
   cubaVesselCss,
   cubaVesselBadge,
 } from './cubaVessels.js';
@@ -74,5 +77,36 @@ describe('cubaVessels — destinationWords', () => {
       'HABANA',
       'CUBA',
     ]);
+  });
+});
+
+describe('cubaVessels — departing / anchored in Cuba', () => {
+  it('detects vessels leaving Cuban waters', () => {
+    const rec = { lat: 22.0, lon: -80.0, speed: 12, destination: 'USHOU' };
+    assert.equal(isInCubaZone(rec), true);
+    assert.equal(isDepartingCuba(rec), true);
+    assert.equal(isAnchoredInCuba(rec), false);
+    assert.equal(cubaVesselCss(rec), '#b388ff');
+    assert.equal(cubaVesselBadge(rec).text, '🇨🇺 SALIENDO DE CUBA');
+  });
+
+  it('detects vessels anchored in Cuba', () => {
+    const rec = { lat: 23.1, lon: -82.4, speed: 0, destination: '' };
+    assert.equal(isDepartingCuba(rec), false);
+    assert.equal(isAnchoredInCuba(rec), true);
+    assert.equal(cubaVesselBadge(rec).text, '🇨🇺 EN CUBA');
+  });
+
+  it('bound beats departing inside the zone', () => {
+    const rec = { lat: 22.0, lon: -80.0, speed: 12, destination: 'MARIEL' };
+    assert.equal(isCubaBound(rec), true);
+    assert.equal(cubaVesselCss(rec), '#00e676');
+  });
+
+  it('rejects vessels outside the zone', () => {
+    const rec = { lat: 25.7, lon: -80.1, speed: 12, destination: '' };
+    assert.equal(isInCubaZone(rec), false);
+    assert.equal(isDepartingCuba(rec), false);
+    assert.equal(cubaVesselCss(rec), null);
   });
 });

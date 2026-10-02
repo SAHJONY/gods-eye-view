@@ -149,7 +149,7 @@ export function showCubaTrafficPanel(vessels, onSelect) {
         </button>`,
         )
         .join('')}</div>`
-    : `<div class="cuba-traffic-empty">Ahora mismo ningún buque en el feed declara destino Cuba. Vuelve a revisar en unas horas.</div>`;
+    : `<div class="cuba-traffic-empty">Ahora mismo no hay buques del tráfico Cuba en el feed en vivo. Vuelve a revisar en unas horas.</div>`;
   el.innerHTML = `
     <div class="cuba-traffic-head">
       <span>🇨🇺 TRÁFICO CUBA · ${(vessels || []).length}</span>

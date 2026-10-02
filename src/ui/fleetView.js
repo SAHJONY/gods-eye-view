@@ -10,18 +10,18 @@
  */
 import * as Cesium from 'cesium';
 import {
-  CUBA_FLEET_MMSI,
   CUBA_FLEET_DEFAULT_VIEW,
 } from '../data/cubaFleet.js';
 import {
   isCubaBound,
   isCubaLaneVessel,
+  isDepartingCuba,
+  isAnchoredInCuba,
   cubaVesselCss,
   cubaVesselBadge,
 } from '../data/cubaVessels.js';
 import { showCubaTrafficPanel } from './cubaTrafficPanel.js';
 
-const FLEET_SET = new Set(CUBA_FLEET_MMSI);
 const AIS_URL = '/api/ais-live?maxRows=50000';
 
 function rowLatLon(row) {
@@ -50,6 +50,9 @@ async function fetchCubaTraffic() {
     const record = {
       mmsi: String(row?.mmsi ?? row?.id ?? '').trim(),
       destination: String(row?.destination || ''),
+      lat: ll.lat,
+      lon: ll.lon,
+      speed: row?.speed,
     };
     const badge = cubaVesselBadge(record);
     if (!badge) continue;
@@ -65,12 +68,12 @@ async function fetchCubaTraffic() {
       ...ll,
     });
   }
-  // Fleet vessels first, then Cuba-bound.
-  found.sort((a, b) => {
-    const aFleet = FLEET_SET.has(a.mmsi) ? 0 : 1;
-    const bFleet = FLEET_SET.has(b.mmsi) ? 0 : 1;
-    return aFleet - bFleet || a.name.localeCompare(b.name);
-  });
+  // Bound for Cuba first, then departing/anchored in Cuba, then lane.
+  const rankOf = (v) =>
+    v.badge.includes('RUMBO') ? 0 : v.badge.includes('RUTA') ? 2 : 1;
+  found.sort(
+    (a, b) => rankOf(a) - rankOf(b) || a.name.localeCompare(b.name),
+  );
   return found;
 }
 
@@ -162,4 +165,4 @@ export async function showCubaFleetView({ viewer, timeoutMs = 30000 } = {}) {
 }
 
 // Re-exported for tests.
-export { isCubaBound, isCubaLaneVessel };
+export { isCubaBound, isCubaLaneVessel, isDepartingCuba, isAnchoredInCuba };
