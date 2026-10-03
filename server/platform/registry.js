@@ -106,6 +106,22 @@ export const PLATFORM_MODULES = Object.freeze([
     status: 'live',
     audience: 'owner',
   },
+  {
+    id: 'buyer-intake',
+    // Public buyer registration: the customer picks catalog products + monthly
+    // volume; it lands as a sourcing request for manual quoting (v1).
+    // Static page: public/buyer-intake/index.html → /import-export/buyer-intake/.
+    path: '/import-export/buyer-intake/',
+    icon: '🧾',
+    name: { es: 'Registro de compradores', en: 'Buyer registration' },
+    tagline: {
+      es: 'Regístrate y elige qué quieres comprar: te cotizamos manualmente.',
+      en: 'Register and pick what you want to buy: we quote you manually.',
+    },
+    phase: '3',
+    status: 'live',
+    audience: 'both',
+  },
 ]);
 
 function copyModule(m) {
