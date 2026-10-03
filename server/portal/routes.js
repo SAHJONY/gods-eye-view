@@ -30,6 +30,7 @@ import {
 import { createClientStore, publicClient, demoPublicClient, isClientActive, SERVICE_INTEREST_OPTIONS } from './clients.js';
 import { createShipmentStore, DEMO_CLIENT_ID } from './shipments.js';
 import { createQuoteStore, QUOTE_STATUSES } from './quotes.js';
+import { createBuyerRequestStore, BUYER_REQUEST_STATUSES } from './buyer-requests.js';
 import { createShipmentWatcher } from './watcher.js';
 import { aisStreamRows, readAisTrack } from '../providers/vessels/ais-store.js';
 import { defaultSourceRoot } from '../providers/common/source-root.js';
@@ -109,6 +110,26 @@ function clientIp(req) {
 }
 
 /**
+ * Product ids from the supplier-directory catalog (public/suppliers/data.json).
+ * Used to validate buyer-intake submissions. Loaded once; failures leave the
+ * set empty (fail-open on validation only — ids are still format-checked).
+ */
+function loadCatalogProductIds() {
+  const ids = new Set();
+  try {
+    const file = path.join(defaultSourceRoot, 'public', 'suppliers', 'data.json');
+    const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const list = Array.isArray(raw?.products) ? raw.products : [];
+    for (const p of list) {
+      if (p?.id) ids.add(String(p.id));
+    }
+  } catch {
+    // keep empty
+  }
+  return ids;
+}
+
+/**
  * Build the portal API.
  * @param {{dataDir?:string, vesselLookup?:function, resolveOwnerKey?:function}} [opts]
  */
@@ -136,6 +157,14 @@ export function createPortalApi(opts = {}) {
     load: () => readJsonFile(fileFor('quotes.json')),
     save: (value) => writeJsonFile(fileFor('quotes.json'), value),
   });
+  // Buyer intake (public sourcing requests, v1 manual quoting). Product ids
+  // are validated against the supplier-directory catalog.
+  const buyerRequestStore = createBuyerRequestStore({
+    load: () => readJsonFile(fileFor('buyer-requests.json')),
+    save: (value) => writeJsonFile(fileFor('buyer-requests.json'), value),
+    validProductIds: loadCatalogProductIds(),
+  });
+  const buyerRequestLimiter = createLoginRateLimiter({ max: 5, windowMs: 10 * 60 * 1000 });
   const rateLimiter = createLoginRateLimiter();
   const watcher = createShipmentWatcher({ shipmentStore, vesselLookup });
 
@@ -474,6 +503,30 @@ export function createPortalApi(opts = {}) {
       if (pathname === '/demo' && req.method === 'POST') return handleDemo(req, res);
       if (pathname === '/register' && req.method === 'POST') return handleRegister(req, res);
 
+      // ---- buyer intake (public sourcing requests, v1 manual quoting) ----
+      // No session: prospective buyers submit before they have an account.
+      // Rate-limited per IP; the owner triages from /admin/buyer-requests.
+      if (pathname === '/buyer-requests' && req.method === 'POST') {
+        if (!buyerRequestLimiter.attempt(clientIp(req))) {
+          return json(res, 429, {
+            error: 'rate_limited',
+            message: 'Demasiados intentos. Espera unos minutos.',
+          });
+        }
+        let body;
+        try {
+          body = await readJsonBody(req);
+        } catch (error) {
+          return json(res, 400, { error: error.message });
+        }
+        try {
+          const created = buyerRequestStore.create(body || {});
+          return json(res, 201, { ok: true, id: created.id });
+        } catch (error) {
+          return json(res, 400, { error: 'invalid_request', message: error.message });
+        }
+      }
+
       // ---- client session ----------------------------------------------
       if (pathname === '/me' && req.method === 'GET') {
         const sc = authed();
@@ -710,6 +763,33 @@ export function createPortalApi(opts = {}) {
             const quote = quoteStore.updateStatus(quoteIdMatch[1], body.status);
             if (!quote) return json(res, 404, { error: 'not_found' });
             return json(res, 200, { quote });
+          } catch (error) {
+            return json(res, 400, { error: error.message });
+          }
+        }
+
+        // Buyer intake requests: owner triage. Newest first.
+        if (adminPath === '/buyer-requests' && req.method === 'GET') {
+          return json(res, 200, { requests: buyerRequestStore.listAll() });
+        }
+        const buyerReqMatch = /^\/buyer-requests\/([^/]+)$/.exec(adminPath);
+        if (buyerReqMatch && req.method === 'PATCH') {
+          let body;
+          try {
+            body = await readJsonBody(req);
+          } catch (error) {
+            return json(res, 400, { error: error.message });
+          }
+          try {
+            if (!BUYER_REQUEST_STATUSES.includes(String(body.status))) {
+              return json(res, 400, {
+                error: 'invalid_status',
+                message: 'status must be one of: ' + BUYER_REQUEST_STATUSES.join(', '),
+              });
+            }
+            const updated = buyerRequestStore.updateStatus(buyerReqMatch[1], body.status);
+            if (!updated) return json(res, 404, { error: 'not_found' });
+            return json(res, 200, { request: updated });
           } catch (error) {
             return json(res, 400, { error: error.message });
           }

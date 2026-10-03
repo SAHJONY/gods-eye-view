@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SAHJONY LLC · Registro de compradores</title>
+<style>
+:root{
+  --navy-0:#04070f; --navy-1:#060d1d; --navy-2:#0a1428;
+  --gold:#d4af37; --gold-soft:#e8c56a; --gold-dim:rgba(212,175,55,.16);
+  --ink:#f2f5fa; --muted:#8fa0b8; --line:rgba(212,175,55,.22);
+  --card:rgba(14,26,51,.72); --radius:16px;
+  --grn:#4ade80; --red:#f87171;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  margin:0;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(212,175,55,.08), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(38,80,160,.25), transparent 60%),
+    linear-gradient(180deg, var(--navy-1), var(--navy-0));
+  min-height:100vh;min-height:100dvh;font-size:16px;line-height:1.45;
+}
+header{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid var(--line);background:rgba(6,13,29,.9);
+  position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);
+}
+.back{
+  flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);
+  background:transparent;color:var(--gold);font-size:20px;cursor:pointer;
+  display:grid;place-items:center;text-decoration:none;
+}
+.brand{flex:1;min-width:0;}
+.brand h1{font-size:17px;margin:0;letter-spacing:.4px;}
+.brand h1 .sub{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:1.2px;text-transform:uppercase;}
+main{max-width:720px;margin:0 auto;padding:20px 16px 64px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
+.card h2{margin:0 0 6px;font-size:18px;}
+.card p.desc{margin:0 0 4px;color:var(--muted);font-size:14px;}
+label{display:block;font-size:13px;color:var(--muted);margin:14px 0 5px;font-weight:600;}
+label .req{color:var(--gold);}
+input,select,textarea{
+  width:100%;padding:13px;font-size:16px;border-radius:12px;
+  border:1px solid rgba(143,160,184,.35);background:rgba(4,8,18,.6);color:var(--ink);
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+textarea{resize:vertical;min-height:84px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;}
+@media(max-width:520px){.grid2{grid-template-columns:1fr;}}
+.search{position:sticky;top:74px;z-index:5;background:rgba(6,13,29,.95);padding:8px 0;}
+.plist{max-height:340px;overflow-y:auto;border:1px solid rgba(143,160,184,.25);border-radius:12px;}
+.prow{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid rgba(143,160,184,.12);cursor:pointer;}
+.prow:last-child{border-bottom:0;}
+.prow input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:var(--gold);}
+.prow .em{font-size:20px;flex:none;}
+.prow .nm{flex:1;font-size:15px;}
+.prow.sel{background:var(--gold-dim);}
+.volrow{display:none;gap:8px;padding:8px 12px 12px 44px;border-bottom:1px solid rgba(143,160,184,.12);background:rgba(212,175,55,.05);}
+.volrow.on{display:flex;}
+.volrow input{flex:1;}
+.volrow select{flex:1.4;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.chip{background:var(--gold-dim);border:1px solid var(--line);color:var(--gold-soft);
+  border-radius:999px;padding:6px 12px;font-size:13px;display:flex;align-items:center;gap:6px;}
+.chip button{background:none;border:0;color:var(--gold-soft);font-size:15px;cursor:pointer;padding:0 2px;}
+button.cta{
+  width:100%;margin-top:18px;padding:16px;font-size:17px;font-weight:800;border:0;border-radius:14px;
+  background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#0a1428;cursor:pointer;min-height:56px;
+}
+button.cta:disabled{opacity:.55;cursor:wait;}
+.err{color:var(--red);font-size:14px;margin-top:10px;display:none;}
+.ok-screen{text-align:center;padding:48px 18px;}
+.ok-screen .big{font-size:56px;}
+.ok-screen h2{font-size:22px;margin:14px 0 8px;}
+.ok-screen p{color:var(--muted);}
+.hint{font-size:12.5px;color:var(--muted);margin-top:6px;}
+.count{font-size:13px;color:var(--gold-soft);font-weight:700;}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/import-export/cuba/" aria-label="Volver">‹</a>
+  <div class="brand"><h1>Registro de compradores<span class="sub">SAHJONY LLC</span></h1></div>
+</header>
+<main>
+  <div id="formWrap">
+    <div class="card">
+      <h2>¿Qué quieres comprar?</h2>
+      <p class="desc">Regístrate, elige los productos de nuestro catálogo e indícanos tu volumen mensual estimado. <b>Te cotizamos manualmente</b> — sin compromiso.</p>
+    </div>
+    <form id="f" novalidate>
+      <div class="card">
+        <h2>Tus datos</h2>
+        <label>Nombre completo <span class="req">*</span></label>
+        <input id="fullName" autocomplete="name" maxlength="120" required>
+        <div class="grid2">
+          <div><label>Empresa</label><input id="company" autocomplete="organization" maxlength="160"></div>
+          <div><label>País <span class="req">*</span></label><select id="country" required></select></div>
+        </div>
+        <div class="grid2">
+          <div><label>WhatsApp <span class="req">*</span></label><input id="whatsapp" inputmode="tel" autocomplete="tel" placeholder="+53 5 000 0000" maxlength="40" required></div>
+          <div><label>Email</label><input id="email" type="email" autocomplete="email" maxlength="160"></div>
+        </div>
+        <label>Tipo de negocio <span class="req">*</span></label>
+        <select id="businessType" required>
+          <option value="">Selecciona…</option>
+          <option value="mayorista">Mayorista</option>
+          <option value="minorista">Minorista</option>
+          <option value="distribuidor">Distribuidor</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="card">
+        <h2>Productos <span class="count" id="pCount"></span></h2>
+        <p class="desc">Selecciona todo lo que te interese. Puedes buscar por nombre.</p>
+        <div class="search"><input id="pSearch" placeholder="🔍 Buscar producto…"></div>
+        <div class="plist" id="pList"><div class="prow"><span class="nm" style="color:var(--muted)">Cargando catálogo…</span></div></div>
+        <div class="chips" id="chips"></div>
+        <div class="hint">Toca un producto para agregarle volumen mensual estimado (opcional).</div>
+      </div>
+      <div class="card">
+        <h2>Notas</h2>
+        <label>¿Algo más que debamos saber? (frecuencia, empaque, puerto de entrega…)</label>
+        <textarea id="notes" maxlength="1000"></textarea>
+      </div>
+      <div class="err" id="err"></div>
+      <button class="cta" type="submit" id="send">Enviar solicitud →</button>
+      <p class="hint" style="text-align:center">Al enviar aceptas que SAHJONY LLC te contacte por WhatsApp o email con tu cotización.</p>
+    </form>
+  </div>
+  <div id="okWrap" class="card ok-screen" style="display:none">
+    <div class="big">✅</div>
+    <h2>¡Gracias!</h2>
+    <p>Recibimos tu solicitud. <b>Te cotizamos manualmente en breve</b> por WhatsApp o email.</p>
+    <p style="font-size:13px">SAHJONY LLC · Houston, Texas</p>
+  </div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const UNITS = ['contenedor 20ft','contenedor 40ft','toneladas','kg','unidades'];
+const COUNTRIES = ['Cuba','Estados Unidos','México','Canadá','Guatemala','El Salvador','Honduras','Nicaragua','Costa Rica','Panamá','República Dominicana','Puerto Rico','Colombia','Venezuela','Ecuador','Perú','Bolivia','Chile','Argentina','Uruguay','Paraguay','Brasil','España','Otro'];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let PRODUCTS = [];
+const sel = new Map(); // id -> {volume, unit}
+
+function renderCountries() {
+  $('country').innerHTML = '<option value="">Selecciona…</option>' +
+    COUNTRIES.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+}
+
+function renderProducts(filter='') {
+  const f = filter.trim().toLowerCase();
+  const list = PRODUCTS.filter((p) => !f || p.name.toLowerCase().includes(f));
+  $('pList').innerHTML = list.length ? list.map((p) => `
+    <div class="prow ${sel.has(p.id) ? 'sel' : ''}" data-id="${esc(p.id)}">
+      <input type="checkbox" ${sel.has(p.id) ? 'checked' : ''} tabindex="-1" aria-hidden="true">
+      <span class="em">${esc(p.emoji || '📦')}</span><span class="nm">${esc(p.name)}</span>
+    </div>
+    <div class="volrow ${sel.has(p.id) ? 'on' : ''}" data-vol="${esc(p.id)}">
+      <input inputmode="decimal" placeholder="Vol./mes" maxlength="20"
+        value="${esc(sel.get(p.id)?.volume || '')}" data-v="${esc(p.id)}">
+      <select data-u="${esc(p.id)}">
+        <option value="">unidad…</option>
+        ${UNITS.map((u) => `<option value="${esc(u)}" ${sel.get(p.id)?.unit === u ? 'selected' : ''}>${esc(u)}</option>`).join('')}
+      </select>
+    </div>`).join('')
+    : '<div class="prow"><span class="nm" style="color:var(--muted)">Sin resultados.</span></div>';
+  document.querySelectorAll('#pList .prow').forEach((row) => {
+    row.addEventListener('click', (e) => {
+      if (e.target.matches('input,select')) return;
+      const id = row.dataset.id;
+      if (sel.has(id)) sel.delete(id); else sel.set(id, { volume:'', unit:'' });
+      syncSel(id);
+    });
+  });
+  document.querySelectorAll('#pList [data-v]').forEach((inp) => {
+    inp.addEventListener('input', () => { const s = sel.get(inp.dataset.v); if (s) s.volume = inp.value; });
+  });
+  document.querySelectorAll('#pList [data-u]').forEach((s2) => {
+    s2.addEventListener('change', () => { const s = sel.get(s2.dataset.u); if (s) s.unit = s2.value; });
+  });
+  renderChips();
+}
+
+function syncSel(id) {
+  const row = document.querySelector(`#pList .prow[data-id="${CSS.escape(id)}"]`);
+  const vol = document.querySelector(`#pList .volrow[data-vol="${CSS.escape(id)}"]`);
+  if (row) {
+    row.classList.toggle('sel', sel.has(id));
+    row.querySelector('input[type=checkbox]').checked = sel.has(id);
+  }
+  if (vol) vol.classList.toggle('on', sel.has(id));
+  renderChips();
+}
+
+function renderChips() {
+  $('pCount').textContent = sel.size ? `(${sel.size} elegidos)` : '';
+  $('chips').innerHTML = [...sel.keys()].map((id) => {
+    const p = PRODUCTS.find((x) => x.id === id);
+    return `<span class="chip">${esc(p?.emoji || '')} ${esc(p?.name || id)}<button type="button" data-x="${esc(id)}" aria-label="Quitar">×</button></span>`;
+  }).join('');
+  document.querySelectorAll('#chips [data-x]').forEach((b) => {
+    b.addEventListener('click', () => { sel.delete(b.dataset.x); syncSel(b.dataset.x); });
+  });
+}
+
+async function loadCatalog() {
+  try {
+    const res = await fetch('../suppliers/data.json', { cache: 'no-store' });
+    const data = await res.json();
+    PRODUCTS = (data.products || []).map((p) => ({ id: p.id, name: p.name, emoji: p.emoji }));
+    renderProducts($('pSearch').value);
+  } catch {
+    $('pList').innerHTML = '<div class="prow"><span class="nm" style="color:var(--red)">No se pudo cargar el catálogo. Reintenta.</span></div>';
+  }
+}
+
+function fail(msg) {
+  const e = $('err');
+  e.textContent = msg;
+  e.style.display = 'block';
+  e.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+$('pSearch').addEventListener('input', (e) => renderProducts(e.target.value));
+
+$('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('err').style.display = 'none';
+  const fullName = $('fullName').value.trim();
+  const country = $('country').value;
+  const whatsapp = $('whatsapp').value.trim();
+  const email = $('email').value.trim();
+  const businessType = $('businessType').value;
+  if (!fullName) return fail('Escribe tu nombre completo.');
+  if (!country) return fail('Selecciona tu país.');
+  if (whatsapp.replace(/\D/g, '').length < 7) return fail('Escribe un WhatsApp válido.');
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('El email no parece válido.');
+  if (!businessType) return fail('Selecciona tu tipo de negocio.');
+  if (!sel.size) return fail('Elige al menos un producto.');
+  const products = [...sel.entries()].map(([id, s]) => ({ id, volume: (s.volume || '').trim(), unit: s.unit || '' }));
+  for (const p of products) {
+    if (p.volume && !/^\d+(\.\d+)?$/.test(p.volume)) return fail('El volumen debe ser un número.');
+  }
+  const btn = $('send');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+  try {
+    const res = await fetch('/api/portal/buyer-requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName, company: $('company').value.trim(), country, whatsapp, email,
+        businessType, products, notes: $('notes').value.trim(),
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || data.error || 'Error del servidor');
+    $('formWrap').style.display = 'none';
+    $('okWrap').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err2) {
+    fail('No se pudo enviar: ' + err2.message + '. Inténtalo de nuevo.');
+    btn.disabled = false;
+    btn.textContent = 'Enviar solicitud →';
+  }
+});
+
+renderCountries();
+loadCatalog();
+</script>
+</body>
+</html>

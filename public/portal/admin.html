@@ -59,6 +59,7 @@
       <button data-pane="pClients" class="on">Clientes</button>
       <button data-pane="pShips">Embarques</button>
       <button data-pane="pQuotes">Cotizaciones</button>
+      <button data-pane="pBuyers">🧾 Solicitudes</button>
       <button data-pane="pWatch">Vigilante AIS</button>
       <button data-pane="pKeys">🔑 Claves</button>
     </div>
@@ -109,6 +110,11 @@
     </section>
     <section id="pQuotes" class="pane">
       <div class="card"><h3>Cotizaciones <span class="msg" id="qCount"></span></h3><div id="qList">…</div></div>
+    </section>
+    <section id="pBuyers" class="pane">
+      <div class="card"><h3>Solicitudes de compra <span class="msg" id="bCount"></span></h3>
+        <div class="msg" style="margin-bottom:10px">Registro público de compradores — cotización manual (v1). Sin precios en el flujo.</div>
+        <div id="bList">…</div></div>
     </section>
     <section id="pWatch" class="pane">
       <div class="card"><h3>Vigilante AIS</h3>
@@ -250,6 +256,27 @@ async function loadQuotes() {
     loadQuotes();
   }));
 }
+/* buyer intake requests */
+const B_LABEL = { nuevo:'Nuevo', cotizado:'Cotizado', cerrado:'Cerrado' };
+const BTYPE = { mayorista:'Mayorista', minorista:'Minorista', distribuidor:'Distribuidor', otro:'Otro' };
+async function loadBuyers() {
+  const { data } = await admin('/buyer-requests');
+  const list = data.requests || [];
+  const fresh = list.filter((r) => r.status === 'nuevo').length;
+  document.getElementById('bCount').textContent = fresh ? `· ${fresh} nuevo(s)` : '';
+  document.getElementById('bList').innerHTML = list.length ? `<table><tr><th>Cliente</th><th>Productos</th><th>Contacto</th><th>Estado</th><th></th></tr>${list.map((r) => `
+    <tr class="${r.status === 'nuevo' ? '' : 'off'}">
+      <td><b>${esc(r.fullName)}</b>${r.company ? `<br>${esc(r.company)}` : ''}<br><span class="mono">${esc(BTYPE[r.businessType] || r.businessType)} · ${esc(r.country)}</span><br><span class="mono">${esc((r.createdAt || '').slice(0, 10))}</span></td>
+      <td>${(r.products || []).map((p) => `${esc(p.id)}${p.volume ? ` — ${esc(p.volume)}${p.unit ? ' ' + esc(p.unit) : ''}` : ''}`).join('<br>')}${r.notes ? `<br><span class="mono">📝 ${esc(r.notes)}</span>` : ''}</td>
+      <td>${esc(r.whatsapp)}${r.email ? '<br>' + esc(r.email) : ''}</td>
+      <td>${esc(B_LABEL[r.status] || r.status)}</td>
+      <td>${r.status === 'nuevo' ? `<button class="ghost" data-b="cotizado" data-id="${esc(r.id)}">Cotizado</button><button class="ghost danger" data-b="cerrado" data-id="${esc(r.id)}">Cerrar</button>` : (r.status === 'cotizado' ? `<button class="ghost danger" data-b="cerrado" data-id="${esc(r.id)}">Cerrar</button>` : '')}</td>
+    </tr>`).join('')}</table>` : 'Sin solicitudes.';
+  document.querySelectorAll('#bList [data-b]').forEach((b) => b.addEventListener('click', async () => {
+    await admin(`/buyer-requests/${b.dataset.id}`, 'PATCH', { status: b.dataset.b });
+    loadBuyers();
+  }));
+}
 /* watcher */
 async function loadWatcher() {  const { data } = await admin('/watcher/status');
   document.getElementById('wStatus').innerHTML =
@@ -263,7 +290,7 @@ document.getElementById('wTick').addEventListener('click', async () => {
     : 'Sin cambios.';
   loadWatcher();
 });
-function refreshAll() { loadClients(); loadShips(); loadQuotes(); loadWatcher(); loadKeys(); }
+function refreshAll() { loadClients(); loadShips(); loadQuotes(); loadBuyers(); loadWatcher(); loadKeys(); }
 /* provider keys */
 async function loadKeys() {
   const { data } = await admin('/provider-keys');
