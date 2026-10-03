@@ -537,7 +537,7 @@ function importData(){
    Internal sighting prices are fine here — owner screen only, never client-facing.
    SAHJONY acts as broker for a fee — never the end buyer, zero capital at risk. */
 const MI_RANK=[
-{n:"Pollo congelado (cuartos/muslos)",en:"Frozen chicken (leg quarters)",s:34,ch:"Contenedor 40' reefer ≈ 25 TM",px:"$0.70/lb FAS Gulfport · retail mipyme 720→750 CUP/libra (20→27/sep)",src:"deal propio SAHJONY · 23/sep/2026 · 14ymedio · 28/sep/2026",ty:"s"},
+{n:"Pollo congelado (cuartos/muslos)",en:"Frozen chicken (leg quarters)",s:34,ch:"Contenedor 40' reefer ≈ 25 TM",px:"$0.70/lb FAS Gulfport · retail mipyme 720→750 CUP/libra (20→27/sep) · rango reportado 500–680 CUP/libra (01/oct, 2ª mano)",src:"deal propio SAHJONY · 23/sep/2026 · 14ymedio · 28/sep/2026",ty:"s"},
 {n:"Aceite vegetal (soya/girasol)",en:"Vegetable oil (soy/sunflower)",s:33,ch:"Contenedor 40' dry ≈ 24,000 L",px:"Coamo 900ml: $3.70/botella (mín. 100 cajas) · litro en mipyme 3,800→2,300 CUP (20→27/sep)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026",ty:"s"},
 {n:"Arroz (grano largo 50kg)",en:"Rice (long grain 50kg)",s:33,ch:"Contenedor 40' dry ≈ 26–28 TM",px:"$46/saco ($45 × contenedor de 600) · retail 250→320 CUP/libra (Los Pilongos, 20→27/sep)",src:'FB "MIPYMES de ORIENTE" · 16/sep/2026 · 14ymedio · 28/sep/2026',ty:"s"},
 {n:"Pañales desechables",en:"Disposable diapers",s:33,ch:"40' dry/HC ≈ 8–12 TM (voluminoso)",px:"FOB estimado ~US$0.08–0.15/u · retail MLC agotado con frecuencia",src:"Cubadebate · directoriocubano · sep 2026",ty:"e"},
@@ -560,7 +560,7 @@ const MI_RANK=[
 {n:"Manteca vegetal",en:"Vegetable shortening",s:30,ch:"40' dry ≈ 20–25 TM",px:"RFQ en curso — comprador pidió contenedor completo",src:"demanda interna SAHJONY · sep 2026",ty:"e"},
 {n:"Carne de cerdo congelada",en:"Frozen pork",s:30,ch:"Contenedor 40' reefer ≈ 25 TM",px:"cerdo con hueso 1,300→1,700 CUP/libra (Plaza Boulevard, 20→27/sep)",src:"14ymedio · 28/sep/2026",ty:"s"},
 {n:"Pastas alimenticias",en:"Pasta",s:29,ch:"Contenedor 40' dry ≈ 20–24 TM",px:"espaguetis 500g 350→700 CUP (mipyme, 20→27/sep)",src:"14ymedio · 28/sep/2026",ty:"s"},
-{n:"Huevos",en:"Eggs",s:29,ch:"40' reefer (frágil)",px:"Cartón 30 ≈ $11 USD · cartón 2,900→3,100 CUP (EJT Tulipán, 20→27/sep) · MB Ayestarán 3,900 CUP/cartón (28/sep)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026",ty:"s"},
+{n:"Huevos",en:"Eggs",s:29,ch:"40' reefer (frágil)",px:"Cartón 30 ≈ $11 USD · cartón 2,900→3,100 CUP (EJT Tulipán, 20→27/sep) · MB Ayestarán 3,900 CUP/cartón (28/sep) · rango reportado 3,000–4,500 CUP/cartón (01/oct, 2ª mano)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026",ty:"s"},
 {n:"Detergente / aseo",en:"Detergent & hygiene",s:29,ch:"Contenedor 40' dry ≈ 20 TM",px:null,src:"",ty:"e"},
 {n:"Galletas dulces",en:"Sweet biscuits",s:29,ch:"40' dry ≈ 20–25 TM",px:"EE.UU. exportó US$1.275M a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s"},
 {n:"Jugos y néctares",en:"Fruit & vegetable juices",s:29,ch:"40' dry ≈ 22–25 TM",px:"EE.UU. exportó US$867K a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s"},
@@ -622,14 +622,14 @@ const MI_FUEL=[
 {es:"Mipymes/combustible: el artículo de directoriocubano sobre gestiones para importar combustible es de feb/2026 (noticia vieja, no señal fresca); lo vigente es el Decreto-Ley 121/2026 (~10/sep) que autoriza a cooperativas a importar combustible — ventana para broker de consumo propio bajo excepción SCP (reventa prohibida)",en:"MSMEs/fuel: the directoriocubano piece on fuel-import moves is from Feb/2026 (stale news, not a fresh signal); what stands is Decree-Law 121/2026 (~Sep 10) authorizing cooperatives to import fuel — window for own-use brokerage under the SCP exception (resale prohibited)"}];
 const MI_ALERT={es:"~7,000 contenedores varados en Jamaica, Panamá y Colombia con alimentos y medicinas; Hapag-Lloyd suspendió y CMA CGM limitó sus servicios a Cuba por temor a sanciones (movían ~la mitad de las importaciones). Escasez de capacidad = ventana de pricing para quien tenga buque garantizado.",en:"~7,000 containers stranded in Jamaica, Panama and Colombia with food and medicine; Hapag-Lloyd suspended and CMA CGM limited Cuba services over sanctions fears (they moved ~half of imports). Scarce capacity = pricing window for whoever has guaranteed vessel space."};
 const MI_DIR=[
-{n:"Pollo congelado",en:"Frozen chicken",buy:"Plantas empacadoras y distribuidores del Golfo de EE.UU.",buy_en:"US Gulf packing plants and distributors",px:"$0.70/lb FAS Gulfport · retail mipyme 720→750 CUP/libra (20→27/sep)",src:"deal propio SAHJONY · 23/sep/2026 · 14ymedio · 28/sep/2026",ty:"s",c:[
+{n:"Pollo congelado",en:"Frozen chicken",buy:"Plantas empacadoras y distribuidores del Golfo de EE.UU.",buy_en:"US Gulf packing plants and distributors",px:"$0.70/lb FAS Gulfport · retail mipyme 720→750 CUP/libra (20→27/sep) · rango reportado 500–680 CUP/libra (01/oct, 2ª mano)",src:"deal propio SAHJONY · 23/sep/2026 · 14ymedio · 28/sep/2026",ty:"s",c:[
  {n:"Mountaire Farms",ph:"(302) 934-1100",web:"mountaire.com"},
  {n:"Tyson Foods",ph:"1-800-233-6332",web:"tysonfoods.com"},
  {n:"Pilgrim's Pride",web:"pilgrims.com"},
  {n:"Wayne-Sanderson Farms",web:"waynesandersonfarms.com"},
  {n:"Koch Foods",web:"kochfoods.com"},
  {n:"Amick Farms",web:"amickfarms.com"}]},
-{n:"Aceite vegetal",en:"Vegetable oil",buy:"Refinerías y traders: Cargill GEOS, ADM, Bunge",buy_en:"Refiners and traders: Cargill GEOS, ADM, Bunge",px:"Coamo 900ml: $3.70/botella (mín. 100 cajas) · litro en mipyme 3,800→2,300 CUP (20→27/sep) · MB Ayestarán 2,600 CUP/900ml (28/sep)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026",ty:"s",c:[
+{n:"Aceite vegetal",en:"Vegetable oil",buy:"Refinerías y traders: Cargill GEOS, ADM, Bunge",buy_en:"Refiners and traders: Cargill GEOS, ADM, Bunge",px:"Coamo 900ml: $3.70/botella (mín. 100 cajas) · litro en mipyme 3,800→2,300 CUP (20→27/sep) · MB Ayestarán 2,600 CUP/900ml (28/sep) · rango reportado 3,000 CUP/litro (01/oct, 2ª mano)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026",ty:"s",c:[
  {n:"Cargill (GEOS)",ph:"1-800-644-6465",web:"cargill.com"},
  {n:"ADM",web:"adm.com"},
  {n:"Bunge",web:"bunge.com"},
@@ -666,7 +666,7 @@ const MI_DIR=[
  {n:"Triumph Foods",ph:"+1 816-396-2700",web:"triumphfoods.com"},
  {n:"Clemens Food Group",ph:"+1 215-368-2500",web:"clemensfoodgroup.com"},
  {n:"Resto (plantas EE.UU.)",web:"vía web oficial"}]},
-{n:"Huevos",en:"Eggs",buy:"Cal-Maine Foods, Rose Acre Farms (EE.UU.)",buy_en:"Cal-Maine Foods, Rose Acre Farms (US)",px:"Cartón 30 ≈ $11 USD · cartón 2,900→3,100 CUP (EJT Tulipán, 20→27/sep)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026",ty:"s",c:[
+{n:"Huevos",en:"Eggs",buy:"Cal-Maine Foods, Rose Acre Farms (EE.UU.)",buy_en:"Cal-Maine Foods, Rose Acre Farms (US)",px:"Cartón 30 ≈ $11 USD · cartón 2,900→3,100 CUP (EJT Tulipán, 20→27/sep) · rango reportado 3,000–4,500 CUP/cartón (01/oct, 2ª mano)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026",ty:"s",c:[
  {n:"Cal-Maine Foods",ph:"(601) 948-6813",web:"calmainefoods.com"},
  {n:"Rose Acre Farms",ph:"812-497-2559 x207",web:"goodegg.com"},
  {n:"Huevos (Cuba-inside) — Dayana",ph:"+53 63893138"}]},
