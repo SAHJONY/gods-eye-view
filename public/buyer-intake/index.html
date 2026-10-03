@@ -57,10 +57,15 @@ textarea{resize:vertical;min-height:84px;}
 .prow .em{font-size:20px;flex:none;}
 .prow .nm{flex:1;font-size:15px;}
 .prow.sel{background:var(--gold-dim);}
-.volrow{display:none;gap:8px;padding:8px 12px 12px 44px;border-bottom:1px solid rgba(143,160,184,.12);background:rgba(212,175,55,.05);}
-.volrow.on{display:flex;}
-.volrow input{flex:1;}
-.volrow select{flex:1.4;}
+.volrow{display:none;padding:8px 12px 12px 44px;border-bottom:1px solid rgba(143,160,184,.12);background:rgba(212,175,55,.05);}
+.volrow.on{display:block;}
+.volgrid{display:flex;gap:8px;margin-top:8px;}
+.volgrid input{flex:1;min-width:0;}
+.volgrid select{flex:1.4;min-width:0;}
+.ctoggle{display:flex;gap:6px;}
+.ctoggle button{flex:1;padding:9px;font-size:14px;font-weight:700;border-radius:10px;
+  border:1px solid rgba(143,160,184,.35);background:transparent;color:var(--muted);cursor:pointer;min-height:44px;}
+.ctoggle button.on{background:var(--gold);border-color:var(--gold);color:#0a1428;}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
 .chip{background:var(--gold-dim);border:1px solid var(--line);color:var(--gold-soft);
   border-radius:999px;padding:6px 12px;font-size:13px;display:flex;align-items:center;gap:6px;}
@@ -159,19 +164,25 @@ function renderProducts(filter='') {
       <span class="em">${esc(p.emoji || '📦')}</span><span class="nm">${esc(p.name)}</span>
     </div>
     <div class="volrow ${sel.has(p.id) ? 'on' : ''}" data-vol="${esc(p.id)}">
+      <div class="ctoggle" role="group" aria-label="Tamaño de contenedor">
+        <button type="button" data-c="20ft" data-cid="${esc(p.id)}" class="${(sel.get(p.id)?.containerSize || '40ft') === '20ft' ? 'on' : ''}">20ft</button>
+        <button type="button" data-c="40ft" data-cid="${esc(p.id)}" class="${(sel.get(p.id)?.containerSize || '40ft') === '40ft' ? 'on' : ''}">40ft</button>
+      </div>
+      <div class="volgrid">
       <input inputmode="decimal" placeholder="Vol./mes" maxlength="20"
         value="${esc(sel.get(p.id)?.volume || '')}" data-v="${esc(p.id)}">
       <select data-u="${esc(p.id)}">
         <option value="">unidad…</option>
         ${UNITS.map((u) => `<option value="${esc(u)}" ${sel.get(p.id)?.unit === u ? 'selected' : ''}>${esc(u)}</option>`).join('')}
       </select>
+      </div>
     </div>`).join('')
     : '<div class="prow"><span class="nm" style="color:var(--muted)">Sin resultados.</span></div>';
   document.querySelectorAll('#pList .prow').forEach((row) => {
     row.addEventListener('click', (e) => {
       if (e.target.matches('input,select')) return;
       const id = row.dataset.id;
-      if (sel.has(id)) sel.delete(id); else sel.set(id, { volume:'', unit:'' });
+      if (sel.has(id)) sel.delete(id); else sel.set(id, { volume:'', unit:'', containerSize:'40ft' });
       syncSel(id);
     });
   });
@@ -180,6 +191,17 @@ function renderProducts(filter='') {
   });
   document.querySelectorAll('#pList [data-u]').forEach((s2) => {
     s2.addEventListener('change', () => { const s = sel.get(s2.dataset.u); if (s) s.unit = s2.value; });
+  });
+  document.querySelectorAll('#pList [data-c]').forEach((b) => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const s = sel.get(b.dataset.cid);
+      if (!s) return;
+      s.containerSize = b.dataset.c;
+      document.querySelectorAll(`#pList [data-cid="${CSS.escape(b.dataset.cid)}"]`).forEach((x) => {
+        x.classList.toggle('on', x === b);
+      });
+    });
   });
   renderChips();
 }
@@ -240,7 +262,7 @@ $('f').addEventListener('submit', async (e) => {
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('El email no parece válido.');
   if (!businessType) return fail('Selecciona tu tipo de negocio.');
   if (!sel.size) return fail('Elige al menos un producto.');
-  const products = [...sel.entries()].map(([id, s]) => ({ id, volume: (s.volume || '').trim(), unit: s.unit || '' }));
+  const products = [...sel.entries()].map(([id, s]) => ({ id, volume: (s.volume || '').trim(), unit: s.unit || '', containerSize: s.containerSize || '40ft' }));
   for (const p of products) {
     if (p.volume && !/^\d+(\.\d+)?$/.test(p.volume)) return fail('El volumen debe ser un número.');
   }

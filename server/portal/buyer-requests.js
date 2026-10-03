@@ -22,6 +22,9 @@ export const BUSINESS_TYPES = Object.freeze(['mayorista', 'minorista', 'distribu
 /** Volume units offered per product. */
 export const VOLUME_UNITS = Object.freeze(['contenedor 20ft', 'contenedor 40ft', 'toneladas', 'kg', 'unidades']);
 
+/** Container sizes offered per product on the intake form (default 40ft). */
+export const CONTAINER_SIZES = Object.freeze(['20ft', '40ft']);
+
 function newId() {
   return `buy_${randomBytes(8).toString('hex')}`;
 }
@@ -119,7 +122,11 @@ export function createBuyerRequestStore({ load, save, validProductIds } = {}) {
         if (unit && !VOLUME_UNITS.includes(unit)) {
           throw new Error('unit must be one of: ' + VOLUME_UNITS.join(' / '));
         }
-        return { id, volume, unit };
+        const size = String(p?.containerSize ?? '40ft').trim() || '40ft';
+        if (!CONTAINER_SIZES.includes(size)) {
+          throw new Error('containerSize must be one of: ' + CONTAINER_SIZES.join(' / '));
+        }
+        return { id, volume, unit, containerSize: size };
       });
 
       const now = new Date().toISOString();

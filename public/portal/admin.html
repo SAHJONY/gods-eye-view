@@ -267,7 +267,7 @@ async function loadBuyers() {
   document.getElementById('bList').innerHTML = list.length ? `<table><tr><th>Cliente</th><th>Productos</th><th>Contacto</th><th>Estado</th><th></th></tr>${list.map((r) => `
     <tr class="${r.status === 'nuevo' ? '' : 'off'}">
       <td><b>${esc(r.fullName)}</b>${r.company ? `<br>${esc(r.company)}` : ''}<br><span class="mono">${esc(BTYPE[r.businessType] || r.businessType)} · ${esc(r.country)}</span><br><span class="mono">${esc((r.createdAt || '').slice(0, 10))}</span></td>
-      <td>${(r.products || []).map((p) => `${esc(p.id)}${p.volume ? ` — ${esc(p.volume)}${p.unit ? ' ' + esc(p.unit) : ''}` : ''}`).join('<br>')}${r.notes ? `<br><span class="mono">📝 ${esc(r.notes)}</span>` : ''}</td>
+      <td>${(r.products || []).map((p) => `<b>${esc(p.containerSize || '40ft')}</b> · ${esc(p.id)}${p.volume ? ` — ${esc(p.volume)}${p.unit ? ' ' + esc(p.unit) : ''}` : ''}`).join('<br>')}${r.notes ? `<br><span class="mono">📝 ${esc(r.notes)}</span>` : ''}</td>
       <td>${esc(r.whatsapp)}${r.email ? '<br>' + esc(r.email) : ''}</td>
       <td>${esc(B_LABEL[r.status] || r.status)}</td>
       <td>${r.status === 'nuevo' ? `<button class="ghost" data-b="cotizado" data-id="${esc(r.id)}">Cotizado</button><button class="ghost danger" data-b="cerrado" data-id="${esc(r.id)}">Cerrar</button>` : (r.status === 'cotizado' ? `<button class="ghost danger" data-b="cerrado" data-id="${esc(r.id)}">Cerrar</button>` : '')}</td>
