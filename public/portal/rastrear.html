@@ -38,9 +38,21 @@
   .loading{text-align:center; color:var(--muted); padding:26px; font-size:16px;}
   .err{background:#431418; border:1px solid #7f2d2d; color:#fecaca; border-radius:12px; padding:14px; margin-top:14px; font-size:15px; line-height:1.5;}
   footer{text-align:center; color:var(--muted); font-size:12px; margin-top:30px;}
+
+  /* ===== SHARED CUBA HUB NAV (byte-identical markup across Cuba hub pages) ===== */
+  .cuba-hubnav{position:sticky; top:0; z-index:50; background:rgba(10,20,40,.97); border-bottom:1px solid #24365c; backdrop-filter:blur(8px);}
+  .cuba-hubnav__inner{max-width:900px; margin:0 auto; display:flex; align-items:center; gap:10px; padding:10px 14px;}
+  .cuba-hubnav__brand{flex:none; color:#e8b34b; text-decoration:none; font-weight:800; font-size:15px; letter-spacing:.3px; white-space:nowrap;}
+  .cuba-hubnav__brand span{color:#4ade80; font-weight:400;}
+  .cuba-hubnav__links{display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; margin-left:auto; white-space:nowrap;}
+  .cuba-hubnav__links::-webkit-scrollbar{display:none;}
+  .cuba-hubnav__links a{flex:none; color:#9fb0d0; text-decoration:none; font-size:14px; font-weight:600; padding:8px 10px; border-radius:10px;}
+  .cuba-hubnav__links a:active{background:rgba(232,179,75,.12);}
+  .cuba-hubnav__wa{background:rgba(74,222,128,.12)!important; color:#4ade80!important; border:1px solid rgba(74,222,128,.35);}
 </style>
 </head>
 <body>
+<nav class="cuba-hubnav" aria-label="Navegación Cuba"><div class="cuba-hubnav__inner"><a class="cuba-hubnav__brand" href="/cuba/">🇨🇺 SAHJONY <span>Cuba</span></a><div class="cuba-hubnav__links"><a href="/cuba/">Cuba</a><a href="/cuba/#productos">Comprar</a><a href="/import-export/buyer-intake/">Registrarme</a><a href="/portal/rastrear">Rastrear</a><a href="/cuba-cuentas-bancarias">Cuentas</a><a class="cuba-hubnav__wa" href="https://wa.me/12816628581?text=Hola%20SAHJONY%2C%20quiero%20informaci%C3%B3n%20para%20mi%20negocio%20en%20Cuba" target="_blank" rel="noopener">WhatsApp</a></div></div></nav>
 <header>
   <a class="back" href="/portal/" aria-label="Volver">‹</a>
   <h1>SAHJONY LLC<small>Rastrea tu carga</small></h1>
