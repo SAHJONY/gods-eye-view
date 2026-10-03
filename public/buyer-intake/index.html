@@ -82,9 +82,21 @@ button.cta:disabled{opacity:.55;cursor:wait;}
 .ok-screen p{color:var(--muted);}
 .hint{font-size:12.5px;color:var(--muted);margin-top:6px;}
 .count{font-size:13px;color:var(--gold-soft);font-weight:700;}
+
+/* ===== SHARED CUBA HUB NAV (byte-identical markup across Cuba hub pages) ===== */
+.cuba-hubnav{position:sticky;top:0;z-index:50;background:rgba(6,13,29,.97);border-bottom:1px solid rgba(212,175,55,.25);backdrop-filter:blur(8px);}
+.cuba-hubnav__inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:10px 14px;}
+.cuba-hubnav__brand{flex:none;color:var(--gold-soft);text-decoration:none;font-weight:800;font-size:15px;letter-spacing:.3px;white-space:nowrap;}
+.cuba-hubnav__brand span{color:var(--grn);font-weight:400;}
+.cuba-hubnav__links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-left:auto;white-space:nowrap;}
+.cuba-hubnav__links::-webkit-scrollbar{display:none;}
+.cuba-hubnav__links a{flex:none;color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;padding:8px 10px;border-radius:10px;}
+.cuba-hubnav__links a:active{background:var(--gold-dim);}
+.cuba-hubnav__wa{background:rgba(74,222,128,.12)!important;color:var(--grn)!important;border:1px solid rgba(74,222,128,.35);}
 </style>
 </head>
 <body>
+<nav class="cuba-hubnav" aria-label="Navegación Cuba"><div class="cuba-hubnav__inner"><a class="cuba-hubnav__brand" href="/cuba/">🇨🇺 SAHJONY <span>Cuba</span></a><div class="cuba-hubnav__links"><a href="/cuba/">Cuba</a><a href="/cuba/#productos">Comprar</a><a href="/import-export/buyer-intake/">Registrarme</a><a href="/portal/rastrear">Rastrear</a><a href="/cuba-cuentas-bancarias">Cuentas</a><a class="cuba-hubnav__wa" href="https://wa.me/12816628581?text=Hola%20SAHJONY%2C%20quiero%20informaci%C3%B3n%20para%20mi%20negocio%20en%20Cuba" target="_blank" rel="noopener">WhatsApp</a></div></div></nav>
 <header>
   <a class="back" href="/import-export/cuba/" aria-label="Volver">‹</a>
   <div class="brand"><h1>Registro de compradores<span class="sub">SAHJONY LLC</span></h1></div>
