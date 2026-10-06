@@ -144,7 +144,7 @@ function summarize(query, ship) {
     ais_mmsi: aisMmsi,
     live_3d:
       lat !== null && lon !== null
-        ? `/live-view/#lat=${lat}&lon=${lon}&alt=80000&pitch=-45&v=2&l=a`
+        ? `/live-view/#lat=${lat}&lon=${lon}&alt=80000&pitch=-45&v=2&l=a&client=1`
         : null,
   };
 }
