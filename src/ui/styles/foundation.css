@@ -299,6 +299,24 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   color: rgba(232, 234, 237, 0.7);
 }
 
+/* Phones: the Cesium ion logo IMAGE renders at its natural (huge) size and
+   covers the map on small screens. Keep the legally-required attribution
+   visible and legible per Cesium/Google ToS — only its size is constrained,
+   never hidden. */
+@media (max-width: 700px) {
+  #cesium-credits {
+    white-space: normal;
+    max-width: 62vw;
+    font-size: 9px;
+    line-height: 1.35;
+  }
+  #cesium-credits img,
+  #cesium-credits svg {
+    max-height: 14px !important;
+    width: auto !important;
+  }
+}
+
 /* Keep the ALPR source overflow reachable even after its brief on-map credit
    collapses. Wrap whole entries only while the optional layer is on. */
 body:has(.data-toggle-row[data-layer-id='alpr-cameras'] .data-toggle-btn.active)
