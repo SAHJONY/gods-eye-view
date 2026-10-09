@@ -15,6 +15,15 @@
 
 export const BUSINESSES = Object.freeze([
   {
+    id: 'cell-phones',
+    icon: '📱',
+    screen: '/portal/admin-leads.html',
+    es: 'Teléfonos al por mayor',
+    en: 'Wholesale Cell Phones',
+    esDesc: 'Leads de compradores de iPhones al por mayor',
+    enDesc: 'Wholesale iPhone buyer leads',
+  },
+  {
     id: 'wholesale',
     icon: '🏠',
     screen: '/wholesale/index.html',
