@@ -948,6 +948,23 @@ export function fleetPageHtml(sourceRoot = defaultSourceRoot) {
   return portalPageFile(sourceRoot, 'cuba-fleet.html', '');
 }
 
+/**
+ * Owner console: GET /portal/admin.html. The page itself prompts for the
+ * owner key (kept in sessionStorage only); the admin API still requires the
+ * Bearer <redacted> on every call, so serving the shell is safe.
+ */
+export function adminPageHtml(sourceRoot = defaultSourceRoot) {
+  return portalPageFile(sourceRoot, 'admin.html', '');
+}
+
+/**
+ * Leads CRM (cell-phones business): GET /portal/admin-leads.html.
+ * Owner-only console; same owner-key prompt pattern as admin.html.
+ */
+export function leadsPageHtml(sourceRoot = defaultSourceRoot) {
+  return portalPageFile(sourceRoot, 'admin-leads.html', '');
+}
+
 /** Connect-style middleware serving one portal page on GET (no auth). */
 export function portalPageMiddleware(pageFn, sourceRoot = defaultSourceRoot) {
   return (req, res, next) => {
@@ -987,6 +1004,8 @@ export function portalApiPlugin() {
     middlewares.use('/portal/cuba-fleet', portalPageMiddleware(fleetPageHtml));
     middlewares.use('/portal/rastrear', portalPageMiddleware(trackPageHtml));
     middlewares.use('/portal/rastrear.html', portalPageMiddleware(trackPageHtml));
+    middlewares.use('/portal/admin.html', portalPageMiddleware(adminPageHtml));
+    middlewares.use('/portal/admin-leads.html', portalPageMiddleware(leadsPageHtml));
     // Exact /portal (and /portal/) serves the client login page. Registered
     // after the specific routes above; the exact-path guard lets everything
     // else (/portal/vendor/*, …) fall through to static.
