@@ -31,6 +31,7 @@ import { createClientStore, publicClient, demoPublicClient, isClientActive, SERV
 import { createShipmentStore, DEMO_CLIENT_ID } from './shipments.js';
 import { createQuoteStore, QUOTE_STATUSES } from './quotes.js';
 import { createBuyerRequestStore, BUYER_REQUEST_STATUSES } from './buyer-requests.js';
+import { createLeadStore, LEAD_STATUSES, BUSINESS_UNITS, businessUnitLabel } from './leads.js';
 import { createShipmentWatcher } from './watcher.js';
 import { aisStreamRows, readAisTrack } from '../providers/vessels/ais-store.js';
 import { defaultSourceRoot } from '../providers/common/source-root.js';
@@ -163,6 +164,12 @@ export function createPortalApi(opts = {}) {
     load: () => readJsonFile(fileFor('buyer-requests.json')),
     save: (value) => writeJsonFile(fileFor('buyer-requests.json'), value),
     validProductIds: loadCatalogProductIds(),
+  });
+  // Leads CRM (owner-only). Buyer leads tagged by business unit so the
+  // businesses stay separated; nothing client-facing reads this store.
+  const leadStore = createLeadStore({
+    load: () => readJsonFile(fileFor('leads.json')),
+    save: (value) => writeJsonFile(fileFor('leads.json'), value),
   });
   const buyerRequestLimiter = createLoginRateLimiter({ max: 5, windowMs: 10 * 60 * 1000 });
   const rateLimiter = createLoginRateLimiter();
@@ -790,6 +797,64 @@ export function createPortalApi(opts = {}) {
             const updated = buyerRequestStore.updateStatus(buyerReqMatch[1], body.status);
             if (!updated) return json(res, 404, { error: 'not_found' });
             return json(res, 200, { request: updated });
+          } catch (error) {
+            return json(res, 400, { error: error.message });
+          }
+        }
+
+        // Leads CRM (owner-only): search/filter/paginate, update status/notes.
+        if (adminPath === '/leads/business-units' && req.method === 'GET') {
+          return json(res, 200, {
+            units: BUSINESS_UNITS.map((u) => ({
+              id: u.id,
+              es: u.es,
+              en: u.en,
+              label: businessUnitLabel(u.id, 'es'),
+            })),
+          });
+        }
+        if (adminPath === '/leads' && req.method === 'GET') {
+          const params = new URL(req.url || '/', 'http://localhost').searchParams;
+          const result = leadStore.list({
+            q: params.get('q') || '',
+            country: params.get('country') || '',
+            region: params.get('region') || '',
+            type: params.get('type') || '',
+            status: params.get('status') || '',
+            business: params.get('business') || '',
+            limit: params.get('limit') || '50',
+            offset: params.get('offset') || '0',
+          });
+          return json(res, 200, {
+            leads: result.leads,
+            total: result.total,
+            statuses: LEAD_STATUSES,
+          });
+        }
+        if (adminPath === '/leads/filters' && req.method === 'GET') {
+          const params = new URL(req.url || '/', 'http://localhost').searchParams;
+          const business = params.get('business') || '';
+          return json(res, 200, {
+            countries: leadStore.distinct('country'),
+            regions: leadStore.distinct('region'),
+            types: leadStore.distinct('type'),
+            statuses: LEAD_STATUSES,
+            counts: leadStore.countByStatus(business || undefined),
+            byBusiness: leadStore.countByBusiness(),
+          });
+        }
+        const leadIdMatch = /^\/leads\/([^/]+)$/.exec(adminPath);
+        if (leadIdMatch && req.method === 'PATCH') {
+          let body;
+          try {
+            body = await readJsonBody(req);
+          } catch (error) {
+            return json(res, 400, { error: error.message });
+          }
+          try {
+            const lead = leadStore.update(leadIdMatch[1], body);
+            if (!lead) return json(res, 404, { error: 'not_found' });
+            return json(res, 200, { lead });
           } catch (error) {
             return json(res, 400, { error: error.message });
           }
