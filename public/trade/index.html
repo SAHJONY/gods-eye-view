@@ -538,7 +538,7 @@ function importData(){
    SAHJONY acts as broker for a fee — never the end buyer, zero capital at risk. */
 const MI_RANK=[
 {n:"Pollo congelado (cuartos/muslos)",en:"Frozen chicken (leg quarters)",s:34,ch:"Contenedor 40' reefer ≈ 25 TM",px:"$0.70/lb FAS Gulfport · retail mipyme 720→750 CUP/libra (20→27/sep) · rango reportado 500–680 CUP/libra (01/oct, 2ª mano)",src:"deal propio SAHJONY · 23/sep/2026 · 14ymedio · 28/sep/2026",ty:"s"},
-{n:"Aceite vegetal (soya/girasol)",en:"Vegetable oil (soy/sunflower)",s:33,ch:"Contenedor 40' dry ≈ 24,000 L",px:"Coamo 900ml: $3.70/botella (mín. 100 cajas) · litro en mipyme 3,800→2,300 CUP (20→27/sep) · Coamo 900ml $1.80/botella CIF Mariel (contenedor, ~02/oct) · mayorista USD $3.10/botella 900ml (mín. 70 cajas, Revolico, 08/oct)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026 · Revolico · ~02/oct/2026 · 08/oct/2026",ty:"s"},
+{n:"Aceite vegetal (soya/girasol)",en:"Vegetable oil (soy/sunflower)",s:33,ch:"Contenedor 40' dry ≈ 24,000 L",px:"Coamo 900ml: $3.70/botella (mín. 100 cajas) · litro en mipyme 3,800→2,300 CUP (20→27/sep) · Coamo 900ml $1.80/botella CIF Mariel (contenedor, ~02/oct) · mayorista USD $3.10/botella 900ml (mín. 70 cajas, Revolico, 08/oct) · retail 2,800 CUP/900ml (MB Media Luna Granma, 09/oct)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026 · Revolico · ~02/oct/2026 · 08/oct/2026 · 09/oct/2026",ty:"s"},
 {n:"Arroz (grano largo 50kg)",en:"Rice (long grain 50kg)",s:33,ch:"Contenedor 40' dry ≈ 26–28 TM",px:"$46/saco ($45 × contenedor de 600) · retail 250→320 CUP/libra (Los Pilongos, 20→27/sep)",src:'FB "MIPYMES de ORIENTE" · 16/sep/2026 · 14ymedio · 28/sep/2026',ty:"s"},
 {n:"Pañales desechables",en:"Disposable diapers",s:33,ch:"40' dry/HC ≈ 8–12 TM (voluminoso)",px:"FOB estimado ~US$0.08–0.15/u · retail MLC agotado con frecuencia",src:"Cubadebate · directoriocubano · sep 2026",ty:"e"},
 {n:"Azúcar (parda/blanca 50kg)",en:"Sugar (brown/white 50kg)",s:32,ch:"Contenedor 40' dry ≈ 25 TM",px:"$68/saco · CIF Mariel $0.96/kg · retail MB 1,330 CUP/kg (03/oct)",src:"avistamiento interno · sep 2026 · lado.mx/CiberCuba · 03/oct/2026",ty:"s"},
@@ -553,7 +553,7 @@ const MI_RANK=[
 {n:"Champú",en:"Shampoo",s:31,ch:"40' dry ≈ 20 TM",px:"500 CUP/frasco (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e"},
 {n:"Toallas sanitarias",en:"Sanitary pads",s:31,ch:"40' dry ≈ 10–15 TM",px:"250 CUP/paq (la fuente lo marca estimado)",src:"cubayeconomia · sep 2026",ty:"e"},
 {n:"Salchichas / embutidos",en:"Sausages",s:30,ch:"Contenedor 40' reefer ≈ 25 TM",px:null,src:"",ty:"e"},
-{n:"Frijoles (negros/colorados)",en:"Beans (black/red)",s:30,ch:"Contenedor 40' dry ≈ 25 TM",px:"$60/saco (frijol negro) · retail 320→450 CUP/libra (Los Pilongos, 20→27/sep)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026",ty:"s"},
+{n:"Frijoles (negros/colorados)",en:"Beans (black/red)",s:30,ch:"Contenedor 40' dry ≈ 25 TM",px:"$60/saco (frijol negro) · retail 320→450 CUP/libra (Los Pilongos, 20→27/sep) · retail frijol negro 1,100 CUP/kg (MB Media Luna Granma, 09/oct)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026 · 09/oct/2026",ty:"s"},
 {n:"Leche fluida UHT y crema",en:"UHT milk & cream",s:30,ch:"40' dry ≈ 25–26 TM",px:"EE.UU. exportó US$1.575M a Cuba (mar/2026)",src:"cubatrade · may/2026",ty:"s"},
 {n:"Sopa instantánea",en:"Instant soup",s:30,ch:"40' dry ≈ 15–20 TM",px:"300 CUP/paq (retail Habana 28/sep; Santiago 29/sep)",src:"directoriocubano · 28–29/sep/2026",ty:"s"},
 {n:"Garbanzos",en:"Chickpeas",s:30,ch:"40' dry ≈ 25–27 TM",px:"US$1.50/400 g enlatado (retail)",src:"envioscuba · sep 2026",ty:"s"},
@@ -629,7 +629,7 @@ const MI_DIR=[
  {n:"Wayne-Sanderson Farms",web:"waynesandersonfarms.com"},
  {n:"Koch Foods",web:"kochfoods.com"},
  {n:"Amick Farms",web:"amickfarms.com"}]},
-{n:"Aceite vegetal",en:"Vegetable oil",buy:"Refinerías y traders: Cargill GEOS, ADM, Bunge",buy_en:"Refiners and traders: Cargill GEOS, ADM, Bunge",px:"Coamo 900ml: $3.70/botella (mín. 100 cajas) · litro en mipyme 3,800→2,300 CUP (20→27/sep) · MB Ayestarán 2,600 CUP/900ml (28/sep) · rango reportado 3,000 CUP/litro (01/oct, 2ª mano) · Coamo 900ml $1.80/botella CIF Mariel (contenedor, ~02/oct) · mayorista USD $3.10/botella 900ml (mín. 70 cajas, Revolico, 08/oct)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026 · Revolico · ~02/oct/2026 · 08/oct/2026",ty:"s",c:[
+{n:"Aceite vegetal",en:"Vegetable oil",buy:"Refinerías y traders: Cargill GEOS, ADM, Bunge",buy_en:"Refiners and traders: Cargill GEOS, ADM, Bunge",px:"Coamo 900ml: $3.70/botella (mín. 100 cajas) · litro en mipyme 3,800→2,300 CUP (20→27/sep) · MB Ayestarán 2,600 CUP/900ml (28/sep) · rango reportado 3,000 CUP/litro (01/oct, 2ª mano) · Coamo 900ml $1.80/botella CIF Mariel (contenedor, ~02/oct) · mayorista USD $3.10/botella 900ml (mín. 70 cajas, Revolico, 08/oct) · MB Media Luna Granma 2,800 CUP/900ml (09/oct)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026 · Revolico · ~02/oct/2026 · 08/oct/2026 · 09/oct/2026",ty:"s",c:[
  {n:"Cargill (GEOS)",ph:"1-800-644-6465",web:"cargill.com"},
  {n:"ADM",web:"adm.com"},
  {n:"Bunge",web:"bunge.com"},
@@ -657,7 +657,7 @@ const MI_DIR=[
  {n:"Seaboard Foods",web:"seaboardfoods.com"},
  {n:"JBS USA",web:"jbssa.com"},
  {n:"Cibao Meat Products",ph:"+1 862-278-1089",web:"cibaomeat.com",nt:"su web indica que NO hace envíos internacionales — referencia interna, no prometer disponibilidad"}]},
-{n:"Frijoles",en:"Beans",buy:"US Dry Bean Council (directorio) · Freeland Bean and Grain (Michigan)",buy_en:"US Dry Bean Council (directory) · Freeland Bean and Grain (Michigan)",px:"$60/saco (frijol negro) · retail 320→450 CUP/libra (Los Pilongos, 20→27/sep) · MB Ayestarán 600 CUP (u. no confirmada, 28/sep)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026",ty:"s",c:[
+{n:"Frijoles",en:"Beans",buy:"US Dry Bean Council (directorio) · Freeland Bean and Grain (Michigan)",buy_en:"US Dry Bean Council (directory) · Freeland Bean and Grain (Michigan)",px:"$60/saco (frijol negro) · retail 320→450 CUP/libra (Los Pilongos, 20→27/sep) · MB Ayestarán 600 CUP (u. no confirmada, 28/sep) · MB Media Luna Granma 1,100 CUP/kg frijol negro (09/oct)",src:"avistamiento interno · sep 2026 · 14ymedio · 28/sep/2026 · 09/oct/2026",ty:"s",c:[
  {n:"Freeland Bean and Grain",ph:"1 989 695 9131",em:"FBG@tm.net",web:"freelandbeanandgrain.com",nt:"email de directorio 2010 — verificar vigencia"},
  {n:"US Dry Bean Council",web:"usdrybeans.com"}]},
 {n:"Pastas alimenticias",en:"Pasta",buy:"Mutlu Makarna (Turquía — exporta a 100+ países)",buy_en:"Mutlu Makarna (Turkey — exports to 100+ countries)",px:"espaguetis 500g 350→700 CUP (mipyme, 20→27/sep)",src:"14ymedio · 28/sep/2026",ty:"s",c:[
